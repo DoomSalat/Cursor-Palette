@@ -1,15 +1,18 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-	<Color x:Key="Color.Bg">#FF1E1F24</Color>
-	<Color x:Key="Color.Surface">#FF26272E</Color>
-	<Color x:Key="Color.SurfaceHover">#FF2F3038</Color>
-	<Color x:Key="Color.Border">#FF3A3B44</Color>
-	<Color x:Key="Color.Accent">#FF4F8CFF</Color>
-	<Color x:Key="Color.AccentHover">#FF6B9EFF</Color>
-	<Color x:Key="Color.Text">#FFE8E9ED</Color>
-	<Color x:Key="Color.TextDim">#FF9A9CA6</Color>
-	<Color x:Key="Color.Danger">#FFE5484D</Color>
+	<!-- Светлая тема: те же ключи, что в Dark.xaml — чтобы весь StaticResource-код
+		 в остальных XAML резолвился одинаково независимо от активной темы. -->
+
+	<Color x:Key="Color.Bg">#FFF4F5F7</Color>
+	<Color x:Key="Color.Surface">#FFFFFFFF</Color>
+	<Color x:Key="Color.SurfaceHover">#FFEDEFF3</Color>
+	<Color x:Key="Color.Border">#FFDCDFE4</Color>
+	<Color x:Key="Color.Accent">#FF3D7DFF</Color>
+	<Color x:Key="Color.AccentHover">#FF2E6FE8</Color>
+	<Color x:Key="Color.Text">#FF1C1D21</Color>
+	<Color x:Key="Color.TextDim">#FF6B6E76</Color>
+	<Color x:Key="Color.Danger">#FFD1373C</Color>
 
 	<SolidColorBrush x:Key="Brush.Bg" Color="{StaticResource Color.Bg}" />
 	<SolidColorBrush x:Key="Brush.Surface" Color="{StaticResource Color.Surface}" />

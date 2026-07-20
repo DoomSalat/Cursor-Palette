@@ -15,6 +15,10 @@
 	<sys:String x:Key="S.CursorSize">Размер курсора</sys:String>
 	<sys:String x:Key="S.ApplySize">Применить</sys:String>
 	<sys:String x:Key="S.ApplySize.Tooltip">Применить выбранный размер курсора</sys:String>
+	<sys:String x:Key="S.GallerySize">Размер сетки</sys:String>
+	<sys:String x:Key="S.UiZoom.OutTooltip">Уменьшить интерфейс</sys:String>
+	<sys:String x:Key="S.UiZoom.InTooltip">Увеличить интерфейс</sys:String>
+	<sys:String x:Key="S.Theme.ToggleTooltip">Переключить тему оформления</sys:String>
 
 	<sys:String x:Key="S.AddPreset">Добавить пресет</sys:String>
 	<sys:String x:Key="S.AddPreset.Hint">Перетащите .cur/.ani файлы или папку сюда</sys:String>

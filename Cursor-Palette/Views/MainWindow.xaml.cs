@@ -41,13 +41,21 @@ public partial class MainWindow : Window
 	private const double CellCornerRadius = 10;
 	private const double CellBorderThickness = 2;
 	private const double CellPreviewSize = 48;
+	private const double CellNameFontSize = 13;
 	private const double CellCountFontSize = 11;
 	private const double CellSizeFontSize = 11;
 	private const double AddCellPlusFontSize = 34;
 
+	private const double UiZoomStep = 0.1;
+	private const string ThemeIconDark = "🌙";
+	private const string ThemeIconLight = "☀";
+
 	private List<Preset> _presets = new();
 	private string? _activePresetId;
 	private TextBlock? _activeCellSizeText;
+	private double _cellScale = AppState.GalleryCellScaleDefault;
+	private double _uiScale = AppState.UiScaleDefault;
+	private bool _cellScaleReady;
 
 	public MainWindow()
 	{
@@ -56,6 +64,14 @@ public partial class MainWindow : Window
 		_activePresetId = AppState.GetActivePresetId();
 
 		SetSliderSilently(RegistryCursorService.GetBaseSize());
+
+		_uiScale = AppState.GetUiScale();
+		ApplyUiScale(_uiScale);
+
+		_cellScale = AppState.GetGalleryCellScale();
+		SetCellScaleSliderSilently(_cellScale);
+
+		UpdateThemeToggleIcon();
 
 		ReloadGallery();
 		UpdateUndoButton();
@@ -84,6 +100,88 @@ public partial class MainWindow : Window
 		SizeValueText.Text = $"{sizePx} {PixelSuffix}";
 	}
 
+	// ---- зум интерфейса (шапка/тулбар/футер/галерея целиком) ----
+
+	private void ApplyUiScale(double scale)
+	{
+		UiScaleTransform.ScaleX = scale;
+		UiScaleTransform.ScaleY = scale;
+		UiZoomText.Text = $"{(int)Math.Round(scale * 100)}%";
+	}
+
+	private void OnUiZoomOutClick(object sender, RoutedEventArgs e) => AdjustUiZoom(-UiZoomStep);
+	private void OnUiZoomInClick(object sender, RoutedEventArgs e) => AdjustUiZoom(UiZoomStep);
+
+	private void AdjustUiZoom(double delta)
+	{
+		_uiScale = Math.Clamp(Math.Round(_uiScale + delta, 2), AppState.UiScaleMin, AppState.UiScaleMax);
+		ApplyUiScale(_uiScale);
+		AppState.SetUiScale(_uiScale);
+	}
+
+	// ---- размер ячеек галереи ----
+
+	private void SetCellScaleSliderSilently(double scale)
+	{
+		_cellScaleReady = false;
+		CellScaleSlider.Value = scale;
+		CellScaleValueText.Text = $"{(int)Math.Round(scale * 100)}%";
+		_cellScaleReady = true;
+	}
+
+	private void OnCellScaleSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+	{
+		if (CellScaleValueText == null)
+			return;
+
+		CellScaleValueText.Text = $"{(int)Math.Round(e.NewValue * 100)}%";
+
+		if (!_cellScaleReady)
+			return;
+
+		_cellScale = e.NewValue;
+		AppState.SetGalleryCellScale(_cellScale);
+		ReloadGallery();
+	}
+
+	// ---- тема ----
+
+	private void UpdateThemeToggleIcon() =>
+		ThemeToggleIcon.Text = ThemeManager.Current == ThemeManager.Dark ? ThemeIconDark : ThemeIconLight;
+
+	private void OnThemeToggleClick(object sender, RoutedEventArgs e)
+	{
+		var next = ThemeManager.Current == ThemeManager.Dark ? ThemeManager.Light : ThemeManager.Dark;
+		ThemeManager.SetTheme(next);
+
+		// RestoreBounds — позиция/размер окна вне свёрнутого/развёрнутого
+		// состояния; читаем её независимо от текущего WindowState, чтобы
+		// корректно перенести и обычное, и развёрнутое окно.
+		var wasMaximized = WindowState == WindowState.Maximized;
+		var bounds = RestoreBounds;
+
+		// StaticResource в уже загруженной разметке не обновляется на лету —
+		// пересоздаём окно, чтобы все стили резолвились против новой темы.
+		// Позицию/размер переносим вручную — иначе новое окно всплывает
+		// в дефолтном месте экрана.
+		var replacement = new MainWindow
+		{
+			WindowStartupLocation = WindowStartupLocation.Manual,
+			Left = bounds.Left,
+			Top = bounds.Top,
+			Width = bounds.Width,
+			Height = bounds.Height,
+		};
+
+		Application.Current.MainWindow = replacement;
+		replacement.Show();
+
+		if (wasMaximized)
+			replacement.WindowState = WindowState.Maximized;
+
+		Close();
+	}
+
 	private void ReloadGallery()
 	{
 		_presets = PresetStore.LoadAll();
@@ -107,6 +205,11 @@ public partial class MainWindow : Window
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
 
+	// Диапазон масштаба сетки широкий (0.5–3.5x), но текст растущий линейно
+	// с ним на больших значениях выглядит непропорционально огромным рядом
+	// с превью — поэтому шрифты растут медленнее самой ячейки.
+	private double CellFontScale => Math.Sqrt(_cellScale);
+
 	private FrameworkElement CreateDefaultCell()
 	{
 		var isActive = _activePresetId == null;
@@ -116,8 +219,8 @@ public partial class MainWindow : Window
 
 		var image = new Image
 		{
-			Width = CellPreviewSize,
-			Height = CellPreviewSize,
+			Width = CellPreviewSize * _cellScale,
+			Height = CellPreviewSize * _cellScale,
 			Source = CursorPreviewService.GetPreview(previewPath),
 			SnapsToDevicePixels = true,
 		};
@@ -126,6 +229,7 @@ public partial class MainWindow : Window
 		var nameText = new TextBlock
 		{
 			Text = Loc.Get(LocWindowsDefault),
+			FontSize = CellNameFontSize * CellFontScale,
 			TextTrimming = TextTrimming.CharacterEllipsis,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(4, 8, 4, 0),
@@ -135,7 +239,7 @@ public partial class MainWindow : Window
 		{
 			Text = $"{AppState.GetDefaultBaseSize()} {PixelSuffix}",
 			Foreground = Brush(BrushTextDim),
-			FontSize = CellSizeFontSize,
+			FontSize = CellSizeFontSize * CellFontScale,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
@@ -150,8 +254,8 @@ public partial class MainWindow : Window
 
 		var cell = new Border
 		{
-			Width = CellSize,
-			Height = CellSize,
+			Width = CellSize * _cellScale,
+			Height = CellSize * _cellScale,
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			Background = Brush(BrushBg),
@@ -184,8 +288,8 @@ public partial class MainWindow : Window
 
 		var image = new Image
 		{
-			Width = CellPreviewSize,
-			Height = CellPreviewSize,
+			Width = CellPreviewSize * _cellScale,
+			Height = CellPreviewSize * _cellScale,
 			Source = CursorPreviewService.GetPreview(previewPath),
 			SnapsToDevicePixels = true,
 		};
@@ -194,6 +298,7 @@ public partial class MainWindow : Window
 		var nameText = new TextBlock
 		{
 			Text = preset.Name,
+			FontSize = CellNameFontSize * CellFontScale,
 			TextTrimming = TextTrimming.CharacterEllipsis,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(4, 8, 4, 0),
@@ -203,7 +308,7 @@ public partial class MainWindow : Window
 		{
 			Text = $"{preset.Roles.Count}/{CursorRoles.All.Length}",
 			Foreground = Brush(BrushTextDim),
-			FontSize = CellCountFontSize,
+			FontSize = CellCountFontSize * CellFontScale,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
@@ -212,7 +317,7 @@ public partial class MainWindow : Window
 		{
 			Text = $"{preset.BaseSize} {PixelSuffix}",
 			Foreground = Brush(BrushTextDim),
-			FontSize = CellSizeFontSize,
+			FontSize = CellSizeFontSize * CellFontScale,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
@@ -228,8 +333,8 @@ public partial class MainWindow : Window
 
 		var cell = new Border
 		{
-			Width = CellSize,
-			Height = CellSize,
+			Width = CellSize * _cellScale,
+			Height = CellSize * _cellScale,
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			Background = Brush(BrushSurface),
@@ -277,13 +382,14 @@ public partial class MainWindow : Window
 		var plus = new TextBlock
 		{
 			Text = AddCellPlusText,
-			FontSize = AddCellPlusFontSize,
+			FontSize = AddCellPlusFontSize * CellFontScale,
 			Foreground = Brush(BrushTextDim),
 			TextAlignment = TextAlignment.Center,
 		};
 		var label = new TextBlock
 		{
 			Text = Loc.Get(LocAddPreset),
+			FontSize = CellNameFontSize * CellFontScale,
 			Foreground = Brush(BrushTextDim),
 			TextAlignment = TextAlignment.Center,
 			TextWrapping = TextWrapping.Wrap,
@@ -295,8 +401,8 @@ public partial class MainWindow : Window
 
 		var cell = new Border
 		{
-			Width = CellSize,
-			Height = CellSize,
+			Width = CellSize * _cellScale,
+			Height = CellSize * _cellScale,
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			Background = System.Windows.Media.Brushes.Transparent,

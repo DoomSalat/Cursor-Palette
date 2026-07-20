@@ -1,5 +1,6 @@
 using System.Windows;
 using CursorPalette.Services;
+using CursorPalette.Views;
 
 namespace CursorPalette;
 
@@ -16,6 +17,14 @@ public partial class App : Application
 				MessageBoxButton.OK, MessageBoxImage.Error);
 			args.Handled = true;
 		};
+
+		// Тема выбирается до создания окна (см. App.xaml) — иначе его
+		// StaticResource-разметка захватит стартовую тёмную тему навсегда.
+		ThemeManager.Initialize();
+
+		var window = new MainWindow();
+		MainWindow = window;
+		window.Show();
 	}
 }
 
