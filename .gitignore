@@ -48,6 +48,9 @@ PublishProfiles/
 *.swo
 *~
 
+## Assets
+Assets/
+
 ## OS
 Thumbs.db
 Desktop.ini

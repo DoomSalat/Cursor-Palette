@@ -9,6 +9,8 @@
 	<sys:String x:Key="S.Undo">Отменить</sys:String>
 	<sys:String x:Key="S.Undo.Tooltip">Вернуться к предыдущему варианту курсоров</sys:String>
 	<sys:String x:Key="S.CursorSize">Размер курсора</sys:String>
+	<sys:String x:Key="S.ApplySize">Применить</sys:String>
+	<sys:String x:Key="S.ApplySize.Tooltip">Применить выбранный размер курсора</sys:String>
 
 	<sys:String x:Key="S.AddPreset">Добавить пресет</sys:String>
 	<sys:String x:Key="S.AddPreset.Hint">Перетащите .cur/.ani файлы или папку сюда</sys:String>
@@ -31,8 +33,12 @@
 	<sys:String x:Key="S.Editor.SlotHint">Перетащите файл на слот, чтобы заменить роль</sys:String>
 	<sys:String x:Key="S.Editor.NoFiles">В пресете нет ни одного файла — заполните хотя бы один слот.</sys:String>
 	<sys:String x:Key="S.Editor.FileFilter">Курсоры (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.BrowseFolder">Выбрать папку…</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">В выбранной папке нет файлов курсоров (.cur/.ani).</sys:String>
+	<sys:String x:Key="S.Editor.NoMatchInFolder">Найдено {0} файлов курсоров, но ни один не удалось сопоставить с ролями по имени файла.</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">Новый пресет</sys:String>
+	<sys:String x:Key="S.WindowsDefault">По умолчанию</sys:String>
 	<sys:String x:Key="S.Error.Title">Ошибка</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">Не удалось применить курсоры: {0}</sys:String>
 

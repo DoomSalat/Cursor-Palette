@@ -39,6 +39,7 @@ public static class Constants
 
 	public static class Resources
 	{
+		public const string BrushBg = "Brush.Bg";
 		public const string BrushSurface = "Brush.Surface";
 		public const string BrushSurfaceHover = "Brush.SurfaceHover";
 		public const string BrushBorder = "Brush.Border";
@@ -61,6 +62,8 @@ public static class Constants
 		public const string Undo = "S.Undo";
 		public const string UndoTooltip = "S.Undo.Tooltip";
 		public const string CursorSize = "S.CursorSize";
+		public const string ApplySize = "S.ApplySize";
+		public const string ApplySizeTooltip = "S.ApplySize.Tooltip";
 		public const string AddPreset = "S.AddPreset";
 		public const string AddPresetHint = "S.AddPreset.Hint";
 		public const string EmptyGallery = "S.EmptyGallery";
@@ -79,7 +82,11 @@ public static class Constants
 		public const string EditorSlotHint = "S.Editor.SlotHint";
 		public const string EditorNoFiles = "S.Editor.NoFiles";
 		public const string EditorFileFilter = "S.Editor.FileFilter";
+		public const string EditorBrowseFolder = "S.Editor.BrowseFolder";
+		public const string EditorNoCursorInFolder = "S.Editor.NoCursorInFolder";
+		public const string EditorNoMatchInFolder = "S.Editor.NoMatchInFolder";
 		public const string DefaultPresetName = "S.DefaultPresetName";
+		public const string WindowsDefault = "S.WindowsDefault";
 		public const string ErrorTitle = "S.Error.Title";
 		public const string ErrorApplyFailed = "S.Error.ApplyFailed";
 		public const string RolePrefix = "S.Role.";
@@ -97,6 +104,7 @@ public static class Constants
 			public const double BorderThickness = 2;
 			public const double PreviewSize = 48;
 			public const double CountFontSize = 11;
+			public const double SizeFontSize = 11;
 		}
 
 		public static class AddCell

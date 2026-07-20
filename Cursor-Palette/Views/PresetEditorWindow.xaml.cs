@@ -32,6 +32,12 @@ public partial class PresetEditorWindow : Window
 
 		Result = null;
 		_draftId = existing?.Id;
+		// Новый пресет наследует текущий системный размер, существующий — свой.
+		_baseSize = existing?.BaseSize ?? RegistryCursorService.GetBaseSize();
+
+		EditorSizeSlider.Value = (_baseSize - Constants.Cursor.SizeStep) / (double)Constants.Cursor.SizeStep;
+		EditorSizeValueText.Text = $"{_baseSize} {Constants.UI.PixelSuffix}";
+		_sizeSliderReady = true;
 
 		foreach (var role in CursorRoles.All)
 		{
@@ -56,6 +62,32 @@ public partial class PresetEditorWindow : Window
 	}
 
 	private readonly string? _draftId;
+	private int _baseSize;
+	private bool _sizeSliderReady;
+
+	private void OnEditorSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+	{
+		if (EditorSizeValueText == null)
+			return;
+
+		var sizePx = Constants.Cursor.SizeStep + (int)e.NewValue * Constants.Cursor.SizeStep;
+		EditorSizeValueText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
+
+		if (!_sizeSliderReady)
+			return;
+
+		_baseSize = sizePx;
+
+		// Синхронизация с верхним ползунком главного окна.
+		(Owner as MainWindow)?.SyncSizeSlider(sizePx);
+	}
+
+	private void OnEditorApplySizeClick(object sender, RoutedEventArgs e)
+	{
+		// Применяем к системе сразу (живой предпросмотр размера);
+		// в манифест значение попадёт при "Сохранить".
+		RegistryCursorService.SetBaseSize(_baseSize);
+	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
 
@@ -192,7 +224,61 @@ public partial class PresetEditorWindow : Window
 		slot.ClearButton.Visibility = Visibility.Hidden;
 	}
 
-	private void SaveButton_Click(object sender, RoutedEventArgs e)
+	private void OnBrowseFolderClick(object sender, RoutedEventArgs e)
+	{
+		var dialog = new OpenFolderDialog
+		{
+			Title = Loc.Get(Constants.Strings.EditorBrowseFolder),
+		};
+
+		if (dialog.ShowDialog(this) != true)
+			return;
+
+		var folder = dialog.FolderName;
+		if (!Directory.Exists(folder))
+			return;
+
+		var folderName = Path.GetFileName(folder);
+		if (!string.IsNullOrWhiteSpace(folderName) && string.IsNullOrWhiteSpace(_draftId))
+			NameBox.Text = folderName;
+
+		var cursorFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly)
+			.Where(IsCursorFile)
+			.ToList();
+
+		if (cursorFiles.Count == 0)
+		{
+			MessageBox.Show(Loc.Get(Constants.Strings.EditorNoCursorInFolder), Title,
+				MessageBoxButton.OK, MessageBoxImage.Information);
+			return;
+		}
+
+		var matched = 0;
+		foreach (var file in cursorFiles)
+		{
+			var role = CursorRoles.MatchByFileName(file);
+			if (role == null)
+				continue;
+
+			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
+			SetSlotSource(slot, file);
+			matched++;
+		}
+
+		if (matched == 0)
+		{
+			MessageBox.Show(Loc.Format(Constants.Strings.EditorNoMatchInFolder, cursorFiles.Count), Title,
+				MessageBoxButton.OK, MessageBoxImage.Information);
+		}
+	}
+
+	private static bool IsCursorFile(string path)
+	{
+		var ext = Path.GetExtension(path).ToLowerInvariant();
+		return ext is Constants.Files.CurExtension or Constants.Files.AniExtension;
+	}
+
+	private void OnSaveButtonClick(object sender, RoutedEventArgs e)
 	{
 		if (_slots.All(s => s.SourcePath == null))
 		{
@@ -201,7 +287,7 @@ public partial class PresetEditorWindow : Window
 			return;
 		}
 
-		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text };
+		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, BaseSize = _baseSize };
 		foreach (var slot in _slots.Where(s => s.SourcePath != null))
 			draft.RoleSources[slot.Role.RegistryName] = slot.SourcePath!;
 
@@ -211,10 +297,16 @@ public partial class PresetEditorWindow : Window
 
 	private static string? GetSingleCursorFile(DragEventArgs e)
 	{
-		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths) return null;
+		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
+			return null;
+
 		var file = paths.FirstOrDefault(File.Exists);
-		if (file == null) return null;
+
+		if (file == null)
+			return null;
+
 		var ext = Path.GetExtension(file).ToLowerInvariant();
+
 		return ext is Constants.Files.CurExtension or Constants.Files.AniExtension ? file : null;
 	}
 }

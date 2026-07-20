@@ -22,6 +22,7 @@ public static class RegistryCursorService
 		@"SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\Cursors\Schemes";
 
 	private const uint SPI_SETCURSORS = 0x0057;
+	private const uint SPI_SETCURSORSIZE = 0x2029;
 	private const uint SPIF_UPDATEINIFILE = 0x01;
 	private const uint SPIF_SENDCHANGE = 0x02;
 
@@ -35,21 +36,26 @@ public static class RegistryCursorService
 	{
 		var result = new Dictionary<string, string>();
 		using var key = Registry.CurrentUser.OpenSubKey(CursorsKeyPath);
+
 		foreach (var role in CursorRoles.All)
 			result[role.RegistryName] =
 				key?.GetValue(role.RegistryName, "", RegistryValueOptions.DoNotExpandEnvironmentNames) as string ?? "";
+
 		return result;
 	}
 
 	public static void ApplyValues(IReadOnlyDictionary<string, string> values)
 	{
 		using var key = Registry.CurrentUser.CreateSubKey(CursorsKeyPath)!;
+
 		foreach (var role in CursorRoles.All)
 		{
 			var value = values.TryGetValue(role.RegistryName, out var v) ? v : "";
 			key.SetValue(role.RegistryName, value, RegistryValueKind.ExpandString);
 		}
+
 		key.SetValue(Constants.Registry.SchemeSourceName, Constants.Registry.SchemeSourceUserDefined, RegistryValueKind.DWord);
+
 		Refresh();
 	}
 
@@ -68,7 +74,10 @@ public static class RegistryCursorService
 			cursors.SetValue(Constants.Registry.CursorBaseSizeName, sizePx, RegistryValueKind.DWord);
 		using (var acc = Registry.CurrentUser.CreateSubKey(AccessibilityKeyPath)!)
 			acc.SetValue(Constants.Registry.CursorSizeName, (sizePx - Constants.Cursor.SizeStep) / Constants.Cursor.SizeStep, RegistryValueKind.DWord);
-		Refresh();
+
+		// Размер передаётся через pvParam (не uiParam) — иначе Windows его игнорирует.
+		SystemParametersInfo(SPI_SETCURSORSIZE, 0, (IntPtr)sizePx, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+		SystemParametersInfo(SPI_SETCURSORS, 0, IntPtr.Zero, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 	}
 
 	public static CursorSnapshot TakeSnapshot() => new()
@@ -83,7 +92,9 @@ public static class RegistryCursorService
 
 	public static CursorSnapshot? LoadSnapshotFromDisk()
 	{
-		if (!File.Exists(AppPaths.PreviousSnapshotFile)) return null;
+		if (!File.Exists(AppPaths.PreviousSnapshotFile))
+			return null;
+
 		try
 		{
 			return JsonSerializer.Deserialize<CursorSnapshot>(File.ReadAllText(AppPaths.PreviousSnapshotFile));

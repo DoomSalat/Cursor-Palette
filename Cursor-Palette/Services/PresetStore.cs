@@ -51,6 +51,7 @@ public static class PresetStore
 		var existing = draft.Id != null ? LoadAll().FirstOrDefault(p => p.Id == draft.Id) : null;
 
 		var roles = new Dictionary<string, string>();
+
 		foreach (var (role, sourcePath) in draft.RoleSources)
 		{
 			var fileName = Path.GetFileName(sourcePath);
@@ -64,6 +65,7 @@ public static class PresetStore
 					fileName = $"{role}_{fileName}";
 					targetPath = Path.Combine(filesDir, fileName);
 				}
+
 				File.Copy(sourcePath, targetPath, overwrite: true);
 			}
 
@@ -71,26 +73,55 @@ public static class PresetStore
 		}
 
 		var referenced = roles.Values.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
 		foreach (var file in Directory.GetFiles(filesDir))
+		{
 			if (!referenced.Contains(Path.GetFileName(file)))
 				TryDelete(file);
+		}
 
 		var preset = new Preset
 		{
 			Id = id,
 			Name = string.IsNullOrWhiteSpace(draft.Name) ? Constants.Defaults.UntitledPresetName : draft.Name.Trim(),
 			CreatedAt = existing?.CreatedAt ?? DateTime.Now,
+			BaseSize = draft.BaseSize,
 			Roles = roles,
 		};
 
 		File.WriteAllText(Path.Combine(GetPresetDir(id), Constants.Paths.ManifestFileName),
 			JsonSerializer.Serialize(preset, JsonOptions));
+
 		return preset;
+	}
+
+	/// <summary>Перезаписывает только BaseSize в манифесте пресета (для верхнего ползунка).</summary>
+	public static void UpdateBaseSize(string id, int sizePx)
+	{
+		var manifestPath = Path.Combine(GetPresetDir(id), Constants.Paths.ManifestFileName);
+
+		if (!File.Exists(manifestPath))
+			return;
+
+		try
+		{
+			var preset = JsonSerializer.Deserialize<Preset>(File.ReadAllText(manifestPath));
+
+			if (preset == null)
+				return;
+
+			preset.BaseSize = sizePx;
+			File.WriteAllText(manifestPath, JsonSerializer.Serialize(preset, JsonOptions));
+		}
+		catch
+		{
+		}
 	}
 
 	public static void Delete(string id)
 	{
 		var dir = GetPresetDir(id);
+
 		if (Directory.Exists(dir))
 			Directory.Delete(dir, recursive: true);
 	}
@@ -100,6 +131,12 @@ public static class PresetStore
 
 	private static void TryDelete(string path)
 	{
-		try { File.Delete(path); } catch { }
+		try
+		{
+			File.Delete(path);
+		}
+		catch
+		{
+		}
 	}
 }

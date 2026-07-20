@@ -39,14 +39,47 @@
 						Style="{StaticResource Style.AccentButton}"
 						Content="{DynamicResource S.Editor.Save}"
 						MinWidth="110"
-						Click="SaveButton_Click" />
+						Click="OnSaveButtonClick" />
 			</Grid>
+		</Border>
+
+		<!-- Размер курсора пресета: дубликат верхнего ползунка, синхронизированы -->
+		<Border DockPanel.Dock="Bottom"
+				Background="{StaticResource Brush.Surface}"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="0,1,0,0"
+				Padding="16,10">
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+				<TextBlock Text="{DynamicResource S.CursorSize}"
+							 Foreground="{StaticResource Brush.TextDim}"
+							 VerticalAlignment="Center" Margin="0,0,8,0" />
+				<Slider x:Name="EditorSizeSlider"
+						Width="180"
+						Minimum="1" Maximum="15"
+						TickFrequency="1" IsSnapToTickEnabled="True"
+						VerticalAlignment="Center"
+						ValueChanged="OnEditorSizeSliderValueChanged" />
+				<TextBlock x:Name="EditorSizeValueText"
+							 Width="46"
+							 Foreground="{StaticResource Brush.TextDim}"
+							 VerticalAlignment="Center" Margin="8,0,0,0" />
+				<Button Style="{StaticResource Style.Button}"
+						Content="{DynamicResource S.ApplySize}"
+						ToolTip="{DynamicResource S.ApplySize.Tooltip}"
+						Margin="8,0,0,0"
+						Click="OnEditorApplySizeClick" />
+			</StackPanel>
 		</Border>
 
 		<TextBlock DockPanel.Dock="Top"
 					 Text="{DynamicResource S.Editor.SlotHint}"
 					 Foreground="{StaticResource Brush.TextDim}"
 					 Margin="16,12,16,4" />
+		<StackPanel Orientation="Horizontal" Margin="16,4,16,8">
+			<Button Style="{StaticResource Style.Button}"
+					Content="{DynamicResource S.Editor.BrowseFolder}"
+					Click="OnBrowseFolderClick" />
+		</StackPanel>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10,4">
 			<ItemsControl x:Name="Slots">

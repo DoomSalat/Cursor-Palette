@@ -9,11 +9,16 @@
 		<RootNamespace>CursorPalette</RootNamespace>
 		<AssemblyName>Cursor-Palette</AssemblyName>
 		<Version>0.1.0</Version>
-		<InvariantGlobalization>true</InvariantGlobalization>
+		<InvariantGlobalization>false</InvariantGlobalization>
+		<ApplicationIcon>app.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Using Include="System.IO" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="app.ico" />
 	</ItemGroup>
 
 </Project>

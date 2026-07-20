@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,7 +12,7 @@ public partial class MainWindow : Window
 {
 	private List<Preset> _presets = new();
 	private string? _activePresetId;
-	private bool _sizeSliderReady;
+	private TextBlock? _activeCellSizeText;
 
 	public MainWindow()
 	{
@@ -19,19 +20,29 @@ public partial class MainWindow : Window
 
 		_activePresetId = AppState.GetActivePresetId();
 
-		var size = RegistryCursorService.GetBaseSize();
-		SizeSlider.Value = (size - Constants.Cursor.SizeStep) / (double)Constants.Cursor.SizeStep;
-		SizeValueText.Text = $"{size} {Constants.UI.PixelSuffix}";
-		_sizeSliderReady = true;
+		SetSliderSilently(RegistryCursorService.GetBaseSize());
 
 		ReloadGallery();
 		UpdateUndoButton();
+
+		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
+		FooterText.Text = $"Capitan Salat  ·  v{version}";
+	}
+
+	/// <summary>Ставит ползунок/текст без применения к системе (программное обновление).</summary>
+	private void SetSliderSilently(int sizePx)
+	{
+		SizeSlider.Value = (sizePx - Constants.Cursor.SizeStep) / (double)Constants.Cursor.SizeStep;
+		SizeValueText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
 	}
 
 	private void ReloadGallery()
 	{
 		_presets = PresetStore.LoadAll();
 		Gallery.Items.Clear();
+		_activeCellSizeText = null;
+
+		Gallery.Items.Add(CreateDefaultCell());
 
 		foreach (var preset in _presets)
 			Gallery.Items.Add(CreatePresetCell(preset));
@@ -41,6 +52,73 @@ public partial class MainWindow : Window
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
+
+	private FrameworkElement CreateDefaultCell()
+	{
+		var isActive = _activePresetId == null;
+
+		var defaults = RegistryCursorService.GetWindowsDefaultValues();
+		var previewPath = defaults.TryGetValue(Constants.Cursor.ArrowRoleName, out var arrow) ? arrow : null;
+
+		var image = new Image
+		{
+			Width = Constants.UI.Cell.PreviewSize,
+			Height = Constants.UI.Cell.PreviewSize,
+			Source = CursorPreviewService.GetPreview(previewPath),
+			SnapsToDevicePixels = true,
+		};
+		RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
+
+		var nameText = new TextBlock
+		{
+			Text = Loc.Get(Constants.Strings.WindowsDefault),
+			TextTrimming = TextTrimming.CharacterEllipsis,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(4, 8, 4, 0),
+		};
+
+		var sizeText = new TextBlock
+		{
+			Text = $"{AppState.GetDefaultBaseSize()} {Constants.UI.PixelSuffix}",
+			Foreground = Brush(Constants.Resources.BrushTextDim),
+			FontSize = Constants.UI.Cell.SizeFontSize,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(0, 2, 0, 0),
+		};
+
+		if (isActive)
+			_activeCellSizeText = sizeText;
+
+		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+		panel.Children.Add(image);
+		panel.Children.Add(nameText);
+		panel.Children.Add(sizeText);
+
+		var cell = new Border
+		{
+			Width = Constants.UI.Cell.Size,
+			Height = Constants.UI.Cell.Size,
+			Margin = new Thickness(Constants.UI.Cell.Margin),
+			CornerRadius = new CornerRadius(Constants.UI.Cell.CornerRadius),
+			Background = Brush(Constants.Resources.BrushBg),
+			BorderThickness = new Thickness(Constants.UI.Cell.BorderThickness),
+			BorderBrush = isActive ? Brush(Constants.Resources.BrushAccent) : Brush(Constants.Resources.BrushBorder),
+			Child = panel,
+			Cursor = Cursors.Hand,
+		};
+
+		cell.MouseEnter += (_, _) =>
+		{
+			if (_activePresetId != null) cell.Background = Brush(Constants.Resources.BrushSurfaceHover);
+		};
+		cell.MouseLeave += (_, _) => cell.Background = Brush(Constants.Resources.BrushBg);
+		cell.MouseLeftButtonUp += (_, _) => ApplyDefault();
+		cell.MouseLeftButtonDown += (_, _) => { };
+
+		cell.ToolTip = new ToolTip { Content = Loc.Get(Constants.Strings.WindowsDefault) };
+
+		return cell;
+	}
 
 	private FrameworkElement CreatePresetCell(Preset preset)
 	{
@@ -76,10 +154,23 @@ public partial class MainWindow : Window
 			Margin = new Thickness(0, 2, 0, 0),
 		};
 
+		var sizeText = new TextBlock
+		{
+			Text = $"{preset.BaseSize} {Constants.UI.PixelSuffix}",
+			Foreground = Brush(Constants.Resources.BrushTextDim),
+			FontSize = Constants.UI.Cell.SizeFontSize,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(0, 2, 0, 0),
+		};
+
+		if (isActive)
+			_activeCellSizeText = sizeText;
+
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 		panel.Children.Add(image);
 		panel.Children.Add(nameText);
 		panel.Children.Add(countText);
+		panel.Children.Add(sizeText);
 
 		var cell = new Border
 		{
@@ -166,7 +257,7 @@ public partial class MainWindow : Window
 		cell.MouseEnter += (_, _) => cell.BorderBrush = Brush(Constants.Resources.BrushAccent);
 		cell.MouseLeave += (_, _) => cell.BorderBrush = Brush(Constants.Resources.BrushBorder);
 		cell.MouseLeftButtonUp += (_, _) => OpenEditor(null, Array.Empty<string>());
-		cell.Drop += Window_Drop;
+		cell.Drop += OnWindowDrop;
 
 		return cell;
 	}
@@ -185,8 +276,11 @@ public partial class MainWindow : Window
 			}
 
 			RegistryCursorService.ApplyValues(values);
+			RegistryCursorService.SetBaseSize(preset.BaseSize);
+			SetSliderSilently(preset.BaseSize);
 			_activePresetId = preset.Id;
 			AppState.SetActivePresetId(preset.Id);
+
 			ReloadGallery();
 			UpdateUndoButton();
 		}
@@ -197,27 +291,31 @@ public partial class MainWindow : Window
 		}
 	}
 
-	private void ResetButton_Click(object sender, RoutedEventArgs e)
+	private void ApplyDefault()
 	{
 		RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
-		RegistryCursorService.ResetToWindowsDefault();
+
+		// У дефолтной ячейки свой сохранённый размер (settings.json) —
+		// сброс курсоров не сбрасывает выбранный для неё размер.
+		var defaultSize = AppState.GetDefaultBaseSize();
+		RegistryCursorService.ApplyValues(RegistryCursorService.GetWindowsDefaultValues());
+		RegistryCursorService.SetBaseSize(defaultSize);
 
 		_activePresetId = null;
 		AppState.SetActivePresetId(null);
 
-		_sizeSliderReady = false;
-		SizeSlider.Value = 1;
-		SizeValueText.Text = $"{RegistryCursorService.DefaultBaseSize} {Constants.UI.PixelSuffix}";
-		_sizeSliderReady = true;
+		SetSliderSilently(defaultSize);
 
 		ReloadGallery();
 		UpdateUndoButton();
 	}
 
-	private void UndoButton_Click(object sender, RoutedEventArgs e)
+	private void OnUndoButtonClick(object sender, RoutedEventArgs e)
 	{
 		var snapshot = RegistryCursorService.LoadSnapshotFromDisk();
-		if (snapshot == null) return;
+
+		if (snapshot == null)
+			return;
 
 		RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
 		RegistryCursorService.RestoreSnapshot(snapshot);
@@ -225,10 +323,7 @@ public partial class MainWindow : Window
 		_activePresetId = FindPresetIdByValues(snapshot.Values);
 		AppState.SetActivePresetId(_activePresetId);
 
-		_sizeSliderReady = false;
-		SizeSlider.Value = (snapshot.BaseSize - Constants.Cursor.SizeStep) / (double)Constants.Cursor.SizeStep;
-		SizeValueText.Text = $"{snapshot.BaseSize} {Constants.UI.PixelSuffix}";
-		_sizeSliderReady = true;
+		SetSliderSilently(snapshot.BaseSize);
 
 		ReloadGallery();
 		UpdateUndoButton();
@@ -238,6 +333,7 @@ public partial class MainWindow : Window
 	{
 		if (!values.TryGetValue(Constants.Cursor.ArrowRoleName, out var arrow) || string.IsNullOrEmpty(arrow))
 			return null;
+
 		return _presets.FirstOrDefault(p =>
 			string.Equals(PresetStore.GetRoleFilePath(p, Constants.Cursor.ArrowRoleName), arrow,
 				StringComparison.OrdinalIgnoreCase))?.Id;
@@ -252,14 +348,18 @@ public partial class MainWindow : Window
 			Loc.Format(Constants.Strings.ConfirmDeleteText, preset.Name),
 			Loc.Get(Constants.Strings.ConfirmDeleteTitle),
 			MessageBoxButton.YesNo, MessageBoxImage.Question);
-		if (answer != MessageBoxResult.Yes) return;
+
+		if (answer != MessageBoxResult.Yes)
+			return;
 
 		PresetStore.Delete(preset.Id);
+
 		if (_activePresetId == preset.Id)
 		{
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
 		}
+
 		ReloadGallery();
 	}
 
@@ -268,9 +368,11 @@ public partial class MainWindow : Window
 	private void OpenEditor(Preset? preset, IReadOnlyList<string> droppedFiles)
 	{
 		var editor = new PresetEditorWindow(preset, droppedFiles) { Owner = this };
+
 		if (editor.ShowDialog() == true && editor.Result != null)
 		{
 			var saved = PresetStore.Save(editor.Result);
+
 			foreach (var fileName in saved.Roles.Values)
 				CursorPreviewService.Invalidate(
 					System.IO.Path.Combine(PresetStore.GetFilesDir(saved.Id), fileName));
@@ -282,24 +384,63 @@ public partial class MainWindow : Window
 		}
 	}
 
-	private void SizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+	private void OnSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 	{
+		if (SizeValueText == null)
+			return;
+
+		// Ползунок только выбирает значение — применение и сохранение по кнопке.
 		var sizePx = Constants.Cursor.SizeStep + (int)e.NewValue * Constants.Cursor.SizeStep;
 		SizeValueText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
-		if (!_sizeSliderReady) return;
-		RegistryCursorService.SetBaseSize(sizePx);
 	}
 
-	private void Window_DragOver(object sender, DragEventArgs e)
+	private void OnApplySizeButtonClick(object sender, RoutedEventArgs e)
+	{
+		var sizePx = Constants.Cursor.SizeStep + (int)SizeSlider.Value * Constants.Cursor.SizeStep;
+		ApplyAndPersistSize(sizePx);
+	}
+
+	/// <summary>
+	/// Применяет размер к системе и сохраняет его в активный пресет
+	/// (или в настройки дефолтной ячейки), обновляя текст на её ячейке.
+	/// </summary>
+	public void ApplyAndPersistSize(int sizePx)
+	{
+		RegistryCursorService.SetBaseSize(sizePx);
+
+		if (_activePresetId != null)
+		{
+			PresetStore.UpdateBaseSize(_activePresetId, sizePx);
+
+			var preset = _presets.FirstOrDefault(p => p.Id == _activePresetId);
+			if (preset != null)
+				preset.BaseSize = sizePx;
+		}
+		else
+		{
+			AppState.SetDefaultBaseSize(sizePx);
+		}
+
+		if (_activeCellSizeText != null)
+			_activeCellSizeText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
+	}
+
+	/// <summary>Синхронизация верхнего ползунка из редактора пресета.</summary>
+	public void SyncSizeSlider(int sizePx) => SetSliderSilently(sizePx);
+
+	private void OnWindowDragOver(object sender, DragEventArgs e)
 	{
 		e.Effects = GetDroppedCursorFiles(e).Count > 0 ? DragDropEffects.Copy : DragDropEffects.None;
 		e.Handled = true;
 	}
 
-	private void Window_Drop(object sender, DragEventArgs e)
+	private void OnWindowDrop(object sender, DragEventArgs e)
 	{
 		var files = GetDroppedCursorFiles(e);
-		if (files.Count == 0) return;
+
+		if (files.Count == 0)
+			return;
+
 		e.Handled = true;
 		OpenEditor(null, files);
 	}
@@ -307,7 +448,9 @@ public partial class MainWindow : Window
 	private static List<string> GetDroppedCursorFiles(DragEventArgs e)
 	{
 		var result = new List<string>();
-		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths) return result;
+
+		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
+			return result;
 
 		foreach (var path in paths)
 		{
@@ -317,12 +460,14 @@ public partial class MainWindow : Window
 			else if (IsCursorFile(path))
 				result.Add(path);
 		}
+
 		return result;
 	}
 
 	private static bool IsCursorFile(string path)
 	{
 		var ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
+
 		return ext is Constants.Files.CurExtension or Constants.Files.AniExtension;
 	}
 }
