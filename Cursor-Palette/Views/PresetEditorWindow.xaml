@@ -45,7 +45,11 @@
 		</Style>
 	</Window.Resources>
 
-	<DockPanel>
+	<DockPanel x:Name="RootPanel">
+		<DockPanel.LayoutTransform>
+			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
+		</DockPanel.LayoutTransform>
+
 
 		<Border DockPanel.Dock="Bottom"
 				Background="{StaticResource Brush.Surface}"
@@ -86,27 +90,30 @@
 				BorderBrush="{StaticResource Brush.Border}"
 				BorderThickness="0,1,0,0"
 				Padding="16,10">
-			<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-				<TextBlock Text="{DynamicResource S.CursorSize}"
-							 Foreground="{StaticResource Brush.TextDim}"
-							 VerticalAlignment="Center" Margin="0,0,8,0" />
-				<Slider x:Name="EditorSizeSlider"
-						Style="{StaticResource Style.Slider}"
-						Width="200"
-						Minimum="1" Maximum="15"
-						TickFrequency="1" IsSnapToTickEnabled="True"
-						VerticalAlignment="Center"
-						ValueChanged="OnEditorSizeSliderValueChanged" />
-				<TextBlock x:Name="EditorSizeValueText"
-							 Width="46"
-							 Foreground="{StaticResource Brush.TextDim}"
-							 VerticalAlignment="Center" Margin="8,0,0,0" />
-				<Button Style="{StaticResource Style.Button}"
-						Content="{DynamicResource S.ApplySize}"
-						ToolTip="{DynamicResource S.ApplySize.Tooltip}"
-						Margin="8,0,0,0"
-						Click="OnEditorApplySizeClick" />
-			</StackPanel>
+			<Border Style="{StaticResource Style.GroupBorder}" HorizontalAlignment="Left">
+				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+					<TextBlock Text="{DynamicResource S.CursorSize}"
+								 Foreground="{StaticResource Brush.TextDim}"
+								 VerticalAlignment="Center" Margin="0,0,8,0" />
+					<Slider x:Name="EditorSizeSlider"
+							Style="{StaticResource Style.Slider}"
+							Width="200"
+							Minimum="1" Maximum="15"
+							TickFrequency="1" IsSnapToTickEnabled="True"
+							VerticalAlignment="Center"
+							ValueChanged="OnEditorSizeSliderValueChanged" />
+					<TextBlock x:Name="EditorSizeValueText"
+								 Width="46"
+								 Foreground="{StaticResource Brush.TextDim}"
+								 VerticalAlignment="Center" Margin="8,0,0,0" />
+					<Button x:Name="EditorApplySizeButton"
+							Style="{StaticResource Style.Button}"
+							Content="{DynamicResource S.ApplySize}"
+							ToolTip="{DynamicResource S.ApplySize.Tooltip}"
+							Margin="8,0,0,0"
+							Click="OnEditorApplySizeClick" />
+				</StackPanel>
+			</Border>
 		</Border>
 
 		<TextBlock DockPanel.Dock="Top"

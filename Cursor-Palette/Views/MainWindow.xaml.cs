@@ -28,6 +28,7 @@ public partial class MainWindow : Window
 	private const string LocWindowsDefault = "S.WindowsDefault";
 	private const string LocMenuEdit = "S.Menu.Edit";
 	private const string LocMenuDelete = "S.Menu.Delete";
+	private const string LocPresetContextHint = "S.Preset.ContextHint";
 	private const string LocAddPreset = "S.AddPreset";
 	private const string LocAddPresetHint = "S.AddPreset.Hint";
 	private const string LocErrorApplyFailed = "S.Error.ApplyFailed";
@@ -56,6 +57,7 @@ public partial class MainWindow : Window
 	private double _cellScale = AppState.GalleryCellScaleDefault;
 	private double _uiScale = AppState.UiScaleDefault;
 	private bool _cellScaleReady;
+	private int _baselineSizePx;
 
 	public MainWindow()
 	{
@@ -63,7 +65,8 @@ public partial class MainWindow : Window
 
 		_activePresetId = AppState.GetActivePresetId();
 
-		SetSliderSilently(RegistryCursorService.GetBaseSize());
+		_baselineSizePx = RegistryCursorService.GetBaseSize();
+		SetSliderSilently(_baselineSizePx);
 
 		_uiScale = AppState.GetUiScale();
 		ApplyUiScale(_uiScale);
@@ -72,6 +75,7 @@ public partial class MainWindow : Window
 		SetCellScaleSliderSilently(_cellScale);
 
 		UpdateThemeToggleIcon();
+		UpdateLanguageButtonText();
 
 		ReloadGallery();
 		UpdateUndoButton();
@@ -100,8 +104,6 @@ public partial class MainWindow : Window
 		SizeValueText.Text = $"{sizePx} {PixelSuffix}";
 	}
 
-	// ---- зум интерфейса (шапка/тулбар/футер/галерея целиком) ----
-
 	private void ApplyUiScale(double scale)
 	{
 		UiScaleTransform.ScaleX = scale;
@@ -118,8 +120,6 @@ public partial class MainWindow : Window
 		ApplyUiScale(_uiScale);
 		AppState.SetUiScale(_uiScale);
 	}
-
-	// ---- размер ячеек галереи ----
 
 	private void SetCellScaleSliderSilently(double scale)
 	{
@@ -144,8 +144,6 @@ public partial class MainWindow : Window
 		ReloadGallery();
 	}
 
-	// ---- тема ----
-
 	private void UpdateThemeToggleIcon() =>
 		ThemeToggleIcon.Text = ThemeManager.Current == ThemeManager.Dark ? ThemeIconDark : ThemeIconLight;
 
@@ -153,17 +151,14 @@ public partial class MainWindow : Window
 	{
 		var next = ThemeManager.Current == ThemeManager.Dark ? ThemeManager.Light : ThemeManager.Dark;
 		ThemeManager.SetTheme(next);
+		ReplaceWindowToApplyNewTheme();
+	}
 
-		// RestoreBounds — позиция/размер окна вне свёрнутого/развёрнутого
-		// состояния; читаем её независимо от текущего WindowState, чтобы
-		// корректно перенести и обычное, и развёрнутое окно.
+	private void ReplaceWindowToApplyNewTheme()
+	{
 		var wasMaximized = WindowState == WindowState.Maximized;
 		var bounds = RestoreBounds;
 
-		// StaticResource в уже загруженной разметке не обновляется на лету —
-		// пересоздаём окно, чтобы все стили резолвились против новой темы.
-		// Позицию/размер переносим вручную — иначе новое окно всплывает
-		// в дефолтном месте экрана.
 		var replacement = new MainWindow
 		{
 			WindowStartupLocation = WindowStartupLocation.Manual,
@@ -180,6 +175,36 @@ public partial class MainWindow : Window
 			replacement.WindowState = WindowState.Maximized;
 
 		Close();
+	}
+
+	private void UpdateLanguageButtonText() =>
+		LanguageButtonText.Text = LocalizationManager.Current.ToUpperInvariant();
+
+	private void OnLanguageButtonClick(object sender, RoutedEventArgs e)
+	{
+		var menu = new ContextMenu { PlacementTarget = LanguageButton, IsOpen = true };
+
+		foreach (var language in LocalizationManager.Available)
+		{
+			var item = new MenuItem
+			{
+				Header = language.DisplayName,
+				IsCheckable = true,
+				IsChecked = language.Code == LocalizationManager.Current,
+			};
+			item.Click += (_, _) => SwitchLanguage(language.Code);
+			menu.Items.Add(item);
+		}
+	}
+
+	private void SwitchLanguage(string code)
+	{
+		if (code == LocalizationManager.Current)
+			return;
+
+		LocalizationManager.SetLanguage(code);
+		UpdateLanguageButtonText();
+		ReloadGallery();
 	}
 
 	private void ReloadGallery()
@@ -205,9 +230,6 @@ public partial class MainWindow : Window
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
 
-	// Диапазон масштаба сетки широкий (0.5–3.5x), но текст растущий линейно
-	// с ним на больших значениях выглядит непропорционально огромным рядом
-	// с превью — поэтому шрифты растут медленнее самой ячейки.
 	private double CellFontScale => Math.Sqrt(_cellScale);
 
 	private FrameworkElement CreateDefaultCell()
@@ -221,10 +243,10 @@ public partial class MainWindow : Window
 		{
 			Width = CellPreviewSize * _cellScale,
 			Height = CellPreviewSize * _cellScale,
-			Source = CursorPreviewService.GetPreview(previewPath),
 			SnapsToDevicePixels = true,
 		};
 		RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
+		CursorPreviewService.ApplyPreview(image, previewPath);
 
 		var nameText = new TextBlock
 		{
@@ -290,10 +312,10 @@ public partial class MainWindow : Window
 		{
 			Width = CellPreviewSize * _cellScale,
 			Height = CellPreviewSize * _cellScale,
-			Source = CursorPreviewService.GetPreview(previewPath),
 			SnapsToDevicePixels = true,
 		};
 		RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
+		CursorPreviewService.ApplyPreview(image, previewPath);
 
 		var nameText = new TextBlock
 		{
@@ -367,8 +389,16 @@ public partial class MainWindow : Window
 		cell.ContextMenu = menu;
 		cell.MouseLeftButtonDown += (_, _) => { };
 
-		var editHint = new ToolTip { Content = preset.Name };
-		cell.ToolTip = editHint;
+		var hintPanel = new StackPanel();
+		hintPanel.Children.Add(new TextBlock { Text = preset.Name, FontWeight = FontWeights.SemiBold });
+		hintPanel.Children.Add(new TextBlock
+		{
+			Text = Loc.Get(LocPresetContextHint),
+			FontSize = 11,
+			Foreground = Brush(BrushTextDim),
+			Margin = new Thickness(0, 2, 0, 0),
+		});
+		cell.ToolTip = new ToolTip { Content = hintPanel };
 
 		cell.InputBindings.Add(new MouseBinding(
 			new RelayUiCommand(() => EditPreset(preset)),
@@ -437,6 +467,7 @@ public partial class MainWindow : Window
 
 			RegistryCursorService.ApplyValues(values);
 			RegistryCursorService.SetBaseSize(preset.BaseSize);
+			_baselineSizePx = preset.BaseSize;
 			SetSliderSilently(preset.BaseSize);
 			_activePresetId = preset.Id;
 			AppState.SetActivePresetId(preset.Id);
@@ -464,6 +495,7 @@ public partial class MainWindow : Window
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
 
+			_baselineSizePx = defaultSize;
 			SetSliderSilently(defaultSize);
 
 			ReloadGallery();
@@ -491,6 +523,7 @@ public partial class MainWindow : Window
 			_activePresetId = FindPresetIdByValues(snapshot.Values);
 			AppState.SetActivePresetId(_activePresetId);
 
+			_baselineSizePx = snapshot.BaseSize;
 			SetSliderSilently(snapshot.BaseSize);
 
 			ReloadGallery();
@@ -575,7 +608,12 @@ public partial class MainWindow : Window
 
 		var sizePx = RegistryCursorService.SizeStep + (int)e.NewValue * RegistryCursorService.SizeStep;
 		SizeValueText.Text = $"{sizePx} {PixelSuffix}";
+		UpdateApplySizeButtonHighlight(sizePx);
 	}
+
+	private void UpdateApplySizeButtonHighlight(int sizePx) =>
+		ApplySizeButton.Style = (Style)Application.Current.Resources[
+			sizePx != _baselineSizePx ? "Style.AccentButton" : "Style.Button"];
 
 	private void OnApplySizeButtonClick(object sender, RoutedEventArgs e)
 	{
@@ -604,6 +642,9 @@ public partial class MainWindow : Window
 
 			if (_activeCellSizeText != null)
 				_activeCellSizeText.Text = $"{sizePx} {PixelSuffix}";
+
+			_baselineSizePx = sizePx;
+			UpdateApplySizeButtonHighlight(sizePx);
 		}
 		catch (Exception ex)
 		{

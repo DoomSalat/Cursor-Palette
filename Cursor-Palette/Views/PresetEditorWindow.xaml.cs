@@ -46,11 +46,17 @@ public partial class PresetEditorWindow : Window
 
 		Result = null;
 		_draftId = existing?.Id;
-		_baseSize = existing?.BaseSize ?? RegistryCursorService.GetBaseSize();
+		_appliedPreviewSizePx = RegistryCursorService.GetBaseSize();
+		_baseSize = existing?.BaseSize ?? _appliedPreviewSizePx;
+
+		var uiScale = AppState.GetUiScale();
+		UiScaleTransform.ScaleX = uiScale;
+		UiScaleTransform.ScaleY = uiScale;
 
 		EditorSizeSlider.Value = (_baseSize - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
 		EditorSizeValueText.Text = $"{_baseSize} {PixelSuffix}";
 		_sizeSliderReady = true;
+		UpdateApplySizeButtonHighlight();
 
 		foreach (var role in CursorRoles.All)
 		{
@@ -79,6 +85,7 @@ public partial class PresetEditorWindow : Window
 
 	private readonly string? _draftId;
 	private int _baseSize;
+	private int _appliedPreviewSizePx;
 	private bool _sizeSliderReady;
 
 	private void OnEditorSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -95,14 +102,38 @@ public partial class PresetEditorWindow : Window
 		_baseSize = sizePx;
 
 		(Owner as MainWindow)?.SyncSizeSlider(sizePx);
+		UpdateApplySizeButtonHighlight();
 	}
+
+	private void UpdateApplySizeButtonHighlight() =>
+		EditorApplySizeButton.Style = (Style)Application.Current.Resources[
+			_baseSize != _appliedPreviewSizePx ? "Style.AccentButton" : "Style.Button"];
 
 	private void OnEditorApplySizeClick(object sender, RoutedEventArgs e)
 	{
 		RegistryCursorService.SetBaseSize(_baseSize);
+		_appliedPreviewSizePx = _baseSize;
+		UpdateApplySizeButtonHighlight();
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
+
+	private static void StopPreviewAnimation(Image image) =>
+		image.BeginAnimation(Image.SourceProperty, null);
+
+	private static void MarkDangerOnHover(Button button)
+	{
+		button.MouseEnter += (_, _) =>
+		{
+			button.Foreground = Brush("Brush.Danger");
+			button.BorderBrush = Brush("Brush.Danger");
+		};
+		button.MouseLeave += (_, _) =>
+		{
+			button.Foreground = Brush("Brush.Text");
+			button.BorderBrush = Brush("Brush.Border");
+		};
+	}
 
 	private Slot CreateSlot(CursorRoleInfo role)
 	{
@@ -147,6 +178,7 @@ public partial class PresetEditorWindow : Window
 			ToolTip = Loc.Get("S.Editor.ClearSlot"),
 			Visibility = Visibility.Hidden,
 		};
+		MarkDangerOnHover(clearButton);
 
 		var buttons = new StackPanel
 		{
@@ -223,7 +255,7 @@ public partial class PresetEditorWindow : Window
 	private void SetSlotSource(Slot slot, string path)
 	{
 		slot.SourcePath = path;
-		slot.PreviewImage.Source = CursorPreviewService.GetPreview(path);
+		CursorPreviewService.ApplyPreview(slot.PreviewImage, path);
 		slot.FileText.Text = Path.GetFileName(path);
 		slot.FileText.Foreground = Brush("Brush.Text");
 		slot.ClearButton.Visibility = Visibility.Visible;
@@ -232,6 +264,7 @@ public partial class PresetEditorWindow : Window
 	private void ClearSlot(Slot slot)
 	{
 		slot.SourcePath = null;
+		StopPreviewAnimation(slot.PreviewImage);
 		slot.PreviewImage.Source = null;
 		slot.FileText.Text = Loc.Get("S.Editor.EmptySlot");
 		slot.FileText.Foreground = Brush("Brush.TextDim");

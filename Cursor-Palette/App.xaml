@@ -1,13 +1,9 @@
 <Application x:Class="CursorPalette.App"
 			xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-	<!-- Без StartupUri: тема должна выбираться (ThemeManager.Initialize) до того,
-		 как создастся MainWindow, иначе StaticResource в её XAML резолвится
-		 против ещё не подставленной темы. Окно создаётся вручную в App.OnStartup. -->
 	<Application.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<!-- Индекс 0 — тема, подменяется ThemeManager.Apply в рантайме. -->
 				<ResourceDictionary Source="Themes/Dark.xaml" />
 				<ResourceDictionary Source="Resources/Strings.ru.xaml" />
 			</ResourceDictionary.MergedDictionaries>

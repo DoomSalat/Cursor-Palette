@@ -10,7 +10,7 @@
 
 	<sys:String x:Key="S.ResetDefault">Курсор по умолчанию</sys:String>
 	<sys:String x:Key="S.ResetDefault.Tooltip">Вернуть стандартные курсоры Windows (не зависит от пресетов)</sys:String>
-	<sys:String x:Key="S.Undo">Отменить</sys:String>
+	<sys:String x:Key="S.Undo">Назад</sys:String>
 	<sys:String x:Key="S.Undo.Tooltip">Вернуться к предыдущему варианту курсоров</sys:String>
 	<sys:String x:Key="S.CursorSize">Размер курсора</sys:String>
 	<sys:String x:Key="S.ApplySize">Применить</sys:String>
@@ -19,6 +19,7 @@
 	<sys:String x:Key="S.UiZoom.OutTooltip">Уменьшить интерфейс</sys:String>
 	<sys:String x:Key="S.UiZoom.InTooltip">Увеличить интерфейс</sys:String>
 	<sys:String x:Key="S.Theme.ToggleTooltip">Переключить тему оформления</sys:String>
+	<sys:String x:Key="S.Language.Tooltip">Язык интерфейса</sys:String>
 
 	<sys:String x:Key="S.AddPreset">Добавить пресет</sys:String>
 	<sys:String x:Key="S.AddPreset.Hint">Перетащите .cur/.ani файлы или папку сюда</sys:String>
@@ -26,6 +27,7 @@
 
 	<sys:String x:Key="S.Menu.Edit">Изменить</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Удалить</sys:String>
+	<sys:String x:Key="S.Preset.ContextHint">ПКМ — меню</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Удаление пресета</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">Удалить пресет «{0}»? Файлы будут стёрты из кэша приложения.</sys:String>

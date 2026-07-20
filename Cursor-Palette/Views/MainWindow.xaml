@@ -11,8 +11,6 @@
 		Drop="OnWindowDrop"
 		DragOver="OnWindowDragOver">
 
-	<!-- LayoutTransform на корневой панели — общий зум интерфейса (шапка,
-		 тулбар, футер, галерея) управляется кнопками -/+ внизу слева. -->
 	<DockPanel x:Name="RootPanel">
 		<DockPanel.LayoutTransform>
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
@@ -27,6 +25,7 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
@@ -46,7 +45,16 @@
 						   Margin="2,0,0,0" />
 				</StackPanel>
 
-				<Button x:Name="ThemeToggleButton" Grid.Column="2"
+				<Button x:Name="LanguageButton" Grid.Column="2"
+						Style="{StaticResource Style.Button}"
+						Padding="8,6"
+						Margin="0,0,8,0"
+						ToolTip="{DynamicResource S.Language.Tooltip}"
+						Click="OnLanguageButtonClick">
+					<TextBlock x:Name="LanguageButtonText" FontSize="12" FontWeight="SemiBold" />
+				</Button>
+
+				<Button x:Name="ThemeToggleButton" Grid.Column="3"
 						Style="{StaticResource Style.Button}"
 						Padding="8,6"
 						ToolTip="{DynamicResource S.Theme.ToggleTooltip}"
@@ -69,47 +77,50 @@
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
-				<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-					<TextBlock Text="{DynamicResource S.GallerySize}"
-								 Foreground="{StaticResource Brush.TextDim}"
-								 VerticalAlignment="Center" Margin="0,0,8,0" />
-					<Slider x:Name="CellScaleSlider"
-							Style="{StaticResource Style.Slider}"
-							Width="140"
-							Minimum="{x:Static services:AppState.GalleryCellScaleMin}"
-							Maximum="{x:Static services:AppState.GalleryCellScaleMax}"
-							TickFrequency="0.1" IsSnapToTickEnabled="True"
-							VerticalAlignment="Center"
-							ValueChanged="OnCellScaleSliderValueChanged" />
-					<TextBlock x:Name="CellScaleValueText"
-								 Width="46"
-								 Foreground="{StaticResource Brush.TextDim}"
-								 VerticalAlignment="Center" Margin="8,0,0,0" />
-				</StackPanel>
+				<Border Grid.Column="0" Style="{StaticResource Style.GroupBorder}" Margin="0,0,12,0">
+					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+						<TextBlock Text="{DynamicResource S.GallerySize}"
+									 Foreground="{StaticResource Brush.TextDim}"
+									 VerticalAlignment="Center" Margin="0,0,8,0" />
+						<Slider x:Name="CellScaleSlider"
+								Style="{StaticResource Style.Slider}"
+								Width="140"
+								Minimum="{x:Static services:AppState.GalleryCellScaleMin}"
+								Maximum="{x:Static services:AppState.GalleryCellScaleMax}"
+								TickFrequency="0.1" IsSnapToTickEnabled="True"
+								VerticalAlignment="Center"
+								ValueChanged="OnCellScaleSliderValueChanged" />
+						<TextBlock x:Name="CellScaleValueText"
+									 Width="46"
+									 Foreground="{StaticResource Brush.TextDim}"
+									 VerticalAlignment="Center" Margin="8,0,0,0" />
+					</StackPanel>
+				</Border>
 
-				<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
-							Margin="0,0,16,0">
-					<TextBlock Text="{DynamicResource S.CursorSize}"
-								 Foreground="{StaticResource Brush.TextDim}"
-								 VerticalAlignment="Center" Margin="0,0,8,0" />
-					<Slider x:Name="SizeSlider"
-							Style="{StaticResource Style.Slider}"
-							Width="160"
-							Minimum="1" Maximum="15"
-							TickFrequency="1" IsSnapToTickEnabled="True"
-							VerticalAlignment="Center"
-							ValueChanged="OnSizeSliderValueChanged" />
-					<TextBlock x:Name="SizeValueText"
-								 Width="46"
-								 Foreground="{StaticResource Brush.TextDim}"
-								 VerticalAlignment="Center" Margin="8,0,0,0" />
-					<Button x:Name="ApplySizeButton"
-							Style="{StaticResource Style.Button}"
-							Content="{DynamicResource S.ApplySize}"
-							ToolTip="{DynamicResource S.ApplySize.Tooltip}"
-							Margin="8,0,0,0"
-							Click="OnApplySizeButtonClick" />
-				</StackPanel>
+				<Border Grid.Column="2" Style="{StaticResource Style.GroupBorder}" Margin="0,0,16,0">
+					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+						<TextBlock Text="{DynamicResource S.CursorSize}"
+									 Foreground="{StaticResource Brush.TextDim}"
+									 VerticalAlignment="Center" Margin="0,0,8,0" />
+						<Slider x:Name="SizeSlider"
+								Style="{StaticResource Style.Slider}"
+								Width="160"
+								Minimum="1" Maximum="15"
+								TickFrequency="1" IsSnapToTickEnabled="True"
+								VerticalAlignment="Center"
+								ValueChanged="OnSizeSliderValueChanged" />
+						<TextBlock x:Name="SizeValueText"
+									 Width="46"
+									 Foreground="{StaticResource Brush.TextDim}"
+									 VerticalAlignment="Center" Margin="8,0,0,0" />
+						<Button x:Name="ApplySizeButton"
+								Style="{StaticResource Style.Button}"
+								Content="{DynamicResource S.ApplySize}"
+								ToolTip="{DynamicResource S.ApplySize.Tooltip}"
+								Margin="8,0,0,0"
+								Click="OnApplySizeButtonClick" />
+					</StackPanel>
+				</Border>
 
 				<StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
 					<Button x:Name="UndoButton"
@@ -133,7 +144,6 @@
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
-				<!-- Зум интерфейса (как в VSCode) — внизу слева, сохраняется между запусками. -->
 				<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
 					<Button x:Name="UiZoomOutButton"
 							Style="{StaticResource Style.Button}"

@@ -1,0 +1,74 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
+
+	<sys:String x:Key="S.About.Title">About</sys:String>
+	<sys:String x:Key="S.About.Close">Close</sys:String>
+	<sys:String x:Key="S.About.LicenseHint">MIT License — click for details</sys:String>
+
+	<sys:String x:Key="S.ResetDefault">Default cursor</sys:String>
+	<sys:String x:Key="S.ResetDefault.Tooltip">Restore standard Windows cursors (independent of presets)</sys:String>
+	<sys:String x:Key="S.Undo">Undo</sys:String>
+	<sys:String x:Key="S.Undo.Tooltip">Revert to the previous cursor set</sys:String>
+	<sys:String x:Key="S.CursorSize">Cursor size</sys:String>
+	<sys:String x:Key="S.ApplySize">Apply</sys:String>
+	<sys:String x:Key="S.ApplySize.Tooltip">Apply the selected cursor size</sys:String>
+	<sys:String x:Key="S.GallerySize">Grid size</sys:String>
+	<sys:String x:Key="S.UiZoom.OutTooltip">Zoom interface out</sys:String>
+	<sys:String x:Key="S.UiZoom.InTooltip">Zoom interface in</sys:String>
+	<sys:String x:Key="S.Theme.ToggleTooltip">Toggle color theme</sys:String>
+	<sys:String x:Key="S.Language.Tooltip">Interface language</sys:String>
+
+	<sys:String x:Key="S.AddPreset">Add preset</sys:String>
+	<sys:String x:Key="S.AddPreset.Hint">Drop .cur/.ani files or a folder here</sys:String>
+	<sys:String x:Key="S.EmptyGallery">No presets yet. Drop cursor files (.cur/.ani) onto the window or click "Add preset".</sys:String>
+
+	<sys:String x:Key="S.Menu.Edit">Edit</sys:String>
+	<sys:String x:Key="S.Menu.Delete">Delete</sys:String>
+	<sys:String x:Key="S.Preset.ContextHint">Right-click for menu</sys:String>
+
+	<sys:String x:Key="S.ConfirmDelete.Title">Delete preset</sys:String>
+	<sys:String x:Key="S.ConfirmDelete.Text">Delete preset "{0}"? Its files will be removed from the app cache.</sys:String>
+
+	<sys:String x:Key="S.Editor.TitleNew">New preset</sys:String>
+	<sys:String x:Key="S.Editor.TitleEdit">Edit preset</sys:String>
+	<sys:String x:Key="S.Editor.PresetName">Preset name</sys:String>
+	<sys:String x:Key="S.Editor.Save">Save</sys:String>
+	<sys:String x:Key="S.Editor.Cancel">Cancel</sys:String>
+	<sys:String x:Key="S.Editor.Browse">Browse…</sys:String>
+	<sys:String x:Key="S.Editor.ClearSlot">Remove</sys:String>
+	<sys:String x:Key="S.Editor.EmptySlot">system</sys:String>
+	<sys:String x:Key="S.Editor.SlotHint">Drop a file onto a slot to replace that role</sys:String>
+	<sys:String x:Key="S.Editor.NoFiles">The preset has no files — fill in at least one slot.</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">Cursors (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.BrowseFolder">Choose folder…</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">The selected folder has no cursor files (.cur/.ani).</sys:String>
+	<sys:String x:Key="S.Editor.NoMatchInFolder">Found {0} cursor files, but none could be matched to a role by file name.</sys:String>
+
+	<sys:String x:Key="S.DefaultPresetName">New preset</sys:String>
+	<sys:String x:Key="S.WindowsDefault">Default</sys:String>
+	<sys:String x:Key="S.Error.Title">Error</sys:String>
+	<sys:String x:Key="S.Error.ApplyFailed">Failed to apply cursors: {0}</sys:String>
+	<sys:String x:Key="S.Error.SaveFailed">Failed to save preset: {0}</sys:String>
+
+	<sys:String x:Key="S.Role.Arrow">Normal select</sys:String>
+	<sys:String x:Key="S.Role.Help">Help select</sys:String>
+	<sys:String x:Key="S.Role.AppStarting">Working in background</sys:String>
+	<sys:String x:Key="S.Role.Wait">Busy</sys:String>
+	<sys:String x:Key="S.Role.Crosshair">Precision select</sys:String>
+	<sys:String x:Key="S.Role.IBeam">Text select</sys:String>
+	<sys:String x:Key="S.Role.NWPen">Handwriting</sys:String>
+	<sys:String x:Key="S.Role.No">Unavailable</sys:String>
+	<sys:String x:Key="S.Role.SizeNS">Vertical resize</sys:String>
+	<sys:String x:Key="S.Role.SizeWE">Horizontal resize</sys:String>
+	<sys:String x:Key="S.Role.SizeNWSE">Diagonal resize 1</sys:String>
+	<sys:String x:Key="S.Role.SizeNESW">Diagonal resize 2</sys:String>
+	<sys:String x:Key="S.Role.SizeAll">Move</sys:String>
+	<sys:String x:Key="S.Role.UpArrow">Alternate select</sys:String>
+	<sys:String x:Key="S.Role.Hand">Link select</sys:String>
+	<sys:String x:Key="S.Role.Person">Person select</sys:String>
+	<sys:String x:Key="S.Role.Pin">Pin</sys:String>
+
+</ResourceDictionary>

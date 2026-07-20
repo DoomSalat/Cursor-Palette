@@ -11,20 +11,28 @@ public partial class App : Application
 		base.OnStartup(e);
 		AppPaths.EnsureCreated();
 
+		SubscribeToUnhandledExceptions();
+		ApplySavedAppearance();
+
+		var window = new MainWindow();
+		MainWindow = window;
+		window.Show();
+	}
+
+	private void SubscribeToUnhandledExceptions()
+	{
 		DispatcherUnhandledException += (_, args) =>
 		{
 			MessageBox.Show(args.Exception.Message, Loc.Get("S.Error.Title"),
 				MessageBoxButton.OK, MessageBoxImage.Error);
 			args.Handled = true;
 		};
+	}
 
-		// Тема выбирается до создания окна (см. App.xaml) — иначе его
-		// StaticResource-разметка захватит стартовую тёмную тему навсегда.
+	private static void ApplySavedAppearance()
+	{
 		ThemeManager.Initialize();
-
-		var window = new MainWindow();
-		MainWindow = window;
-		window.Show();
+		LocalizationManager.Initialize();
 	}
 }
 

@@ -1,7 +1,9 @@
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace CursorPalette.Services;
@@ -9,8 +11,10 @@ namespace CursorPalette.Services;
 public static class CursorPreviewService
 {
 	private const string User32Dll = "user32.dll";
+	private const string AniExtension = ".ani";
 
 	private static readonly Dictionary<string, ImageSource?> Cache = new(StringComparer.OrdinalIgnoreCase);
+	private static readonly Dictionary<string, AnimatedCursorFrames?> AnimatedCache = new(StringComparer.OrdinalIgnoreCase);
 
 	[DllImport(User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
 	private static extern IntPtr LoadCursorFromFile(string lpFileName);
@@ -55,9 +59,69 @@ public static class CursorPreviewService
 		}
 
 		Cache[expanded] = image;
+
 		return image;
 	}
 
-	public static void Invalidate(string filePath) =>
-		Cache.Remove(Environment.ExpandEnvironmentVariables(filePath));
+	public static void ApplyPreview(Image image, string? filePath)
+	{
+		image.BeginAnimation(Image.SourceProperty, null);
+
+		if (string.IsNullOrWhiteSpace(filePath))
+		{
+			image.Source = null;
+			return;
+		}
+
+		var expanded = Environment.ExpandEnvironmentVariables(filePath);
+
+		if (string.Equals(Path.GetExtension(expanded), AniExtension, StringComparison.OrdinalIgnoreCase))
+		{
+			var animated = GetAnimatedFrames(expanded);
+			if (animated is { Frames.Count: > 0 })
+			{
+				image.Source = animated.Frames[animated.StepFrameIndices[0]];
+				image.BeginAnimation(Image.SourceProperty, BuildAnimation(animated));
+				return;
+			}
+		}
+
+		image.Source = GetPreview(filePath);
+	}
+
+	private static AnimatedCursorFrames? GetAnimatedFrames(string expandedPath)
+	{
+		if (AnimatedCache.TryGetValue(expandedPath, out var cached))
+			return cached;
+
+		var result = File.Exists(expandedPath) ? AniCursorReader.Read(expandedPath) : null;
+		AnimatedCache[expandedPath] = result;
+
+		return result;
+	}
+
+	private static ObjectAnimationUsingKeyFrames BuildAnimation(AnimatedCursorFrames data)
+	{
+		var animation = new ObjectAnimationUsingKeyFrames();
+		var cumulative = TimeSpan.Zero;
+
+		for (var step = 0; step < data.StepFrameIndices.Count; step++)
+		{
+			var frame = data.Frames[data.StepFrameIndices[step]];
+			animation.KeyFrames.Add(new DiscreteObjectKeyFrame(frame, KeyTime.FromTimeSpan(cumulative)));
+			cumulative += data.StepDurations[step];
+		}
+
+		animation.Duration = new Duration(cumulative);
+		animation.RepeatBehavior = RepeatBehavior.Forever;
+		return animation;
+	}
+
+	public static void Invalidate(string filePath)
+	{
+		var expanded = Environment.ExpandEnvironmentVariables(filePath);
+
+		Cache.Remove(expanded);
+		AnimatedCache.Remove(expanded);
+	}
 }

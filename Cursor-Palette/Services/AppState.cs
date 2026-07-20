@@ -23,6 +23,7 @@ public static class AppState
 		public double UiScale { get; set; } = UiScaleDefault;
 		public double GalleryCellScale { get; set; } = GalleryCellScaleDefault;
 		public string? ThemeMode { get; set; }
+		public string? Language { get; set; }
 	}
 
 	public static string? GetActivePresetId()
@@ -44,10 +45,6 @@ public static class AppState
 	public static void SetActivePresetId(string? id) =>
 		File.WriteAllText(AppPaths.ActiveStateFile,
 			JsonSerializer.Serialize(new ActiveState { ActivePresetId = id }));
-
-	// ---- settings.json: несколько независимых настроек в одном файле ----
-	// Каждый геттер/сеттер читает-модифицирует-пишет весь объект, чтобы
-	// сохранение одной настройки не затирало остальные.
 
 	private static Settings LoadSettings()
 	{
@@ -74,10 +71,10 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.DefaultBaseSize = sizePx;
+
 		SaveSettings(settings);
 	}
 
-	/// <summary>Масштаб всего интерфейса (LayoutTransform окна), 0.8–1.5.</summary>
 	public static double GetUiScale() =>
 		Math.Clamp(LoadSettings().UiScale, UiScaleMin, UiScaleMax);
 
@@ -85,10 +82,10 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.UiScale = Math.Clamp(scale, UiScaleMin, UiScaleMax);
+
 		SaveSettings(settings);
 	}
 
-	/// <summary>Масштаб ячеек галереи пресетов, 0.75–1.75.</summary>
 	public static double GetGalleryCellScale() =>
 		Math.Clamp(LoadSettings().GalleryCellScale, GalleryCellScaleMin, GalleryCellScaleMax);
 
@@ -96,16 +93,27 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.GalleryCellScale = Math.Clamp(scale, GalleryCellScaleMin, GalleryCellScaleMax);
+
 		SaveSettings(settings);
 	}
 
-	/// <summary>"Dark"/"Light" либо null, если тема ещё не выбрана (первый запуск).</summary>
 	public static string? GetThemeMode() => LoadSettings().ThemeMode;
 
 	public static void SetThemeMode(string mode)
 	{
 		var settings = LoadSettings();
 		settings.ThemeMode = mode;
+
+		SaveSettings(settings);
+	}
+
+	public static string? GetLanguage() => LoadSettings().Language;
+
+	public static void SetLanguage(string code)
+	{
+		var settings = LoadSettings();
+		settings.Language = code;
+
 		SaveSettings(settings);
 	}
 }
