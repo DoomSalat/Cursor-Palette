@@ -13,8 +13,7 @@ public partial class MainWindow : Window
 	private const string PixelSuffix = "px";
 	private const string CurExtension = ".cur";
 	private const string AniExtension = ".ani";
-	private const string DefaultVersion = "1.0.0";
-	private const string FooterFormat = "Capitan Salat  ·  v{0}";
+	private const string FooterFormat = "{0}  ·  v{1}  ·  {2}";
 	private const string AddCellPlusText = "+";
 	private const string EmptyValue = "";
 	private const string FileSearchPattern = "*.*";
@@ -61,8 +60,8 @@ public partial class MainWindow : Window
 		ReloadGallery();
 		UpdateUndoButton();
 
-		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
-		FooterRun.Text = $"Capitan Salat  ·  v{version}  ·  MIT License";
+		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+		FooterRun.Text = string.Format(FooterFormat, AppInfo.Author, version, AppInfo.LicenseName);
 	}
 
 	private void OnFooterClick(object sender, RoutedEventArgs e)
@@ -74,7 +73,7 @@ public partial class MainWindow : Window
 	{
 		System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
 		{
-			FileName = "https://github.com/DoomSalat/Cursor-Palette",
+			FileName = AppInfo.GitHubUrl,
 			UseShellExecute = true,
 		});
 	}

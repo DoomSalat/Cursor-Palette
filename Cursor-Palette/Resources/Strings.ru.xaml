@@ -2,11 +2,11 @@
 					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 					xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-	<sys:String x:Key="S.AppTitle">Cursor Customizer</sys:String>
+	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
 
 	<sys:String x:Key="S.About.Title">О программе</sys:String>
 	<sys:String x:Key="S.About.Close">Закрыть</sys:String>
-	<sys:String x:Key="S.About.LicenseHint">MIT License — нажмите для деталей</sys:String>
+	<sys:String x:Key="S.About.LicenseHint">MIT License — нажмите для подробностей</sys:String>
 
 	<sys:String x:Key="S.ResetDefault">Курсор по умолчанию</sys:String>
 	<sys:String x:Key="S.ResetDefault.Tooltip">Вернуть стандартные курсоры Windows (не зависит от пресетов)</sys:String>

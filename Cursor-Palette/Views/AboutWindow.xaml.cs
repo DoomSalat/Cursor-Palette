@@ -9,7 +9,7 @@ public partial class AboutWindow : Window
 	{
 		InitializeComponent();
 
-		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
-		VersionText.Text = $"Capitan Salat  ·  v{version}  ·  MIT License";
+		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+		VersionText.Text = $"{AppInfo.Author}  ·  v{version}  ·  {AppInfo.LicenseName}";
 	}
 }

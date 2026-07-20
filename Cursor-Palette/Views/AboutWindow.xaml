@@ -1,6 +1,7 @@
 <Window x:Class="CursorPalette.Views.AboutWindow"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:local="clr-namespace:CursorPalette"
 		Title="{DynamicResource S.About.Title}"
 		Width="520" Height="460"
 		MinWidth="400" MinHeight="320"
@@ -26,16 +27,28 @@
 					  HorizontalScrollBarVisibility="Disabled"
 					  Padding="20,16">
 			<StackPanel>
-				<TextBlock FontSize="18" FontWeight="SemiBold"
-						   Text="{DynamicResource S.AppTitle}"
-						   Margin="0,0,0,4" />
+				<StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+					<Path Width="22" Height="22"
+						  Stretch="Uniform"
+						  Fill="{StaticResource Brush.Accent}"
+						  Margin="0,0,10,0"
+						  Data="M 0,0 L 0,16 L 4.5,12 L 7,18 L 9,17 L 6.5,11 L 12,11 Z" />
+					<TextBlock Text="Cursor"
+						   FontSize="18" FontWeight="SemiBold"
+						   VerticalAlignment="Center" />
+					<TextBlock Text="Palette"
+						   FontSize="18" FontWeight="SemiBold"
+						   Foreground="{StaticResource Brush.Accent}"
+						   VerticalAlignment="Center"
+						   Margin="2,0,0,0" />
+				</StackPanel>
 				<TextBlock x:Name="VersionText"
 						   Foreground="{StaticResource Brush.TextDim}"
 						   FontSize="12"
 						   Margin="0,0,0,16" />
 
 				<TextBlock FontSize="13" FontWeight="SemiBold"
-						   Text="MIT License"
+						   Text="{x:Static local:AppInfo.LicenseName}"
 						   Margin="0,0,0,8" />
 				<TextBlock FontSize="12"
 						   TextWrapping="Wrap"
