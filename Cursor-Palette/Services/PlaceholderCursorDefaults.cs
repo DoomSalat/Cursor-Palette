@@ -1,3 +1,5 @@
+using System.Windows;
+
 namespace CursorPalette.Services;
 
 public static class PlaceholderCursorDefaults
@@ -8,12 +10,47 @@ public static class PlaceholderCursorDefaults
 		["IBeam"] = "IBeam.cur",
 	};
 
+	private static readonly Dictionary<string, string> ExtractedPaths = new(StringComparer.Ordinal);
+
 	public static string? GetPath(string roleRegistryName)
 	{
 		if (!BundledFileNames.TryGetValue(roleRegistryName, out var fileName))
 			return null;
 
-		var path = Path.Combine(AppContext.BaseDirectory, "Resources", "DefaultCursors", fileName);
-		return File.Exists(path) ? path : null;
+		if (ExtractedPaths.TryGetValue(fileName, out var cachedPath))
+			return cachedPath;
+
+		var path = ExtractToCache(fileName);
+		if (path != null)
+			ExtractedPaths[fileName] = path;
+
+		return path;
+	}
+
+	private static string? ExtractToCache(string fileName)
+	{
+		var destinationPath = Path.Combine(AppPaths.Root, "DefaultCursors", fileName);
+
+		try
+		{
+			if (!File.Exists(destinationPath))
+			{
+				var uri = new Uri($"pack://application:,,,/Resources/DefaultCursors/{fileName}");
+				var resource = Application.GetResourceStream(uri);
+				if (resource == null)
+					return null;
+
+				Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+
+				using var fileStream = File.Create(destinationPath);
+				resource.Stream.CopyTo(fileStream);
+			}
+
+			return destinationPath;
+		}
+		catch
+		{
+			return null;
+		}
 	}
 }

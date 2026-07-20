@@ -39,6 +39,7 @@ build/
 
 ## Publish
 publish/
+dist/
 *.publishsettings
 PublishProfiles/
 

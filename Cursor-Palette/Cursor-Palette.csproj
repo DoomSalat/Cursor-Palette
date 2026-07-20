@@ -23,15 +23,8 @@
 		<Resource Include="Resources\OpenFolder26.png" />
 		<Resource Include="Resources\OpenFolder104.png" />
 		<Resource Include="Resources\GitHub48.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="Resources\DefaultCursors\Crosshair.cur">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Resources\DefaultCursors\IBeam.cur">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
+		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
+		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
 	</ItemGroup>
 
 </Project>
