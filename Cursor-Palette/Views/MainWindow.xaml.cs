@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using CursorPalette.Models;
 using CursorPalette.Services;
 
@@ -36,6 +38,8 @@ public partial class MainWindow : Window
 	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
 	private const string LocConfirmDeleteText = "S.ConfirmDelete.Text";
 	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
+
+	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
 
 	private const double CellSize = 148;
 	private const double CellMargin = 6;
@@ -452,11 +456,27 @@ public partial class MainWindow : Window
 		return cell;
 	}
 
-	private void ApplyPreset(Preset preset)
+	private void ShowLoadingOverlay()
 	{
+		LoadingOverlay.Visibility = Visibility.Visible;
+		((Storyboard)Resources[SpinnerStoryboardKey]).Begin(this, true);
+	}
+
+	private void HideLoadingOverlay()
+	{
+		((Storyboard)Resources[SpinnerStoryboardKey]).Stop(this);
+		LoadingOverlay.Visibility = Visibility.Collapsed;
+	}
+
+	private async void ApplyPreset(Preset preset)
+	{
+		if (preset.Id == _activePresetId)
+			return;
+
 		try
 		{
-			RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+			ShowLoadingOverlay();
+			await Dispatcher.Yield(DispatcherPriority.Render);
 
 			var values = new Dictionary<string, string>();
 			foreach (var role in CursorRoles.All)
@@ -465,8 +485,13 @@ public partial class MainWindow : Window
 				values[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
 			}
 
-			RegistryCursorService.ApplyValues(values);
-			RegistryCursorService.SetBaseSize(preset.BaseSize);
+			await Task.Run(() =>
+			{
+				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+				RegistryCursorService.ApplyValues(values);
+				RegistryCursorService.SetBaseSize(preset.BaseSize);
+			});
+
 			_baselineSizePx = preset.BaseSize;
 			SetSliderSilently(preset.BaseSize);
 			_activePresetId = preset.Id;
@@ -480,17 +505,30 @@ public partial class MainWindow : Window
 			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
+		finally
+		{
+			HideLoadingOverlay();
+		}
 	}
 
-	private void ApplyDefault()
+	private async void ApplyDefault()
 	{
+		if (_activePresetId == null)
+			return;
+
 		try
 		{
-			RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+			ShowLoadingOverlay();
+			await Dispatcher.Yield(DispatcherPriority.Render);
 
 			var defaultSize = AppState.GetDefaultBaseSize();
-			RegistryCursorService.ApplyValues(RegistryCursorService.GetWindowsDefaultValues());
-			RegistryCursorService.SetBaseSize(defaultSize);
+
+			await Task.Run(() =>
+			{
+				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+				RegistryCursorService.ApplyValues(RegistryCursorService.GetWindowsDefaultValues());
+				RegistryCursorService.SetBaseSize(defaultSize);
+			});
 
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
@@ -506,9 +544,13 @@ public partial class MainWindow : Window
 			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
+		finally
+		{
+			HideLoadingOverlay();
+		}
 	}
 
-	private void OnUndoButtonClick(object sender, RoutedEventArgs e)
+	private async void OnUndoButtonClick(object sender, RoutedEventArgs e)
 	{
 		var snapshot = RegistryCursorService.LoadSnapshotFromDisk();
 
@@ -517,8 +559,14 @@ public partial class MainWindow : Window
 
 		try
 		{
-			RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
-			RegistryCursorService.RestoreSnapshot(snapshot);
+			ShowLoadingOverlay();
+			await Dispatcher.Yield(DispatcherPriority.Render);
+
+			await Task.Run(() =>
+			{
+				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+				RegistryCursorService.RestoreSnapshot(snapshot);
+			});
 
 			_activePresetId = FindPresetIdByValues(snapshot.Values);
 			AppState.SetActivePresetId(_activePresetId);
@@ -533,6 +581,10 @@ public partial class MainWindow : Window
 		{
 			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+		finally
+		{
+			HideLoadingOverlay();
 		}
 	}
 
@@ -572,9 +624,9 @@ public partial class MainWindow : Window
 
 	private void EditPreset(Preset preset) => OpenEditor(preset, Array.Empty<string>());
 
-	private void OpenEditor(Preset? preset, IReadOnlyList<string> droppedFiles)
+	private void OpenEditor(Preset? preset, IReadOnlyList<string> droppedFiles, string? suggestedName = null)
 	{
-		var editor = new PresetEditorWindow(preset, droppedFiles) { Owner = this };
+		var editor = new PresetEditorWindow(preset, droppedFiles, suggestedName) { Owner = this };
 
 		if (editor.ShowDialog() == true && editor.Result != null)
 		{
@@ -621,11 +673,14 @@ public partial class MainWindow : Window
 		ApplyAndPersistSize(sizePx);
 	}
 
-	public void ApplyAndPersistSize(int sizePx)
+	public async void ApplyAndPersistSize(int sizePx)
 	{
 		try
 		{
-			RegistryCursorService.SetBaseSize(sizePx);
+			ShowLoadingOverlay();
+			await Dispatcher.Yield(DispatcherPriority.Render);
+
+			await Task.Run(() => RegistryCursorService.SetBaseSize(sizePx));
 
 			if (_activePresetId != null)
 			{
@@ -651,38 +706,95 @@ public partial class MainWindow : Window
 			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
+		finally
+		{
+			HideLoadingOverlay();
+		}
 	}
 
 	public void SyncSizeSlider(int sizePx) => SetSliderSilently(sizePx);
 
 	private void OnWindowDragOver(object sender, DragEventArgs e)
 	{
-		e.Effects = GetDroppedCursorFiles(e).Count > 0 ? DragDropEffects.Copy : DragDropEffects.None;
+		e.Effects = HasDroppableCursorSource(e) ? DragDropEffects.Copy : DragDropEffects.None;
 		e.Handled = true;
 	}
 
+	private void OnWindowDragEnter(object sender, DragEventArgs e)
+	{
+		if (HasDroppableCursorSource(e))
+			WindowDropIndicator.Visibility = Visibility.Visible;
+	}
+
+	private void OnWindowDragLeave(object sender, DragEventArgs e) =>
+		WindowDropIndicator.Visibility = Visibility.Collapsed;
+
 	private void OnWindowDrop(object sender, DragEventArgs e)
 	{
-		var files = GetDroppedCursorFiles(e);
+		WindowDropIndicator.Visibility = Visibility.Collapsed;
+
+		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
+			return;
+
+		e.Handled = true;
+
+		// Deferred: opening a modal window (OpenEditor -> ShowDialog) synchronously
+		// inside a Drop handler confuses the OS OLE drag-drop loop and leaves the
+		// cursor stuck in a "still dragging" state until Alt-Tab/click elsewhere.
+		Dispatcher.BeginInvoke(new Action(() => HandleDroppedPaths(paths)), DispatcherPriority.Input);
+	}
+
+	private void HandleDroppedPaths(string[] paths)
+	{
+		List<string> files;
+		try
+		{
+			files = ResolveCursorFiles(paths);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show(Loc.Format("S.Error.ArchiveExtractFailed", ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+			return;
+		}
 
 		if (files.Count == 0)
 			return;
 
-		e.Handled = true;
-		OpenEditor(null, files);
+		OpenEditor(null, files, GetSuggestedPresetName(paths));
 	}
 
-	private static List<string> GetDroppedCursorFiles(DragEventArgs e)
+	private static string? GetSuggestedPresetName(IEnumerable<string> paths)
+	{
+		var folder = paths.FirstOrDefault(Directory.Exists);
+		if (folder != null)
+			return System.IO.Path.GetFileName(folder);
+
+		var archive = paths.FirstOrDefault(ArchiveImportService.IsArchiveFile);
+		return archive != null ? System.IO.Path.GetFileNameWithoutExtension(archive) : null;
+	}
+
+	private static bool HasDroppableCursorSource(DragEventArgs e)
+	{
+		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
+			return false;
+
+		return paths.Any(path =>
+			Directory.Exists(path) || ArchiveImportService.IsArchiveFile(path) || IsCursorFile(path));
+	}
+
+	private static List<string> ResolveCursorFiles(IEnumerable<string> paths)
 	{
 		var result = new List<string>();
-
-		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
-			return result;
 
 		foreach (var path in paths)
 		{
 			if (Directory.Exists(path))
 				result.AddRange(Directory.EnumerateFiles(path, FileSearchPattern, SearchOption.TopDirectoryOnly)
+					.Where(IsCursorFile));
+			else if (ArchiveImportService.IsArchiveFile(path))
+				result.AddRange(Directory.EnumerateFiles(
+						ArchiveImportService.ExtractToTempFolder(path), FileSearchPattern, SearchOption.AllDirectories)
 					.Where(IsCursorFile));
 			else if (IsCursorFile(path))
 				result.Add(path);

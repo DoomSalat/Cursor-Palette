@@ -18,13 +18,13 @@ public static class CursorRoles
 		new("No",          "Role.No",          new[] { "unavailable", "no", "unavail", "aero_unavail" }),
 		new("SizeNS",      "Role.SizeNS",      new[] { "vertical", "ns", "sizens", "vert", "aero_ns" }),
 		new("SizeWE",      "Role.SizeWE",      new[] { "horizontal", "ew", "sizewe", "horz", "aero_ew" }),
-		new("SizeNWSE",    "Role.SizeNWSE",    new[] { "diagonal1", "nwse", "sizenwse", "dgn1", "aero_nwse" }),
-		new("SizeNESW",    "Role.SizeNESW",    new[] { "diagonal2", "nesw", "sizenesw", "dgn2", "aero_nesw" }),
+		new("SizeNWSE",    "Role.SizeNWSE",    new[] { "diagonal1", "nwse", "sizenwse", "dgn1", "aero_nwse", "diagonal resize 1" }),
+		new("SizeNESW",    "Role.SizeNESW",    new[] { "diagonal2", "nesw", "sizenesw", "dgn2", "aero_nesw", "diagonal resize 2" }),
 		new("SizeAll",     "Role.SizeAll",     new[] { "move", "sizeall", "aero_move" }),
 		new("UpArrow",     "Role.UpArrow",     new[] { "alternate", "up", "uparrow", "aero_up" }),
 		new("Hand",        "Role.Hand",        new[] { "link", "hand", "aero_link" }),
 		new("Person",      "Role.Person",      new[] { "person", "aero_person" }),
-		new("Pin",         "Role.Pin",         new[] { "pin", "aero_pin" }),
+		new("Pin",         "Role.Pin",         new[] { "pin", "aero_pin", "location" }),
 	};
 
 	private static readonly char[] FileNameWordSeparators = { ' ', '-', '_', '.', '(', ')', '[', ']' };

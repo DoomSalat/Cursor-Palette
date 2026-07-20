@@ -57,6 +57,7 @@
 	<sys:String x:Key="S.WindowsDefault">Default</sys:String>
 	<sys:String x:Key="S.Error.Title">Error</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">Failed to apply cursors: {0}</sys:String>
+	<sys:String x:Key="S.Error.ArchiveExtractFailed">Failed to extract archive: {0}</sys:String>
 	<sys:String x:Key="S.Error.SaveFailed">Failed to save preset: {0}</sys:String>
 
 	<sys:String x:Key="S.Role.Arrow">Normal select</sys:String>

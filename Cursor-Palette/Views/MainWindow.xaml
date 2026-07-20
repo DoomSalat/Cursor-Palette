@@ -9,7 +9,19 @@
 		Style="{StaticResource Style.Window}"
 		AllowDrop="True"
 		Drop="OnWindowDrop"
-		DragOver="OnWindowDragOver">
+		DragOver="OnWindowDragOver"
+		DragEnter="OnWindowDragEnter"
+		DragLeave="OnWindowDragLeave">
+
+	<Window.Resources>
+		<Storyboard x:Key="SpinnerStoryboard" RepeatBehavior="Forever">
+			<DoubleAnimation Storyboard.TargetName="SpinnerRotate"
+							  Storyboard.TargetProperty="Angle"
+							  From="0" To="360" Duration="0:0:0.8" />
+		</Storyboard>
+	</Window.Resources>
+
+	<Grid x:Name="RootGrid">
 
 	<DockPanel x:Name="RootPanel">
 		<DockPanel.LayoutTransform>
@@ -226,4 +238,33 @@
 		</ScrollViewer>
 
 	</DockPanel>
+
+	<Rectangle x:Name="WindowDropIndicator"
+			   Stroke="{StaticResource Brush.Accent}"
+			   StrokeThickness="4"
+			   StrokeDashArray="6 3"
+			   Margin="4"
+			   IsHitTestVisible="False"
+			   Visibility="Collapsed"
+			   Panel.ZIndex="900" />
+
+	<Border x:Name="LoadingOverlay"
+			Background="#B3000000"
+			Visibility="Collapsed"
+			IsHitTestVisible="False"
+			Panel.ZIndex="1000">
+		<Ellipse Width="48" Height="48"
+				 Stroke="{StaticResource Brush.Accent}"
+				 StrokeThickness="4"
+				 StrokeStartLineCap="Round"
+				 StrokeEndLineCap="Round"
+				 StrokeDashArray="28,9"
+				 RenderTransformOrigin="0.5,0.5">
+			<Ellipse.RenderTransform>
+				<RotateTransform x:Name="SpinnerRotate" Angle="0" />
+			</Ellipse.RenderTransform>
+		</Ellipse>
+	</Border>
+
+	</Grid>
 </Window>

@@ -2,7 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Ellipse = System.Windows.Shapes.Ellipse;
+using Rectangle = System.Windows.Shapes.Rectangle;
 using CursorPalette.Models;
 using CursorPalette.Services;
 using Microsoft.Win32;
@@ -43,15 +45,18 @@ public partial class PresetEditorWindow : Window
 	private const string PivotButtonContent = "🎯";
 
 	private readonly List<Slot> _slots = new();
+	private readonly List<Rectangle> _slotDropIndicators = new();
 
 	public PresetDraft? Result { get; private set; }
 
-	public PresetEditorWindow(Preset? existing, IReadOnlyList<string> droppedFiles)
+	public PresetEditorWindow(Preset? existing, IReadOnlyList<string> droppedFiles, string? suggestedName = null)
 	{
 		InitializeComponent();
 
 		Title = Loc.Get(existing == null ? "S.Editor.TitleNew" : "S.Editor.TitleEdit");
-		NameBox.Text = existing?.Name ?? Loc.Get("S.DefaultPresetName");
+		NameBox.Text = existing?.Name
+			?? (string.IsNullOrWhiteSpace(suggestedName) ? null : suggestedName)
+			?? Loc.Get("S.DefaultPresetName");
 
 		Result = null;
 		_draftId = existing?.Id;
@@ -242,6 +247,23 @@ public partial class PresetEditorWindow : Window
 		panel.Children.Add(fileText);
 		panel.Children.Add(buttons);
 
+		var dropIndicator = new Rectangle
+		{
+			Stroke = Brush("Brush.Accent"),
+			StrokeThickness = 3,
+			StrokeDashArray = new DoubleCollection { 4, 2 },
+			RadiusX = SlotCornerRadius,
+			RadiusY = SlotCornerRadius,
+			Margin = new Thickness(2),
+			IsHitTestVisible = false,
+			Visibility = Visibility.Collapsed,
+		};
+
+		var slotContent = new Grid();
+		slotContent.Children.Add(panel);
+		slotContent.Children.Add(dropIndicator);
+		_slotDropIndicators.Add(dropIndicator);
+
 		var border = new Border
 		{
 			Width = SlotWidth,
@@ -251,7 +273,7 @@ public partial class PresetEditorWindow : Window
 			Background = Brush("Brush.Surface"),
 			BorderThickness = new Thickness(SlotBorderThickness),
 			BorderBrush = Brush("Brush.Border"),
-			Child = panel,
+			Child = slotContent,
 			AllowDrop = true,
 		};
 
@@ -276,11 +298,9 @@ public partial class PresetEditorWindow : Window
 			e.Effects = GetSingleCursorFile(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
 			e.Handled = true;
 		};
-		border.DragEnter += (_, _) => border.BorderBrush = Brush("Brush.Accent");
-		border.DragLeave += (_, _) => border.BorderBrush = Brush("Brush.Border");
 		border.Drop += (_, e) =>
 		{
-			border.BorderBrush = Brush("Brush.Border");
+			HideAllDropIndicators();
 			var file = GetSingleCursorFile(e);
 			if (file != null)
 			{
@@ -387,48 +407,109 @@ public partial class PresetEditorWindow : Window
 			ImportFolder(dialog.FolderName);
 	}
 
-	private void OnFolderDragOver(object sender, DragEventArgs e)
+	private void OnPresetWindowDragEnter(object sender, DragEventArgs e)
 	{
-		e.Effects = GetDroppedFolder(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
-		e.Handled = true;
+		if (HasDroppableFolderSource(e))
+		{
+			FolderDropIndicator.Visibility = Visibility.Visible;
+			SetSlotIndicatorsVisibility(Visibility.Collapsed);
+		}
+		else if (GetSingleCursorFile(e) != null)
+		{
+			FolderDropIndicator.Visibility = Visibility.Collapsed;
+			SetSlotIndicatorsVisibility(Visibility.Visible);
+		}
+		else
+		{
+			HideAllDropIndicators();
+		}
 	}
 
-	private void OnFolderDragEnter(object sender, DragEventArgs e) =>
-		FolderDropZone.BorderBrush = Brush("Brush.Accent");
+	private void OnPresetWindowDragLeave(object sender, DragEventArgs e)
+	{
+		var position = e.GetPosition(this);
+		if (position.X >= 0 && position.Y >= 0 && position.X <= ActualWidth && position.Y <= ActualHeight)
+			return;
 
-	private void OnFolderDragLeave(object sender, DragEventArgs e) =>
-		FolderDropZone.BorderBrush = Brush("Brush.Border");
+		HideAllDropIndicators();
+	}
+
+	private void HideAllDropIndicators()
+	{
+		FolderDropIndicator.Visibility = Visibility.Collapsed;
+		SetSlotIndicatorsVisibility(Visibility.Collapsed);
+	}
+
+	private void SetSlotIndicatorsVisibility(Visibility visibility)
+	{
+		foreach (var indicator in _slotDropIndicators)
+			indicator.Visibility = visibility;
+	}
+
+	private void OnFolderDragOver(object sender, DragEventArgs e)
+	{
+		e.Effects = HasDroppableFolderSource(e) ? DragDropEffects.Copy : DragDropEffects.None;
+		e.Handled = true;
+	}
 
 	private void OnFolderDrop(object sender, DragEventArgs e)
 	{
-		FolderDropZone.BorderBrush = Brush("Brush.Border");
+		HideAllDropIndicators();
 
-		var folder = GetDroppedFolder(e);
-		if (folder == null)
+		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
 			return;
 
-		ImportFolder(folder);
 		e.Handled = true;
+
+		// Deferred: MessageBox.Show synchronously inside Drop confuses the OS
+		// OLE drag-drop loop and leaves the cursor stuck in a "still dragging" state.
+		Dispatcher.BeginInvoke(new Action(() => HandleDroppedFolderPaths(paths)), DispatcherPriority.Input);
 	}
 
-	private static string? GetDroppedFolder(DragEventArgs e)
+	private void HandleDroppedFolderPaths(string[] paths)
+	{
+		var folder = paths.FirstOrDefault(Directory.Exists);
+		if (folder != null)
+		{
+			ImportFolder(folder);
+			return;
+		}
+
+		var archive = paths.FirstOrDefault(ArchiveImportService.IsArchiveFile);
+		if (archive == null)
+			return;
+
+		try
+		{
+			ImportFolder(ArchiveImportService.ExtractToTempFolder(archive), recursive: true,
+				displayName: Path.GetFileNameWithoutExtension(archive));
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show(Loc.Format("S.Error.ArchiveExtractFailed", ex.Message), Title,
+				MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	private static bool HasDroppableFolderSource(DragEventArgs e)
 	{
 		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
-			return null;
+			return false;
 
-		return paths.FirstOrDefault(Directory.Exists);
+		return paths.Any(path => Directory.Exists(path) || ArchiveImportService.IsArchiveFile(path));
 	}
 
-	private void ImportFolder(string folder)
+	private void ImportFolder(string folder, bool recursive = false, string? displayName = null)
 	{
 		if (!Directory.Exists(folder))
 			return;
 
-		var folderName = Path.GetFileName(folder);
+		var folderName = displayName ?? Path.GetFileName(folder);
 		if (!string.IsNullOrWhiteSpace(folderName) && string.IsNullOrWhiteSpace(_draftId))
 			NameBox.Text = folderName;
 
-		var cursorFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly)
+		var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+		var cursorFiles = Directory.EnumerateFiles(folder, "*.*", searchOption)
 			.Where(IsCursorFile)
 			.ToList();
 

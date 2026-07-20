@@ -21,10 +21,12 @@ apply.
 
   ![Preset editor](docs/screenshots/preset-editor.png)
 
-- **Drag-and-drop from the desktop** — drop files or a folder of cursors
-  straight onto the main window to create a new preset right away; the same
-  works for a folder dropped directly onto the "Choose folder" area inside
-  the preset editor.
+- **Drag-and-drop from the desktop** — drop files, a folder, or a `.zip`/
+  `.rar`/`.7z` archive of cursors straight onto the main window to create a
+  new preset right away (the preset name is picked up automatically from the
+  folder/archive name); the same works inside the "Choose folder" area of the
+  preset editor. A dashed outline highlights exactly where the item you're
+  dragging can be dropped.
 - **Pivot point editor** — drag the marker on an enlarged preview to set
   exactly where clicks register for that cursor, or snap it to a corner,
   edge, or center with one click on the 3×3 quick-set pad (it lights up

@@ -5,7 +5,10 @@
 		Width="760" Height="640" MinWidth="480" MinHeight="480"
 		Style="{StaticResource Style.Window}"
 		WindowStartupLocation="CenterOwner"
-		ShowInTaskbar="False">
+		ShowInTaskbar="False"
+		AllowDrop="True"
+		DragEnter="OnPresetWindowDragEnter"
+		DragLeave="OnPresetWindowDragLeave">
 
 	<Window.Resources>
 		<Style x:Key="Style.BrowseFolderButton" TargetType="Button" BasedOn="{StaticResource Style.Button}">
@@ -134,14 +137,22 @@
 				Margin="16,4,16,8"
 				AllowDrop="True"
 				DragOver="OnFolderDragOver"
-				DragEnter="OnFolderDragEnter"
-				DragLeave="OnFolderDragLeave"
 				Drop="OnFolderDrop">
-			<StackPanel Orientation="Horizontal">
-				<Button Style="{StaticResource Style.BrowseFolderButton}"
-						Content="{DynamicResource S.Editor.BrowseFolder}"
-						Click="OnBrowseFolderClick" />
-			</StackPanel>
+			<Grid>
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+					<Button Style="{StaticResource Style.BrowseFolderButton}"
+							Content="{DynamicResource S.Editor.BrowseFolder}"
+							Click="OnBrowseFolderClick" />
+				</StackPanel>
+				<Rectangle x:Name="FolderDropIndicator"
+						   Stroke="{StaticResource Brush.Accent}"
+						   StrokeThickness="3"
+						   StrokeDashArray="4 2"
+						   RadiusX="8" RadiusY="8"
+						   Margin="2"
+						   IsHitTestVisible="False"
+						   Visibility="Collapsed" />
+			</Grid>
 		</Border>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10,4">

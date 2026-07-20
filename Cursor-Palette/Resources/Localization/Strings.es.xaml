@@ -57,6 +57,7 @@
 	<sys:String x:Key="S.WindowsDefault">Predeterminado</sys:String>
 	<sys:String x:Key="S.Error.Title">Error</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">No se pudieron aplicar los cursores: {0}</sys:String>
+	<sys:String x:Key="S.Error.ArchiveExtractFailed">No se pudo extraer el archivo: {0}</sys:String>
 	<sys:String x:Key="S.Error.SaveFailed">No se pudo guardar el preajuste: {0}</sys:String>
 
 	<sys:String x:Key="S.Role.Arrow">Selección normal</sys:String>

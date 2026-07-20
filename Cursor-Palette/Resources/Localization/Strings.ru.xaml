@@ -57,6 +57,7 @@
 	<sys:String x:Key="S.WindowsDefault">По умолчанию</sys:String>
 	<sys:String x:Key="S.Error.Title">Ошибка</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">Не удалось применить курсоры: {0}</sys:String>
+	<sys:String x:Key="S.Error.ArchiveExtractFailed">Не удалось распаковать архив: {0}</sys:String>
 	<sys:String x:Key="S.Error.SaveFailed">Не удалось сохранить пресет: {0}</sys:String>
 
 	<sys:String x:Key="S.Role.Arrow">Обычный выбор</sys:String>

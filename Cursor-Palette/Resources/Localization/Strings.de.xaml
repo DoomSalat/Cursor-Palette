@@ -57,6 +57,7 @@
 	<sys:String x:Key="S.WindowsDefault">Standard</sys:String>
 	<sys:String x:Key="S.Error.Title">Fehler</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">Cursor konnten nicht angewendet werden: {0}</sys:String>
+	<sys:String x:Key="S.Error.ArchiveExtractFailed">Archiv konnte nicht entpackt werden: {0}</sys:String>
 	<sys:String x:Key="S.Error.SaveFailed">Preset konnte nicht gespeichert werden: {0}</sys:String>
 
 	<sys:String x:Key="S.Role.Arrow">Normale Auswahl</sys:String>

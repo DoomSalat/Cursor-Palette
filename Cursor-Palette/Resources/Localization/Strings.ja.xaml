@@ -57,6 +57,7 @@
 	<sys:String x:Key="S.WindowsDefault">既定</sys:String>
 	<sys:String x:Key="S.Error.Title">エラー</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">カーソルの適用に失敗しました：{0}</sys:String>
+	<sys:String x:Key="S.Error.ArchiveExtractFailed">アーカイブの展開に失敗しました：{0}</sys:String>
 	<sys:String x:Key="S.Error.SaveFailed">プリセットの保存に失敗しました：{0}</sys:String>
 
 	<sys:String x:Key="S.Role.Arrow">標準の選択</sys:String>

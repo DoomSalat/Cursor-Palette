@@ -57,6 +57,7 @@
 	<sys:String x:Key="S.WindowsDefault">默认</sys:String>
 	<sys:String x:Key="S.Error.Title">错误</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">应用光标失败：{0}</sys:String>
+	<sys:String x:Key="S.Error.ArchiveExtractFailed">解压压缩包失败：{0}</sys:String>
 	<sys:String x:Key="S.Error.SaveFailed">保存预设失败：{0}</sys:String>
 
 	<sys:String x:Key="S.Role.Arrow">正常选择</sys:String>

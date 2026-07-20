@@ -8,7 +8,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>CursorPalette</RootNamespace>
 		<AssemblyName>Cursor-Palette</AssemblyName>
-		<Version>1.1.0</Version>
+		<Version>1.1.1</Version>
 		<InvariantGlobalization>false</InvariantGlobalization>
 		<ApplicationIcon>app.ico</ApplicationIcon>
 	</PropertyGroup>
@@ -25,6 +25,10 @@
 		<Resource Include="Resources\GitHub48.png" />
 		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
 		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="SharpCompress" Version="0.38.0" />
 	</ItemGroup>
 
 </Project>
