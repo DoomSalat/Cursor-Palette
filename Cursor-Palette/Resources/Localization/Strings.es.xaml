@@ -1,0 +1,75 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
+
+	<sys:String x:Key="S.About.Title">Acerca de</sys:String>
+	<sys:String x:Key="S.About.Close">Cerrar</sys:String>
+	<sys:String x:Key="S.About.LicenseHint">Licencia MIT — haz clic para más detalles</sys:String>
+
+	<sys:String x:Key="S.ResetDefault">Cursor predeterminado</sys:String>
+	<sys:String x:Key="S.ResetDefault.Tooltip">Restaurar los cursores estándar de Windows (independiente de los preajustes)</sys:String>
+	<sys:String x:Key="S.Undo">Atrás</sys:String>
+	<sys:String x:Key="S.Undo.Tooltip">Volver al conjunto de cursores anterior</sys:String>
+	<sys:String x:Key="S.CursorSize">Tamaño del cursor</sys:String>
+	<sys:String x:Key="S.ApplySize">Aplicar</sys:String>
+	<sys:String x:Key="S.ApplySize.Tooltip">Aplicar el tamaño de cursor seleccionado</sys:String>
+	<sys:String x:Key="S.GallerySize">Tamaño de la cuadrícula</sys:String>
+	<sys:String x:Key="S.UiZoom.OutTooltip">Alejar la interfaz</sys:String>
+	<sys:String x:Key="S.UiZoom.InTooltip">Acercar la interfaz</sys:String>
+	<sys:String x:Key="S.Theme.ToggleTooltip">Cambiar el tema de color</sys:String>
+	<sys:String x:Key="S.Language.Tooltip">Idioma de la interfaz</sys:String>
+
+	<sys:String x:Key="S.AddPreset">Añadir preajuste</sys:String>
+	<sys:String x:Key="S.AddPreset.Hint">Suelta archivos .cur/.ani o una carpeta aquí</sys:String>
+	<sys:String x:Key="S.EmptyGallery">Todavía no hay preajustes. Suelta archivos de cursor (.cur/.ani) en la ventana o haz clic en "Añadir preajuste".</sys:String>
+
+	<sys:String x:Key="S.Menu.Edit">Editar</sys:String>
+	<sys:String x:Key="S.Menu.Delete">Eliminar</sys:String>
+	<sys:String x:Key="S.Preset.ContextHint">Clic derecho para el menú</sys:String>
+
+	<sys:String x:Key="S.ConfirmDelete.Title">Eliminar preajuste</sys:String>
+	<sys:String x:Key="S.ConfirmDelete.Text">¿Eliminar el preajuste "{0}"? Sus archivos se borrarán de la caché de la aplicación.</sys:String>
+
+	<sys:String x:Key="S.Editor.TitleNew">Nuevo preajuste</sys:String>
+	<sys:String x:Key="S.Editor.TitleEdit">Editar preajuste</sys:String>
+	<sys:String x:Key="S.Editor.PresetName">Nombre del preajuste</sys:String>
+	<sys:String x:Key="S.Editor.Save">Guardar</sys:String>
+	<sys:String x:Key="S.Editor.Cancel">Cancelar</sys:String>
+	<sys:String x:Key="S.Editor.Browse">Examinar…</sys:String>
+	<sys:String x:Key="S.Editor.ClearSlot">Quitar</sys:String>
+	<sys:String x:Key="S.Editor.EmptySlot">del sistema</sys:String>
+	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
+	<sys:String x:Key="S.Editor.SlotHint">Suelta un archivo en un espacio para reemplazar ese rol</sys:String>
+	<sys:String x:Key="S.Editor.NoFiles">El preajuste no tiene archivos — completa al menos un espacio.</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">Cursores (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.BrowseFolder">Elegir carpeta…</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">La carpeta seleccionada no tiene archivos de cursor (.cur/.ani).</sys:String>
+	<sys:String x:Key="S.Editor.NoMatchInFolder">Se encontraron {0} archivos de cursor, pero ninguno pudo asociarse a un rol por el nombre del archivo.</sys:String>
+
+	<sys:String x:Key="S.DefaultPresetName">Nuevo preajuste</sys:String>
+	<sys:String x:Key="S.WindowsDefault">Predeterminado</sys:String>
+	<sys:String x:Key="S.Error.Title">Error</sys:String>
+	<sys:String x:Key="S.Error.ApplyFailed">No se pudieron aplicar los cursores: {0}</sys:String>
+	<sys:String x:Key="S.Error.SaveFailed">No se pudo guardar el preajuste: {0}</sys:String>
+
+	<sys:String x:Key="S.Role.Arrow">Selección normal</sys:String>
+	<sys:String x:Key="S.Role.Help">Selección de ayuda</sys:String>
+	<sys:String x:Key="S.Role.AppStarting">Trabajando en segundo plano</sys:String>
+	<sys:String x:Key="S.Role.Wait">Ocupado</sys:String>
+	<sys:String x:Key="S.Role.Crosshair">Selección de precisión</sys:String>
+	<sys:String x:Key="S.Role.IBeam">Selección de texto</sys:String>
+	<sys:String x:Key="S.Role.NWPen">Escritura a mano</sys:String>
+	<sys:String x:Key="S.Role.No">No disponible</sys:String>
+	<sys:String x:Key="S.Role.SizeNS">Cambio de tamaño vertical</sys:String>
+	<sys:String x:Key="S.Role.SizeWE">Cambio de tamaño horizontal</sys:String>
+	<sys:String x:Key="S.Role.SizeNWSE">Cambio de tamaño diagonal 1</sys:String>
+	<sys:String x:Key="S.Role.SizeNESW">Cambio de tamaño diagonal 2</sys:String>
+	<sys:String x:Key="S.Role.SizeAll">Mover</sys:String>
+	<sys:String x:Key="S.Role.UpArrow">Selección alternativa</sys:String>
+	<sys:String x:Key="S.Role.Hand">Selección de vínculo</sys:String>
+	<sys:String x:Key="S.Role.Person">Selección de persona</sys:String>
+	<sys:String x:Key="S.Role.Pin">Fijar</sys:String>
+
+</ResourceDictionary>

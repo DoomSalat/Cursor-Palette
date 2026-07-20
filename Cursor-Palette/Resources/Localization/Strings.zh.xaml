@@ -1,0 +1,75 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
+
+	<sys:String x:Key="S.About.Title">关于</sys:String>
+	<sys:String x:Key="S.About.Close">关闭</sys:String>
+	<sys:String x:Key="S.About.LicenseHint">MIT 许可证 — 点击查看详情</sys:String>
+
+	<sys:String x:Key="S.ResetDefault">默认光标</sys:String>
+	<sys:String x:Key="S.ResetDefault.Tooltip">恢复 Windows 标准光标（与预设无关）</sys:String>
+	<sys:String x:Key="S.Undo">返回</sys:String>
+	<sys:String x:Key="S.Undo.Tooltip">恢复到上一个光标状态</sys:String>
+	<sys:String x:Key="S.CursorSize">光标大小</sys:String>
+	<sys:String x:Key="S.ApplySize">应用</sys:String>
+	<sys:String x:Key="S.ApplySize.Tooltip">应用所选的光标大小</sys:String>
+	<sys:String x:Key="S.GallerySize">网格大小</sys:String>
+	<sys:String x:Key="S.UiZoom.OutTooltip">缩小界面</sys:String>
+	<sys:String x:Key="S.UiZoom.InTooltip">放大界面</sys:String>
+	<sys:String x:Key="S.Theme.ToggleTooltip">切换配色主题</sys:String>
+	<sys:String x:Key="S.Language.Tooltip">界面语言</sys:String>
+
+	<sys:String x:Key="S.AddPreset">添加预设</sys:String>
+	<sys:String x:Key="S.AddPreset.Hint">将 .cur/.ani 文件或文件夹拖到此处</sys:String>
+	<sys:String x:Key="S.EmptyGallery">还没有预设。将光标文件（.cur/.ani）拖到窗口中，或点击"添加预设"。</sys:String>
+
+	<sys:String x:Key="S.Menu.Edit">编辑</sys:String>
+	<sys:String x:Key="S.Menu.Delete">删除</sys:String>
+	<sys:String x:Key="S.Preset.ContextHint">右键点击打开菜单</sys:String>
+
+	<sys:String x:Key="S.ConfirmDelete.Title">删除预设</sys:String>
+	<sys:String x:Key="S.ConfirmDelete.Text">删除预设"{0}"？其文件将从应用缓存中移除。</sys:String>
+
+	<sys:String x:Key="S.Editor.TitleNew">新建预设</sys:String>
+	<sys:String x:Key="S.Editor.TitleEdit">编辑预设</sys:String>
+	<sys:String x:Key="S.Editor.PresetName">预设名称</sys:String>
+	<sys:String x:Key="S.Editor.Save">保存</sys:String>
+	<sys:String x:Key="S.Editor.Cancel">取消</sys:String>
+	<sys:String x:Key="S.Editor.Browse">浏览…</sys:String>
+	<sys:String x:Key="S.Editor.ClearSlot">移除</sys:String>
+	<sys:String x:Key="S.Editor.EmptySlot">系统</sys:String>
+	<sys:String x:Key="S.Editor.PlaceholderBadge">默认</sys:String>
+	<sys:String x:Key="S.Editor.SlotHint">将文件拖到某个槽位以替换该角色</sys:String>
+	<sys:String x:Key="S.Editor.NoFiles">预设中没有任何文件 — 请至少填充一个槽位。</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">光标文件 (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.BrowseFolder">选择文件夹…</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">所选文件夹中没有光标文件（.cur/.ani）。</sys:String>
+	<sys:String x:Key="S.Editor.NoMatchInFolder">找到 {0} 个光标文件，但没有一个能根据文件名匹配到角色。</sys:String>
+
+	<sys:String x:Key="S.DefaultPresetName">新建预设</sys:String>
+	<sys:String x:Key="S.WindowsDefault">默认</sys:String>
+	<sys:String x:Key="S.Error.Title">错误</sys:String>
+	<sys:String x:Key="S.Error.ApplyFailed">应用光标失败：{0}</sys:String>
+	<sys:String x:Key="S.Error.SaveFailed">保存预设失败：{0}</sys:String>
+
+	<sys:String x:Key="S.Role.Arrow">正常选择</sys:String>
+	<sys:String x:Key="S.Role.Help">帮助选择</sys:String>
+	<sys:String x:Key="S.Role.AppStarting">后台运行</sys:String>
+	<sys:String x:Key="S.Role.Wait">忙碌</sys:String>
+	<sys:String x:Key="S.Role.Crosshair">精确选择</sys:String>
+	<sys:String x:Key="S.Role.IBeam">文本选择</sys:String>
+	<sys:String x:Key="S.Role.NWPen">手写</sys:String>
+	<sys:String x:Key="S.Role.No">不可用</sys:String>
+	<sys:String x:Key="S.Role.SizeNS">垂直调整</sys:String>
+	<sys:String x:Key="S.Role.SizeWE">水平调整</sys:String>
+	<sys:String x:Key="S.Role.SizeNWSE">对角调整 1</sys:String>
+	<sys:String x:Key="S.Role.SizeNESW">对角调整 2</sys:String>
+	<sys:String x:Key="S.Role.SizeAll">移动</sys:String>
+	<sys:String x:Key="S.Role.UpArrow">备用选择</sys:String>
+	<sys:String x:Key="S.Role.Hand">链接选择</sys:String>
+	<sys:String x:Key="S.Role.Person">人物选择</sys:String>
+	<sys:String x:Key="S.Role.Pin">固定</sys:String>
+
+</ResourceDictionary>

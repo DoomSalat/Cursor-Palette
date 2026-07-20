@@ -1,0 +1,75 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
+
+	<sys:String x:Key="S.About.Title">このアプリについて</sys:String>
+	<sys:String x:Key="S.About.Close">閉じる</sys:String>
+	<sys:String x:Key="S.About.LicenseHint">MIT ライセンス — クリックして詳細を表示</sys:String>
+
+	<sys:String x:Key="S.ResetDefault">デフォルトカーソル</sys:String>
+	<sys:String x:Key="S.ResetDefault.Tooltip">Windows 標準のカーソルに戻す（プリセットとは無関係）</sys:String>
+	<sys:String x:Key="S.Undo">戻る</sys:String>
+	<sys:String x:Key="S.Undo.Tooltip">直前のカーソル状態に戻す</sys:String>
+	<sys:String x:Key="S.CursorSize">カーソルサイズ</sys:String>
+	<sys:String x:Key="S.ApplySize">適用</sys:String>
+	<sys:String x:Key="S.ApplySize.Tooltip">選択したカーソルサイズを適用する</sys:String>
+	<sys:String x:Key="S.GallerySize">グリッドサイズ</sys:String>
+	<sys:String x:Key="S.UiZoom.OutTooltip">画面を縮小</sys:String>
+	<sys:String x:Key="S.UiZoom.InTooltip">画面を拡大</sys:String>
+	<sys:String x:Key="S.Theme.ToggleTooltip">配色テーマを切り替える</sys:String>
+	<sys:String x:Key="S.Language.Tooltip">表示言語</sys:String>
+
+	<sys:String x:Key="S.AddPreset">プリセットを追加</sys:String>
+	<sys:String x:Key="S.AddPreset.Hint">.cur/.ani ファイルまたはフォルダをここにドロップ</sys:String>
+	<sys:String x:Key="S.EmptyGallery">プリセットはまだありません。カーソルファイル（.cur/.ani）をウィンドウにドロップするか、「プリセットを追加」をクリックしてください。</sys:String>
+
+	<sys:String x:Key="S.Menu.Edit">編集</sys:String>
+	<sys:String x:Key="S.Menu.Delete">削除</sys:String>
+	<sys:String x:Key="S.Preset.ContextHint">右クリックでメニュー</sys:String>
+
+	<sys:String x:Key="S.ConfirmDelete.Title">プリセットの削除</sys:String>
+	<sys:String x:Key="S.ConfirmDelete.Text">プリセット「{0}」を削除しますか？ファイルはアプリのキャッシュから削除されます。</sys:String>
+
+	<sys:String x:Key="S.Editor.TitleNew">新しいプリセット</sys:String>
+	<sys:String x:Key="S.Editor.TitleEdit">プリセットの編集</sys:String>
+	<sys:String x:Key="S.Editor.PresetName">プリセット名</sys:String>
+	<sys:String x:Key="S.Editor.Save">保存</sys:String>
+	<sys:String x:Key="S.Editor.Cancel">キャンセル</sys:String>
+	<sys:String x:Key="S.Editor.Browse">参照…</sys:String>
+	<sys:String x:Key="S.Editor.ClearSlot">削除</sys:String>
+	<sys:String x:Key="S.Editor.EmptySlot">システム</sys:String>
+	<sys:String x:Key="S.Editor.PlaceholderBadge">既定</sys:String>
+	<sys:String x:Key="S.Editor.SlotHint">ファイルをスロットにドロップするとそのロールが置き換わります</sys:String>
+	<sys:String x:Key="S.Editor.NoFiles">プリセットにファイルがありません — 少なくとも1つのスロットを設定してください。</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">カーソル (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.BrowseFolder">フォルダを選択…</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">選択したフォルダにカーソルファイル（.cur/.ani）がありません。</sys:String>
+	<sys:String x:Key="S.Editor.NoMatchInFolder">{0} 個のカーソルファイルが見つかりましたが、ファイル名からロールを特定できませんでした。</sys:String>
+
+	<sys:String x:Key="S.DefaultPresetName">新しいプリセット</sys:String>
+	<sys:String x:Key="S.WindowsDefault">既定</sys:String>
+	<sys:String x:Key="S.Error.Title">エラー</sys:String>
+	<sys:String x:Key="S.Error.ApplyFailed">カーソルの適用に失敗しました：{0}</sys:String>
+	<sys:String x:Key="S.Error.SaveFailed">プリセットの保存に失敗しました：{0}</sys:String>
+
+	<sys:String x:Key="S.Role.Arrow">標準の選択</sys:String>
+	<sys:String x:Key="S.Role.Help">ヘルプ選択</sys:String>
+	<sys:String x:Key="S.Role.AppStarting">バックグラウンドで実行中</sys:String>
+	<sys:String x:Key="S.Role.Wait">処理中</sys:String>
+	<sys:String x:Key="S.Role.Crosshair">精密選択</sys:String>
+	<sys:String x:Key="S.Role.IBeam">文字選択</sys:String>
+	<sys:String x:Key="S.Role.NWPen">手書き</sys:String>
+	<sys:String x:Key="S.Role.No">利用不可</sys:String>
+	<sys:String x:Key="S.Role.SizeNS">垂直方向のサイズ変更</sys:String>
+	<sys:String x:Key="S.Role.SizeWE">水平方向のサイズ変更</sys:String>
+	<sys:String x:Key="S.Role.SizeNWSE">斜め方向のサイズ変更 1</sys:String>
+	<sys:String x:Key="S.Role.SizeNESW">斜め方向のサイズ変更 2</sys:String>
+	<sys:String x:Key="S.Role.SizeAll">移動</sys:String>
+	<sys:String x:Key="S.Role.UpArrow">代替選択</sys:String>
+	<sys:String x:Key="S.Role.Hand">リンク選択</sys:String>
+	<sys:String x:Key="S.Role.Person">人物選択</sys:String>
+	<sys:String x:Key="S.Role.Pin">ピン留め</sys:String>
+
+</ResourceDictionary>

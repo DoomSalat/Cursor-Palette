@@ -95,6 +95,33 @@
 		</Setter>
 	</Style>
 
+	<Style TargetType="Button" x:Key="Style.DangerButton" BasedOn="{StaticResource Style.Button}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="Button">
+					<Border x:Name="Bd"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="6"
+							Padding="{TemplateBinding Padding}">
+						<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter TargetName="Bd" Property="Background" Value="{StaticResource Brush.Danger}" />
+							<Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Brush.Danger}" />
+							<Setter Property="Foreground" Value="White" />
+						</Trigger>
+						<Trigger Property="IsEnabled" Value="False">
+							<Setter Property="Opacity" Value="0.45" />
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
 	<Style TargetType="Border" x:Key="Style.GroupBorder">
 		<Setter Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
 		<Setter Property="BorderThickness" Value="1.5" />

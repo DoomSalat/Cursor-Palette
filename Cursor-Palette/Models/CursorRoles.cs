@@ -27,10 +27,17 @@ public static class CursorRoles
 		new("Pin",         "Role.Pin",         new[] { "pin", "aero_pin" }),
 	};
 
+	private static readonly char[] FileNameWordSeparators = { ' ', '-', '_', '.', '(', ')', '[', ']' };
+
 	public static CursorRoleInfo? MatchByFileName(string filePath)
 	{
 		var stem = Path.GetFileNameWithoutExtension(filePath).ToLowerInvariant();
 
-		return All.FirstOrDefault(r => r.Aliases.Contains(stem));
+		var exactMatch = All.FirstOrDefault(r => r.Aliases.Contains(stem));
+		if (exactMatch != null)
+			return exactMatch;
+
+		var words = stem.Split(FileNameWordSeparators, StringSplitOptions.RemoveEmptyEntries);
+		return All.FirstOrDefault(r => r.Aliases.Any(words.Contains));
 	}
 }

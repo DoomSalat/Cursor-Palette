@@ -40,6 +40,7 @@
 	<sys:String x:Key="S.Editor.Browse">Обзор…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Убрать</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">системный</sys:String>
+	<sys:String x:Key="S.Editor.PlaceholderBadge">авто</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Перетащите файл на слот, чтобы заменить роль</sys:String>
 	<sys:String x:Key="S.Editor.NoFiles">В пресете нет ни одного файла — заполните хотя бы один слот.</sys:String>
 	<sys:String x:Key="S.Editor.FileFilter">Курсоры (*.cur;*.ani)|*.cur;*.ani</sys:String>

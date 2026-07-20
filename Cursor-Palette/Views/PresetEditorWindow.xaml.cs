@@ -13,17 +13,19 @@ public partial class PresetEditorWindow : Window
 	private sealed class Slot
 	{
 		public required CursorRoleInfo Role { get; init; }
+		public required string? DefaultPath { get; init; }
 		public string? SourcePath { get; set; }
 		public Image PreviewImage { get; init; } = null!;
 		public TextBlock FileText { get; init; } = null!;
 		public Button ClearButton { get; init; } = null!;
+		public FrameworkElement PlaceholderBadge { get; init; } = null!;
 	}
 
 	private const string PixelSuffix = "px";
 	private const string CurExtension = ".cur";
 	private const string AniExtension = ".ani";
 	private const double SlotWidth = 160;
-	private const double SlotHeight = 156;
+	private const double SlotHeight = 172;
 	private const double SlotMargin = 6;
 	private const double SlotCornerRadius = 10;
 	private const double SlotBorderThickness = 2;
@@ -31,6 +33,8 @@ public partial class PresetEditorWindow : Window
 	private const double RoleNameFontSize = 12;
 	private const double FileTextFontSize = 11;
 	private const double ButtonFontSize = 11;
+	private const double PlaceholderBadgeFontSize = 9;
+	private const double PlaceholderOpacity = 0.45;
 	private const string ClearButtonContent = "✕";
 
 	private readonly List<Slot> _slots = new();
@@ -58,9 +62,15 @@ public partial class PresetEditorWindow : Window
 		_sizeSliderReady = true;
 		UpdateApplySizeButtonHighlight();
 
+		var systemDefaults = RegistryCursorService.GetWindowsDefaultValues();
+
 		foreach (var role in CursorRoles.All)
 		{
-			var slot = CreateSlot(role);
+			var defaultPath = systemDefaults.GetValueOrDefault(role.RegistryName);
+			if (string.IsNullOrWhiteSpace(defaultPath))
+				defaultPath = PlaceholderCursorDefaults.GetPath(role.RegistryName);
+
+			var slot = CreateSlot(role, defaultPath);
 			_slots.Add(slot);
 
 			if (existing != null)
@@ -118,31 +128,31 @@ public partial class PresetEditorWindow : Window
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
 
-	private static void StopPreviewAnimation(Image image) =>
-		image.BeginAnimation(Image.SourceProperty, null);
-
-	private static void MarkDangerOnHover(Button button)
-	{
-		button.MouseEnter += (_, _) =>
-		{
-			button.Foreground = Brush("Brush.Danger");
-			button.BorderBrush = Brush("Brush.Danger");
-		};
-		button.MouseLeave += (_, _) =>
-		{
-			button.Foreground = Brush("Brush.Text");
-			button.BorderBrush = Brush("Brush.Border");
-		};
-	}
-
-	private Slot CreateSlot(CursorRoleInfo role)
+	private Slot CreateSlot(CursorRoleInfo role, string? defaultPath)
 	{
 		var preview = new Image { Width = SlotPreviewSize, Height = SlotPreviewSize, SnapsToDevicePixels = true };
 		RenderOptions.SetBitmapScalingMode(preview, BitmapScalingMode.NearestNeighbor);
 
+		var placeholderBadge = new Border
+		{
+			Background = Brush("Brush.SurfaceHover"),
+			BorderBrush = Brush("Brush.Border"),
+			BorderThickness = new Thickness(1),
+			CornerRadius = new CornerRadius(4),
+			Padding = new Thickness(4, 1, 4, 1),
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Thickness(0, 0, 0, 3),
+			Child = new TextBlock
+			{
+				Text = Loc.Get("S.Editor.PlaceholderBadge"),
+				FontSize = PlaceholderBadgeFontSize,
+				Foreground = Brush("Brush.TextDim"),
+			},
+		};
+
 		var roleName = new TextBlock
 		{
-			Text = Loc.Get("S.Role." + role.DisplayKey),
+			Text = Loc.Get("S." + role.DisplayKey),
 			FontWeight = FontWeights.SemiBold,
 			TextAlignment = TextAlignment.Center,
 			TextWrapping = TextWrapping.Wrap,
@@ -171,14 +181,13 @@ public partial class PresetEditorWindow : Window
 		var clearButton = new Button
 		{
 			Content = ClearButtonContent,
-			Style = (Style)Application.Current.Resources["Style.Button"],
+			Style = (Style)Application.Current.Resources["Style.DangerButton"],
 			FontSize = ButtonFontSize,
 			Padding = new Thickness(8, 3, 8, 3),
 			Margin = new Thickness(0, 6, 0, 0),
 			ToolTip = Loc.Get("S.Editor.ClearSlot"),
 			Visibility = Visibility.Hidden,
 		};
-		MarkDangerOnHover(clearButton);
 
 		var buttons = new StackPanel
 		{
@@ -189,6 +198,7 @@ public partial class PresetEditorWindow : Window
 		buttons.Children.Add(clearButton);
 
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+		panel.Children.Add(placeholderBadge);
 		panel.Children.Add(preview);
 		panel.Children.Add(roleName);
 		panel.Children.Add(fileText);
@@ -210,9 +220,11 @@ public partial class PresetEditorWindow : Window
 		var slot = new Slot
 		{
 			Role = role,
+			DefaultPath = defaultPath,
 			PreviewImage = preview,
 			FileText = fileText,
 			ClearButton = clearButton,
+			PlaceholderBadge = placeholderBadge,
 		};
 
 		browseButton.Click += (_, _) => BrowseForSlot(slot);
@@ -238,6 +250,8 @@ public partial class PresetEditorWindow : Window
 
 		Slots.Items.Add(border);
 
+		SetSlotPlaceholder(slot);
+
 		return slot;
 	}
 
@@ -256,20 +270,27 @@ public partial class PresetEditorWindow : Window
 	{
 		slot.SourcePath = path;
 		CursorPreviewService.ApplyPreview(slot.PreviewImage, path);
+		slot.PreviewImage.Opacity = 1;
+		slot.PlaceholderBadge.Visibility = Visibility.Collapsed;
 		slot.FileText.Text = Path.GetFileName(path);
 		slot.FileText.Foreground = Brush("Brush.Text");
 		slot.ClearButton.Visibility = Visibility.Visible;
 	}
 
-	private void ClearSlot(Slot slot)
+	private void SetSlotPlaceholder(Slot slot)
 	{
 		slot.SourcePath = null;
-		StopPreviewAnimation(slot.PreviewImage);
-		slot.PreviewImage.Source = null;
+		CursorPreviewService.ApplyPreview(slot.PreviewImage, slot.DefaultPath);
+		slot.PreviewImage.Opacity = PlaceholderOpacity;
+		slot.PlaceholderBadge.Visibility = string.IsNullOrWhiteSpace(slot.DefaultPath)
+			? Visibility.Collapsed
+			: Visibility.Visible;
 		slot.FileText.Text = Loc.Get("S.Editor.EmptySlot");
 		slot.FileText.Foreground = Brush("Brush.TextDim");
 		slot.ClearButton.Visibility = Visibility.Hidden;
 	}
+
+	private void ClearSlot(Slot slot) => SetSlotPlaceholder(slot);
 
 	private void OnBrowseFolderClick(object sender, RoutedEventArgs e)
 	{

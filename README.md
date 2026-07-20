@@ -37,9 +37,10 @@ apply.
 - **Light/dark theme** — a toggle in the header switches themes instantly;
   on first launch it follows the Windows system theme, then remembers your
   choice.
-- **Language switcher** — RU/EN out of the box, picked from a menu in the
-  header; also follows the system language on first launch. Adding a new
-  language only requires a new resource file, no code changes.
+- **Language switcher** — Russian, English, Simplified Chinese, Japanese,
+  Spanish, and German out of the box, picked from a menu in the header; also
+  follows the system language on first launch. Adding a new language only
+  requires a new resource file, no code changes.
 - **Interface zoom and grid size** — independent controls to scale the whole
   UI (footer, VS Code-style) and the size of gallery tiles (50–350%),
   each remembered between launches.

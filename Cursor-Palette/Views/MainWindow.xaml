@@ -5,7 +5,7 @@
 		xmlns:services="clr-namespace:CursorPalette.Services"
 		Title="{DynamicResource S.AppTitle}"
 		Icon="pack://application:,,,/app.ico"
-		Width="860" Height="640" MinWidth="620" MinHeight="440"
+		Width="860" Height="640" MinWidth="720" MinHeight="440"
 		Style="{StaticResource Style.Window}"
 		AllowDrop="True"
 		Drop="OnWindowDrop"
@@ -71,58 +71,70 @@
 				Padding="16,10">
 			<Grid>
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="Auto" />
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" MinWidth="240" />
+					<ColumnDefinition Width="*" MinWidth="360" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
 				<Border Grid.Column="0" Style="{StaticResource Style.GroupBorder}" Margin="0,0,12,0">
-					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-						<TextBlock Text="{DynamicResource S.GallerySize}"
+					<Grid VerticalAlignment="Center">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+
+						<TextBlock Grid.Column="0" Text="{DynamicResource S.GallerySize}"
 									 Foreground="{StaticResource Brush.TextDim}"
-									 VerticalAlignment="Center" Margin="0,0,8,0" />
-						<Slider x:Name="CellScaleSlider"
+									 VerticalAlignment="Center" />
+						<Slider x:Name="CellScaleSlider" Grid.Column="1"
 								Style="{StaticResource Style.Slider}"
-								Width="140"
+								MinWidth="60" Margin="8,0"
 								Minimum="{x:Static services:AppState.GalleryCellScaleMin}"
 								Maximum="{x:Static services:AppState.GalleryCellScaleMax}"
 								TickFrequency="0.1" IsSnapToTickEnabled="True"
 								VerticalAlignment="Center"
 								ValueChanged="OnCellScaleSliderValueChanged" />
-						<TextBlock x:Name="CellScaleValueText"
+						<TextBlock x:Name="CellScaleValueText" Grid.Column="2"
 									 Width="46"
 									 Foreground="{StaticResource Brush.TextDim}"
-									 VerticalAlignment="Center" Margin="8,0,0,0" />
-					</StackPanel>
+									 VerticalAlignment="Center" />
+					</Grid>
 				</Border>
 
-				<Border Grid.Column="2" Style="{StaticResource Style.GroupBorder}" Margin="0,0,16,0">
-					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-						<TextBlock Text="{DynamicResource S.CursorSize}"
+				<Border Grid.Column="1" Style="{StaticResource Style.GroupBorder}" Margin="0,0,16,0">
+					<Grid VerticalAlignment="Center">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+
+						<TextBlock Grid.Column="0" Text="{DynamicResource S.CursorSize}"
 									 Foreground="{StaticResource Brush.TextDim}"
-									 VerticalAlignment="Center" Margin="0,0,8,0" />
-						<Slider x:Name="SizeSlider"
+									 VerticalAlignment="Center" />
+						<Slider x:Name="SizeSlider" Grid.Column="1"
 								Style="{StaticResource Style.Slider}"
-								Width="160"
+								MinWidth="90" Margin="8,0"
 								Minimum="1" Maximum="15"
 								TickFrequency="1" IsSnapToTickEnabled="True"
 								VerticalAlignment="Center"
 								ValueChanged="OnSizeSliderValueChanged" />
-						<TextBlock x:Name="SizeValueText"
+						<TextBlock x:Name="SizeValueText" Grid.Column="2"
 									 Width="46"
 									 Foreground="{StaticResource Brush.TextDim}"
-									 VerticalAlignment="Center" Margin="8,0,0,0" />
-						<Button x:Name="ApplySizeButton"
+									 VerticalAlignment="Center" />
+						<Button x:Name="ApplySizeButton" Grid.Column="3"
 								Style="{StaticResource Style.Button}"
 								Content="{DynamicResource S.ApplySize}"
 								ToolTip="{DynamicResource S.ApplySize.Tooltip}"
 								Margin="8,0,0,0"
 								Click="OnApplySizeButtonClick" />
-					</StackPanel>
+					</Grid>
 				</Border>
 
-				<StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+				<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
 					<Button x:Name="UndoButton"
 							Style="{StaticResource Style.Button}"
 							Content="{DynamicResource S.Undo}"

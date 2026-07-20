@@ -11,8 +11,12 @@ public static class LocalizationManager
 
 	public static readonly LanguageInfo[] Available =
 	{
-		new("ru", "Русский", "Resources/Strings.ru.xaml"),
-		new("en", "English", "Resources/Strings.en.xaml"),
+		new("ru", "Русский", "Resources/Localization/Strings.ru.xaml"),
+		new("en", "English", "Resources/Localization/Strings.en.xaml"),
+		new("zh", "简体中文", "Resources/Localization/Strings.zh.xaml"),
+		new("ja", "日本語", "Resources/Localization/Strings.ja.xaml"),
+		new("es", "Español", "Resources/Localization/Strings.es.xaml"),
+		new("de", "Deutsch", "Resources/Localization/Strings.de.xaml"),
 	};
 
 	private const string FallbackCode = "ru";

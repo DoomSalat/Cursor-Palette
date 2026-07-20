@@ -2,7 +2,7 @@
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		Title="{DynamicResource S.Editor.TitleNew}"
-		Width="760" Height="640" MinWidth="600" MinHeight="480"
+		Width="760" Height="640" MinWidth="480" MinHeight="480"
 		Style="{StaticResource Style.Window}"
 		WindowStartupLocation="CenterOwner"
 		ShowInTaskbar="False">
@@ -90,29 +90,36 @@
 				BorderBrush="{StaticResource Brush.Border}"
 				BorderThickness="0,1,0,0"
 				Padding="16,10">
-			<Border Style="{StaticResource Style.GroupBorder}" HorizontalAlignment="Left">
-				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-					<TextBlock Text="{DynamicResource S.CursorSize}"
+			<Border Style="{StaticResource Style.GroupBorder}">
+				<Grid VerticalAlignment="Center">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+
+					<TextBlock Grid.Column="0" Text="{DynamicResource S.CursorSize}"
 								 Foreground="{StaticResource Brush.TextDim}"
-								 VerticalAlignment="Center" Margin="0,0,8,0" />
-					<Slider x:Name="EditorSizeSlider"
+								 VerticalAlignment="Center" />
+					<Slider x:Name="EditorSizeSlider" Grid.Column="1"
 							Style="{StaticResource Style.Slider}"
-							Width="200"
+							MinWidth="90" Margin="8,0"
 							Minimum="1" Maximum="15"
 							TickFrequency="1" IsSnapToTickEnabled="True"
 							VerticalAlignment="Center"
 							ValueChanged="OnEditorSizeSliderValueChanged" />
-					<TextBlock x:Name="EditorSizeValueText"
+					<TextBlock x:Name="EditorSizeValueText" Grid.Column="2"
 								 Width="46"
 								 Foreground="{StaticResource Brush.TextDim}"
-								 VerticalAlignment="Center" Margin="8,0,0,0" />
-					<Button x:Name="EditorApplySizeButton"
+								 VerticalAlignment="Center" />
+					<Button x:Name="EditorApplySizeButton" Grid.Column="3"
 							Style="{StaticResource Style.Button}"
 							Content="{DynamicResource S.ApplySize}"
 							ToolTip="{DynamicResource S.ApplySize.Tooltip}"
 							Margin="8,0,0,0"
 							Click="OnEditorApplySizeClick" />
-				</StackPanel>
+				</Grid>
 			</Border>
 		</Border>
 
