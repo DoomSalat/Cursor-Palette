@@ -81,7 +81,6 @@
 			</Grid>
 		</Border>
 
-		<!-- Размер курсора пресета: дубликат верхнего ползунка, синхронизированы -->
 		<Border DockPanel.Dock="Bottom"
 				Background="{StaticResource Brush.Surface}"
 				BorderBrush="{StaticResource Brush.Border}"

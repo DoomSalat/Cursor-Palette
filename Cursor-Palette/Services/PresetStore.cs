@@ -5,10 +5,15 @@ namespace CursorPalette.Services;
 
 public static class PresetStore
 {
+	private const string FilesDirName = "files";
+	private const string ManifestFileName = "manifest.json";
+	private const string UntitledPresetName = "Без названия";
+	private const string GuidFormat = "N";
+
 	private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
 	public static string GetPresetDir(string id) => Path.Combine(AppPaths.PresetsDir, id);
-	public static string GetFilesDir(string id) => Path.Combine(GetPresetDir(id), Constants.Paths.FilesDirName);
+	public static string GetFilesDir(string id) => Path.Combine(GetPresetDir(id), FilesDirName);
 
 	public static string? GetRoleFilePath(Preset preset, string registryName) =>
 		preset.Roles.TryGetValue(registryName, out var fileName)
@@ -24,7 +29,7 @@ public static class PresetStore
 
 		foreach (var dir in Directory.GetDirectories(AppPaths.PresetsDir))
 		{
-			var manifestPath = Path.Combine(dir, Constants.Paths.ManifestFileName);
+			var manifestPath = Path.Combine(dir, ManifestFileName);
 
 			if (!File.Exists(manifestPath))
 				continue;
@@ -44,7 +49,7 @@ public static class PresetStore
 
 	public static Preset Save(PresetDraft draft)
 	{
-		var id = draft.Id ?? Guid.NewGuid().ToString(Constants.Defaults.GuidFormat);
+		var id = draft.Id ?? Guid.NewGuid().ToString(GuidFormat);
 		var filesDir = GetFilesDir(id);
 		Directory.CreateDirectory(filesDir);
 
@@ -83,22 +88,21 @@ public static class PresetStore
 		var preset = new Preset
 		{
 			Id = id,
-			Name = string.IsNullOrWhiteSpace(draft.Name) ? Constants.Defaults.UntitledPresetName : draft.Name.Trim(),
+			Name = string.IsNullOrWhiteSpace(draft.Name) ? UntitledPresetName : draft.Name.Trim(),
 			CreatedAt = existing?.CreatedAt ?? DateTime.Now,
 			BaseSize = draft.BaseSize,
 			Roles = roles,
 		};
 
-		File.WriteAllText(Path.Combine(GetPresetDir(id), Constants.Paths.ManifestFileName),
+		File.WriteAllText(Path.Combine(GetPresetDir(id), ManifestFileName),
 			JsonSerializer.Serialize(preset, JsonOptions));
 
 		return preset;
 	}
 
-	/// <summary>Перезаписывает только BaseSize в манифесте пресета (для верхнего ползунка).</summary>
 	public static void UpdateBaseSize(string id, int sizePx)
 	{
-		var manifestPath = Path.Combine(GetPresetDir(id), Constants.Paths.ManifestFileName);
+		var manifestPath = Path.Combine(GetPresetDir(id), ManifestFileName);
 
 		if (!File.Exists(manifestPath))
 			return;

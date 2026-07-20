@@ -4,6 +4,10 @@
 
 	<sys:String x:Key="S.AppTitle">Cursor Customizer</sys:String>
 
+	<sys:String x:Key="S.About.Title">О программе</sys:String>
+	<sys:String x:Key="S.About.Close">Закрыть</sys:String>
+	<sys:String x:Key="S.About.LicenseHint">MIT License — нажмите для деталей</sys:String>
+
 	<sys:String x:Key="S.ResetDefault">Курсор по умолчанию</sys:String>
 	<sys:String x:Key="S.ResetDefault.Tooltip">Вернуть стандартные курсоры Windows (не зависит от пресетов)</sys:String>
 	<sys:String x:Key="S.Undo">Отменить</sys:String>
@@ -41,6 +45,7 @@
 	<sys:String x:Key="S.WindowsDefault">По умолчанию</sys:String>
 	<sys:String x:Key="S.Error.Title">Ошибка</sys:String>
 	<sys:String x:Key="S.Error.ApplyFailed">Не удалось применить курсоры: {0}</sys:String>
+	<sys:String x:Key="S.Error.SaveFailed">Не удалось сохранить пресет: {0}</sys:String>
 
 	<sys:String x:Key="S.Role.Arrow">Обычный выбор</sys:String>
 	<sys:String x:Key="S.Role.Help">Справка</sys:String>

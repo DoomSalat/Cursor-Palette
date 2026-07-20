@@ -10,6 +10,42 @@ namespace CursorPalette.Views;
 
 public partial class MainWindow : Window
 {
+	private const string PixelSuffix = "px";
+	private const string CurExtension = ".cur";
+	private const string AniExtension = ".ani";
+	private const string DefaultVersion = "1.0.0";
+	private const string FooterFormat = "Capitan Salat  ·  v{0}";
+	private const string AddCellPlusText = "+";
+	private const string EmptyValue = "";
+	private const string FileSearchPattern = "*.*";
+
+	private const string BrushTextDim = "Brush.TextDim";
+	private const string BrushBg = "Brush.Bg";
+	private const string BrushAccent = "Brush.Accent";
+	private const string BrushBorder = "Brush.Border";
+	private const string BrushSurface = "Brush.Surface";
+	private const string BrushSurfaceHover = "Brush.SurfaceHover";
+
+	private const string LocWindowsDefault = "S.WindowsDefault";
+	private const string LocMenuEdit = "S.Menu.Edit";
+	private const string LocMenuDelete = "S.Menu.Delete";
+	private const string LocAddPreset = "S.AddPreset";
+	private const string LocAddPresetHint = "S.AddPreset.Hint";
+	private const string LocErrorApplyFailed = "S.Error.ApplyFailed";
+	private const string LocErrorTitle = "S.Error.Title";
+	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
+	private const string LocConfirmDeleteText = "S.ConfirmDelete.Text";
+	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
+
+	private const double CellSize = 148;
+	private const double CellMargin = 6;
+	private const double CellCornerRadius = 10;
+	private const double CellBorderThickness = 2;
+	private const double CellPreviewSize = 48;
+	private const double CellCountFontSize = 11;
+	private const double CellSizeFontSize = 11;
+	private const double AddCellPlusFontSize = 34;
+
 	private List<Preset> _presets = new();
 	private string? _activePresetId;
 	private TextBlock? _activeCellSizeText;
@@ -26,14 +62,27 @@ public partial class MainWindow : Window
 		UpdateUndoButton();
 
 		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
-		FooterText.Text = $"Capitan Salat  ·  v{version}";
+		FooterRun.Text = $"Capitan Salat  ·  v{version}  ·  MIT License";
 	}
 
-	/// <summary>Ставит ползунок/текст без применения к системе (программное обновление).</summary>
+	private void OnFooterClick(object sender, RoutedEventArgs e)
+	{
+		new AboutWindow { Owner = this }.ShowDialog();
+	}
+
+	private void OnGitHubIconClick(object sender, MouseButtonEventArgs e)
+	{
+		System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+		{
+			FileName = "https://github.com/DoomSalat/Cursor-Palette",
+			UseShellExecute = true,
+		});
+	}
+
 	private void SetSliderSilently(int sizePx)
 	{
-		SizeSlider.Value = (sizePx - Constants.Cursor.SizeStep) / (double)Constants.Cursor.SizeStep;
-		SizeValueText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
+		SizeSlider.Value = (sizePx - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
+		SizeValueText.Text = $"{sizePx} {PixelSuffix}";
 	}
 
 	private void ReloadGallery()
@@ -41,6 +90,12 @@ public partial class MainWindow : Window
 		_presets = PresetStore.LoadAll();
 		Gallery.Items.Clear();
 		_activeCellSizeText = null;
+
+		if (_activePresetId != null && _presets.All(p => p.Id != _activePresetId))
+		{
+			_activePresetId = null;
+			AppState.SetActivePresetId(null);
+		}
 
 		Gallery.Items.Add(CreateDefaultCell());
 
@@ -58,12 +113,12 @@ public partial class MainWindow : Window
 		var isActive = _activePresetId == null;
 
 		var defaults = RegistryCursorService.GetWindowsDefaultValues();
-		var previewPath = defaults.TryGetValue(Constants.Cursor.ArrowRoleName, out var arrow) ? arrow : null;
+		var previewPath = defaults.TryGetValue(CursorRoles.ArrowRoleName, out var arrow) ? arrow : null;
 
 		var image = new Image
 		{
-			Width = Constants.UI.Cell.PreviewSize,
-			Height = Constants.UI.Cell.PreviewSize,
+			Width = CellPreviewSize,
+			Height = CellPreviewSize,
 			Source = CursorPreviewService.GetPreview(previewPath),
 			SnapsToDevicePixels = true,
 		};
@@ -71,7 +126,7 @@ public partial class MainWindow : Window
 
 		var nameText = new TextBlock
 		{
-			Text = Loc.Get(Constants.Strings.WindowsDefault),
+			Text = Loc.Get(LocWindowsDefault),
 			TextTrimming = TextTrimming.CharacterEllipsis,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(4, 8, 4, 0),
@@ -79,9 +134,9 @@ public partial class MainWindow : Window
 
 		var sizeText = new TextBlock
 		{
-			Text = $"{AppState.GetDefaultBaseSize()} {Constants.UI.PixelSuffix}",
-			Foreground = Brush(Constants.Resources.BrushTextDim),
-			FontSize = Constants.UI.Cell.SizeFontSize,
+			Text = $"{AppState.GetDefaultBaseSize()} {PixelSuffix}",
+			Foreground = Brush(BrushTextDim),
+			FontSize = CellSizeFontSize,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
@@ -96,26 +151,26 @@ public partial class MainWindow : Window
 
 		var cell = new Border
 		{
-			Width = Constants.UI.Cell.Size,
-			Height = Constants.UI.Cell.Size,
-			Margin = new Thickness(Constants.UI.Cell.Margin),
-			CornerRadius = new CornerRadius(Constants.UI.Cell.CornerRadius),
-			Background = Brush(Constants.Resources.BrushBg),
-			BorderThickness = new Thickness(Constants.UI.Cell.BorderThickness),
-			BorderBrush = isActive ? Brush(Constants.Resources.BrushAccent) : Brush(Constants.Resources.BrushBorder),
+			Width = CellSize,
+			Height = CellSize,
+			Margin = new Thickness(CellMargin),
+			CornerRadius = new CornerRadius(CellCornerRadius),
+			Background = Brush(BrushBg),
+			BorderThickness = new Thickness(CellBorderThickness),
+			BorderBrush = isActive ? Brush(BrushAccent) : Brush(BrushBorder),
 			Child = panel,
 			Cursor = Cursors.Hand,
 		};
 
 		cell.MouseEnter += (_, _) =>
 		{
-			if (_activePresetId != null) cell.Background = Brush(Constants.Resources.BrushSurfaceHover);
+			if (_activePresetId != null) cell.Background = Brush(BrushSurfaceHover);
 		};
-		cell.MouseLeave += (_, _) => cell.Background = Brush(Constants.Resources.BrushBg);
+		cell.MouseLeave += (_, _) => cell.Background = Brush(BrushBg);
 		cell.MouseLeftButtonUp += (_, _) => ApplyDefault();
 		cell.MouseLeftButtonDown += (_, _) => { };
 
-		cell.ToolTip = new ToolTip { Content = Loc.Get(Constants.Strings.WindowsDefault) };
+		cell.ToolTip = new ToolTip { Content = Loc.Get(LocWindowsDefault) };
 
 		return cell;
 	}
@@ -124,14 +179,14 @@ public partial class MainWindow : Window
 	{
 		var isActive = preset.Id == _activePresetId;
 
-		var previewPath = PresetStore.GetRoleFilePath(preset, Constants.Cursor.ArrowRoleName)
+		var previewPath = PresetStore.GetRoleFilePath(preset, CursorRoles.ArrowRoleName)
 							?? preset.Roles.Keys.Select(r => PresetStore.GetRoleFilePath(preset, r))
 								.FirstOrDefault(p => p != null);
 
 		var image = new Image
 		{
-			Width = Constants.UI.Cell.PreviewSize,
-			Height = Constants.UI.Cell.PreviewSize,
+			Width = CellPreviewSize,
+			Height = CellPreviewSize,
 			Source = CursorPreviewService.GetPreview(previewPath),
 			SnapsToDevicePixels = true,
 		};
@@ -147,18 +202,18 @@ public partial class MainWindow : Window
 
 		var countText = new TextBlock
 		{
-			Text = $"{preset.Roles.Count}/{Constants.Cursor.TotalRoles}",
-			Foreground = Brush(Constants.Resources.BrushTextDim),
-			FontSize = Constants.UI.Cell.CountFontSize,
+			Text = $"{preset.Roles.Count}/{CursorRoles.All.Length}",
+			Foreground = Brush(BrushTextDim),
+			FontSize = CellCountFontSize,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
 
 		var sizeText = new TextBlock
 		{
-			Text = $"{preset.BaseSize} {Constants.UI.PixelSuffix}",
-			Foreground = Brush(Constants.Resources.BrushTextDim),
-			FontSize = Constants.UI.Cell.SizeFontSize,
+			Text = $"{preset.BaseSize} {PixelSuffix}",
+			Foreground = Brush(BrushTextDim),
+			FontSize = CellSizeFontSize,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
@@ -174,13 +229,13 @@ public partial class MainWindow : Window
 
 		var cell = new Border
 		{
-			Width = Constants.UI.Cell.Size,
-			Height = Constants.UI.Cell.Size,
-			Margin = new Thickness(Constants.UI.Cell.Margin),
-			CornerRadius = new CornerRadius(Constants.UI.Cell.CornerRadius),
-			Background = Brush(Constants.Resources.BrushSurface),
-			BorderThickness = new Thickness(Constants.UI.Cell.BorderThickness),
-			BorderBrush = isActive ? Brush(Constants.Resources.BrushAccent) : Brush(Constants.Resources.BrushBorder),
+			Width = CellSize,
+			Height = CellSize,
+			Margin = new Thickness(CellMargin),
+			CornerRadius = new CornerRadius(CellCornerRadius),
+			Background = Brush(BrushSurface),
+			BorderThickness = new Thickness(CellBorderThickness),
+			BorderBrush = isActive ? Brush(BrushAccent) : Brush(BrushBorder),
 			Child = panel,
 			Cursor = Cursors.Hand,
 			Tag = preset,
@@ -188,9 +243,9 @@ public partial class MainWindow : Window
 
 		cell.MouseEnter += (_, _) =>
 		{
-			if (preset.Id != _activePresetId) cell.Background = Brush(Constants.Resources.BrushSurfaceHover);
+			if (preset.Id != _activePresetId) cell.Background = Brush(BrushSurfaceHover);
 		};
-		cell.MouseLeave += (_, _) => cell.Background = Brush(Constants.Resources.BrushSurface);
+		cell.MouseLeave += (_, _) => cell.Background = Brush(BrushSurface);
 		cell.MouseLeftButtonUp += (_, _) => ApplyPreset(preset);
 		cell.MouseRightButtonUp += (_, e) =>
 		{
@@ -199,9 +254,9 @@ public partial class MainWindow : Window
 		};
 
 		var menu = new ContextMenu();
-		var editItem = new MenuItem { Header = Loc.Get(Constants.Strings.MenuEdit) };
+		var editItem = new MenuItem { Header = Loc.Get(LocMenuEdit) };
 		editItem.Click += (_, _) => EditPreset(preset);
-		var deleteItem = new MenuItem { Header = Loc.Get(Constants.Strings.MenuDelete) };
+		var deleteItem = new MenuItem { Header = Loc.Get(LocMenuDelete) };
 		deleteItem.Click += (_, _) => DeletePreset(preset);
 		menu.Items.Add(editItem);
 		menu.Items.Add(deleteItem);
@@ -222,15 +277,15 @@ public partial class MainWindow : Window
 	{
 		var plus = new TextBlock
 		{
-			Text = "+",
-			FontSize = Constants.UI.AddCell.PlusFontSize,
-			Foreground = Brush(Constants.Resources.BrushTextDim),
+			Text = AddCellPlusText,
+			FontSize = AddCellPlusFontSize,
+			Foreground = Brush(BrushTextDim),
 			TextAlignment = TextAlignment.Center,
 		};
 		var label = new TextBlock
 		{
-			Text = Loc.Get(Constants.Strings.AddPreset),
-			Foreground = Brush(Constants.Resources.BrushTextDim),
+			Text = Loc.Get(LocAddPreset),
+			Foreground = Brush(BrushTextDim),
 			TextAlignment = TextAlignment.Center,
 			TextWrapping = TextWrapping.Wrap,
 			Margin = new Thickness(8, 4, 8, 0),
@@ -241,21 +296,21 @@ public partial class MainWindow : Window
 
 		var cell = new Border
 		{
-			Width = Constants.UI.Cell.Size,
-			Height = Constants.UI.Cell.Size,
-			Margin = new Thickness(Constants.UI.Cell.Margin),
-			CornerRadius = new CornerRadius(Constants.UI.Cell.CornerRadius),
+			Width = CellSize,
+			Height = CellSize,
+			Margin = new Thickness(CellMargin),
+			CornerRadius = new CornerRadius(CellCornerRadius),
 			Background = System.Windows.Media.Brushes.Transparent,
-			BorderThickness = new Thickness(Constants.UI.Cell.BorderThickness),
-			BorderBrush = Brush(Constants.Resources.BrushBorder),
+			BorderThickness = new Thickness(CellBorderThickness),
+			BorderBrush = Brush(BrushBorder),
 			Child = panel,
 			Cursor = Cursors.Hand,
-			ToolTip = new ToolTip { Content = Loc.Get(Constants.Strings.AddPresetHint) },
+			ToolTip = new ToolTip { Content = Loc.Get(LocAddPresetHint) },
 			AllowDrop = true,
 		};
 
-		cell.MouseEnter += (_, _) => cell.BorderBrush = Brush(Constants.Resources.BrushAccent);
-		cell.MouseLeave += (_, _) => cell.BorderBrush = Brush(Constants.Resources.BrushBorder);
+		cell.MouseEnter += (_, _) => cell.BorderBrush = Brush(BrushAccent);
+		cell.MouseLeave += (_, _) => cell.BorderBrush = Brush(BrushBorder);
 		cell.MouseLeftButtonUp += (_, _) => OpenEditor(null, Array.Empty<string>());
 		cell.Drop += OnWindowDrop;
 
@@ -272,7 +327,7 @@ public partial class MainWindow : Window
 			foreach (var role in CursorRoles.All)
 			{
 				var path = PresetStore.GetRoleFilePath(preset, role.RegistryName);
-				values[role.RegistryName] = path != null && File.Exists(path) ? path : "";
+				values[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
 			}
 
 			RegistryCursorService.ApplyValues(values);
@@ -286,28 +341,34 @@ public partial class MainWindow : Window
 		}
 		catch (Exception ex)
 		{
-			MessageBox.Show(Loc.Format(Constants.Strings.ErrorApplyFailed, ex.Message),
-				Loc.Get(Constants.Strings.ErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
 
 	private void ApplyDefault()
 	{
-		RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+		try
+		{
+			RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
 
-		// У дефолтной ячейки свой сохранённый размер (settings.json) —
-		// сброс курсоров не сбрасывает выбранный для неё размер.
-		var defaultSize = AppState.GetDefaultBaseSize();
-		RegistryCursorService.ApplyValues(RegistryCursorService.GetWindowsDefaultValues());
-		RegistryCursorService.SetBaseSize(defaultSize);
+			var defaultSize = AppState.GetDefaultBaseSize();
+			RegistryCursorService.ApplyValues(RegistryCursorService.GetWindowsDefaultValues());
+			RegistryCursorService.SetBaseSize(defaultSize);
 
-		_activePresetId = null;
-		AppState.SetActivePresetId(null);
+			_activePresetId = null;
+			AppState.SetActivePresetId(null);
 
-		SetSliderSilently(defaultSize);
+			SetSliderSilently(defaultSize);
 
-		ReloadGallery();
-		UpdateUndoButton();
+			ReloadGallery();
+			UpdateUndoButton();
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
 	}
 
 	private void OnUndoButtonClick(object sender, RoutedEventArgs e)
@@ -317,25 +378,33 @@ public partial class MainWindow : Window
 		if (snapshot == null)
 			return;
 
-		RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
-		RegistryCursorService.RestoreSnapshot(snapshot);
+		try
+		{
+			RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+			RegistryCursorService.RestoreSnapshot(snapshot);
 
-		_activePresetId = FindPresetIdByValues(snapshot.Values);
-		AppState.SetActivePresetId(_activePresetId);
+			_activePresetId = FindPresetIdByValues(snapshot.Values);
+			AppState.SetActivePresetId(_activePresetId);
 
-		SetSliderSilently(snapshot.BaseSize);
+			SetSliderSilently(snapshot.BaseSize);
 
-		ReloadGallery();
-		UpdateUndoButton();
+			ReloadGallery();
+			UpdateUndoButton();
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
 	}
 
 	private string? FindPresetIdByValues(IReadOnlyDictionary<string, string> values)
 	{
-		if (!values.TryGetValue(Constants.Cursor.ArrowRoleName, out var arrow) || string.IsNullOrEmpty(arrow))
+		if (!values.TryGetValue(CursorRoles.ArrowRoleName, out var arrow) || string.IsNullOrEmpty(arrow))
 			return null;
 
 		return _presets.FirstOrDefault(p =>
-			string.Equals(PresetStore.GetRoleFilePath(p, Constants.Cursor.ArrowRoleName), arrow,
+			string.Equals(PresetStore.GetRoleFilePath(p, CursorRoles.ArrowRoleName), arrow,
 				StringComparison.OrdinalIgnoreCase))?.Id;
 	}
 
@@ -345,8 +414,8 @@ public partial class MainWindow : Window
 	private void DeletePreset(Preset preset)
 	{
 		var answer = MessageBox.Show(
-			Loc.Format(Constants.Strings.ConfirmDeleteText, preset.Name),
-			Loc.Get(Constants.Strings.ConfirmDeleteTitle),
+			Loc.Format(LocConfirmDeleteText, preset.Name),
+			Loc.Get(LocConfirmDeleteTitle),
 			MessageBoxButton.YesNo, MessageBoxImage.Question);
 
 		if (answer != MessageBoxResult.Yes)
@@ -371,7 +440,17 @@ public partial class MainWindow : Window
 
 		if (editor.ShowDialog() == true && editor.Result != null)
 		{
-			var saved = PresetStore.Save(editor.Result);
+			Preset saved;
+			try
+			{
+				saved = PresetStore.Save(editor.Result);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(Loc.Format(LocErrorSaveFailed, ex.Message),
+					Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
 
 			foreach (var fileName in saved.Roles.Values)
 				CursorPreviewService.Invalidate(
@@ -389,43 +468,45 @@ public partial class MainWindow : Window
 		if (SizeValueText == null)
 			return;
 
-		// Ползунок только выбирает значение — применение и сохранение по кнопке.
-		var sizePx = Constants.Cursor.SizeStep + (int)e.NewValue * Constants.Cursor.SizeStep;
-		SizeValueText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
+		var sizePx = RegistryCursorService.SizeStep + (int)e.NewValue * RegistryCursorService.SizeStep;
+		SizeValueText.Text = $"{sizePx} {PixelSuffix}";
 	}
 
 	private void OnApplySizeButtonClick(object sender, RoutedEventArgs e)
 	{
-		var sizePx = Constants.Cursor.SizeStep + (int)SizeSlider.Value * Constants.Cursor.SizeStep;
+		var sizePx = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
 		ApplyAndPersistSize(sizePx);
 	}
 
-	/// <summary>
-	/// Применяет размер к системе и сохраняет его в активный пресет
-	/// (или в настройки дефолтной ячейки), обновляя текст на её ячейке.
-	/// </summary>
 	public void ApplyAndPersistSize(int sizePx)
 	{
-		RegistryCursorService.SetBaseSize(sizePx);
-
-		if (_activePresetId != null)
+		try
 		{
-			PresetStore.UpdateBaseSize(_activePresetId, sizePx);
+			RegistryCursorService.SetBaseSize(sizePx);
 
-			var preset = _presets.FirstOrDefault(p => p.Id == _activePresetId);
-			if (preset != null)
-				preset.BaseSize = sizePx;
+			if (_activePresetId != null)
+			{
+				PresetStore.UpdateBaseSize(_activePresetId, sizePx);
+
+				var preset = _presets.FirstOrDefault(p => p.Id == _activePresetId);
+				if (preset != null)
+					preset.BaseSize = sizePx;
+			}
+			else
+			{
+				AppState.SetDefaultBaseSize(sizePx);
+			}
+
+			if (_activeCellSizeText != null)
+				_activeCellSizeText.Text = $"{sizePx} {PixelSuffix}";
 		}
-		else
+		catch (Exception ex)
 		{
-			AppState.SetDefaultBaseSize(sizePx);
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
-
-		if (_activeCellSizeText != null)
-			_activeCellSizeText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
 	}
 
-	/// <summary>Синхронизация верхнего ползунка из редактора пресета.</summary>
 	public void SyncSizeSlider(int sizePx) => SetSliderSilently(sizePx);
 
 	private void OnWindowDragOver(object sender, DragEventArgs e)
@@ -455,7 +536,7 @@ public partial class MainWindow : Window
 		foreach (var path in paths)
 		{
 			if (Directory.Exists(path))
-				result.AddRange(Directory.EnumerateFiles(path, "*.*", SearchOption.TopDirectoryOnly)
+				result.AddRange(Directory.EnumerateFiles(path, FileSearchPattern, SearchOption.TopDirectoryOnly)
 					.Where(IsCursorFile));
 			else if (IsCursorFile(path))
 				result.Add(path);
@@ -468,7 +549,7 @@ public partial class MainWindow : Window
 	{
 		var ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
 
-		return ext is Constants.Files.CurExtension or Constants.Files.AniExtension;
+		return ext is CurExtension or AniExtension;
 	}
 }
 

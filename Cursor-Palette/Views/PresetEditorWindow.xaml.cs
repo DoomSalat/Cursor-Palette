@@ -19,6 +19,20 @@ public partial class PresetEditorWindow : Window
 		public Button ClearButton { get; init; } = null!;
 	}
 
+	private const string PixelSuffix = "px";
+	private const string CurExtension = ".cur";
+	private const string AniExtension = ".ani";
+	private const double SlotWidth = 160;
+	private const double SlotHeight = 156;
+	private const double SlotMargin = 6;
+	private const double SlotCornerRadius = 10;
+	private const double SlotBorderThickness = 2;
+	private const double SlotPreviewSize = 40;
+	private const double RoleNameFontSize = 12;
+	private const double FileTextFontSize = 11;
+	private const double ButtonFontSize = 11;
+	private const string ClearButtonContent = "✕";
+
 	private readonly List<Slot> _slots = new();
 
 	public PresetDraft? Result { get; private set; }
@@ -27,16 +41,15 @@ public partial class PresetEditorWindow : Window
 	{
 		InitializeComponent();
 
-		Title = Loc.Get(existing == null ? Constants.Strings.EditorTitleNew : Constants.Strings.EditorTitleEdit);
-		NameBox.Text = existing?.Name ?? Loc.Get(Constants.Strings.DefaultPresetName);
+		Title = Loc.Get(existing == null ? "S.Editor.TitleNew" : "S.Editor.TitleEdit");
+		NameBox.Text = existing?.Name ?? Loc.Get("S.DefaultPresetName");
 
 		Result = null;
 		_draftId = existing?.Id;
-		// Новый пресет наследует текущий системный размер, существующий — свой.
 		_baseSize = existing?.BaseSize ?? RegistryCursorService.GetBaseSize();
 
-		EditorSizeSlider.Value = (_baseSize - Constants.Cursor.SizeStep) / (double)Constants.Cursor.SizeStep;
-		EditorSizeValueText.Text = $"{_baseSize} {Constants.UI.PixelSuffix}";
+		EditorSizeSlider.Value = (_baseSize - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
+		EditorSizeValueText.Text = $"{_baseSize} {PixelSuffix}";
 		_sizeSliderReady = true;
 
 		foreach (var role in CursorRoles.All)
@@ -55,7 +68,10 @@ public partial class PresetEditorWindow : Window
 		foreach (var file in droppedFiles)
 		{
 			var role = CursorRoles.MatchByFileName(file);
-			if (role == null) continue;
+
+			if (role == null)
+				continue;
+
 			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
 			SetSlotSource(slot, file);
 		}
@@ -70,22 +86,19 @@ public partial class PresetEditorWindow : Window
 		if (EditorSizeValueText == null)
 			return;
 
-		var sizePx = Constants.Cursor.SizeStep + (int)e.NewValue * Constants.Cursor.SizeStep;
-		EditorSizeValueText.Text = $"{sizePx} {Constants.UI.PixelSuffix}";
+		var sizePx = RegistryCursorService.SizeStep + (int)e.NewValue * RegistryCursorService.SizeStep;
+		EditorSizeValueText.Text = $"{sizePx} {PixelSuffix}";
 
 		if (!_sizeSliderReady)
 			return;
 
 		_baseSize = sizePx;
 
-		// Синхронизация с верхним ползунком главного окна.
 		(Owner as MainWindow)?.SyncSizeSlider(sizePx);
 	}
 
 	private void OnEditorApplySizeClick(object sender, RoutedEventArgs e)
 	{
-		// Применяем к системе сразу (живой предпросмотр размера);
-		// в манифест значение попадёт при "Сохранить".
 		RegistryCursorService.SetBaseSize(_baseSize);
 	}
 
@@ -93,24 +106,24 @@ public partial class PresetEditorWindow : Window
 
 	private Slot CreateSlot(CursorRoleInfo role)
 	{
-		var preview = new Image { Width = Constants.UI.Editor.SlotPreviewSize, Height = Constants.UI.Editor.SlotPreviewSize, SnapsToDevicePixels = true };
+		var preview = new Image { Width = SlotPreviewSize, Height = SlotPreviewSize, SnapsToDevicePixels = true };
 		RenderOptions.SetBitmapScalingMode(preview, BitmapScalingMode.NearestNeighbor);
 
 		var roleName = new TextBlock
 		{
-			Text = Loc.Get(Constants.Strings.Prefix + role.DisplayKey),
+			Text = Loc.Get("S.Role." + role.DisplayKey),
 			FontWeight = FontWeights.SemiBold,
 			TextAlignment = TextAlignment.Center,
 			TextWrapping = TextWrapping.Wrap,
 			Margin = new Thickness(4, 6, 4, 0),
-			FontSize = Constants.UI.Editor.RoleNameFontSize,
+			FontSize = RoleNameFontSize,
 		};
 
 		var fileText = new TextBlock
 		{
-			Text = Loc.Get(Constants.Strings.EditorEmptySlot),
-			Foreground = Brush(Constants.Resources.BrushTextDim),
-			FontSize = Constants.UI.Editor.FileTextFontSize,
+			Text = Loc.Get("S.Editor.EmptySlot"),
+			Foreground = Brush("Brush.TextDim"),
+			FontSize = FileTextFontSize,
 			TextAlignment = TextAlignment.Center,
 			TextTrimming = TextTrimming.CharacterEllipsis,
 			Margin = new Thickness(4, 2, 4, 0),
@@ -118,20 +131,20 @@ public partial class PresetEditorWindow : Window
 
 		var browseButton = new Button
 		{
-			Content = Loc.Get(Constants.Strings.EditorBrowse),
-			Style = (Style)Application.Current.Resources[Constants.Resources.StyleButton],
-			FontSize = Constants.UI.Editor.ButtonFontSize,
+			Content = Loc.Get("S.Editor.Browse"),
+			Style = (Style)Application.Current.Resources["Style.Button"],
+			FontSize = ButtonFontSize,
 			Padding = new Thickness(8, 3, 8, 3),
 			Margin = new Thickness(0, 6, 4, 0),
 		};
 		var clearButton = new Button
 		{
-			Content = Constants.UI.Editor.ClearButtonContent,
-			Style = (Style)Application.Current.Resources[Constants.Resources.StyleButton],
-			FontSize = Constants.UI.Editor.ButtonFontSize,
+			Content = ClearButtonContent,
+			Style = (Style)Application.Current.Resources["Style.Button"],
+			FontSize = ButtonFontSize,
 			Padding = new Thickness(8, 3, 8, 3),
 			Margin = new Thickness(0, 6, 0, 0),
-			ToolTip = Loc.Get(Constants.Strings.EditorClearSlot),
+			ToolTip = Loc.Get("S.Editor.ClearSlot"),
 			Visibility = Visibility.Hidden,
 		};
 
@@ -151,13 +164,13 @@ public partial class PresetEditorWindow : Window
 
 		var border = new Border
 		{
-			Width = Constants.UI.Editor.SlotWidth,
-			Height = Constants.UI.Editor.SlotHeight,
-			Margin = new Thickness(Constants.UI.Editor.SlotMargin),
-			CornerRadius = new CornerRadius(Constants.UI.Editor.SlotCornerRadius),
-			Background = Brush(Constants.Resources.BrushSurface),
-			BorderThickness = new Thickness(Constants.UI.Editor.SlotBorderThickness),
-			BorderBrush = Brush(Constants.Resources.BrushBorder),
+			Width = SlotWidth,
+			Height = SlotHeight,
+			Margin = new Thickness(SlotMargin),
+			CornerRadius = new CornerRadius(SlotCornerRadius),
+			Background = Brush("Brush.Surface"),
+			BorderThickness = new Thickness(SlotBorderThickness),
+			BorderBrush = Brush("Brush.Border"),
 			Child = panel,
 			AllowDrop = true,
 		};
@@ -178,11 +191,11 @@ public partial class PresetEditorWindow : Window
 			e.Effects = GetSingleCursorFile(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
 			e.Handled = true;
 		};
-		border.DragEnter += (_, _) => border.BorderBrush = Brush(Constants.Resources.BrushAccent);
-		border.DragLeave += (_, _) => border.BorderBrush = Brush(Constants.Resources.BrushBorder);
+		border.DragEnter += (_, _) => border.BorderBrush = Brush("Brush.Accent");
+		border.DragLeave += (_, _) => border.BorderBrush = Brush("Brush.Border");
 		border.Drop += (_, e) =>
 		{
-			border.BorderBrush = Brush(Constants.Resources.BrushBorder);
+			border.BorderBrush = Brush("Brush.Border");
 			var file = GetSingleCursorFile(e);
 			if (file != null)
 			{
@@ -192,6 +205,7 @@ public partial class PresetEditorWindow : Window
 		};
 
 		Slots.Items.Add(border);
+
 		return slot;
 	}
 
@@ -199,7 +213,7 @@ public partial class PresetEditorWindow : Window
 	{
 		var dialog = new OpenFileDialog
 		{
-			Filter = Loc.Get(Constants.Strings.EditorFileFilter),
+			Filter = Loc.Get("S.Editor.FileFilter"),
 			CheckFileExists = true,
 		};
 		if (dialog.ShowDialog(this) == true)
@@ -211,7 +225,7 @@ public partial class PresetEditorWindow : Window
 		slot.SourcePath = path;
 		slot.PreviewImage.Source = CursorPreviewService.GetPreview(path);
 		slot.FileText.Text = Path.GetFileName(path);
-		slot.FileText.Foreground = Brush(Constants.Resources.BrushText);
+		slot.FileText.Foreground = Brush("Brush.Text");
 		slot.ClearButton.Visibility = Visibility.Visible;
 	}
 
@@ -219,8 +233,8 @@ public partial class PresetEditorWindow : Window
 	{
 		slot.SourcePath = null;
 		slot.PreviewImage.Source = null;
-		slot.FileText.Text = Loc.Get(Constants.Strings.EditorEmptySlot);
-		slot.FileText.Foreground = Brush(Constants.Resources.BrushTextDim);
+		slot.FileText.Text = Loc.Get("S.Editor.EmptySlot");
+		slot.FileText.Foreground = Brush("Brush.TextDim");
 		slot.ClearButton.Visibility = Visibility.Hidden;
 	}
 
@@ -228,7 +242,7 @@ public partial class PresetEditorWindow : Window
 	{
 		var dialog = new OpenFolderDialog
 		{
-			Title = Loc.Get(Constants.Strings.EditorBrowseFolder),
+			Title = Loc.Get("S.Editor.BrowseFolder"),
 		};
 
 		if (dialog.ShowDialog(this) != true)
@@ -248,7 +262,7 @@ public partial class PresetEditorWindow : Window
 
 		if (cursorFiles.Count == 0)
 		{
-			MessageBox.Show(Loc.Get(Constants.Strings.EditorNoCursorInFolder), Title,
+			MessageBox.Show(Loc.Get("S.Editor.NoCursorInFolder"), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 			return;
 		}
@@ -267,7 +281,7 @@ public partial class PresetEditorWindow : Window
 
 		if (matched == 0)
 		{
-			MessageBox.Show(Loc.Format(Constants.Strings.EditorNoMatchInFolder, cursorFiles.Count), Title,
+			MessageBox.Show(Loc.Format("S.Editor.NoMatchInFolder", cursorFiles.Count), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 	}
@@ -275,14 +289,15 @@ public partial class PresetEditorWindow : Window
 	private static bool IsCursorFile(string path)
 	{
 		var ext = Path.GetExtension(path).ToLowerInvariant();
-		return ext is Constants.Files.CurExtension or Constants.Files.AniExtension;
+
+		return ext is CurExtension or AniExtension;
 	}
 
 	private void OnSaveButtonClick(object sender, RoutedEventArgs e)
 	{
 		if (_slots.All(s => s.SourcePath == null))
 		{
-			MessageBox.Show(Loc.Get(Constants.Strings.EditorNoFiles), Title,
+			MessageBox.Show(Loc.Get("S.Editor.NoFiles"), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 			return;
 		}
@@ -307,6 +322,6 @@ public partial class PresetEditorWindow : Window
 
 		var ext = Path.GetExtension(file).ToLowerInvariant();
 
-		return ext is Constants.Files.CurExtension or Constants.Files.AniExtension ? file : null;
+		return ext is CurExtension or AniExtension ? file : null;
 	}
 }

@@ -15,6 +15,15 @@ public static class RegistryCursorService
 {
 	public const int DefaultBaseSize = 32;
 	public const int MaxBaseSize = 256;
+	public const int SizeStep = 16;
+
+	private const string User32Dll = "user32.dll";
+	private const string SchemeSourceName = "Scheme Source";
+	private const int SchemeSourceUserDefined = 2;
+	private const string CursorBaseSizeName = "CursorBaseSize";
+	private const string CursorSizeName = "CursorSize";
+	private const string WindowsDefaultSchemeName = "Windows Default";
+	private const char SchemePathSeparator = ',';
 
 	private const string CursorsKeyPath = @"Control Panel\Cursors";
 	private const string AccessibilityKeyPath = @"Software\Microsoft\Accessibility";
@@ -26,7 +35,7 @@ public static class RegistryCursorService
 	private const uint SPIF_UPDATEINIFILE = 0x01;
 	private const uint SPIF_SENDCHANGE = 0x02;
 
-	[DllImport(Constants.Files.User32Dll, SetLastError = true)]
+	[DllImport(User32Dll, SetLastError = true)]
 	private static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
 
 	public static void Refresh() =>
@@ -54,7 +63,7 @@ public static class RegistryCursorService
 			key.SetValue(role.RegistryName, value, RegistryValueKind.ExpandString);
 		}
 
-		key.SetValue(Constants.Registry.SchemeSourceName, Constants.Registry.SchemeSourceUserDefined, RegistryValueKind.DWord);
+		key.SetValue(SchemeSourceName, SchemeSourceUserDefined, RegistryValueKind.DWord);
 
 		Refresh();
 	}
@@ -62,20 +71,19 @@ public static class RegistryCursorService
 	public static int GetBaseSize()
 	{
 		using var key = Registry.CurrentUser.OpenSubKey(CursorsKeyPath);
-		return key?.GetValue(Constants.Registry.CursorBaseSizeName) is int size and >= DefaultBaseSize and <= MaxBaseSize
+		return key?.GetValue(CursorBaseSizeName) is int size and >= DefaultBaseSize and <= MaxBaseSize
 			? size
 			: DefaultBaseSize;
 	}
 
 	public static void SetBaseSize(int sizePx)
 	{
-		sizePx = Math.Clamp(sizePx / Constants.Cursor.SizeStep * Constants.Cursor.SizeStep, DefaultBaseSize, MaxBaseSize);
+		sizePx = Math.Clamp(sizePx / SizeStep * SizeStep, DefaultBaseSize, MaxBaseSize);
 		using (var cursors = Registry.CurrentUser.CreateSubKey(CursorsKeyPath)!)
-			cursors.SetValue(Constants.Registry.CursorBaseSizeName, sizePx, RegistryValueKind.DWord);
+			cursors.SetValue(CursorBaseSizeName, sizePx, RegistryValueKind.DWord);
 		using (var acc = Registry.CurrentUser.CreateSubKey(AccessibilityKeyPath)!)
-			acc.SetValue(Constants.Registry.CursorSizeName, (sizePx - Constants.Cursor.SizeStep) / Constants.Cursor.SizeStep, RegistryValueKind.DWord);
+			acc.SetValue(CursorSizeName, (sizePx - SizeStep) / SizeStep, RegistryValueKind.DWord);
 
-		// Размер передаётся через pvParam (не uiParam) — иначе Windows его игнорирует.
 		SystemParametersInfo(SPI_SETCURSORSIZE, 0, (IntPtr)sizePx, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 		SystemParametersInfo(SPI_SETCURSORS, 0, IntPtr.Zero, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 	}
@@ -118,10 +126,12 @@ public static class RegistryCursorService
 		try
 		{
 			using var schemes = Registry.LocalMachine.OpenSubKey(SystemSchemesKeyPath);
-			if (schemes?.GetValue(Constants.Registry.WindowsDefaultSchemeName, null, RegistryValueOptions.DoNotExpandEnvironmentNames)
+
+			if (schemes?.GetValue(WindowsDefaultSchemeName, null, RegistryValueOptions.DoNotExpandEnvironmentNames)
 				is string scheme && scheme.Length > 0)
 			{
-				var parts = scheme.Split(Constants.Registry.SchemePathSeparator);
+				var parts = scheme.Split(SchemePathSeparator);
+
 				for (var i = 0; i < parts.Length && i < CursorRoles.All.Length; i++)
 					values[CursorRoles.All[i].RegistryName] = parts[i].Trim();
 			}

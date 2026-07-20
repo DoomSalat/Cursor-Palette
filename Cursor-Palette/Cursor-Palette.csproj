@@ -22,6 +22,7 @@
 		<Resource Include="Resources\OpenFolder52.png" />
 		<Resource Include="Resources\OpenFolder26.png" />
 		<Resource Include="Resources\OpenFolder104.png" />
+		<Resource Include="Resources\GitHub48.png" />
 	</ItemGroup>
 
 </Project>

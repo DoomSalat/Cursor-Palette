@@ -29,8 +29,6 @@ public static class AppState
 		File.WriteAllText(AppPaths.ActiveStateFile,
 			JsonSerializer.Serialize(new ActiveState { ActivePresetId = id }));
 
-	// ---- размер для ячейки "Windows по умолчанию" (у неё нет манифеста) ----
-
 	private sealed class Settings
 	{
 		public int DefaultBaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;

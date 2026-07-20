@@ -68,10 +68,32 @@
 				BorderBrush="{StaticResource Brush.Border}"
 				BorderThickness="0,1,0,0"
 				Padding="16,4">
-			<TextBlock x:Name="FooterText"
-						 Foreground="{StaticResource Brush.TextDim}"
-						 FontSize="11"
-						 HorizontalAlignment="Right" />
+			<StackPanel Orientation="Horizontal"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Center">
+				<TextBlock x:Name="FooterText"
+							 Foreground="{StaticResource Brush.TextDim}"
+							 FontSize="11"
+							 VerticalAlignment="Center"
+							 Cursor="Hand">
+					<Hyperlink x:Name="FooterLink"
+								  Foreground="{StaticResource Brush.TextDim}"
+								  TextDecorations="None"
+								  ToolTip="{DynamicResource S.About.LicenseHint}"
+								  Click="OnFooterClick">
+						<Run x:Name="FooterRun" />
+					</Hyperlink>
+				</TextBlock>
+				<Border Margin="8,0,0,0"
+						Cursor="Hand"
+						ToolTip="https://github.com/DoomSalat/Cursor-Palette"
+						MouseLeftButtonUp="OnGitHubIconClick">
+					<Image Source="pack://application:,,,/Resources/GitHub48.png"
+						   Width="20" Height="20"
+						   SnapsToDevicePixels="True"
+						   RenderOptions.BitmapScalingMode="HighQuality" />
+				</Border>
+			</StackPanel>
 		</Border>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">

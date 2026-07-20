@@ -4,6 +4,8 @@ public sealed record CursorRoleInfo(string RegistryName, string DisplayKey, stri
 
 public static class CursorRoles
 {
+	public const string ArrowRoleName = "Arrow";
+
 	public static CursorRoleInfo[] All { get; } =
 	{
 		new("Arrow",       "Role.Arrow",       new[] { "normal", "arrow", "default", "pointer", "aero_arrow" }),
@@ -28,6 +30,7 @@ public static class CursorRoles
 	public static CursorRoleInfo? MatchByFileName(string filePath)
 	{
 		var stem = Path.GetFileNameWithoutExtension(filePath).ToLowerInvariant();
+
 		return All.FirstOrDefault(r => r.Aliases.Contains(stem));
 	}
 }

@@ -8,12 +8,14 @@ namespace CursorPalette.Services;
 
 public static class CursorPreviewService
 {
+	private const string User32Dll = "user32.dll";
+
 	private static readonly Dictionary<string, ImageSource?> Cache = new(StringComparer.OrdinalIgnoreCase);
 
-	[DllImport(Constants.Files.User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
+	[DllImport(User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
 	private static extern IntPtr LoadCursorFromFile(string lpFileName);
 
-	[DllImport(Constants.Files.User32Dll, SetLastError = true)]
+	[DllImport(User32Dll, SetLastError = true)]
 	private static extern bool DestroyCursor(IntPtr hCursor);
 
 	public static ImageSource? GetPreview(string? filePath)
