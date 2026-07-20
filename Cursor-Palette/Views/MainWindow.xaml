@@ -35,7 +35,8 @@
 								 Foreground="{StaticResource Brush.TextDim}"
 								 VerticalAlignment="Center" Margin="0,0,8,0" />
 					<Slider x:Name="SizeSlider"
-							Width="140"
+							Style="{StaticResource Style.Slider}"
+							Width="160"
 							Minimum="1" Maximum="15"
 							TickFrequency="1" IsSnapToTickEnabled="True"
 							VerticalAlignment="Center"

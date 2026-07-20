@@ -7,6 +7,44 @@
 		WindowStartupLocation="CenterOwner"
 		ShowInTaskbar="False">
 
+	<Window.Resources>
+		<Style x:Key="Style.BrowseFolderButton" TargetType="Button" BasedOn="{StaticResource Style.Button}">
+			<Setter Property="Padding" Value="16,10" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="Bd"
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								CornerRadius="6"
+								Padding="{TemplateBinding Padding}">
+							<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+								<Rectangle x:Name="IconRect" Width="52" Height="52" Fill="White">
+									<Rectangle.OpacityMask>
+										<ImageBrush ImageSource="pack://application:,,,/Resources/OpenFolder52.png" />
+									</Rectangle.OpacityMask>
+								</Rectangle>
+								<ContentPresenter HorizontalAlignment="Center" Margin="0,6,0,0" />
+							</StackPanel>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Bd" Property="Background"
+										Value="{StaticResource Brush.SurfaceHover}" />
+								<Setter TargetName="IconRect" Property="Fill"
+										Value="{StaticResource Brush.Accent}" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter Property="Opacity" Value="0.45" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+
 	<DockPanel>
 
 		<Border DockPanel.Dock="Bottom"
@@ -54,7 +92,8 @@
 							 Foreground="{StaticResource Brush.TextDim}"
 							 VerticalAlignment="Center" Margin="0,0,8,0" />
 				<Slider x:Name="EditorSizeSlider"
-						Width="180"
+						Style="{StaticResource Style.Slider}"
+						Width="200"
 						Minimum="1" Maximum="15"
 						TickFrequency="1" IsSnapToTickEnabled="True"
 						VerticalAlignment="Center"
@@ -76,7 +115,7 @@
 					 Foreground="{StaticResource Brush.TextDim}"
 					 Margin="16,12,16,4" />
 		<StackPanel Orientation="Horizontal" Margin="16,4,16,8">
-			<Button Style="{StaticResource Style.Button}"
+			<Button Style="{StaticResource Style.BrowseFolderButton}"
 					Content="{DynamicResource S.Editor.BrowseFolder}"
 					Click="OnBrowseFolderClick" />
 		</StackPanel>
