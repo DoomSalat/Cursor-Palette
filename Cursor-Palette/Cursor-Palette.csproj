@@ -21,6 +21,7 @@
 		<Resource Include="app.ico" />
 		<Resource Include="Resources\OpenFolder52.png" />
 		<Resource Include="Resources\OpenFolder26.png" />
+		<Resource Include="Resources\OpenFolder104.png" />
 	</ItemGroup>
 
 </Project>
