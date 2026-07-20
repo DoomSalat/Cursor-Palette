@@ -39,6 +39,7 @@
 	<sys:String x:Key="S.Editor.Cancel">Cancelar</sys:String>
 	<sys:String x:Key="S.Editor.Browse">Examinar…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Quitar</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Tooltip">Configurar el punto de referencia</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">del sistema</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Suelta un archivo en un espacio para reemplazar ese rol</sys:String>
@@ -47,6 +48,10 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">Elegir carpeta…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">La carpeta seleccionada no tiene archivos de cursor (.cur/.ani).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Se encontraron {0} archivos de cursor, pero ninguno pudo asociarse a un rol por el nombre del archivo.</sys:String>
+
+	<sys:String x:Key="S.Hotspot.Title">Punto de referencia</sys:String>
+	<sys:String x:Key="S.Hotspot.Hint">Arrastra el marcador al punto donde debe registrarse el clic</sys:String>
+	<sys:String x:Key="S.Hotspot.Presets">Ajuste rápido</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">Nuevo preajuste</sys:String>
 	<sys:String x:Key="S.WindowsDefault">Predeterminado</sys:String>

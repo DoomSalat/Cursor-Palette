@@ -39,6 +39,7 @@
 	<sys:String x:Key="S.Editor.Cancel">キャンセル</sys:String>
 	<sys:String x:Key="S.Editor.Browse">参照…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">削除</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Tooltip">基準点を設定</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">システム</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">既定</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">ファイルをスロットにドロップするとそのロールが置き換わります</sys:String>
@@ -47,6 +48,10 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">フォルダを選択…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">選択したフォルダにカーソルファイル（.cur/.ani）がありません。</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">{0} 個のカーソルファイルが見つかりましたが、ファイル名からロールを特定できませんでした。</sys:String>
+
+	<sys:String x:Key="S.Hotspot.Title">基準点</sys:String>
+	<sys:String x:Key="S.Hotspot.Hint">クリック位置になるようマーカーをドラッグしてください</sys:String>
+	<sys:String x:Key="S.Hotspot.Presets">クイック設定</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">新しいプリセット</sys:String>
 	<sys:String x:Key="S.WindowsDefault">既定</sys:String>

@@ -39,6 +39,7 @@
 	<sys:String x:Key="S.Editor.Cancel">取消</sys:String>
 	<sys:String x:Key="S.Editor.Browse">浏览…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">移除</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Tooltip">设置热点</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">系统</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">默认</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">将文件拖到某个槽位以替换该角色</sys:String>
@@ -47,6 +48,10 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">选择文件夹…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">所选文件夹中没有光标文件（.cur/.ani）。</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">找到 {0} 个光标文件，但没有一个能根据文件名匹配到角色。</sys:String>
+
+	<sys:String x:Key="S.Hotspot.Title">热点</sys:String>
+	<sys:String x:Key="S.Hotspot.Hint">将标记拖到应触发点击的位置</sys:String>
+	<sys:String x:Key="S.Hotspot.Presets">快速设置</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">新建预设</sys:String>
 	<sys:String x:Key="S.WindowsDefault">默认</sys:String>

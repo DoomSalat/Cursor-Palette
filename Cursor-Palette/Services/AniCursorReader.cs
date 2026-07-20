@@ -35,6 +35,22 @@ public static class AniCursorReader
 		}
 	}
 
+	public static List<(int Offset, int Length)> FindIconChunkRanges(byte[] bytes)
+	{
+		var chunks = new List<(int Offset, int Length)>();
+
+		if (!IsRiffAconFile(bytes))
+			return chunks;
+
+		WalkChunks(bytes, RiffHeaderSize, bytes.Length, (fourCc, offset, length) =>
+		{
+			if (fourCc == "icon")
+				chunks.Add((offset, length));
+		});
+
+		return chunks;
+	}
+
 	private static AnimatedCursorFrames? Parse(byte[] bytes)
 	{
 		if (!IsRiffAconFile(bytes))

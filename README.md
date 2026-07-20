@@ -22,7 +22,16 @@ apply.
   ![Preset editor](docs/screenshots/preset-editor.png)
 
 - **Drag-and-drop from the desktop** — drop files or a folder of cursors
-  straight onto the main window to create a new preset right away.
+  straight onto the main window to create a new preset right away; the same
+  works for a folder dropped directly onto the "Choose folder" area inside
+  the preset editor.
+- **Pivot point editor** — drag the marker on an enlarged preview to set
+  exactly where clicks register for that cursor, or snap it to a corner,
+  edge, or center with one click on the 3×3 quick-set pad (it lights up
+  when the current position matches a preset). Works for both `.cur` and
+  every frame of a `.ani`.
+
+  ![Pivot point editor](docs/screenshots/hotspot-editor.png)
 - **Animated `.ani` preview** — animated cursors (busy, working, etc.) play
   their full frame sequence with original timing in the gallery and preset
   editor, instead of a static first frame.

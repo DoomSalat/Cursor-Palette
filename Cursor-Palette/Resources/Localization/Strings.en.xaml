@@ -39,6 +39,7 @@
 	<sys:String x:Key="S.Editor.Cancel">Cancel</sys:String>
 	<sys:String x:Key="S.Editor.Browse">Browse…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Remove</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Tooltip">Set pivot point</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">system</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Drop a file onto a slot to replace that role</sys:String>
@@ -47,6 +48,10 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">Choose folder…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">The selected folder has no cursor files (.cur/.ani).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Found {0} cursor files, but none could be matched to a role by file name.</sys:String>
+
+	<sys:String x:Key="S.Hotspot.Title">Pivot point</sys:String>
+	<sys:String x:Key="S.Hotspot.Hint">Drag the marker to where the click should register</sys:String>
+	<sys:String x:Key="S.Hotspot.Presets">Quick set</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">New preset</sys:String>
 	<sys:String x:Key="S.WindowsDefault">Default</sys:String>

@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Ellipse = System.Windows.Shapes.Ellipse;
 using CursorPalette.Models;
 using CursorPalette.Services;
 using Microsoft.Win32;
@@ -18,14 +19,16 @@ public partial class PresetEditorWindow : Window
 		public Image PreviewImage { get; init; } = null!;
 		public TextBlock FileText { get; init; } = null!;
 		public Button ClearButton { get; init; } = null!;
+		public Button PivotButton { get; init; } = null!;
 		public FrameworkElement PlaceholderBadge { get; init; } = null!;
+		public FrameworkElement HotspotDot { get; init; } = null!;
 	}
 
 	private const string PixelSuffix = "px";
 	private const string CurExtension = ".cur";
 	private const string AniExtension = ".ani";
 	private const double SlotWidth = 160;
-	private const double SlotHeight = 172;
+	private const double SlotHeight = 204;
 	private const double SlotMargin = 6;
 	private const double SlotCornerRadius = 10;
 	private const double SlotBorderThickness = 2;
@@ -35,7 +38,9 @@ public partial class PresetEditorWindow : Window
 	private const double ButtonFontSize = 11;
 	private const double PlaceholderBadgeFontSize = 9;
 	private const double PlaceholderOpacity = 0.45;
+	private const double HotspotDotSize = 8;
 	private const string ClearButtonContent = "✕";
+	private const string PivotButtonContent = "🎯";
 
 	private readonly List<Slot> _slots = new();
 
@@ -133,6 +138,23 @@ public partial class PresetEditorWindow : Window
 		var preview = new Image { Width = SlotPreviewSize, Height = SlotPreviewSize, SnapsToDevicePixels = true };
 		RenderOptions.SetBitmapScalingMode(preview, BitmapScalingMode.NearestNeighbor);
 
+		var hotspotDot = new Ellipse
+		{
+			Width = HotspotDotSize,
+			Height = HotspotDotSize,
+			Fill = Brush("Brush.Accent"),
+			Stroke = System.Windows.Media.Brushes.White,
+			StrokeThickness = 1.5,
+			IsHitTestVisible = false,
+			Visibility = Visibility.Collapsed,
+		};
+
+		var previewHost = new Canvas { Width = SlotPreviewSize, Height = SlotPreviewSize };
+		Canvas.SetLeft(preview, 0);
+		Canvas.SetTop(preview, 0);
+		previewHost.Children.Add(preview);
+		previewHost.Children.Add(hotspotDot);
+
 		var placeholderBadge = new Border
 		{
 			Background = Brush("Brush.SurfaceHover"),
@@ -175,31 +197,47 @@ public partial class PresetEditorWindow : Window
 			Content = Loc.Get("S.Editor.Browse"),
 			Style = (Style)Application.Current.Resources["Style.Button"],
 			FontSize = ButtonFontSize,
-			Padding = new Thickness(8, 3, 8, 3),
-			Margin = new Thickness(0, 6, 4, 0),
+			Padding = new Thickness(6, 3, 6, 3),
+			Margin = new Thickness(0, 6, 0, 0),
 		};
+		var pivotButton = new Button
+		{
+			Content = PivotButtonContent,
+			Style = (Style)Application.Current.Resources["Style.Button"],
+			FontSize = ButtonFontSize,
+			Padding = new Thickness(6, 3, 6, 3),
+			Margin = new Thickness(4, 6, 0, 0),
+			ToolTip = Loc.Get("S.Editor.Pivot.Tooltip"),
+			Visibility = Visibility.Collapsed,
+		};
+
+		var primaryButtons = new WrapPanel
+		{
+			Orientation = Orientation.Horizontal,
+			HorizontalAlignment = HorizontalAlignment.Center,
+		};
+		primaryButtons.Children.Add(browseButton);
+		primaryButtons.Children.Add(pivotButton);
+
 		var clearButton = new Button
 		{
 			Content = ClearButtonContent,
 			Style = (Style)Application.Current.Resources["Style.DangerButton"],
 			FontSize = ButtonFontSize,
-			Padding = new Thickness(8, 3, 8, 3),
-			Margin = new Thickness(0, 6, 0, 0),
+			Padding = new Thickness(6, 3, 6, 3),
+			Margin = new Thickness(0, 12, 0, 0),
+			HorizontalAlignment = HorizontalAlignment.Center,
 			ToolTip = Loc.Get("S.Editor.ClearSlot"),
-			Visibility = Visibility.Hidden,
+			Visibility = Visibility.Collapsed,
 		};
 
-		var buttons = new StackPanel
-		{
-			Orientation = Orientation.Horizontal,
-			HorizontalAlignment = HorizontalAlignment.Center,
-		};
-		buttons.Children.Add(browseButton);
+		var buttons = new StackPanel();
+		buttons.Children.Add(primaryButtons);
 		buttons.Children.Add(clearButton);
 
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 		panel.Children.Add(placeholderBadge);
-		panel.Children.Add(preview);
+		panel.Children.Add(previewHost);
 		panel.Children.Add(roleName);
 		panel.Children.Add(fileText);
 		panel.Children.Add(buttons);
@@ -224,10 +262,13 @@ public partial class PresetEditorWindow : Window
 			PreviewImage = preview,
 			FileText = fileText,
 			ClearButton = clearButton,
+			PivotButton = pivotButton,
 			PlaceholderBadge = placeholderBadge,
+			HotspotDot = hotspotDot,
 		};
 
 		browseButton.Click += (_, _) => BrowseForSlot(slot);
+		pivotButton.Click += (_, _) => OpenHotspotEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 
 		border.DragOver += (_, e) =>
@@ -275,6 +316,8 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Text = Path.GetFileName(path);
 		slot.FileText.Foreground = Brush("Brush.Text");
 		slot.ClearButton.Visibility = Visibility.Visible;
+		slot.PivotButton.Visibility = Visibility.Visible;
+		UpdateHotspotDot(slot);
 	}
 
 	private void SetSlotPlaceholder(Slot slot)
@@ -287,10 +330,51 @@ public partial class PresetEditorWindow : Window
 			: Visibility.Visible;
 		slot.FileText.Text = Loc.Get("S.Editor.EmptySlot");
 		slot.FileText.Foreground = Brush("Brush.TextDim");
-		slot.ClearButton.Visibility = Visibility.Hidden;
+		slot.ClearButton.Visibility = Visibility.Collapsed;
+		slot.PivotButton.Visibility = Visibility.Collapsed;
+		slot.HotspotDot.Visibility = Visibility.Collapsed;
 	}
 
 	private void ClearSlot(Slot slot) => SetSlotPlaceholder(slot);
+
+	private void UpdateHotspotDot(Slot slot)
+	{
+		var hotspot = slot.SourcePath != null ? CursorHotspotService.Read(slot.SourcePath) : null;
+
+		if (hotspot == null)
+		{
+			slot.HotspotDot.Visibility = Visibility.Collapsed;
+			return;
+		}
+
+		var displayX = (hotspot.X + 0.5) / hotspot.Width * SlotPreviewSize;
+		var displayY = (hotspot.Y + 0.5) / hotspot.Height * SlotPreviewSize;
+
+		Canvas.SetLeft(slot.HotspotDot, displayX - HotspotDotSize / 2);
+		Canvas.SetTop(slot.HotspotDot, displayY - HotspotDotSize / 2);
+		slot.HotspotDot.Visibility = Visibility.Visible;
+	}
+
+	private void OpenHotspotEditor(Slot slot)
+	{
+		if (slot.SourcePath == null)
+			return;
+
+		var hotspot = CursorHotspotService.Read(slot.SourcePath);
+		if (hotspot == null)
+			return;
+
+		var editor = new HotspotEditorWindow(slot.SourcePath, hotspot) { Owner = this };
+		if (editor.ShowDialog() != true)
+			return;
+
+		var tempPath = Path.Combine(Path.GetTempPath(),
+			$"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(slot.SourcePath)}");
+		CursorHotspotService.WriteWithHotspot(slot.SourcePath, tempPath, editor.ResultX, editor.ResultY);
+		CursorPreviewService.Invalidate(tempPath);
+
+		SetSlotSource(slot, tempPath);
+	}
 
 	private void OnBrowseFolderClick(object sender, RoutedEventArgs e)
 	{
@@ -299,10 +383,44 @@ public partial class PresetEditorWindow : Window
 			Title = Loc.Get("S.Editor.BrowseFolder"),
 		};
 
-		if (dialog.ShowDialog(this) != true)
+		if (dialog.ShowDialog(this) == true)
+			ImportFolder(dialog.FolderName);
+	}
+
+	private void OnFolderDragOver(object sender, DragEventArgs e)
+	{
+		e.Effects = GetDroppedFolder(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
+		e.Handled = true;
+	}
+
+	private void OnFolderDragEnter(object sender, DragEventArgs e) =>
+		FolderDropZone.BorderBrush = Brush("Brush.Accent");
+
+	private void OnFolderDragLeave(object sender, DragEventArgs e) =>
+		FolderDropZone.BorderBrush = Brush("Brush.Border");
+
+	private void OnFolderDrop(object sender, DragEventArgs e)
+	{
+		FolderDropZone.BorderBrush = Brush("Brush.Border");
+
+		var folder = GetDroppedFolder(e);
+		if (folder == null)
 			return;
 
-		var folder = dialog.FolderName;
+		ImportFolder(folder);
+		e.Handled = true;
+	}
+
+	private static string? GetDroppedFolder(DragEventArgs e)
+	{
+		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
+			return null;
+
+		return paths.FirstOrDefault(Directory.Exists);
+	}
+
+	private void ImportFolder(string folder)
+	{
 		if (!Directory.Exists(folder))
 			return;
 

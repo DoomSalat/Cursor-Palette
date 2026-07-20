@@ -39,6 +39,7 @@
 	<sys:String x:Key="S.Editor.Cancel">Отмена</sys:String>
 	<sys:String x:Key="S.Editor.Browse">Обзор…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Убрать</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Tooltip">Настроить точку опоры</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">системный</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">авто</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Перетащите файл на слот, чтобы заменить роль</sys:String>
@@ -47,6 +48,10 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">Выбрать папку…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">В выбранной папке нет файлов курсоров (.cur/.ani).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Найдено {0} файлов курсоров, но ни один не удалось сопоставить с ролями по имени файла.</sys:String>
+
+	<sys:String x:Key="S.Hotspot.Title">Точка опоры</sys:String>
+	<sys:String x:Key="S.Hotspot.Hint">Перетащите маркер в точку, где должен срабатывать клик</sys:String>
+	<sys:String x:Key="S.Hotspot.Presets">Быстрая установка</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">Новый пресет</sys:String>
 	<sys:String x:Key="S.WindowsDefault">По умолчанию</sys:String>

@@ -39,6 +39,7 @@
 	<sys:String x:Key="S.Editor.Cancel">Abbrechen</sys:String>
 	<sys:String x:Key="S.Editor.Browse">Durchsuchen…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Entfernen</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Tooltip">Ankerpunkt festlegen</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">System</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Datei auf einen Platz ziehen, um diese Rolle zu ersetzen</sys:String>
@@ -47,6 +48,10 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">Ordner wählen…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">Der ausgewählte Ordner enthält keine Cursordateien (.cur/.ani).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">{0} Cursordateien gefunden, aber keine konnte anhand des Dateinamens einer Rolle zugeordnet werden.</sys:String>
+
+	<sys:String x:Key="S.Hotspot.Title">Ankerpunkt</sys:String>
+	<sys:String x:Key="S.Hotspot.Hint">Marker auf die gewünschte Klickposition ziehen</sys:String>
+	<sys:String x:Key="S.Hotspot.Presets">Schnellauswahl</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">Neues Preset</sys:String>
 	<sys:String x:Key="S.WindowsDefault">Standard</sys:String>

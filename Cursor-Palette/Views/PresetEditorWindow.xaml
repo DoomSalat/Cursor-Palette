@@ -127,11 +127,22 @@
 					 Text="{DynamicResource S.Editor.SlotHint}"
 					 Foreground="{StaticResource Brush.TextDim}"
 					 Margin="16,12,16,4" />
-		<StackPanel Orientation="Horizontal" Margin="16,4,16,8">
-			<Button Style="{StaticResource Style.BrowseFolderButton}"
-					Content="{DynamicResource S.Editor.BrowseFolder}"
-					Click="OnBrowseFolderClick" />
-		</StackPanel>
+		<Border x:Name="FolderDropZone"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="2"
+				CornerRadius="10"
+				Margin="16,4,16,8"
+				AllowDrop="True"
+				DragOver="OnFolderDragOver"
+				DragEnter="OnFolderDragEnter"
+				DragLeave="OnFolderDragLeave"
+				Drop="OnFolderDrop">
+			<StackPanel Orientation="Horizontal">
+				<Button Style="{StaticResource Style.BrowseFolderButton}"
+						Content="{DynamicResource S.Editor.BrowseFolder}"
+						Click="OnBrowseFolderClick" />
+			</StackPanel>
+		</Border>
 
 		<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10,4">
 			<ItemsControl x:Name="Slots">
