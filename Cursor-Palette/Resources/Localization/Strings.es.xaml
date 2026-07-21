@@ -28,6 +28,7 @@
 	<sys:String x:Key="S.Menu.Edit">Editar</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Eliminar</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Clic derecho para el menú</sys:String>
+	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Algunos roles provienen de otros preajustes</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Eliminar preajuste</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">¿Eliminar el preajuste "{0}"? Sus archivos se borrarán de la caché de la aplicación.</sys:String>
@@ -48,6 +49,15 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">Elegir carpeta…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">La carpeta seleccionada no tiene archivos de cursor (.cur/.ani).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Se encontraron {0} archivos de cursor, pero ninguno pudo asociarse a un rol por el nombre del archivo.</sys:String>
+	<sys:String x:Key="S.Editor.PickExisting">Elegir de existentes</sys:String>
+	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Vinculado a: {0}</sys:String>
+
+	<sys:String x:Key="S.PresetPicker.Title">Elegir preset</sys:String>
+	<sys:String x:Key="S.PresetPicker.Empty">Aún no hay otros preajustes de los que elegir un rol.</sys:String>
+
+	<sys:String x:Key="S.RolePicker.Title">Elegir rol</sys:String>
+	<sys:String x:Key="S.RolePicker.OnlyCurrentRole">Mostrar solo el rol actual</sys:String>
+	<sys:String x:Key="S.RolePicker.RoleNotAssigned">Este rol no está asignado en ese preset</sys:String>
 
 	<sys:String x:Key="S.Hotspot.Title">Punto de referencia</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">Arrastra el marcador al punto donde debe registrarse el clic</sys:String>
@@ -77,5 +87,21 @@
 	<sys:String x:Key="S.Role.Hand">Selección de vínculo</sys:String>
 	<sys:String x:Key="S.Role.Person">Selección de persona</sys:String>
 	<sys:String x:Key="S.Role.Pin">Fijar</sys:String>
+
+	<sys:String x:Key="S.Info.Title">Ayuda</sys:String>
+	<sys:String x:Key="S.Info.Close">Cerrar</sys:String>
+	<sys:String x:Key="S.Info.Tooltip">Ayuda de ventana</sys:String>
+
+	<sys:String x:Key="S.Info.Main">🏠 Principal — galería de preajustes&#x0a;&#x0a;📦 Galería — muestra todos tus preajustes de cursor.&#x0a;   • Clic izquierdo — aplicar cursores.&#x0a;   • Clic derecho — menú (editar, eliminar).&#x0a;   • Insignia 🧩 — algunos roles provienen de otros preajustes.&#x0a;&#x0a;➕ "Añadir preajuste" — crear nuevo preajuste.&#x0a;   • Arrastra archivos .cur/.ani o una carpeta a la ventana.&#x0a;&#x0a;🎨 Tamaño de cuadrícula — cambia el tamaño de las celdas.&#x0a;📏 Tamaño del cursor — deslizador + "Aplicar" cambia el tamaño del sistema.&#x0a;↩️ "Atrás" — revertir al conjunto anterior.&#x0a;🌙/☀ — cambiar tema oscuro/claro.&#x0a;🌐 — cambiar idioma.&#x0a;🔍 −/+ — zoom de interfaz.&#x0a;📄 Clic en el pie — ventana "Acerca de".</sys:String>
+
+	<sys:String x:Key="S.Info.Editor">✏️ Editor de preajuste&#x0a;&#x0a;🎯 Cada espacio — un rol de cursor (flecha, texto, ocupado, etc.).&#x0a;   • Arrastra un archivo .cur/.ani a un espacio — llena ese rol.&#x0a;   • 🎯 en un espacio — configurar punto de referencia.&#x0a;   • ✕ en un espacio — quitar archivo, vuelve al cursor del sistema.&#x0a;   • "Elegir de existentes" — tomar rol de otro preajuste.&#x0a;   • Insignia "auto" — cursor auto-rellenado.&#x0a;&#x0a;📁 "Elegir carpeta" — importar todos los cursores de una carpeta.&#x0a;   • Los archivos se asocian a roles por nombre de archivo.&#x0a;&#x0a;📝 Escribe el nombre del preajuste abajo.&#x0a;📏 Deslizador de tamaño — vista previa del tamaño del cursor.&#x0a;💾 "Guardar" — guardar preajuste en la galería.</sys:String>
+
+	<sys:String x:Key="S.Info.RolePicker">🔀 Elegir rol&#x0a;&#x0a;Elige un rol de cursor del preajuste seleccionado.&#x0a;&#x0a;☑️ "Mostrar solo el rol actual" — filtro:&#x0a;   • Marcado — solo el rol que estás reemplazando.&#x0a;   • Desmarcado — todos los roles del preajuste.&#x0a;&#x0a;Clic izquierdo en una ficha — seleccionar rol y confirmar.&#x0a;Fichas vacías — rol no asignado en ese preajuste.</sys:String>
+
+	<sys:String x:Key="S.Info.PresetPicker">📂 Elegir preset&#x0a;&#x0a;Selecciona un preajuste del cual tomar un rol de cursor.&#x0a;&#x0a;Clic izquierdo en una celda — seleccionar preajuste y pasar a la selección de rol.&#x0a;Número abajo — cuántos roles están llenos en el preajuste.</sys:String>
+
+	<sys:String x:Key="S.Info.Hotspot">🎯 Punto de referencia&#x0a;&#x0a;El punto de referencia es donde se registra el clic del cursor.&#x0a;&#x0a;🖱️ Arrastra el marcador (círculo) sobre la imagen del cursor.&#x0a;   • O haz clic en el punto deseado de la vista previa.&#x0a;&#x0a;⚡ Ajuste rápido — 9 botones con posiciones típicas:&#x0a;   ↖ ↑ ↗   — fila superior&#x0a;   ← • →   — fila media (• = centro)&#x0a;   ↙ ↓ ↘   — fila inferior&#x0a;&#x0a;Coordenadas mostradas abajo a la izquierda.&#x0a;💾 "Guardar" — aplicar el punto de referencia.</sys:String>
+
+	<sys:String x:Key="S.Info.About">ℹ️ Acerca de&#x0a;&#x0a;Aquí se muestra la información de la aplicación:&#x0a;   • Nombre y versión.&#x0a;   • Autor y licencia (MIT).&#x0a;&#x0a;Este es software libre — puedes usarlo, modificarlo&#x0a;y distribuirlo bajo los términos de la licencia MIT.</sys:String>
 
 </ResourceDictionary>

@@ -114,6 +114,7 @@ public static class CursorPreviewService
 
 		animation.Duration = new Duration(cumulative);
 		animation.RepeatBehavior = RepeatBehavior.Forever;
+
 		return animation;
 	}
 

@@ -11,6 +11,8 @@ public static class ThemeManager
 	private const string SystemPersonalizeKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
 	private const string AppsUseLightThemeValueName = "AppsUseLightTheme";
 	private const int ThemeDictionaryIndex = 0;
+	private const string ThemesDirName = "Themes";
+	private const string ThemeFileExtension = ".xaml";
 
 	public static string Current { get; private set; } = Dark;
 
@@ -42,7 +44,7 @@ public static class ThemeManager
 	{
 		var dictionary = new ResourceDictionary
 		{
-			Source = new Uri($"Themes/{mode}.xaml", UriKind.Relative),
+			Source = new Uri($"{ThemesDirName}/{mode}{ThemeFileExtension}", UriKind.Relative),
 		};
 
 		Application.Current.Resources.MergedDictionaries[ThemeDictionaryIndex] = dictionary;

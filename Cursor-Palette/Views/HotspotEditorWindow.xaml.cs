@@ -56,6 +56,11 @@ public partial class HotspotEditorWindow : Window
 		return Math.Max(1, factor);
 	}
 
+	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
+	{
+		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.Hotspot")) { Owner = this }.ShowDialog();
+	}
+
 	private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
 	{
 		_dragging = true;

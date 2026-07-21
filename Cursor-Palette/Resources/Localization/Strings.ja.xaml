@@ -28,6 +28,7 @@
 	<sys:String x:Key="S.Menu.Edit">編集</sys:String>
 	<sys:String x:Key="S.Menu.Delete">削除</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">右クリックでメニュー</sys:String>
+	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">一部のロールは他のプリセットから使用されています</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">プリセットの削除</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">プリセット「{0}」を削除しますか？ファイルはアプリのキャッシュから削除されます。</sys:String>
@@ -48,6 +49,15 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">フォルダを選択…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">選択したフォルダにカーソルファイル（.cur/.ani）がありません。</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">{0} 個のカーソルファイルが見つかりましたが、ファイル名からロールを特定できませんでした。</sys:String>
+	<sys:String x:Key="S.Editor.PickExisting">既存から選択</sys:String>
+	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">リンク先: {0}</sys:String>
+
+	<sys:String x:Key="S.PresetPicker.Title">プリセットを選択</sys:String>
+	<sys:String x:Key="S.PresetPicker.Empty">ロールを選べる他のプリセットがまだありません。</sys:String>
+
+	<sys:String x:Key="S.RolePicker.Title">ロールを選択</sys:String>
+	<sys:String x:Key="S.RolePicker.OnlyCurrentRole">現在のロールのみ表示</sys:String>
+	<sys:String x:Key="S.RolePicker.RoleNotAssigned">このプリセットにはこのロールが割り当てられていません</sys:String>
 
 	<sys:String x:Key="S.Hotspot.Title">基準点</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">クリック位置になるようマーカーをドラッグしてください</sys:String>
@@ -77,5 +87,21 @@
 	<sys:String x:Key="S.Role.Hand">リンク選択</sys:String>
 	<sys:String x:Key="S.Role.Person">人物選択</sys:String>
 	<sys:String x:Key="S.Role.Pin">ピン留め</sys:String>
+
+	<sys:String x:Key="S.Info.Title">ヘルプ</sys:String>
+	<sys:String x:Key="S.Info.Close">閉じる</sys:String>
+	<sys:String x:Key="S.Info.Tooltip">ウィンドウヘルプ</sys:String>
+
+	<sys:String x:Key="S.Info.Main">🏠 メイン — プリセットギャラリー&#x0a;&#x0a;📦 ギャラリー — すべてのカーソルプリセットを表示します。&#x0a;   • 左クリック — カーソルを適用。&#x0a;   • 右クリック — メニュー（編集、削除）。&#x0a;   • 🧩 バッジ — 一部のロールは他のプリセットから取得。&#x0a;&#x0a;➕ 「プリセットを追加」— 新しいプリセットを作成。&#x0a;   • .cur/.ani ファイルまたはフォルダをウィンドウにドロップ。&#x0a;&#x0a;🎨 グリッドサイズ — ギャラリーのセルサイズを変更。&#x0a;📏 カーソルサイズ — スライダー +「適用」でシステムサイズを変更。&#x0a;↩️ 「戻る」— 前のカーソルセットに戻す。&#x0a;🌙/☀ — ダーク/ライトテーマを切り替え。&#x0a;🌐 — 言語を変更。&#x0a;🔍 −/+ — インターフェースのズーム。&#x0a;📄 フッターをクリック — 「このアプリについて」ウィンドウ。</sys:String>
+
+	<sys:String x:Key="S.Info.Editor">✏️ プリセットエディター&#x0a;&#x0a;🎯 各スロット — カーソルロール（矢印、テキスト、処理中など）。&#x0a;   • .cur/.ani ファイルをスロットにドロップ — ロールを埋める。&#x0a;   • 🎯 スロット上 — 基準点（クリック位置）を設定。&#x0a;   • ✕ スロット上 — ファイルを削除、システムカーソルに戻る。&#x0a;   • 「既存から選択」— 他のプリセットからロールを借用。&#x0a;   • 「既定」バッジ — カーソルは自動補充。&#x0a;&#x0a;📁 「フォルダを選択」— フォルダからすべてのカーソルを一括インポート。&#x0a;   • ファイルはファイル名でロールに対応付けされます。&#x0a;&#x0a;📝 下にプリセット名を入力。&#x0a;📏 サイズスライダー — スロット内のカーソルサイズをプレビュー。&#x0a;💾 「保存」— プリセットをギャラリーに保存。</sys:String>
+
+	<sys:String x:Key="S.Info.RolePicker">🔀 ロール選択&#x0a;&#x0a;選択したプリセットからカーソルロールを選びます。&#x0a;&#x0a;☑️ 「現在のロールのみ表示」— フィルター:&#x0a;   • オン — 置き換えるロールのみ。&#x0a;   • オフ — プリセットの全ロール。&#x0a;&#x0a;タイルを左クリック — ロールを選択して確認。&#x0a;空のタイル — このプリセットにロールが割り当てられていません。</sys:String>
+
+	<sys:String x:Key="S.Info.PresetPicker">📂 プリセット選択&#x0a;&#x0a;カーソルロールを借用するプリセットを選びます。&#x0a;&#x0a;セルを左クリック — プリセットを選択し、ロール選択へ進む。&#x0a;下の数字 — プリセット内のロール充填数。</sys:String>
+
+	<sys:String x:Key="S.Info.Hotspot">🎯 基準点&#x0a;&#x0a;基準点はカーソルのクリックが登録される位置です。&#x0a;&#x0a;🖱️ カーソル画像上のマーカー（円）をドラッグ。&#x0a;   • またはプレビューの目的の位置をクリック。&#x0a;&#x0a;⚡ クイック設定 — 9つのボタンで典型的な位置:&#x0a;   ↖ ↑ ↗   — 上段&#x0a;   ← • →   — 中段（• = 中央）&#x0a;   ↙ ↓ ↘   — 下段&#x0a;&#x0a;座標は左下に表示。&#x0a;💾 「保存」— 基準点を適用。</sys:String>
+
+	<sys:String x:Key="S.Info.About">ℹ️ このアプリについて&#x0a;&#x0a;アプリの情報がここに表示されます:&#x0a;   • 名前とバージョン。&#x0a;   • 作者とライセンス (MIT)。&#x0a;&#x0a;これはフリーソフトウェアです — MIT ライセンスの条件に&#x0a;従って使用、変更、配布できます。</sys:String>
 
 </ResourceDictionary>

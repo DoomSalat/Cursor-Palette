@@ -9,6 +9,8 @@ public static class CursorHotspotService
 	private const int XHotspotOffset = 10;
 	private const int YHotspotOffset = 12;
 	private const string AniExtension = ".ani";
+	private const int CursorInfoHeaderSize = 16;
+	private const int ImplicitCursorDimension = 256;
 
 	public static CursorHotspot? Read(string filePath)
 	{
@@ -17,7 +19,7 @@ public static class CursorHotspotService
 			var bytes = File.ReadAllBytes(filePath);
 			var blobOffset = FindFirstBlobOffset(bytes, filePath);
 
-			return blobOffset is int offset && bytes.Length >= offset + 16
+			return blobOffset is int offset && bytes.Length >= offset + CursorInfoHeaderSize
 				? ReadAt(bytes, offset)
 				: null;
 		}
@@ -60,7 +62,7 @@ public static class CursorHotspotService
 		var x = BitConverter.ToUInt16(bytes, blobOffset + XHotspotOffset);
 		var y = BitConverter.ToUInt16(bytes, blobOffset + YHotspotOffset);
 
-		return new CursorHotspot(x, y, width == 0 ? 256 : width, height == 0 ? 256 : height);
+		return new CursorHotspot(x, y, width == 0 ? ImplicitCursorDimension : width, height == 0 ? ImplicitCursorDimension : height);
 	}
 
 	private static void WriteAt(byte[] bytes, int blobOffset, int x, int y)

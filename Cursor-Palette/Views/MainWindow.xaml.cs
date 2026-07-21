@@ -50,6 +50,9 @@ public partial class MainWindow : Window
 	private const double CellCountFontSize = 11;
 	private const double CellSizeFontSize = 11;
 	private const double AddCellPlusFontSize = 34;
+	private const string MixedBadgeText = "🧩";
+	private const double MixedBadgeFontSize = 15;
+	private const string LocMixedBadgeTooltip = "S.Gallery.MixedBadgeTooltip";
 
 	private const double UiZoomStep = 0.1;
 	private const string ThemeIconDark = "🌙";
@@ -100,6 +103,11 @@ public partial class MainWindow : Window
 			FileName = AppInfo.GitHubUrl,
 			UseShellExecute = true,
 		});
+	}
+
+	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
+	{
+		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.Main")) { Owner = this }.ShowDialog();
 	}
 
 	private void SetSliderSilently(int sizePx)
@@ -309,7 +317,8 @@ public partial class MainWindow : Window
 		var isActive = preset.Id == _activePresetId;
 
 		var previewPath = PresetStore.GetRoleFilePath(preset, CursorRoles.ArrowRoleName)
-							?? preset.Roles.Keys.Select(r => PresetStore.GetRoleFilePath(preset, r))
+							?? preset.Roles.Keys.Concat(preset.RoleRefs.Keys)
+								.Select(r => PresetStore.GetRoleFilePath(preset, r))
 								.FirstOrDefault(p => p != null);
 
 		var image = new Image
@@ -332,7 +341,7 @@ public partial class MainWindow : Window
 
 		var countText = new TextBlock
 		{
-			Text = $"{preset.Roles.Count}/{CursorRoles.All.Length}",
+			Text = $"{preset.Roles.Count + preset.RoleRefs.Count}/{CursorRoles.All.Length}",
 			Foreground = Brush(BrushTextDim),
 			FontSize = CellCountFontSize * CellFontScale,
 			TextAlignment = TextAlignment.Center,
@@ -357,6 +366,23 @@ public partial class MainWindow : Window
 		panel.Children.Add(countText);
 		panel.Children.Add(sizeText);
 
+		var cellContent = new Grid();
+		cellContent.Children.Add(panel);
+
+		var isMixed = preset.RoleRefs.Count > 0;
+		if (isMixed)
+		{
+			cellContent.Children.Add(new TextBlock
+			{
+				Text = MixedBadgeText,
+				FontSize = MixedBadgeFontSize * CellFontScale,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				VerticalAlignment = VerticalAlignment.Top,
+				Margin = new Thickness(0, 4, 6, 0),
+				IsHitTestVisible = false,
+			});
+		}
+
 		var cell = new Border
 		{
 			Width = CellSize * _cellScale,
@@ -366,7 +392,7 @@ public partial class MainWindow : Window
 			Background = Brush(BrushSurface),
 			BorderThickness = new Thickness(CellBorderThickness),
 			BorderBrush = isActive ? Brush(BrushAccent) : Brush(BrushBorder),
-			Child = panel,
+			Child = cellContent,
 			Cursor = Cursors.Hand,
 			Tag = preset,
 		};
@@ -395,6 +421,16 @@ public partial class MainWindow : Window
 
 		var hintPanel = new StackPanel();
 		hintPanel.Children.Add(new TextBlock { Text = preset.Name, FontWeight = FontWeights.SemiBold });
+		if (isMixed)
+		{
+			hintPanel.Children.Add(new TextBlock
+			{
+				Text = Loc.Get(LocMixedBadgeTooltip),
+				FontSize = 11,
+				Foreground = Brush(BrushTextDim),
+				Margin = new Thickness(0, 2, 0, 0),
+			});
+		}
 		hintPanel.Children.Add(new TextBlock
 		{
 			Text = Loc.Get(LocPresetContextHint),
@@ -468,9 +504,9 @@ public partial class MainWindow : Window
 		LoadingOverlay.Visibility = Visibility.Collapsed;
 	}
 
-	private async void ApplyPreset(Preset preset)
+	private async void ApplyPreset(Preset preset, bool force = false)
 	{
-		if (preset.Id == _activePresetId)
+		if (!force && preset.Id == _activePresetId)
 			return;
 
 		try
@@ -647,7 +683,7 @@ public partial class MainWindow : Window
 					System.IO.Path.Combine(PresetStore.GetFilesDir(saved.Id), fileName));
 
 			if (saved.Id == _activePresetId)
-				ApplyPreset(saved);
+				ApplyPreset(saved, force: true);
 			else
 				ReloadGallery();
 		}

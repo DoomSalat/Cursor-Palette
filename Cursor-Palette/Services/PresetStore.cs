@@ -15,10 +15,25 @@ public static class PresetStore
 	public static string GetPresetDir(string id) => Path.Combine(AppPaths.PresetsDir, id);
 	public static string GetFilesDir(string id) => Path.Combine(GetPresetDir(id), FilesDirName);
 
-	public static string? GetRoleFilePath(Preset preset, string registryName) =>
-		preset.Roles.TryGetValue(registryName, out var fileName)
+	public static string? GetRoleFilePath(Preset preset, string registryName)
+	{
+		if (preset.RoleRefs.TryGetValue(registryName, out var reference))
+			return Path.Combine(GetFilesDir(reference.PresetId), reference.FileName);
+
+		return preset.Roles.TryGetValue(registryName, out var fileName)
 			? Path.Combine(GetFilesDir(preset.Id), fileName)
 			: null;
+	}
+
+	public static RoleRef? ResolveLeafRef(Preset source, string registryName)
+	{
+		if (source.RoleRefs.TryGetValue(registryName, out var existingRef))
+			return existingRef;
+
+		return source.Roles.TryGetValue(registryName, out var fileName)
+			? new RoleRef { PresetId = source.Id, FileName = fileName }
+			: null;
+	}
 
 	public static List<Preset> LoadAll()
 	{
@@ -53,12 +68,24 @@ public static class PresetStore
 		var filesDir = GetFilesDir(id);
 		Directory.CreateDirectory(filesDir);
 
-		var existing = draft.Id != null ? LoadAll().FirstOrDefault(p => p.Id == draft.Id) : null;
+		var allPresets = LoadAll();
+		var existing = draft.Id != null ? allPresets.FirstOrDefault(p => p.Id == draft.Id) : null;
 
 		var roles = new Dictionary<string, string>();
+		var roleRefs = new Dictionary<string, RoleRef>();
 
-		foreach (var (role, sourcePath) in draft.RoleSources)
+		foreach (var (role, source) in draft.RoleSources)
 		{
+			if (source.Ref != null)
+			{
+				roleRefs[role] = source.Ref;
+				continue;
+			}
+
+			if (source.OwnFilePath == null)
+				continue;
+
+			var sourcePath = source.OwnFilePath;
 			var fileName = Path.GetFileName(sourcePath);
 			var targetPath = Path.Combine(filesDir, fileName);
 
@@ -79,6 +106,18 @@ public static class PresetStore
 
 		var referenced = roles.Values.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+		// Files in this preset's own folder may be the physical target of a RoleRef held by
+		// another preset (or by this same preset, for a self-reference) — those must survive
+		// even though they are no longer part of this preset's own `roles`.
+		foreach (var protectedFileName in allPresets
+					.SelectMany(p => p.RoleRefs.Values)
+					.Concat(roleRefs.Values)
+					.Where(r => r.PresetId == id)
+					.Select(r => r.FileName))
+		{
+			referenced.Add(protectedFileName);
+		}
+
 		foreach (var file in Directory.GetFiles(filesDir))
 		{
 			if (!referenced.Contains(Path.GetFileName(file)))
@@ -92,6 +131,7 @@ public static class PresetStore
 			CreatedAt = existing?.CreatedAt ?? DateTime.Now,
 			BaseSize = draft.BaseSize,
 			Roles = roles,
+			RoleRefs = roleRefs,
 		};
 
 		File.WriteAllText(Path.Combine(GetPresetDir(id), ManifestFileName),

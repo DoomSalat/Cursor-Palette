@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Ellipse = System.Windows.Shapes.Ellipse;
 using Rectangle = System.Windows.Shapes.Rectangle;
@@ -18,12 +19,15 @@ public partial class PresetEditorWindow : Window
 		public required CursorRoleInfo Role { get; init; }
 		public required string? DefaultPath { get; init; }
 		public string? SourcePath { get; set; }
+		public string? RefPresetId { get; set; }
+		public string? RefFileName { get; set; }
 		public Image PreviewImage { get; init; } = null!;
 		public TextBlock FileText { get; init; } = null!;
 		public Button ClearButton { get; init; } = null!;
 		public Button PivotButton { get; init; } = null!;
 		public FrameworkElement PlaceholderBadge { get; init; } = null!;
 		public FrameworkElement HotspotDot { get; init; } = null!;
+		public FrameworkElement LinkBadge { get; init; } = null!;
 	}
 
 	private const string PixelSuffix = "px";
@@ -43,6 +47,12 @@ public partial class PresetEditorWindow : Window
 	private const double HotspotDotSize = 8;
 	private const string ClearButtonContent = "✕";
 	private const string PivotButtonContent = "🎯";
+	private const string PickExistingButtonContent = "🧩";
+	private const string LinkIconUri = "pack://application:,,,/Resources/LinkIcon32.png";
+	private const double IconButtonSize = 28;
+	private const double CornerBadgeSize = 22;
+	private const double PreviewTopMargin = 10;
+	private const double LinkBadgeIconSize = 16;
 
 	private readonly List<Slot> _slots = new();
 	private readonly List<Rectangle> _slotDropIndicators = new();
@@ -87,7 +97,12 @@ public partial class PresetEditorWindow : Window
 			{
 				var path = PresetStore.GetRoleFilePath(existing, role.RegistryName);
 				if (path != null && File.Exists(path))
-					SetSlotSource(slot, path);
+				{
+					if (existing.RoleRefs.TryGetValue(role.RegistryName, out var reference))
+						SetSlotReference(slot, reference.PresetId, reference.FileName);
+					else
+						SetSlotSource(slot, path);
+				}
 			}
 		}
 
@@ -107,6 +122,11 @@ public partial class PresetEditorWindow : Window
 	private int _baseSize;
 	private int _appliedPreviewSizePx;
 	private bool _sizeSliderReady;
+
+	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
+	{
+		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.Editor")) { Owner = this }.ShowDialog();
+	}
 
 	private void OnEditorSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 	{
@@ -154,7 +174,12 @@ public partial class PresetEditorWindow : Window
 			Visibility = Visibility.Collapsed,
 		};
 
-		var previewHost = new Canvas { Width = SlotPreviewSize, Height = SlotPreviewSize };
+		var previewHost = new Canvas
+		{
+			Width = SlotPreviewSize,
+			Height = SlotPreviewSize,
+			Margin = new Thickness(0, PreviewTopMargin, 0, 0),
+		};
 		Canvas.SetLeft(preview, 0);
 		Canvas.SetTop(preview, 0);
 		previewHost.Children.Add(preview);
@@ -204,48 +229,81 @@ public partial class PresetEditorWindow : Window
 			FontSize = ButtonFontSize,
 			Padding = new Thickness(6, 3, 6, 3),
 			Margin = new Thickness(0, 6, 0, 0),
+			HorizontalAlignment = HorizontalAlignment.Center,
+		};
+
+		var pickExistingButton = new Button
+		{
+			Content = PickExistingButtonContent,
+			Style = (Style)Application.Current.Resources["Style.Button"],
+			FontSize = ButtonFontSize,
+			Width = IconButtonSize,
+			Height = IconButtonSize,
+			Padding = new Thickness(0),
+			ToolTip = Loc.Get("S.Editor.PickExisting"),
 		};
 		var pivotButton = new Button
 		{
 			Content = PivotButtonContent,
 			Style = (Style)Application.Current.Resources["Style.Button"],
 			FontSize = ButtonFontSize,
-			Padding = new Thickness(6, 3, 6, 3),
-			Margin = new Thickness(4, 6, 0, 0),
+			Width = IconButtonSize,
+			Height = IconButtonSize,
+			Padding = new Thickness(0),
+			Margin = new Thickness(6, 0, 0, 0),
 			ToolTip = Loc.Get("S.Editor.Pivot.Tooltip"),
 			Visibility = Visibility.Collapsed,
 		};
 
-		var primaryButtons = new WrapPanel
+		var iconButtonsRow = new StackPanel
 		{
 			Orientation = Orientation.Horizontal,
 			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Thickness(0, 6, 0, 0),
+		};
+		iconButtonsRow.Children.Add(pickExistingButton);
+		iconButtonsRow.Children.Add(pivotButton);
+
+		var primaryButtons = new StackPanel
+		{
+			HorizontalAlignment = HorizontalAlignment.Center,
 		};
 		primaryButtons.Children.Add(browseButton);
-		primaryButtons.Children.Add(pivotButton);
+		primaryButtons.Children.Add(iconButtonsRow);
 
 		var clearButton = new Button
 		{
 			Content = ClearButtonContent,
 			Style = (Style)Application.Current.Resources["Style.DangerButton"],
 			FontSize = ButtonFontSize,
-			Padding = new Thickness(6, 3, 6, 3),
-			Margin = new Thickness(0, 12, 0, 0),
-			HorizontalAlignment = HorizontalAlignment.Center,
+			Width = CornerBadgeSize,
+			Height = CornerBadgeSize,
+			Padding = new Thickness(0),
+			HorizontalAlignment = HorizontalAlignment.Right,
+			VerticalAlignment = VerticalAlignment.Top,
+			Margin = new Thickness(0, 6, 6, 0),
 			ToolTip = Loc.Get("S.Editor.ClearSlot"),
 			Visibility = Visibility.Collapsed,
 		};
 
-		var buttons = new StackPanel();
-		buttons.Children.Add(primaryButtons);
-		buttons.Children.Add(clearButton);
+		var linkBadge = new Rectangle
+		{
+			Width = LinkBadgeIconSize,
+			Height = LinkBadgeIconSize,
+			Fill = Brush("Brush.Accent"),
+			OpacityMask = new ImageBrush(new BitmapImage(new Uri(LinkIconUri))),
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Thickness(0, 0, 0, 4),
+			Visibility = Visibility.Collapsed,
+		};
 
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 		panel.Children.Add(placeholderBadge);
+		panel.Children.Add(linkBadge);
 		panel.Children.Add(previewHost);
 		panel.Children.Add(roleName);
 		panel.Children.Add(fileText);
-		panel.Children.Add(buttons);
+		panel.Children.Add(primaryButtons);
 
 		var dropIndicator = new Rectangle
 		{
@@ -261,6 +319,7 @@ public partial class PresetEditorWindow : Window
 
 		var slotContent = new Grid();
 		slotContent.Children.Add(panel);
+		slotContent.Children.Add(clearButton);
 		slotContent.Children.Add(dropIndicator);
 		_slotDropIndicators.Add(dropIndicator);
 
@@ -287,9 +346,11 @@ public partial class PresetEditorWindow : Window
 			PivotButton = pivotButton,
 			PlaceholderBadge = placeholderBadge,
 			HotspotDot = hotspotDot,
+			LinkBadge = linkBadge,
 		};
 
 		browseButton.Click += (_, _) => BrowseForSlot(slot);
+		pickExistingButton.Click += (_, _) => PickExistingForSlot(slot);
 		pivotButton.Click += (_, _) => OpenHotspotEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 
@@ -330,9 +391,12 @@ public partial class PresetEditorWindow : Window
 	private void SetSlotSource(Slot slot, string path)
 	{
 		slot.SourcePath = path;
+		slot.RefPresetId = null;
+		slot.RefFileName = null;
 		CursorPreviewService.ApplyPreview(slot.PreviewImage, path);
 		slot.PreviewImage.Opacity = 1;
 		slot.PlaceholderBadge.Visibility = Visibility.Collapsed;
+		slot.LinkBadge.Visibility = Visibility.Collapsed;
 		slot.FileText.Text = Path.GetFileName(path);
 		slot.FileText.Foreground = Brush("Brush.Text");
 		slot.ClearButton.Visibility = Visibility.Visible;
@@ -340,9 +404,37 @@ public partial class PresetEditorWindow : Window
 		UpdateHotspotDot(slot);
 	}
 
+	private void SetSlotReference(Slot slot, string presetId, string fileName)
+	{
+		slot.SourcePath = null;
+		slot.RefPresetId = presetId;
+		slot.RefFileName = fileName;
+
+		var resolvedPath = Path.Combine(PresetStore.GetFilesDir(presetId), fileName);
+		var label = BuildReferenceLabel(presetId, fileName);
+		CursorPreviewService.ApplyPreview(slot.PreviewImage, resolvedPath);
+		slot.PreviewImage.Opacity = 1;
+		slot.PlaceholderBadge.Visibility = Visibility.Collapsed;
+		slot.LinkBadge.Visibility = Visibility.Visible;
+		slot.LinkBadge.ToolTip = Loc.Format("S.Editor.LinkedRole.Tooltip", label);
+		slot.FileText.Text = label;
+		slot.FileText.Foreground = Brush("Brush.Text");
+		slot.ClearButton.Visibility = Visibility.Visible;
+		slot.PivotButton.Visibility = Visibility.Visible;
+		UpdateHotspotDot(slot);
+	}
+
+	private static string BuildReferenceLabel(string presetId, string fileName)
+	{
+		var sourceName = PresetStore.LoadAll().FirstOrDefault(p => p.Id == presetId)?.Name;
+		return sourceName != null ? $"{sourceName} / {fileName}" : fileName;
+	}
+
 	private void SetSlotPlaceholder(Slot slot)
 	{
 		slot.SourcePath = null;
+		slot.RefPresetId = null;
+		slot.RefFileName = null;
 		CursorPreviewService.ApplyPreview(slot.PreviewImage, slot.DefaultPath);
 		slot.PreviewImage.Opacity = PlaceholderOpacity;
 		slot.PlaceholderBadge.Visibility = string.IsNullOrWhiteSpace(slot.DefaultPath)
@@ -353,13 +445,20 @@ public partial class PresetEditorWindow : Window
 		slot.ClearButton.Visibility = Visibility.Collapsed;
 		slot.PivotButton.Visibility = Visibility.Collapsed;
 		slot.HotspotDot.Visibility = Visibility.Collapsed;
+		slot.LinkBadge.Visibility = Visibility.Collapsed;
 	}
 
 	private void ClearSlot(Slot slot) => SetSlotPlaceholder(slot);
 
+	private static string? GetSlotResolvedPath(Slot slot) =>
+		slot.SourcePath ?? (slot.RefPresetId != null && slot.RefFileName != null
+			? Path.Combine(PresetStore.GetFilesDir(slot.RefPresetId), slot.RefFileName)
+			: null);
+
 	private void UpdateHotspotDot(Slot slot)
 	{
-		var hotspot = slot.SourcePath != null ? CursorHotspotService.Read(slot.SourcePath) : null;
+		var resolvedPath = GetSlotResolvedPath(slot);
+		var hotspot = resolvedPath != null ? CursorHotspotService.Read(resolvedPath) : null;
 
 		if (hotspot == null)
 		{
@@ -377,23 +476,41 @@ public partial class PresetEditorWindow : Window
 
 	private void OpenHotspotEditor(Slot slot)
 	{
-		if (slot.SourcePath == null)
+		var resolvedPath = GetSlotResolvedPath(slot);
+		if (resolvedPath == null)
 			return;
 
-		var hotspot = CursorHotspotService.Read(slot.SourcePath);
+		var hotspot = CursorHotspotService.Read(resolvedPath);
 		if (hotspot == null)
 			return;
 
-		var editor = new HotspotEditorWindow(slot.SourcePath, hotspot) { Owner = this };
+		var editor = new HotspotEditorWindow(resolvedPath, hotspot) { Owner = this };
 		if (editor.ShowDialog() != true)
 			return;
 
 		var tempPath = Path.Combine(Path.GetTempPath(),
-			$"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(slot.SourcePath)}");
-		CursorHotspotService.WriteWithHotspot(slot.SourcePath, tempPath, editor.ResultX, editor.ResultY);
+			$"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
+		CursorHotspotService.WriteWithHotspot(resolvedPath, tempPath, editor.ResultX, editor.ResultY);
 		CursorPreviewService.Invalidate(tempPath);
 
 		SetSlotSource(slot, tempPath);
+	}
+
+	private void PickExistingForSlot(Slot slot)
+	{
+		var presetPicker = new ExistingPresetPickerWindow(PresetStore.LoadAll()) { Owner = this };
+		if (presetPicker.ShowDialog() != true || presetPicker.SelectedPreset == null)
+			return;
+
+		var rolePicker = new RolePickerWindow(presetPicker.SelectedPreset, slot.Role.RegistryName) { Owner = this };
+		if (rolePicker.ShowDialog() != true || rolePicker.SelectedRole == null)
+			return;
+
+		var flatRef = PresetStore.ResolveLeafRef(presetPicker.SelectedPreset, rolePicker.SelectedRole);
+		if (flatRef == null)
+			return;
+
+		SetSlotReference(slot, flatRef.PresetId, flatRef.FileName);
 	}
 
 	private void OnBrowseFolderClick(object sender, RoutedEventArgs e)
@@ -548,7 +665,7 @@ public partial class PresetEditorWindow : Window
 
 	private void OnSaveButtonClick(object sender, RoutedEventArgs e)
 	{
-		if (_slots.All(s => s.SourcePath == null))
+		if (_slots.All(s => s.SourcePath == null && s.RefPresetId == null))
 		{
 			MessageBox.Show(Loc.Get("S.Editor.NoFiles"), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
@@ -556,8 +673,12 @@ public partial class PresetEditorWindow : Window
 		}
 
 		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, BaseSize = _baseSize };
-		foreach (var slot in _slots.Where(s => s.SourcePath != null))
-			draft.RoleSources[slot.Role.RegistryName] = slot.SourcePath!;
+		foreach (var slot in _slots.Where(s => s.SourcePath != null || s.RefPresetId != null))
+		{
+			draft.RoleSources[slot.Role.RegistryName] = slot.RefPresetId != null
+				? new RoleSourceDraft { Ref = new RoleRef { PresetId = slot.RefPresetId, FileName = slot.RefFileName! } }
+				: new RoleSourceDraft { OwnFilePath = slot.SourcePath };
+		}
 
 		Result = draft;
 		DialogResult = true;

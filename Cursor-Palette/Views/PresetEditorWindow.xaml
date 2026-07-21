@@ -53,6 +53,20 @@
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
 		</DockPanel.LayoutTransform>
 
+		<Border DockPanel.Dock="Top"
+				Background="{StaticResource Brush.Surface}"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="0,0,0,1"
+				Padding="16,8">
+			<Button Style="{StaticResource Style.Button}"
+					Padding="8,6"
+					ToolTip="{DynamicResource S.Info.Tooltip}"
+					Click="OnInfoButtonClick"
+					HorizontalAlignment="Right">
+				<TextBlock Text="ⓘ" FontSize="15" />
+			</Button>
+		</Border>
+
 
 		<Border DockPanel.Dock="Bottom"
 				Background="{StaticResource Brush.Surface}"

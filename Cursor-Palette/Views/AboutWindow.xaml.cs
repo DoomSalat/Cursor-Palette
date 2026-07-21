@@ -12,4 +12,9 @@ public partial class AboutWindow : Window
 		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
 		VersionText.Text = $"{AppInfo.Author}  ·  v{version}  ·  {AppInfo.LicenseName}";
 	}
+
+	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
+	{
+		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.About")) { Owner = this }.ShowDialog();
+	}
 }

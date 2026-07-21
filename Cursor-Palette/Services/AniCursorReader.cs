@@ -16,6 +16,25 @@ public static class AniCursorReader
 	private const uint FallbackJiffiesPerFrame = 6;
 	private const int RiffHeaderSize = 12;
 	private const int AnimationHeaderMinSize = 36;
+	private const string IconChunkFourCc = "icon";
+	private const string AnihChunkFourCc = "anih";
+	private const string RateChunkFourCc = "rate";
+	private const string SeqChunkFourCc = "seq ";
+	private const string ListChunkFourCc = "LIST";
+	private const double JiffiesPerSecond = 60.0;
+	private const int AnihFrameCountOffset = 4;
+	private const int AnihStepCountOffset = 8;
+	private const int AnihJiffiesPerFrameOffset = 28;
+	private const int FourCcSize = 4;
+	private const int ChunkHeaderSize = 8;
+	private const int ListTypeSize = 4;
+	private const int UInt32Size = 4;
+	private const int WordAlignment = 2;
+	private const string TempFilePrefix = "cursor-palette-frame-";
+	private const string TempFileExtension = ".cur";
+	private const string RiffSignature = "RIFF";
+	private const string AconTypeSignature = "ACON";
+	private const int AconTypeOffset = 8;
 
 	[DllImport(User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
 	private static extern IntPtr LoadCursorFromFile(string lpFileName);
@@ -44,7 +63,7 @@ public static class AniCursorReader
 
 		WalkChunks(bytes, RiffHeaderSize, bytes.Length, (fourCc, offset, length) =>
 		{
-			if (fourCc == "icon")
+			if (fourCc == IconChunkFourCc)
 				chunks.Add((offset, length));
 		});
 
@@ -74,8 +93,10 @@ public static class AniCursorReader
 
 	private static bool IsRiffAconFile(byte[] bytes) =>
 		bytes.Length >= RiffHeaderSize &&
-		bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F' &&
-		bytes[8] == 'A' && bytes[9] == 'C' && bytes[10] == 'O' && bytes[11] == 'N';
+		bytes[0] == RiffSignature[0] && bytes[1] == RiffSignature[1] &&
+		bytes[2] == RiffSignature[2] && bytes[3] == RiffSignature[3] &&
+		bytes[AconTypeOffset] == AconTypeSignature[0] && bytes[AconTypeOffset + 1] == AconTypeSignature[1] &&
+		bytes[AconTypeOffset + 2] == AconTypeSignature[2] && bytes[AconTypeOffset + 3] == AconTypeSignature[3];
 
 	private sealed class AnimationHeader
 	{
@@ -92,16 +113,16 @@ public static class AniCursorReader
 	{
 		switch (fourCc)
 		{
-			case "anih":
+			case AnihChunkFourCc:
 				ReadAnimationHeader(bytes, offset, length, header);
 				break;
-			case "rate":
+			case RateChunkFourCc:
 				header.StepDurationsJiffies = ReadUInt32Array(bytes, offset, length);
 				break;
-			case "seq ":
+			case SeqChunkFourCc:
 				header.StepFrameOrder = ReadUInt32Array(bytes, offset, length);
 				break;
-			case "icon":
+			case IconChunkFourCc:
 				iconChunks.Add((offset, length));
 				break;
 		}
@@ -112,9 +133,9 @@ public static class AniCursorReader
 		if (length < AnimationHeaderMinSize)
 			return;
 
-		header.FrameCount = ReadUInt32(bytes, offset + 4);
-		header.StepCount = ReadUInt32(bytes, offset + 8);
-		header.JiffiesPerFrame = ReadUInt32(bytes, offset + 28);
+		header.FrameCount = ReadUInt32(bytes, offset + AnihFrameCountOffset);
+		header.StepCount = ReadUInt32(bytes, offset + AnihStepCountOffset);
+		header.JiffiesPerFrame = ReadUInt32(bytes, offset + AnihJiffiesPerFrameOffset);
 
 		if (header.JiffiesPerFrame == 0)
 			header.JiffiesPerFrame = FallbackJiffiesPerFrame;
@@ -175,12 +196,12 @@ public static class AniCursorReader
 				? header.StepDurationsJiffies[step]
 				: header.JiffiesPerFrame;
 
-		return TimeSpan.FromSeconds(jiffies / 60.0);
+		return TimeSpan.FromSeconds(jiffies / JiffiesPerSecond);
 	}
 
 	private static BitmapSource? DecodeFrameViaTempCursorFile(byte[] bytes, int offset, int length)
 	{
-		var tempPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-frame-{Guid.NewGuid():N}.cur");
+		var tempPath = Path.Combine(Path.GetTempPath(), $"{TempFilePrefix}{Guid.NewGuid():N}{TempFileExtension}");
 
 		try
 		{
@@ -232,21 +253,21 @@ public static class AniCursorReader
 	{
 		var pos = start;
 
-		while (pos + 8 <= end)
+		while (pos + ChunkHeaderSize <= end)
 		{
-			var fourCc = System.Text.Encoding.ASCII.GetString(bytes, pos, 4);
-			var size = (int)ReadUInt32(bytes, pos + 4);
-			var dataOffset = pos + 8;
+			var fourCc = System.Text.Encoding.ASCII.GetString(bytes, pos, FourCcSize);
+			var size = (int)ReadUInt32(bytes, pos + FourCcSize);
+			var dataOffset = pos + ChunkHeaderSize;
 
 			if (dataOffset + size > end || size < 0)
 				break;
 
-			if (fourCc == "LIST" && size >= 4)
-				WalkChunks(bytes, dataOffset + 4, dataOffset + size, onChunk);
+			if (fourCc == ListChunkFourCc && size >= ListTypeSize)
+				WalkChunks(bytes, dataOffset + ListTypeSize, dataOffset + size, onChunk);
 			else
 				onChunk(fourCc, dataOffset, size);
 
-			pos = dataOffset + size + (size % 2);
+			pos = dataOffset + size + (size % WordAlignment);
 		}
 	}
 
@@ -255,11 +276,11 @@ public static class AniCursorReader
 
 	private static uint[] ReadUInt32Array(byte[] bytes, int offset, int length)
 	{
-		var count = length / 4;
+		var count = length / UInt32Size;
 		var result = new uint[count];
 
 		for (var i = 0; i < count; i++)
-			result[i] = ReadUInt32(bytes, offset + i * 4);
+			result[i] = ReadUInt32(bytes, offset + i * UInt32Size);
 
 		return result;
 	}

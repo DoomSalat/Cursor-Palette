@@ -28,6 +28,7 @@
 	<sys:String x:Key="S.Menu.Edit">Bearbeiten</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Löschen</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Rechtsklick für Menü</sys:String>
+	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Einige Rollen stammen aus anderen Presets</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Preset löschen</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">Preset "{0}" löschen? Die Dateien werden aus dem App-Cache entfernt.</sys:String>
@@ -48,6 +49,15 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">Ordner wählen…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">Der ausgewählte Ordner enthält keine Cursordateien (.cur/.ani).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">{0} Cursordateien gefunden, aber keine konnte anhand des Dateinamens einer Rolle zugeordnet werden.</sys:String>
+	<sys:String x:Key="S.Editor.PickExisting">Aus vorhandenen wählen</sys:String>
+	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Verknüpft mit: {0}</sys:String>
+
+	<sys:String x:Key="S.PresetPicker.Title">Preset wählen</sys:String>
+	<sys:String x:Key="S.PresetPicker.Empty">Noch keine anderen Presets, aus denen eine Rolle gewählt werden kann.</sys:String>
+
+	<sys:String x:Key="S.RolePicker.Title">Rolle wählen</sys:String>
+	<sys:String x:Key="S.RolePicker.OnlyCurrentRole">Nur aktuelle Rolle anzeigen</sys:String>
+	<sys:String x:Key="S.RolePicker.RoleNotAssigned">Diese Rolle ist in diesem Preset nicht zugewiesen</sys:String>
 
 	<sys:String x:Key="S.Hotspot.Title">Ankerpunkt</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">Marker auf die gewünschte Klickposition ziehen</sys:String>
@@ -77,5 +87,21 @@
 	<sys:String x:Key="S.Role.Hand">Verknüpfungsauswahl</sys:String>
 	<sys:String x:Key="S.Role.Person">Personenauswahl</sys:String>
 	<sys:String x:Key="S.Role.Pin">Anheften</sys:String>
+
+	<sys:String x:Key="S.Info.Title">Hilfe</sys:String>
+	<sys:String x:Key="S.Info.Close">Schließen</sys:String>
+	<sys:String x:Key="S.Info.Tooltip">Fensterhilfe</sys:String>
+
+	<sys:String x:Key="S.Info.Main">🏠 Hauptfenster — Preset-Galerie&#x0a;&#x0a;📦 Galerie — zeigt alle Ihre Cursor-Presets.&#x0a;   • Linksklick auf Preset — Cursor anwenden.&#x0a;   • Rechtsklick auf Preset — Menü (bearbeiten, löschen).&#x0a;   • 🧩 Symbol — einige Rollen stammen aus anderen Presets.&#x0a;&#x0a;➕ "Preset hinzufügen" — neues Preset erstellen.&#x0a;   • .cur/.ani-Dateien oder Ordner ins Fenster ziehen.&#x0a;&#x0a;🎨 Rastergröße — ändert die Zellgröße der Galerie.&#x0a;📏 Cursorgröße — Schieberegler + "Anwenden" ändert Systemgröße.&#x0a;↩️ "Zurück" — vorherigen Cursor-Zustand wiederherstellen.&#x0a;🌙/☀ — Dunkel/Hell-Design wechseln.&#x0a;🌐 — Sprache ändern.&#x0a;🔍 −/+ — Ansicht zoomen.&#x0a;📄 Auf Fußzeile klicken — "Über"-Fenster.</sys:String>
+
+	<sys:String x:Key="S.Info.Editor">✏️ Preset-Editor&#x0a;&#x0a;🎯 Jeder Platz — eine Cursor-Rolle (Pfeil, Text, Beschäftigt usw.).&#x0a;   • .cur/.ani-Datei auf Platz ziehen — Rolle füllen.&#x0a;   • 🎯 auf Platz — Ankerpunkt (Klickposition) festlegen.&#x0a;   • ✕ auf Platz — Datei entfernen, Systemcursor zurück.&#x0a;   • "Aus vorhandenen wählen" — Rolle aus anderem Preset übernehmen.&#x0a;   • "auto" Symbol — Cursor wird automatisch eingesetzt.&#x0a;&#x0a;📁 "Ordner wählen" — alle Cursor aus einem Ordner importieren.&#x0a;   • Dateien werden nach Dateiname Rollen zugeordnet.&#x0a;&#x0a;📝 Preset-Namen unten eingeben.&#x0a;📏 Größenregler — Cursorgröße in Plätzen vorschauen.&#x0a;💾 "Speichern" — Preset in Galerie speichern.</sys:String>
+
+	<sys:String x:Key="S.Info.RolePicker">🔀 Rolle wählen&#x0a;&#x0a;Wählen Sie eine Cursor-Rolle aus dem gewählten Preset.&#x0a;&#x0a;☑️ "Nur aktuelle Rolle anzeigen" — Filter:&#x0a;   • Aktiviert — nur die zu ersetzende Rolle.&#x0a;   • Deaktiviert — alle Rollen des Presets.&#x0a;&#x0a;Linksklick auf Kachel — Rolle wählen und bestätigen.&#x0a;Leere Kacheln — Rolle nicht zugewiesen in diesem Preset.</sys:String>
+
+	<sys:String x:Key="S.Info.PresetPicker">📂 Preset wählen&#x0a;&#x0a;Wählen Sie ein Preset, um eine Cursor-Rolle zu übernehmen.&#x0a;&#x0a;Linksklick auf Zelle — Preset wählen und zur Rollenauswahl gehen.&#x0a;Zahl unten — wie viele Rollen im Preset gefüllt sind.</sys:String>
+
+	<sys:String x:Key="S.Info.Hotspot">🎯 Ankerpunkt&#x0a;&#x0a;Der Ankerpunkt ist die Position, an der der Klick registriert wird.&#x0a;&#x0a;🖱️ Marker (Kreis) auf dem Cursor-Bild ziehen.&#x0a;   • Oder auf die gewünschte Stelle im Vorschaubild klicken.&#x0a;&#x0a;⚡ Schnellauswahl — 9 Schaltflächen mit typischen Positionen:&#x0a;   ↖ ↑ ↗   — obere Reihe&#x0a;   ← • →   — mittlere Reihe (• = Mitte)&#x0a;   ↙ ↓ ↘   — untere Reihe&#x0a;&#x0a;Koordinaten unten links angezeigt.&#x0a;💾 "Speichern" — Ankerpunkt anwenden.</sys:String>
+
+	<sys:String x:Key="S.Info.About">ℹ️ Über&#x0a;&#x0a;Hier werden App-Informationen angezeigt:&#x0a;   • Name und Version.&#x0a;   • Autor und Lizenz (MIT).&#x0a;&#x0a;Dies ist freie Software — Sie können sie unter den&#x0a;Bedingungen der MIT-Lizenz nutzen, ändern und verbreiten.</sys:String>
 
 </ResourceDictionary>

@@ -10,6 +10,13 @@ public sealed class Preset
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
 
 	public Dictionary<string, string> Roles { get; init; } = new();
+	public Dictionary<string, RoleRef> RoleRefs { get; init; } = new();
+}
+
+public sealed class RoleRef
+{
+	public required string PresetId { get; init; }
+	public required string FileName { get; init; }
 }
 
 public sealed class PresetDraft
@@ -17,5 +24,11 @@ public sealed class PresetDraft
 	public string? Id { get; set; }
 	public string Name { get; set; } = "";
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
-	public Dictionary<string, string> RoleSources { get; init; } = new();
+	public Dictionary<string, RoleSourceDraft> RoleSources { get; init; } = new();
+}
+
+public sealed class RoleSourceDraft
+{
+	public string? OwnFilePath { get; init; }
+	public RoleRef? Ref { get; init; }
 }

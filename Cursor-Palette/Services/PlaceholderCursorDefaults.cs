@@ -4,6 +4,9 @@ namespace CursorPalette.Services;
 
 public static class PlaceholderCursorDefaults
 {
+	private const string DefaultCursorsDirName = "DefaultCursors";
+	private const string PackUriPrefix = "pack://application:,,,/Resources/";
+
 	private static readonly Dictionary<string, string> BundledFileNames = new(StringComparer.Ordinal)
 	{
 		["Crosshair"] = "Crosshair.cur",
@@ -29,13 +32,13 @@ public static class PlaceholderCursorDefaults
 
 	private static string? ExtractToCache(string fileName)
 	{
-		var destinationPath = Path.Combine(AppPaths.Root, "DefaultCursors", fileName);
+		var destinationPath = Path.Combine(AppPaths.Root, DefaultCursorsDirName, fileName);
 
 		try
 		{
 			if (!File.Exists(destinationPath))
 			{
-				var uri = new Uri($"pack://application:,,,/Resources/DefaultCursors/{fileName}");
+				var uri = new Uri($"{PackUriPrefix}{DefaultCursorsDirName}/{fileName}");
 				var resource = Application.GetResourceStream(uri);
 				if (resource == null)
 					return null;

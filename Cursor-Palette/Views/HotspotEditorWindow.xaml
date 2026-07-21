@@ -13,6 +13,16 @@
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
 		</DockPanel.LayoutTransform>
 
+		<Button DockPanel.Dock="Top"
+				Style="{StaticResource Style.Button}"
+				Padding="8,6"
+				ToolTip="{DynamicResource S.Info.Tooltip}"
+				Click="OnInfoButtonClick"
+				HorizontalAlignment="Right"
+				Margin="0,0,0,10">
+			<TextBlock Text="ⓘ" FontSize="15" />
+		</Button>
+
 		<TextBlock DockPanel.Dock="Top"
 					 Text="{DynamicResource S.Hotspot.Hint}"
 					 Foreground="{StaticResource Brush.TextDim}"

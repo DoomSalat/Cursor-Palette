@@ -28,6 +28,7 @@
 	<sys:String x:Key="S.Menu.Edit">Edit</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Delete</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Right-click for menu</sys:String>
+	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Some roles are taken from other presets</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Delete preset</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">Delete preset "{0}"? Its files will be removed from the app cache.</sys:String>
@@ -48,6 +49,15 @@
 	<sys:String x:Key="S.Editor.BrowseFolder">Choose folder…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">The selected folder has no cursor files (.cur/.ani).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Found {0} cursor files, but none could be matched to a role by file name.</sys:String>
+	<sys:String x:Key="S.Editor.PickExisting">Pick from existing</sys:String>
+	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Linked to: {0}</sys:String>
+
+	<sys:String x:Key="S.PresetPicker.Title">Choose preset</sys:String>
+	<sys:String x:Key="S.PresetPicker.Empty">No other presets to pick a role from yet.</sys:String>
+
+	<sys:String x:Key="S.RolePicker.Title">Choose role</sys:String>
+	<sys:String x:Key="S.RolePicker.OnlyCurrentRole">Show only the current role</sys:String>
+	<sys:String x:Key="S.RolePicker.RoleNotAssigned">This role isn't assigned in that preset</sys:String>
 
 	<sys:String x:Key="S.Hotspot.Title">Pivot point</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">Drag the marker to where the click should register</sys:String>
@@ -77,5 +87,21 @@
 	<sys:String x:Key="S.Role.Hand">Link select</sys:String>
 	<sys:String x:Key="S.Role.Person">Person select</sys:String>
 	<sys:String x:Key="S.Role.Pin">Pin</sys:String>
+
+	<sys:String x:Key="S.Info.Title">Help</sys:String>
+	<sys:String x:Key="S.Info.Close">Close</sys:String>
+	<sys:String x:Key="S.Info.Tooltip">Window help</sys:String>
+
+	<sys:String x:Key="S.Info.Main">🏠 Main — preset gallery&#x0a;&#x0a;📦 Gallery — shows all your cursor presets.&#x0a;   • Left-click a preset — apply cursors.&#x0a;   • Right-click a preset — menu (edit, delete).&#x0a;   • 🧩 badge — some roles are borrowed from other presets.&#x0a;&#x0a;➕ "Add preset" — create a new preset.&#x0a;   • Drag .cur/.ani files or a folder onto the window.&#x0a;&#x0a;🎨 Grid size — changes gallery cell size.&#x0a;📏 Cursor size — slider + "Apply" changes system cursor size.&#x0a;↩️ "Undo" — revert to previous cursor set.&#x0a;🌙/☀ — toggle dark/light theme.&#x0a;🌐 — change interface language.&#x0a;🔍 −/+ — zoom interface in/out.&#x0a;📄 Click the footer — "About" window.</sys:String>
+
+	<sys:String x:Key="S.Info.Editor">✏️ Preset editor&#x0a;&#x0a;🎯 Each slot — one cursor role (arrow, text, busy, etc.).&#x0a;   • Drag a .cur/.ani file onto a slot — fills that role.&#x0a;   • 🎯 on a slot — set pivot point (click position).&#x0a;   • ✕ on a slot — remove file, reverts to system cursor.&#x0a;   • "Pick from existing" — borrow a role from another preset.&#x0a;   • "auto" badge — cursor is auto-filled.&#x0a;&#x0a;📁 "Choose folder" — import all cursors from a folder at once.&#x0a;   • Files are matched to roles by file name.&#x0a;&#x0a;📝 Enter a preset name at the bottom.&#x0a;📏 Size slider — preview cursor size in slots.&#x0a;💾 "Save" — save preset to gallery.</sys:String>
+
+	<sys:String x:Key="S.Info.RolePicker">🔀 Choose role&#x0a;&#x0a;Pick a cursor role from the selected preset.&#x0a;&#x0a;☑️ "Show only the current role" — filter:&#x0a;   • Checked — only the role you're replacing.&#x0a;   • Unchecked — all roles from the preset.&#x0a;&#x0a;Left-click a tile — select role and confirm.&#x0a;Empty tiles — role not assigned in that preset.</sys:String>
+
+	<sys:String x:Key="S.Info.PresetPicker">📂 Choose preset&#x0a;&#x0a;Select a preset to borrow a cursor role from.&#x0a;&#x0a;Left-click a cell — select preset and proceed to role selection.&#x0a;Number at bottom — how many roles are filled in the preset.</sys:String>
+
+	<sys:String x:Key="S.Info.Hotspot">🎯 Pivot point&#x0a;&#x0a;The pivot point is where the cursor's click registers.&#x0a;&#x0a;🖱️ Drag the marker (circle) on the cursor image.&#x0a;   • Or click the desired spot on the preview.&#x0a;&#x0a;⚡ Quick set — 9 buttons with typical positions:&#x0a;   ↖ ↑ ↗   — top row&#x0a;   ← • →   — middle row (• = center)&#x0a;   ↙ ↓ ↘   — bottom row&#x0a;&#x0a;Coordinates shown at bottom-left.&#x0a;💾 "Save" — apply the pivot point.</sys:String>
+
+	<sys:String x:Key="S.Info.About">ℹ️ About&#x0a;&#x0a;App information is shown here:&#x0a;   • Name and version.&#x0a;   • Author and license (MIT).&#x0a;&#x0a;This is free software — you can use, modify&#x0a;and distribute it under the MIT License terms.</sys:String>
 
 </ResourceDictionary>

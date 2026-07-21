@@ -39,6 +39,7 @@
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
 				<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
@@ -69,9 +70,18 @@
 				<Button x:Name="ThemeToggleButton" Grid.Column="3"
 						Style="{StaticResource Style.Button}"
 						Padding="8,6"
+						Margin="0,0,8,0"
 						ToolTip="{DynamicResource S.Theme.ToggleTooltip}"
 						Click="OnThemeToggleClick">
 					<TextBlock x:Name="ThemeToggleIcon" FontSize="15" />
+				</Button>
+
+				<Button Grid.Column="4"
+						Style="{StaticResource Style.Button}"
+						Padding="8,6"
+						ToolTip="{DynamicResource S.Info.Tooltip}"
+						Click="OnInfoButtonClick">
+					<TextBlock Text="ⓘ" FontSize="15" />
 				</Button>
 			</Grid>
 		</Border>

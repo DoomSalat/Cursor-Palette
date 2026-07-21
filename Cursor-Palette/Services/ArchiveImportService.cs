@@ -6,13 +6,14 @@ namespace CursorPalette.Services;
 public static class ArchiveImportService
 {
 	private static readonly string[] ArchiveExtensions = { ".zip", ".rar", ".7z" };
+	private const string TempFolderPrefix = "cursor-palette-archive-";
 
 	public static bool IsArchiveFile(string path) =>
 		ArchiveExtensions.Contains(Path.GetExtension(path).ToLowerInvariant());
 
 	public static string ExtractToTempFolder(string archivePath)
 	{
-		var destination = Path.Combine(Path.GetTempPath(), $"cursor-palette-archive-{Guid.NewGuid():N}");
+		var destination = Path.Combine(Path.GetTempPath(), $"{TempFolderPrefix}{Guid.NewGuid():N}");
 		Directory.CreateDirectory(destination);
 
 		using var archive = ArchiveFactory.Open(archivePath);
