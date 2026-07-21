@@ -52,6 +52,8 @@
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Found {0} cursor files, but none could be matched to a role by file name.</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">Pick from existing</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Linked to: {0}</sys:String>
+	<sys:String x:Key="S.Editor.Lock.Tooltip">Lock role (protect from folder import and drag-and-drop)</sys:String>
+	<sys:String x:Key="S.Editor.Unlock.Tooltip">Unlock role</sys:String>
 
 	<sys:String x:Key="S.PresetPicker.Title">Choose preset</sys:String>
 	<sys:String x:Key="S.PresetPicker.Empty">No other presets to pick a role from yet.</sys:String>

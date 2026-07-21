@@ -11,6 +11,7 @@ public sealed class Preset
 
 	public Dictionary<string, string> Roles { get; init; } = new();
 	public Dictionary<string, RoleRef> RoleRefs { get; init; } = new();
+	public HashSet<string> LockedRoles { get; init; } = new();
 }
 
 public sealed class RoleRef
@@ -25,6 +26,7 @@ public sealed class PresetDraft
 	public string Name { get; set; } = "";
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
 	public Dictionary<string, RoleSourceDraft> RoleSources { get; init; } = new();
+	public HashSet<string> LockedRoles { get; init; } = new();
 }
 
 public sealed class RoleSourceDraft

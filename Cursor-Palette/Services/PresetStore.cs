@@ -132,6 +132,7 @@ public static class PresetStore
 			BaseSize = draft.BaseSize,
 			Roles = roles,
 			RoleRefs = roleRefs,
+			LockedRoles = new HashSet<string>(draft.LockedRoles),
 		};
 
 		File.WriteAllText(Path.Combine(GetPresetDir(id), ManifestFileName),

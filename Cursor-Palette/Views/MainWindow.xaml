@@ -219,10 +219,14 @@
 							Cursor="Hand"
 							ToolTip="{x:Static local:AppInfo.GitHubUrl}"
 							MouseLeftButtonUp="OnGitHubIconClick">
-						<Image Source="pack://application:,,,/Resources/GitHub48.png"
-							   Width="20" Height="20"
-							   SnapsToDevicePixels="True"
-							   RenderOptions.BitmapScalingMode="HighQuality" />
+						<Rectangle Width="20" Height="20"
+								   SnapsToDevicePixels="True"
+								   Fill="{StaticResource Brush.TextDim}">
+							<Rectangle.OpacityMask>
+								<ImageBrush ImageSource="pack://application:,,,/Resources/GitHub48.png"
+											Stretch="Uniform" />
+							</Rectangle.OpacityMask>
+						</Rectangle>
 					</Border>
 				</StackPanel>
 			</Grid>

@@ -25,9 +25,14 @@ public partial class PresetEditorWindow : Window
 		public TextBlock FileText { get; init; } = null!;
 		public Button ClearButton { get; init; } = null!;
 		public Button PivotButton { get; init; } = null!;
+		public Button LockButton { get; init; } = null!;
+		public Rectangle LockIcon { get; init; } = null!;
+		public StackPanel PrimaryButtons { get; init; } = null!;
+		public Rectangle DropIndicator { get; init; } = null!;
 		public FrameworkElement PlaceholderBadge { get; init; } = null!;
 		public FrameworkElement HotspotDot { get; init; } = null!;
 		public FrameworkElement LinkBadge { get; init; } = null!;
+		public bool IsLocked { get; set; }
 	}
 
 	private const string PixelSuffix = "px";
@@ -53,9 +58,10 @@ public partial class PresetEditorWindow : Window
 	private const double CornerBadgeSize = 22;
 	private const double PreviewTopMargin = 10;
 	private const double LinkBadgeIconSize = 16;
+	private const string LockIconUri = "pack://application:,,,/Resources/LockIcon26.png";
+	private const double LockIconSize = 14;
 
 	private readonly List<Slot> _slots = new();
-	private readonly List<Rectangle> _slotDropIndicators = new();
 
 	public PresetDraft? Result { get; private set; }
 
@@ -103,6 +109,9 @@ public partial class PresetEditorWindow : Window
 					else
 						SetSlotSource(slot, path);
 				}
+
+				if (existing.LockedRoles.Contains(role.RegistryName))
+					SetSlotLocked(slot, true);
 			}
 		}
 
@@ -297,6 +306,28 @@ public partial class PresetEditorWindow : Window
 			Visibility = Visibility.Collapsed,
 		};
 
+		var lockIcon = new Rectangle
+		{
+			Width = LockIconSize,
+			Height = LockIconSize,
+			Fill = Brush("Brush.Text"),
+			OpacityMask = new ImageBrush(new BitmapImage(new Uri(LockIconUri))),
+			IsHitTestVisible = false,
+		};
+
+		var lockButton = new Button
+		{
+			Content = lockIcon,
+			Style = (Style)Application.Current.Resources["Style.Button"],
+			Width = CornerBadgeSize,
+			Height = CornerBadgeSize,
+			Padding = new Thickness(0),
+			HorizontalAlignment = HorizontalAlignment.Left,
+			VerticalAlignment = VerticalAlignment.Top,
+			Margin = new Thickness(6, 6, 0, 0),
+			ToolTip = Loc.Get("S.Editor.Lock.Tooltip"),
+		};
+
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 		panel.Children.Add(placeholderBadge);
 		panel.Children.Add(linkBadge);
@@ -320,8 +351,8 @@ public partial class PresetEditorWindow : Window
 		var slotContent = new Grid();
 		slotContent.Children.Add(panel);
 		slotContent.Children.Add(clearButton);
+		slotContent.Children.Add(lockButton);
 		slotContent.Children.Add(dropIndicator);
-		_slotDropIndicators.Add(dropIndicator);
 
 		var border = new Border
 		{
@@ -344,6 +375,10 @@ public partial class PresetEditorWindow : Window
 			FileText = fileText,
 			ClearButton = clearButton,
 			PivotButton = pivotButton,
+			LockButton = lockButton,
+			LockIcon = lockIcon,
+			PrimaryButtons = primaryButtons,
+			DropIndicator = dropIndicator,
 			PlaceholderBadge = placeholderBadge,
 			HotspotDot = hotspotDot,
 			LinkBadge = linkBadge,
@@ -353,15 +388,22 @@ public partial class PresetEditorWindow : Window
 		pickExistingButton.Click += (_, _) => PickExistingForSlot(slot);
 		pivotButton.Click += (_, _) => OpenHotspotEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
+		lockButton.Click += (_, _) => SetSlotLocked(slot, !slot.IsLocked);
 
 		border.DragOver += (_, e) =>
 		{
-			e.Effects = GetSingleCursorFile(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
+			e.Effects = !slot.IsLocked && GetSingleCursorFile(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
 			e.Handled = true;
 		};
 		border.Drop += (_, e) =>
 		{
 			HideAllDropIndicators();
+			if (slot.IsLocked)
+			{
+				e.Handled = true;
+				return;
+			}
+
 			var file = GetSingleCursorFile(e);
 			if (file != null)
 			{
@@ -449,6 +491,20 @@ public partial class PresetEditorWindow : Window
 	}
 
 	private void ClearSlot(Slot slot) => SetSlotPlaceholder(slot);
+
+	private void SetSlotLocked(Slot slot, bool locked)
+	{
+		slot.IsLocked = locked;
+
+		var accent = Brush("Brush.Accent");
+		slot.LockButton.BorderBrush = locked ? accent : Brush("Brush.Border");
+		slot.LockButton.BorderThickness = new Thickness(locked ? 2 : 1);
+		slot.LockIcon.Fill = locked ? accent : Brush("Brush.Text");
+		slot.LockButton.ToolTip = Loc.Get(locked ? "S.Editor.Unlock.Tooltip" : "S.Editor.Lock.Tooltip");
+
+		slot.PrimaryButtons.IsEnabled = !locked;
+		slot.ClearButton.IsEnabled = !locked;
+	}
 
 	private static string? GetSlotResolvedPath(Slot slot) =>
 		slot.SourcePath ?? (slot.RefPresetId != null && slot.RefFileName != null
@@ -559,8 +615,10 @@ public partial class PresetEditorWindow : Window
 
 	private void SetSlotIndicatorsVisibility(Visibility visibility)
 	{
-		foreach (var indicator in _slotDropIndicators)
-			indicator.Visibility = visibility;
+		foreach (var slot in _slots)
+			slot.DropIndicator.Visibility = visibility == Visibility.Visible && slot.IsLocked
+				? Visibility.Collapsed
+				: visibility;
 	}
 
 	private void OnFolderDragOver(object sender, DragEventArgs e)
@@ -645,8 +703,12 @@ public partial class PresetEditorWindow : Window
 				continue;
 
 			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
-			SetSlotSource(slot, file);
 			matched++;
+
+			if (slot.IsLocked)
+				continue;
+
+			SetSlotSource(slot, file);
 		}
 
 		if (matched == 0)
@@ -679,6 +741,9 @@ public partial class PresetEditorWindow : Window
 				? new RoleSourceDraft { Ref = new RoleRef { PresetId = slot.RefPresetId, FileName = slot.RefFileName! } }
 				: new RoleSourceDraft { OwnFilePath = slot.SourcePath };
 		}
+
+		foreach (var slot in _slots.Where(s => s.IsLocked))
+			draft.LockedRoles.Add(slot.Role.RegistryName);
 
 		Result = draft;
 		DialogResult = true;

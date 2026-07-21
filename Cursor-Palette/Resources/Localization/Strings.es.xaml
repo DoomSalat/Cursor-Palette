@@ -52,6 +52,8 @@
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Se encontraron {0} archivos de cursor, pero ninguno pudo asociarse a un rol por el nombre del archivo.</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">Elegir de existentes</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Vinculado a: {0}</sys:String>
+	<sys:String x:Key="S.Editor.Lock.Tooltip">Bloquear rol (proteger de la importación de carpetas y de arrastrar y soltar)</sys:String>
+	<sys:String x:Key="S.Editor.Unlock.Tooltip">Desbloquear rol</sys:String>
 
 	<sys:String x:Key="S.PresetPicker.Title">Elegir preset</sys:String>
 	<sys:String x:Key="S.PresetPicker.Empty">Aún no hay otros preajustes de los que elegir un rol.</sys:String>

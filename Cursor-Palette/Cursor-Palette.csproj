@@ -24,6 +24,7 @@
 		<Resource Include="Resources\OpenFolder104.png" />
 		<Resource Include="Resources\GitHub48.png" />
 		<Resource Include="Resources\LinkIcon32.png" />
+		<Resource Include="Resources\LockIcon26.png" />
 		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
 		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
 	</ItemGroup>

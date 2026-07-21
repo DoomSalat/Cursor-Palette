@@ -52,6 +52,8 @@
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Найдено {0} файлов курсоров, но ни один не удалось сопоставить с ролями по имени файла.</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">Выбрать из существующих</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Связано с: {0}</sys:String>
+	<sys:String x:Key="S.Editor.Lock.Tooltip">Заблокировать роль (защита от импорта папки и перетаскивания)</sys:String>
+	<sys:String x:Key="S.Editor.Unlock.Tooltip">Разблокировать роль</sys:String>
 
 	<sys:String x:Key="S.PresetPicker.Title">Выбор пресета</sys:String>
 	<sys:String x:Key="S.PresetPicker.Empty">Пока нет других пресетов, из которых можно выбрать роль.</sys:String>
