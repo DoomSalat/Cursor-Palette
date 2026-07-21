@@ -22,11 +22,13 @@ public partial class UpdateWindow : Window
 	private const string LocDownloadedTo = "S.Update.DownloadedTo";
 	private const string LocDownloadFailed = "S.Update.DownloadFailed";
 	private const string LocToastManualDownload = "S.Toast.ManualDownload";
+	private const string LocToastDownloadStarted = "S.Toast.DownloadStarted";
 	private const string VersionLabelFormat = "{0}: {1}  →  {2}: {3}";
 	private const string DownloadedToFormat = "{0} {1}";
 	private const string DownloadFailedFormat = "{0}: {1}";
 
 	private readonly UpdateInfo _updateInfo;
+	private readonly Panel _toastHost;
 	private static readonly HttpClient HttpClient = new();
 
 	static UpdateWindow()
@@ -34,10 +36,11 @@ public partial class UpdateWindow : Window
 		HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
 	}
 
-	public UpdateWindow(UpdateInfo updateInfo)
+	public UpdateWindow(UpdateInfo updateInfo, Panel toastHost)
 	{
 		InitializeComponent();
 		_updateInfo = updateInfo;
+		_toastHost = toastHost;
 
 		HeaderText.Text = Loc.Get(LocWindowTitle);
 		VersionInfoText.Text = string.Format(VersionLabelFormat,
@@ -48,11 +51,15 @@ public partial class UpdateWindow : Window
 	private static string GetCurrentVersion() =>
 		System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
 
-	private async void OnManualDownloadClick(object sender, RoutedEventArgs e)
+	private void OnManualDownloadClick(object sender, RoutedEventArgs e)
 	{
-		StatusText.Text = Loc.Get(LocDownloading);
-		StatusText.Visibility = Visibility.Visible;
+		ToastService.Show(_toastHost, Loc.Get(LocToastDownloadStarted));
+		Close();
+		_ = DownloadManualAsync();
+	}
 
+	private async Task DownloadManualAsync()
+	{
 		try
 		{
 			var downloadsFolder = GetDownloadsFolder();
@@ -65,9 +72,7 @@ public partial class UpdateWindow : Window
 			await using var fs = File.Create(destPath);
 			await response.Content.CopyToAsync(fs);
 
-			StatusText.Text = string.Format(DownloadedToFormat, Loc.Get(LocDownloadedTo), destPath);
-
-			ToastService.Show((Panel)Content, Loc.Get(LocToastManualDownload));
+			ToastService.Show(_toastHost, Loc.Get(LocToastManualDownload));
 
 			Process.Start(new ProcessStartInfo
 			{
@@ -76,9 +81,8 @@ public partial class UpdateWindow : Window
 				UseShellExecute = true,
 			});
 		}
-		catch (Exception ex)
+		catch
 		{
-			StatusText.Text = string.Format(DownloadFailedFormat, Loc.Get(LocDownloadFailed), ex.Message);
 		}
 	}
 

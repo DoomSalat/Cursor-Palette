@@ -138,7 +138,7 @@ public partial class MainWindow : Window
 		if (_updateInfo is null)
 			return;
 
-		new UpdateWindow(_updateInfo) { Owner = this }.ShowDialog();
+		new UpdateWindow(_updateInfo, RootGrid) { Owner = this }.ShowDialog();
 	}
 
 	private void OnFooterClick(object sender, RoutedEventArgs e)
