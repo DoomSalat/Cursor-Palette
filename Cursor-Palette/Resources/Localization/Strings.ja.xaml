@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-					xmlns:sys="clr-namespace:System;assembly=mscorlib">
+					xmlns:sys="clr-namespace:System;assembly=mscorlib"
+					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
 
@@ -91,6 +92,8 @@
 	<sys:String x:Key="S.Info.Title">ヘルプ</sys:String>
 	<sys:String x:Key="S.Info.Close">閉じる</sys:String>
 	<sys:String x:Key="S.Info.Tooltip">ウィンドウヘルプ</sys:String>
+	<sys:String x:Key="S.Info.ZoomOutTooltip">文字サイズを縮小</sys:String>
+	<sys:String x:Key="S.Info.ZoomInTooltip">文字サイズを拡大</sys:String>
 
 	<sys:String x:Key="S.Info.Main">🏠 メイン — プリセットギャラリー&#x0a;&#x0a;📦 ギャラリー — すべてのカーソルプリセットを表示します。&#x0a;   • 左クリック — カーソルを適用。&#x0a;   • 右クリック — メニュー（編集、削除）。&#x0a;   • 🧩 バッジ — 一部のロールは他のプリセットから取得。&#x0a;&#x0a;➕ 「プリセットを追加」— 新しいプリセットを作成。&#x0a;   • .cur/.ani ファイルまたはフォルダをウィンドウにドロップ。&#x0a;&#x0a;🎨 グリッドサイズ — ギャラリーのセルサイズを変更。&#x0a;📏 カーソルサイズ — スライダー +「適用」でシステムサイズを変更。&#x0a;↩️ 「戻る」— 前のカーソルセットに戻す。&#x0a;🌙/☀ — ダーク/ライトテーマを切り替え。&#x0a;🌐 — 言語を変更。&#x0a;🔍 −/+ — インターフェースのズーム。&#x0a;📄 フッターをクリック — 「このアプリについて」ウィンドウ。</sys:String>
 

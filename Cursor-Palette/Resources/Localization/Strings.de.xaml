@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-					xmlns:sys="clr-namespace:System;assembly=mscorlib">
+					xmlns:sys="clr-namespace:System;assembly=mscorlib"
+					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
 
@@ -91,6 +92,8 @@
 	<sys:String x:Key="S.Info.Title">Hilfe</sys:String>
 	<sys:String x:Key="S.Info.Close">Schließen</sys:String>
 	<sys:String x:Key="S.Info.Tooltip">Fensterhilfe</sys:String>
+	<sys:String x:Key="S.Info.ZoomOutTooltip">Textgröße verkleinern</sys:String>
+	<sys:String x:Key="S.Info.ZoomInTooltip">Textgröße vergrößern</sys:String>
 
 	<sys:String x:Key="S.Info.Main">🏠 Hauptfenster — Preset-Galerie&#x0a;&#x0a;📦 Galerie — zeigt alle Ihre Cursor-Presets.&#x0a;   • Linksklick auf Preset — Cursor anwenden.&#x0a;   • Rechtsklick auf Preset — Menü (bearbeiten, löschen).&#x0a;   • 🧩 Symbol — einige Rollen stammen aus anderen Presets.&#x0a;&#x0a;➕ "Preset hinzufügen" — neues Preset erstellen.&#x0a;   • .cur/.ani-Dateien oder Ordner ins Fenster ziehen.&#x0a;&#x0a;🎨 Rastergröße — ändert die Zellgröße der Galerie.&#x0a;📏 Cursorgröße — Schieberegler + "Anwenden" ändert Systemgröße.&#x0a;↩️ "Zurück" — vorherigen Cursor-Zustand wiederherstellen.&#x0a;🌙/☀ — Dunkel/Hell-Design wechseln.&#x0a;🌐 — Sprache ändern.&#x0a;🔍 −/+ — Ansicht zoomen.&#x0a;📄 Auf Fußzeile klicken — "Über"-Fenster.</sys:String>
 

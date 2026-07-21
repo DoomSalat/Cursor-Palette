@@ -12,6 +12,10 @@ public static class AppState
 	public const double GalleryCellScaleMax = 3.5;
 	public const double GalleryCellScaleDefault = 1.0;
 
+	public const double InfoTextScaleMin = 0.8;
+	public const double InfoTextScaleMax = 1.6;
+	public const double InfoTextScaleDefault = 1.0;
+
 	private sealed class ActiveState
 	{
 		public string? ActivePresetId { get; set; }
@@ -22,6 +26,7 @@ public static class AppState
 		public int DefaultBaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
 		public double UiScale { get; set; } = UiScaleDefault;
 		public double GalleryCellScale { get; set; } = GalleryCellScaleDefault;
+		public double InfoTextScale { get; set; } = InfoTextScaleDefault;
 		public string? ThemeMode { get; set; }
 		public string? Language { get; set; }
 	}
@@ -93,6 +98,17 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.GalleryCellScale = Math.Clamp(scale, GalleryCellScaleMin, GalleryCellScaleMax);
+
+		SaveSettings(settings);
+	}
+
+	public static double GetInfoTextScale() =>
+		Math.Clamp(LoadSettings().InfoTextScale, InfoTextScaleMin, InfoTextScaleMax);
+
+	public static void SetInfoTextScale(double scale)
+	{
+		var settings = LoadSettings();
+		settings.InfoTextScale = Math.Clamp(scale, InfoTextScaleMin, InfoTextScaleMax);
 
 		SaveSettings(settings);
 	}
