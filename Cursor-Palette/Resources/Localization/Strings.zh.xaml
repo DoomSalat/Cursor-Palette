@@ -42,6 +42,7 @@
 	<sys:String x:Key="S.Editor.Browse">浏览…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">移除</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">设置热点</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">链接角色不可用</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">系统</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">默认</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">将文件拖到某个槽位以替换该角色</sys:String>
@@ -103,7 +104,7 @@
 
 	<sys:String x:Key="S.Info.PresetPicker">📂 选择预设&#x0a;&#x0a;选择一个预设来借用光标角色。&#x0a;&#x0a;左键点击单元格 — 选择预设并进入角色选择。&#x0a;底部数字 — 预设中已填充的角色数。</sys:String>
 
-	<sys:String x:Key="S.Info.Hotspot">🎯 热点&#x0a;&#x0a;热点是光标点击注册的位置。&#x0a;&#x0a;🖱️ 在光标图像上拖动标记（圆圈）。&#x0a;   • 或点击预览中所需的位置。&#x0a;&#x0a;⚡ 快速设置 — 9个按钮对应典型位置:&#x0a;   ↖ ↑ ↗   — 上排&#x0a;   ← • →   — 中排（• = 中心）&#x0a;   ↙ ↓ ↘   — 下排&#x0a;&#x0a;坐标显示在左下角。&#x0a;💾 "保存" — 应用热点。</sys:String>
+	<sys:String x:Key="S.Info.Hotspot">🎯 热点&#x0a;&#x0a;热点是光标点击注册的位置。&#x0a;&#x0a;🖱️ 在光标图像上拖动标记（圆圈）。&#x0a;   • 或点击预览中所需的位置。&#x0a;&#x0a;⚡ 快速设置 — 9个按钮对应典型位置:&#x0a;   ↖ ↑ ↗   — 上排&#x0a;   ← ✛ →   — 中排（✛ = 中心）&#x0a;   ↙ ↓ ↘   — 下排&#x0a;&#x0a;坐标显示在左下角。&#x0a;💾 "保存" — 应用热点。</sys:String>
 
 	<sys:String x:Key="S.Info.About">ℹ️ 关于&#x0a;&#x0a;这里显示应用信息:&#x0a;   • 名称和版本。&#x0a;   • 作者和许可证 (MIT)。&#x0a;&#x0a;这是自由软件 — 您可以在 MIT 许可证条款下&#x0a;使用、修改和分发它。</sys:String>
 

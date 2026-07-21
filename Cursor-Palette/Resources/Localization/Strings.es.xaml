@@ -47,6 +47,7 @@
 	<sys:String x:Key="S.Editor.Browse">Examinar…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Quitar</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">Configurar el punto de referencia</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">No disponible para roles vinculados</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">del sistema</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Suelta un archivo en un espacio para reemplazar ese rol</sys:String>
@@ -112,7 +113,7 @@
 
 	<sys:String x:Key="S.Info.PresetPicker">📂 Elegir preset&#x0a;&#x0a;Selecciona un preajuste del cual tomar un rol de cursor.&#x0a;&#x0a;Clic izquierdo en una celda — seleccionar preajuste y pasar a la selección de rol.&#x0a;Número abajo — cuántos roles están llenos en el preajuste.</sys:String>
 
-	<sys:String x:Key="S.Info.Hotspot">🎯 Punto de referencia&#x0a;&#x0a;El punto de referencia es donde se registra el clic del cursor.&#x0a;&#x0a;🖱️ Arrastra el marcador (círculo) sobre la imagen del cursor.&#x0a;   • O haz clic en el punto deseado de la vista previa.&#x0a;&#x0a;⚡ Ajuste rápido — 9 botones con posiciones típicas:&#x0a;   ↖ ↑ ↗   — fila superior&#x0a;   ← • →   — fila media (• = centro)&#x0a;   ↙ ↓ ↘   — fila inferior&#x0a;&#x0a;Coordenadas mostradas abajo a la izquierda.&#x0a;💾 "Guardar" — aplicar el punto de referencia.</sys:String>
+	<sys:String x:Key="S.Info.Hotspot">🎯 Punto de referencia&#x0a;&#x0a;El punto de referencia es donde se registra el clic del cursor.&#x0a;&#x0a;🖱️ Arrastra el marcador (círculo) sobre la imagen del cursor.&#x0a;   • O haz clic en el punto deseado de la vista previa.&#x0a;&#x0a;⚡ Ajuste rápido — 9 botones con posiciones típicas:&#x0a;   ↖ ↑ ↗   — fila superior&#x0a;   ← ✛ →   — fila media (✛ = centro)&#x0a;   ↙ ↓ ↘   — fila inferior&#x0a;&#x0a;Coordenadas mostradas abajo a la izquierda.&#x0a;💾 "Guardar" — aplicar el punto de referencia.</sys:String>
 
 	<sys:String x:Key="S.Info.About">ℹ️ Acerca de&#x0a;&#x0a;Aquí se muestra la información de la aplicación:&#x0a;   • Nombre y versión.&#x0a;   • Autor y licencia (MIT).&#x0a;&#x0a;Este es software libre — puedes usarlo, modificarlo&#x0a;y distribuirlo bajo los términos de la licencia MIT.</sys:String>
 

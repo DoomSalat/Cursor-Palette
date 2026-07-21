@@ -42,6 +42,7 @@
 	<sys:String x:Key="S.Editor.Browse">参照…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">削除</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">基準点を設定</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">リンクされたロールには使用できません</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">システム</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">既定</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">ファイルをスロットにドロップするとそのロールが置き換わります</sys:String>
@@ -103,7 +104,7 @@
 
 	<sys:String x:Key="S.Info.PresetPicker">📂 プリセット選択&#x0a;&#x0a;カーソルロールを借用するプリセットを選びます。&#x0a;&#x0a;セルを左クリック — プリセットを選択し、ロール選択へ進む。&#x0a;下の数字 — プリセット内のロール充填数。</sys:String>
 
-	<sys:String x:Key="S.Info.Hotspot">🎯 基準点&#x0a;&#x0a;基準点はカーソルのクリックが登録される位置です。&#x0a;&#x0a;🖱️ カーソル画像上のマーカー（円）をドラッグ。&#x0a;   • またはプレビューの目的の位置をクリック。&#x0a;&#x0a;⚡ クイック設定 — 9つのボタンで典型的な位置:&#x0a;   ↖ ↑ ↗   — 上段&#x0a;   ← • →   — 中段（• = 中央）&#x0a;   ↙ ↓ ↘   — 下段&#x0a;&#x0a;座標は左下に表示。&#x0a;💾 「保存」— 基準点を適用。</sys:String>
+	<sys:String x:Key="S.Info.Hotspot">🎯 基準点&#x0a;&#x0a;基準点はカーソルのクリックが登録される位置です。&#x0a;&#x0a;🖱️ カーソル画像上のマーカー（円）をドラッグ。&#x0a;   • またはプレビューの目的の位置をクリック。&#x0a;&#x0a;⚡ クイック設定 — 9つのボタンで典型的な位置:&#x0a;   ↖ ↑ ↗   — 上段&#x0a;   ← ✛ →   — 中段（✛ = 中央）&#x0a;   ↙ ↓ ↘   — 下段&#x0a;&#x0a;座標は左下に表示。&#x0a;💾 「保存」— 基準点を適用。</sys:String>
 
 	<sys:String x:Key="S.Info.About">ℹ️ このアプリについて&#x0a;&#x0a;アプリの情報がここに表示されます:&#x0a;   • 名前とバージョン。&#x0a;   • 作者とライセンス (MIT)。&#x0a;&#x0a;これはフリーソフトウェアです — MIT ライセンスの条件に&#x0a;従って使用、変更、配布できます。</sys:String>
 

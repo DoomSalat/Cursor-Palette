@@ -91,15 +91,58 @@
 							 HorizontalAlignment="Center"
 							 Margin="0,0,0,6" />
 				<UniformGrid x:Name="PresetGrid" Rows="3" Columns="3" Width="114" Height="114">
-					<Button Tag="0,0" Content="↖" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="0.5,0" Content="↑" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="1,0" Content="↗" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="0,0.5" Content="←" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="0.5,0.5" Content="•" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="1,0.5" Content="→" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="0,1" Content="↙" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="0.5,1" Content="↓" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
-					<Button Tag="1,1" Content="↘" Style="{StaticResource Style.Button}" Margin="2" Click="OnPresetPositionClick" />
+					<Button Tag="0,0" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+							<Rectangle.RenderTransform><RotateTransform Angle="-135" /></Rectangle.RenderTransform>
+						</Rectangle>
+					</Button>
+					<Button Tag="0.5,0" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+							<Rectangle.RenderTransform><RotateTransform Angle="-90" /></Rectangle.RenderTransform>
+						</Rectangle>
+					</Button>
+					<Button Tag="1,0" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+							<Rectangle.RenderTransform><RotateTransform Angle="-45" /></Rectangle.RenderTransform>
+						</Rectangle>
+					</Button>
+					<Button Tag="0,0.5" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+							<Rectangle.RenderTransform><RotateTransform Angle="180" /></Rectangle.RenderTransform>
+						</Rectangle>
+					</Button>
+					<Button Tag="0.5,0.5" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/CenterIcon26.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+						</Rectangle>
+					</Button>
+					<Button Tag="1,0.5" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+						</Rectangle>
+					</Button>
+					<Button Tag="0,1" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+							<Rectangle.RenderTransform><RotateTransform Angle="135" /></Rectangle.RenderTransform>
+						</Rectangle>
+					</Button>
+					<Button Tag="0.5,1" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+							<Rectangle.RenderTransform><RotateTransform Angle="90" /></Rectangle.RenderTransform>
+						</Rectangle>
+					</Button>
+					<Button Tag="1,1" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnPresetPositionClick">
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+							<Rectangle.RenderTransform><RotateTransform Angle="45" /></Rectangle.RenderTransform>
+						</Rectangle>
+					</Button>
 				</UniformGrid>
 			</StackPanel>
 		</StackPanel>

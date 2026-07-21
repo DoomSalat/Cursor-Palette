@@ -47,6 +47,7 @@
 	<sys:String x:Key="S.Editor.Browse">Browse…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Remove</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">Set pivot point</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">Unavailable for linked roles</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">system</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Drop a file onto a slot to replace that role</sys:String>
@@ -112,7 +113,7 @@
 
 	<sys:String x:Key="S.Info.PresetPicker">📂 Choose preset&#x0a;&#x0a;Select a preset to borrow a cursor role from.&#x0a;&#x0a;Left-click a cell — select preset and proceed to role selection.&#x0a;Number at bottom — how many roles are filled in the preset.</sys:String>
 
-	<sys:String x:Key="S.Info.Hotspot">🎯 Pivot point&#x0a;&#x0a;The pivot point is where the cursor's click registers.&#x0a;&#x0a;🖱️ Drag the marker (circle) on the cursor image.&#x0a;   • Or click the desired spot on the preview.&#x0a;&#x0a;⚡ Quick set — 9 buttons with typical positions:&#x0a;   ↖ ↑ ↗   — top row&#x0a;   ← • →   — middle row (• = center)&#x0a;   ↙ ↓ ↘   — bottom row&#x0a;&#x0a;Coordinates shown at bottom-left.&#x0a;💾 "Save" — apply the pivot point.</sys:String>
+	<sys:String x:Key="S.Info.Hotspot">🎯 Pivot point&#x0a;&#x0a;The pivot point is where the cursor's click registers.&#x0a;&#x0a;🖱️ Drag the marker (circle) on the cursor image.&#x0a;   • Or click the desired spot on the preview.&#x0a;&#x0a;⚡ Quick set — 9 buttons with typical positions:&#x0a;   ↖ ↑ ↗   — top row&#x0a;   ← ✛ →   — middle row (✛ = center)&#x0a;   ↙ ↓ ↘   — bottom row&#x0a;&#x0a;Coordinates shown at bottom-left.&#x0a;💾 "Save" — apply the pivot point.</sys:String>
 
 	<sys:String x:Key="S.Info.About">ℹ️ About&#x0a;&#x0a;App information is shown here:&#x0a;   • Name and version.&#x0a;   • Author and license (MIT).&#x0a;&#x0a;This is free software — you can use, modify&#x0a;and distribute it under the MIT License terms.</sys:String>
 

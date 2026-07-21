@@ -42,6 +42,7 @@
 	<sys:String x:Key="S.Editor.Browse">Durchsuchen…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Entfernen</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">Ankerpunkt festlegen</sys:String>
+	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">Nicht verfügbar für verknüpfte Rollen</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">System</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Datei auf einen Platz ziehen, um diese Rolle zu ersetzen</sys:String>
@@ -103,7 +104,7 @@
 
 	<sys:String x:Key="S.Info.PresetPicker">📂 Preset wählen&#x0a;&#x0a;Wählen Sie ein Preset, um eine Cursor-Rolle zu übernehmen.&#x0a;&#x0a;Linksklick auf Zelle — Preset wählen und zur Rollenauswahl gehen.&#x0a;Zahl unten — wie viele Rollen im Preset gefüllt sind.</sys:String>
 
-	<sys:String x:Key="S.Info.Hotspot">🎯 Ankerpunkt&#x0a;&#x0a;Der Ankerpunkt ist die Position, an der der Klick registriert wird.&#x0a;&#x0a;🖱️ Marker (Kreis) auf dem Cursor-Bild ziehen.&#x0a;   • Oder auf die gewünschte Stelle im Vorschaubild klicken.&#x0a;&#x0a;⚡ Schnellauswahl — 9 Schaltflächen mit typischen Positionen:&#x0a;   ↖ ↑ ↗   — obere Reihe&#x0a;   ← • →   — mittlere Reihe (• = Mitte)&#x0a;   ↙ ↓ ↘   — untere Reihe&#x0a;&#x0a;Koordinaten unten links angezeigt.&#x0a;💾 "Speichern" — Ankerpunkt anwenden.</sys:String>
+	<sys:String x:Key="S.Info.Hotspot">🎯 Ankerpunkt&#x0a;&#x0a;Der Ankerpunkt ist die Position, an der der Klick registriert wird.&#x0a;&#x0a;🖱️ Marker (Kreis) auf dem Cursor-Bild ziehen.&#x0a;   • Oder auf die gewünschte Stelle im Vorschaubild klicken.&#x0a;&#x0a;⚡ Schnellauswahl — 9 Schaltflächen mit typischen Positionen:&#x0a;   ↖ ↑ ↗   — obere Reihe&#x0a;   ← ✛ →   — mittlere Reihe (✛ = Mitte)&#x0a;   ↙ ↓ ↘   — untere Reihe&#x0a;&#x0a;Koordinaten unten links angezeigt.&#x0a;💾 "Speichern" — Ankerpunkt anwenden.</sys:String>
 
 	<sys:String x:Key="S.Info.About">ℹ️ Über&#x0a;&#x0a;Hier werden App-Informationen angezeigt:&#x0a;   • Name und Version.&#x0a;   • Autor und Lizenz (MIT).&#x0a;&#x0a;Dies ist freie Software — Sie können sie unter den&#x0a;Bedingungen der MIT-Lizenz nutzen, ändern und verbreiten.</sys:String>
 

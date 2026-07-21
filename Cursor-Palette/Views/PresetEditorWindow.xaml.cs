@@ -101,6 +101,7 @@ public partial class PresetEditorWindow : Window
 	private const string LocEditorBrowseFolder = "S.Editor.BrowseFolder";
 	private const string LocEditorPickExisting = "S.Editor.PickExisting";
 	private const string LocEditorPivotTooltip = "S.Editor.Pivot.Tooltip";
+	private const string LocEditorPivotDisabledTooltip = "S.Editor.Pivot.Disabled.Tooltip";
 	private const string LocEditorClearSlot = "S.Editor.ClearSlot";
 	private const string LocEditorLockTooltip = "S.Editor.Lock.Tooltip";
 	private const string LocEditorUnlockTooltip = "S.Editor.Unlock.Tooltip";
@@ -530,6 +531,8 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Foreground = Brush(BrushText);
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
+		slot.PivotButton.IsEnabled = true;
+		slot.PivotButton.ToolTip = Loc.Get(LocEditorPivotTooltip);
 		slot.DownloadButton.Visibility = Visibility.Visible;
 		UpdateHotspotDot(slot);
 	}
@@ -551,6 +554,8 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Foreground = Brush(BrushText);
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
+		slot.PivotButton.IsEnabled = false;
+		slot.PivotButton.ToolTip = Loc.Get(LocEditorPivotDisabledTooltip);
 		slot.DownloadButton.Visibility = Visibility.Visible;
 		UpdateHotspotDot(slot);
 	}
