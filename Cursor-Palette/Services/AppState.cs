@@ -72,10 +72,10 @@ public static class AppState
 	public static int GetDefaultBaseSize() =>
 		Math.Clamp(LoadSettings().DefaultBaseSize, RegistryCursorService.DefaultBaseSize, RegistryCursorService.MaxBaseSize);
 
-	public static void SetDefaultBaseSize(int sizePx)
+	public static void SetDefaultBaseSize(int sizeInPixels)
 	{
 		var settings = LoadSettings();
-		settings.DefaultBaseSize = sizePx;
+		settings.DefaultBaseSize = sizeInPixels;
 
 		SaveSettings(settings);
 	}

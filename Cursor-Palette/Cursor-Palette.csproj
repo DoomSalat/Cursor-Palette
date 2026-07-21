@@ -26,6 +26,7 @@
 		<Resource Include="Resources\LinkIcon32.png" />
 		<Resource Include="Resources\LockIcon26.png" />
 		<Resource Include="Resources\DownloadIcon32.png" />
+		<Resource Include="Resources\GridSquaresIcon32.png" />
 		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
 		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
 	</ItemGroup>

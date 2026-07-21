@@ -19,6 +19,13 @@ public partial class ExistingPresetPickerWindow : Window
 	private const string MixedBadgeText = "🧩";
 	private const double MixedBadgeFontSize = 13;
 
+	private const string LocInfoTitle = "S.Info.Title";
+	private const string LocInfoPresetPicker = "S.Info.PresetPicker";
+	private const string BrushAccent = "Brush.Accent";
+	private const string BrushBorder = "Brush.Border";
+	private const string BrushSurface = "Brush.Surface";
+	private const string BrushTextDim = "Brush.TextDim";
+
 	public Preset? SelectedPreset { get; private set; }
 
 	public ExistingPresetPickerWindow(IReadOnlyList<Preset> presets)
@@ -37,7 +44,7 @@ public partial class ExistingPresetPickerWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.PresetPicker")) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoPresetPicker)) { Owner = this }.ShowDialog();
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
@@ -46,8 +53,8 @@ public partial class ExistingPresetPickerWindow : Window
 	{
 		var previewPath = PresetStore.GetRoleFilePath(preset, CursorRoles.ArrowRoleName)
 							?? preset.Roles.Keys.Concat(preset.RoleRefs.Keys)
-								.Select(r => PresetStore.GetRoleFilePath(preset, r))
-								.FirstOrDefault(p => p != null);
+								.Select(role => PresetStore.GetRoleFilePath(preset, role))
+								.FirstOrDefault(path => path != null);
 
 		var image = new Image { Width = CellPreviewSize, Height = CellPreviewSize, SnapsToDevicePixels = true };
 		RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
@@ -65,7 +72,7 @@ public partial class ExistingPresetPickerWindow : Window
 		var countText = new TextBlock
 		{
 			Text = $"{preset.Roles.Count + preset.RoleRefs.Count}/{CursorRoles.All.Length}",
-			Foreground = Brush("Brush.TextDim"),
+			Foreground = Brush(BrushTextDim),
 			FontSize = CellCountFontSize,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
@@ -98,15 +105,15 @@ public partial class ExistingPresetPickerWindow : Window
 			Height = CellSize,
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
-			Background = Brush("Brush.Surface"),
+			Background = Brush(BrushSurface),
 			BorderThickness = new Thickness(CellBorderThickness),
-			BorderBrush = Brush("Brush.Border"),
+			BorderBrush = Brush(BrushBorder),
 			Child = cellContent,
 			Cursor = Cursors.Hand,
 		};
 
-		cell.MouseEnter += (_, _) => cell.BorderBrush = Brush("Brush.Accent");
-		cell.MouseLeave += (_, _) => cell.BorderBrush = Brush("Brush.Border");
+		cell.MouseEnter += (_, _) => cell.BorderBrush = Brush(BrushAccent);
+		cell.MouseLeave += (_, _) => cell.BorderBrush = Brush(BrushBorder);
 		cell.MouseLeftButtonUp += (_, _) =>
 		{
 			SelectedPreset = preset;

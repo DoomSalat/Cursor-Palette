@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -14,6 +16,20 @@ namespace CursorPalette.Views;
 
 public partial class PresetEditorWindow : Window
 {
+	[DllImport("user32.dll")]
+	private static extern IntPtr WindowFromPoint(POINT cursorPoint);
+
+	[DllImport("user32.dll")]
+	private static extern IntPtr GetAncestor(IntPtr windowHandle, uint gaFlags);
+
+	[DllImport("user32.dll")]
+	private static extern bool GetCursorPos(out POINT cursorPosition);
+
+	private const uint GaRoot = 2;
+
+	[StructLayout(LayoutKind.Sequential)]
+	private struct POINT { public int X; public int Y; }
+
 	private sealed class Slot
 	{
 		public required CursorRoleInfo Role { get; init; }
@@ -64,6 +80,41 @@ public partial class PresetEditorWindow : Window
 	private const string DownloadIconUri = "pack://application:,,,/Resources/DownloadIcon32.png";
 	private const double DownloadIconSize = 16;
 
+	private const string BrushAccent = "Brush.Accent";
+	private const string BrushBorder = "Brush.Border";
+	private const string BrushSurface = "Brush.Surface";
+	private const string BrushSurfaceHover = "Brush.SurfaceHover";
+	private const string BrushText = "Brush.Text";
+	private const string BrushTextDim = "Brush.TextDim";
+	private const string StyleAccentButton = "Style.AccentButton";
+	private const string StyleButton = "Style.Button";
+	private const string StyleDangerButton = "Style.DangerButton";
+
+	private const string LocInfoTitle = "S.Info.Title";
+	private const string LocInfoEditor = "S.Info.Editor";
+	private const string LocEditorTitleNew = "S.Editor.TitleNew";
+	private const string LocEditorTitleEdit = "S.Editor.TitleEdit";
+	private const string LocDefaultPresetName = "S.DefaultPresetName";
+	private const string LocEditorPlaceholderBadge = "S.Editor.PlaceholderBadge";
+	private const string LocEditorEmptySlot = "S.Editor.EmptySlot";
+	private const string LocEditorBrowse = "S.Editor.Browse";
+	private const string LocEditorBrowseFolder = "S.Editor.BrowseFolder";
+	private const string LocEditorPickExisting = "S.Editor.PickExisting";
+	private const string LocEditorPivotTooltip = "S.Editor.Pivot.Tooltip";
+	private const string LocEditorClearSlot = "S.Editor.ClearSlot";
+	private const string LocEditorLockTooltip = "S.Editor.Lock.Tooltip";
+	private const string LocEditorUnlockTooltip = "S.Editor.Unlock.Tooltip";
+	private const string LocEditorDownloadTooltip = "S.Editor.Download.Tooltip";
+	private const string LocEditorFileFilter = "S.Editor.FileFilter";
+	private const string LocEditorLinkedRoleTooltip = "S.Editor.LinkedRole.Tooltip";
+	private const string LocEditorNoCursorInFolder = "S.Editor.NoCursorInFolder";
+	private const string LocEditorNoMatchInFolder = "S.Editor.NoMatchInFolder";
+	private const string LocEditorNoFiles = "S.Editor.NoFiles";
+	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
+	private const string LocToastDownloaded = "S.Toast.Downloaded";
+	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
+	private const string LocErrorArchiveExtractFailed = "S.Error.ArchiveExtractFailed";
+
 	private readonly List<Slot> _slots = new();
 
 	public PresetDraft? Result { get; private set; }
@@ -72,10 +123,10 @@ public partial class PresetEditorWindow : Window
 	{
 		InitializeComponent();
 
-		Title = Loc.Get(existing == null ? "S.Editor.TitleNew" : "S.Editor.TitleEdit");
+		Title = Loc.Get(existing == null ? LocEditorTitleNew : LocEditorTitleEdit);
 		NameBox.Text = existing?.Name
 			?? (string.IsNullOrWhiteSpace(suggestedName) ? null : suggestedName)
-			?? Loc.Get("S.DefaultPresetName");
+			?? Loc.Get(LocDefaultPresetName);
 
 		Result = null;
 		_draftId = existing?.Id;
@@ -125,7 +176,7 @@ public partial class PresetEditorWindow : Window
 			if (role == null)
 				continue;
 
-			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
+			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
 			SetSlotSource(slot, file);
 		}
 	}
@@ -137,7 +188,7 @@ public partial class PresetEditorWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.Editor")) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoEditor)) { Owner = this }.ShowDialog();
 	}
 
 	private void OnEditorSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -159,14 +210,14 @@ public partial class PresetEditorWindow : Window
 
 	private void UpdateApplySizeButtonHighlight() =>
 		EditorApplySizeButton.Style = (Style)Application.Current.Resources[
-			_baseSize != _appliedPreviewSizePx ? "Style.AccentButton" : "Style.Button"];
+			_baseSize != _appliedPreviewSizePx ? StyleAccentButton : StyleButton];
 
 	private void OnEditorApplySizeClick(object sender, RoutedEventArgs e)
 	{
 		RegistryCursorService.SetBaseSize(_baseSize);
 		_appliedPreviewSizePx = _baseSize;
 		UpdateApplySizeButtonHighlight();
-		ToastService.Show(EditorRootGrid, Loc.Get("S.Toast.SizeApplied"));
+		ToastService.Show(EditorRootGrid, Loc.Get(LocToastSizeApplied));
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
@@ -180,7 +231,7 @@ public partial class PresetEditorWindow : Window
 		{
 			Width = HotspotDotSize,
 			Height = HotspotDotSize,
-			Fill = Brush("Brush.Accent"),
+			Fill = Brush(BrushAccent),
 			Stroke = System.Windows.Media.Brushes.White,
 			StrokeThickness = 1.5,
 			IsHitTestVisible = false,
@@ -200,8 +251,8 @@ public partial class PresetEditorWindow : Window
 
 		var placeholderBadge = new Border
 		{
-			Background = Brush("Brush.SurfaceHover"),
-			BorderBrush = Brush("Brush.Border"),
+			Background = Brush(BrushSurfaceHover),
+			BorderBrush = Brush(BrushBorder),
 			BorderThickness = new Thickness(1),
 			CornerRadius = new CornerRadius(4),
 			Padding = new Thickness(4, 1, 4, 1),
@@ -209,9 +260,9 @@ public partial class PresetEditorWindow : Window
 			Margin = new Thickness(0, 0, 0, 3),
 			Child = new TextBlock
 			{
-				Text = Loc.Get("S.Editor.PlaceholderBadge"),
+				Text = Loc.Get(LocEditorPlaceholderBadge),
 				FontSize = PlaceholderBadgeFontSize,
-				Foreground = Brush("Brush.TextDim"),
+				Foreground = Brush(BrushTextDim),
 			},
 		};
 
@@ -227,8 +278,8 @@ public partial class PresetEditorWindow : Window
 
 		var fileText = new TextBlock
 		{
-			Text = Loc.Get("S.Editor.EmptySlot"),
-			Foreground = Brush("Brush.TextDim"),
+			Text = Loc.Get(LocEditorEmptySlot),
+			Foreground = Brush(BrushTextDim),
 			FontSize = FileTextFontSize,
 			TextAlignment = TextAlignment.Center,
 			TextTrimming = TextTrimming.CharacterEllipsis,
@@ -237,8 +288,8 @@ public partial class PresetEditorWindow : Window
 
 		var browseButton = new Button
 		{
-			Content = Loc.Get("S.Editor.Browse"),
-			Style = (Style)Application.Current.Resources["Style.Button"],
+			Content = Loc.Get(LocEditorBrowse),
+			Style = (Style)Application.Current.Resources[StyleButton],
 			FontSize = ButtonFontSize,
 			Padding = new Thickness(6, 3, 6, 3),
 			Margin = new Thickness(0, 6, 0, 0),
@@ -248,23 +299,23 @@ public partial class PresetEditorWindow : Window
 		var pickExistingButton = new Button
 		{
 			Content = PickExistingButtonContent,
-			Style = (Style)Application.Current.Resources["Style.Button"],
+			Style = (Style)Application.Current.Resources[StyleButton],
 			FontSize = ButtonFontSize,
 			Width = IconButtonSize,
 			Height = IconButtonSize,
 			Padding = new Thickness(0),
-			ToolTip = Loc.Get("S.Editor.PickExisting"),
+			ToolTip = Loc.Get(LocEditorPickExisting),
 		};
 		var pivotButton = new Button
 		{
 			Content = PivotButtonContent,
-			Style = (Style)Application.Current.Resources["Style.Button"],
+			Style = (Style)Application.Current.Resources[StyleButton],
 			FontSize = ButtonFontSize,
 			Width = IconButtonSize,
 			Height = IconButtonSize,
 			Padding = new Thickness(0),
 			Margin = new Thickness(6, 0, 0, 0),
-			ToolTip = Loc.Get("S.Editor.Pivot.Tooltip"),
+			ToolTip = Loc.Get(LocEditorPivotTooltip),
 			Visibility = Visibility.Collapsed,
 		};
 
@@ -287,7 +338,7 @@ public partial class PresetEditorWindow : Window
 		var clearButton = new Button
 		{
 			Content = ClearButtonContent,
-			Style = (Style)Application.Current.Resources["Style.DangerButton"],
+			Style = (Style)Application.Current.Resources[StyleDangerButton],
 			FontSize = ButtonFontSize,
 			Width = CornerBadgeSize,
 			Height = CornerBadgeSize,
@@ -295,7 +346,7 @@ public partial class PresetEditorWindow : Window
 			HorizontalAlignment = HorizontalAlignment.Right,
 			VerticalAlignment = VerticalAlignment.Top,
 			Margin = new Thickness(0, 6, 6, 0),
-			ToolTip = Loc.Get("S.Editor.ClearSlot"),
+			ToolTip = Loc.Get(LocEditorClearSlot),
 			Visibility = Visibility.Collapsed,
 		};
 
@@ -303,7 +354,7 @@ public partial class PresetEditorWindow : Window
 		{
 			Width = LinkBadgeIconSize,
 			Height = LinkBadgeIconSize,
-			Fill = Brush("Brush.Accent"),
+			Fill = Brush(BrushAccent),
 			OpacityMask = new ImageBrush(new BitmapImage(new Uri(LinkIconUri))),
 			HorizontalAlignment = HorizontalAlignment.Center,
 			Margin = new Thickness(0, 0, 0, 4),
@@ -314,7 +365,7 @@ public partial class PresetEditorWindow : Window
 		{
 			Width = LockIconSize,
 			Height = LockIconSize,
-			Fill = Brush("Brush.Text"),
+			Fill = Brush(BrushText),
 			OpacityMask = new ImageBrush(new BitmapImage(new Uri(LockIconUri))),
 			IsHitTestVisible = false,
 		};
@@ -322,21 +373,21 @@ public partial class PresetEditorWindow : Window
 		var lockButton = new Button
 		{
 			Content = lockIcon,
-			Style = (Style)Application.Current.Resources["Style.Button"],
+			Style = (Style)Application.Current.Resources[StyleButton],
 			Width = CornerBadgeSize,
 			Height = CornerBadgeSize,
 			Padding = new Thickness(0),
 			HorizontalAlignment = HorizontalAlignment.Left,
 			VerticalAlignment = VerticalAlignment.Top,
 			Margin = new Thickness(6, 6, 0, 0),
-			ToolTip = Loc.Get("S.Editor.Lock.Tooltip"),
+			ToolTip = Loc.Get(LocEditorLockTooltip),
 		};
 
 		var downloadIcon = new Rectangle
 		{
 			Width = DownloadIconSize,
 			Height = DownloadIconSize,
-			Fill = Brush("Brush.TextDim"),
+			Fill = Brush(BrushTextDim),
 			OpacityMask = new ImageBrush(new BitmapImage(new Uri(DownloadIconUri))),
 			IsHitTestVisible = false,
 		};
@@ -350,12 +401,12 @@ public partial class PresetEditorWindow : Window
 			VerticalAlignment = VerticalAlignment.Bottom,
 			Margin = new Thickness(0, 0, 6, 6),
 			Cursor = Cursors.Hand,
-			ToolTip = Loc.Get("S.Editor.Download.Tooltip"),
+			ToolTip = Loc.Get(LocEditorDownloadTooltip),
 			Visibility = Visibility.Collapsed,
 			Child = downloadIcon,
 		};
-		downloadButton.MouseEnter += (_, _) => downloadIcon.Fill = Brush("Brush.Accent");
-		downloadButton.MouseLeave += (_, _) => downloadIcon.Fill = Brush("Brush.TextDim");
+		downloadButton.MouseEnter += (_, _) => downloadIcon.Fill = Brush(BrushAccent);
+		downloadButton.MouseLeave += (_, _) => downloadIcon.Fill = Brush(BrushTextDim);
 
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 		panel.Children.Add(placeholderBadge);
@@ -367,7 +418,7 @@ public partial class PresetEditorWindow : Window
 
 		var dropIndicator = new Rectangle
 		{
-			Stroke = Brush("Brush.Accent"),
+			Stroke = Brush(BrushAccent),
 			StrokeThickness = 3,
 			StrokeDashArray = new DoubleCollection { 4, 2 },
 			RadiusX = SlotCornerRadius,
@@ -390,9 +441,9 @@ public partial class PresetEditorWindow : Window
 			Height = SlotHeight,
 			Margin = new Thickness(SlotMargin),
 			CornerRadius = new CornerRadius(SlotCornerRadius),
-			Background = Brush("Brush.Surface"),
+			Background = Brush(BrushSurface),
 			BorderThickness = new Thickness(SlotBorderThickness),
-			BorderBrush = Brush("Brush.Border"),
+			BorderBrush = Brush(BrushBorder),
 			Child = slotContent,
 			AllowDrop = true,
 		};
@@ -459,7 +510,7 @@ public partial class PresetEditorWindow : Window
 	{
 		var dialog = new OpenFileDialog
 		{
-			Filter = Loc.Get("S.Editor.FileFilter"),
+			Filter = Loc.Get(LocEditorFileFilter),
 			CheckFileExists = true,
 		};
 		if (dialog.ShowDialog(this) == true)
@@ -476,7 +527,7 @@ public partial class PresetEditorWindow : Window
 		slot.PlaceholderBadge.Visibility = Visibility.Collapsed;
 		slot.LinkBadge.Visibility = Visibility.Collapsed;
 		slot.FileText.Text = Path.GetFileName(path);
-		slot.FileText.Foreground = Brush("Brush.Text");
+		slot.FileText.Foreground = Brush(BrushText);
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
 		slot.DownloadButton.Visibility = Visibility.Visible;
@@ -495,9 +546,9 @@ public partial class PresetEditorWindow : Window
 		slot.PreviewImage.Opacity = 1;
 		slot.PlaceholderBadge.Visibility = Visibility.Collapsed;
 		slot.LinkBadge.Visibility = Visibility.Visible;
-		slot.LinkBadge.ToolTip = Loc.Format("S.Editor.LinkedRole.Tooltip", label);
+		slot.LinkBadge.ToolTip = Loc.Format(LocEditorLinkedRoleTooltip, label);
 		slot.FileText.Text = label;
-		slot.FileText.Foreground = Brush("Brush.Text");
+		slot.FileText.Foreground = Brush(BrushText);
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
 		slot.DownloadButton.Visibility = Visibility.Visible;
@@ -520,8 +571,8 @@ public partial class PresetEditorWindow : Window
 		slot.PlaceholderBadge.Visibility = string.IsNullOrWhiteSpace(slot.DefaultPath)
 			? Visibility.Collapsed
 			: Visibility.Visible;
-		slot.FileText.Text = Loc.Get("S.Editor.EmptySlot");
-		slot.FileText.Foreground = Brush("Brush.TextDim");
+		slot.FileText.Text = Loc.Get(LocEditorEmptySlot);
+		slot.FileText.Foreground = Brush(BrushTextDim);
 		slot.ClearButton.Visibility = Visibility.Collapsed;
 		slot.PivotButton.Visibility = Visibility.Collapsed;
 		slot.DownloadButton.Visibility = Visibility.Collapsed;
@@ -535,11 +586,11 @@ public partial class PresetEditorWindow : Window
 	{
 		slot.IsLocked = locked;
 
-		var accent = Brush("Brush.Accent");
-		slot.LockButton.BorderBrush = locked ? accent : Brush("Brush.Border");
+		var accent = Brush(BrushAccent);
+		slot.LockButton.BorderBrush = locked ? accent : Brush(BrushBorder);
 		slot.LockButton.BorderThickness = new Thickness(locked ? 2 : 1);
-		slot.LockIcon.Fill = locked ? accent : Brush("Brush.Text");
-		slot.LockButton.ToolTip = Loc.Get(locked ? "S.Editor.Unlock.Tooltip" : "S.Editor.Lock.Tooltip");
+		slot.LockIcon.Fill = locked ? accent : Brush(BrushText);
+		slot.LockButton.ToolTip = Loc.Get(locked ? LocEditorUnlockTooltip : LocEditorLockTooltip);
 
 		slot.PrimaryButtons.IsEnabled = !locked;
 		slot.ClearButton.IsEnabled = !locked;
@@ -578,26 +629,26 @@ public partial class PresetEditorWindow : Window
 		Directory.CreateDirectory(AppPaths.DownloadsDir);
 
 		var baseName = slot.Role.RegistryName;
-		var ext = Path.GetExtension(resolvedPath);
-		var destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName}{ext}");
+		var extension = Path.GetExtension(resolvedPath);
+		var destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName}{extension}");
 
 		var attempt = 1;
 		while (File.Exists(destPath))
-			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}){ext}");
+			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}){extension}");
 
 		File.Copy(resolvedPath, destPath);
 		var now = DateTime.Now;
 		File.SetCreationTime(destPath, now);
 		File.SetLastWriteTime(destPath, now);
-		ToastService.Show(EditorRootGrid, Loc.Format("S.Toast.Downloaded", Path.GetFileName(destPath)));
+		ToastService.Show(EditorRootGrid, Loc.Format(LocToastDownloaded, Path.GetFileName(destPath)));
 	}
 
 	private void OnDownloadPresetClick(object sender, RoutedEventArgs e)
 	{
 		var invalid = Path.GetInvalidPathChars();
-		var presetName = string.Join("", NameBox.Text.Where(c => !invalid.Contains(c))).Trim();
+		var presetName = string.Join("", NameBox.Text.Where(character => !invalid.Contains(character))).Trim();
 		if (string.IsNullOrWhiteSpace(presetName))
-			presetName = Loc.Get("S.DefaultPresetName");
+			presetName = Loc.Get(LocDefaultPresetName);
 
 		var destDir = Path.Combine(AppPaths.DownloadsDir, presetName);
 
@@ -614,8 +665,8 @@ public partial class PresetEditorWindow : Window
 			if (resolvedPath == null || !File.Exists(resolvedPath))
 				continue;
 
-			var ext = Path.GetExtension(resolvedPath);
-			var destPath = Path.Combine(destDir, $"{slot.Role.RegistryName}{ext}");
+			var extension = Path.GetExtension(resolvedPath);
+			var destPath = Path.Combine(destDir, $"{slot.Role.RegistryName}{extension}");
 			File.Copy(resolvedPath, destPath);
 			var now = DateTime.Now;
 			File.SetCreationTime(destPath, now);
@@ -629,7 +680,7 @@ public partial class PresetEditorWindow : Window
 			return;
 		}
 
-		ToastService.Show(EditorRootGrid, Loc.Format("S.Toast.PresetDownloaded", presetName, count));
+		ToastService.Show(EditorRootGrid, Loc.Format(LocToastPresetDownloaded, presetName, count));
 	}
 
 	private void OpenHotspotEditor(Slot slot)
@@ -675,7 +726,7 @@ public partial class PresetEditorWindow : Window
 	{
 		var dialog = new OpenFolderDialog
 		{
-			Title = Loc.Get("S.Editor.BrowseFolder"),
+			Title = Loc.Get(LocEditorBrowseFolder),
 		};
 
 		if (dialog.ShowDialog(this) == true)
@@ -702,10 +753,28 @@ public partial class PresetEditorWindow : Window
 
 	private void OnPresetWindowDragLeave(object sender, DragEventArgs e)
 	{
-		var position = e.GetPosition(this);
-		if (position.X >= 0 && position.Y >= 0 && position.X <= ActualWidth && position.Y <= ActualHeight)
+		if (IsMouseOverThisWindow())
 			return;
 
+		HideAllDropIndicators();
+	}
+
+	private bool IsMouseOverThisWindow()
+	{
+		GetCursorPos(out var cursorPoint);
+		var handleFromPoint = WindowFromPoint(cursorPoint);
+
+		if (handleFromPoint == IntPtr.Zero)
+			return false;
+
+		var windowHandle = new WindowInteropHelper(this).Handle;
+		var rootHandle = GetAncestor(handleFromPoint, GaRoot);
+
+		return rootHandle == windowHandle;
+	}
+
+	private void OnPresetWindowDrop(object sender, DragEventArgs e)
+	{
 		HideAllDropIndicators();
 	}
 
@@ -763,7 +832,7 @@ public partial class PresetEditorWindow : Window
 		}
 		catch (Exception ex)
 		{
-			MessageBox.Show(Loc.Format("S.Error.ArchiveExtractFailed", ex.Message), Title,
+			MessageBox.Show(Loc.Format(LocErrorArchiveExtractFailed, ex.Message), Title,
 				MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
@@ -792,7 +861,7 @@ public partial class PresetEditorWindow : Window
 
 		if (cursorFiles.Count == 0)
 		{
-			MessageBox.Show(Loc.Get("S.Editor.NoCursorInFolder"), Title,
+			MessageBox.Show(Loc.Get(LocEditorNoCursorInFolder), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 			return;
 		}
@@ -804,7 +873,7 @@ public partial class PresetEditorWindow : Window
 			if (role == null)
 				continue;
 
-			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
+			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
 			matched++;
 
 			if (slot.IsLocked)
@@ -815,36 +884,36 @@ public partial class PresetEditorWindow : Window
 
 		if (matched == 0)
 		{
-			MessageBox.Show(Loc.Format("S.Editor.NoMatchInFolder", cursorFiles.Count), Title,
+			MessageBox.Show(Loc.Format(LocEditorNoMatchInFolder, cursorFiles.Count), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 	}
 
 	private static bool IsCursorFile(string path)
 	{
-		var ext = Path.GetExtension(path).ToLowerInvariant();
+		var extension = Path.GetExtension(path).ToLowerInvariant();
 
-		return ext is CurExtension or AniExtension;
+		return extension is CurExtension or AniExtension;
 	}
 
 	private void OnSaveButtonClick(object sender, RoutedEventArgs e)
 	{
-		if (_slots.All(s => s.SourcePath == null && s.RefPresetId == null))
+		if (_slots.All(slot => slot.SourcePath == null && slot.RefPresetId == null))
 		{
-			MessageBox.Show(Loc.Get("S.Editor.NoFiles"), Title,
+			MessageBox.Show(Loc.Get(LocEditorNoFiles), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 			return;
 		}
 
 		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, BaseSize = _baseSize };
-		foreach (var slot in _slots.Where(s => s.SourcePath != null || s.RefPresetId != null))
+		foreach (var slot in _slots.Where(slot => slot.SourcePath != null || slot.RefPresetId != null))
 		{
 			draft.RoleSources[slot.Role.RegistryName] = slot.RefPresetId != null
 				? new RoleSourceDraft { Ref = new RoleRef { PresetId = slot.RefPresetId, FileName = slot.RefFileName! } }
 				: new RoleSourceDraft { OwnFilePath = slot.SourcePath };
 		}
 
-		foreach (var slot in _slots.Where(s => s.IsLocked))
+		foreach (var slot in _slots.Where(slot => slot.IsLocked))
 			draft.LockedRoles.Add(slot.Role.RegistryName);
 
 		Result = draft;
@@ -861,8 +930,8 @@ public partial class PresetEditorWindow : Window
 		if (file == null)
 			return null;
 
-		var ext = Path.GetExtension(file).ToLowerInvariant();
+		var extension = Path.GetExtension(file).ToLowerInvariant();
 
-		return ext is CurExtension or AniExtension ? file : null;
+		return extension is CurExtension or AniExtension ? file : null;
 	}
 }

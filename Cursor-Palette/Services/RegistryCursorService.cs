@@ -30,16 +30,16 @@ public static class RegistryCursorService
 	private const string SystemSchemesKeyPath =
 		@"SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\Cursors\Schemes";
 
-	private const uint SPI_SETCURSORS = 0x0057;
-	private const uint SPI_SETCURSORSIZE = 0x2029;
-	private const uint SPIF_UPDATEINIFILE = 0x01;
-	private const uint SPIF_SENDCHANGE = 0x02;
+	private const uint SpiSetCursors = 0x0057;
+	private const uint SpiSetCursorSize = 0x2029;
+	private const uint SpifUpdateIniFile = 0x01;
+	private const uint SpifSendChange = 0x02;
 
 	[DllImport(User32Dll, SetLastError = true)]
 	private static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
 
 	public static void Refresh() =>
-		SystemParametersInfo(SPI_SETCURSORS, 0, IntPtr.Zero, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+		SystemParametersInfo(SpiSetCursors, 0, IntPtr.Zero, SpifUpdateIniFile | SpifSendChange);
 
 	public static Dictionary<string, string> ReadCurrentValues()
 	{
@@ -59,7 +59,7 @@ public static class RegistryCursorService
 
 		foreach (var role in CursorRoles.All)
 		{
-			var value = values.TryGetValue(role.RegistryName, out var v) ? v : "";
+			var value = values.TryGetValue(role.RegistryName, out var resolvedValue) ? resolvedValue : "";
 			key.SetValue(role.RegistryName, value, RegistryValueKind.ExpandString);
 		}
 
@@ -76,16 +76,16 @@ public static class RegistryCursorService
 			: DefaultBaseSize;
 	}
 
-	public static void SetBaseSize(int sizePx)
+	public static void SetBaseSize(int sizeInPixels)
 	{
-		sizePx = Math.Clamp(sizePx / SizeStep * SizeStep, DefaultBaseSize, MaxBaseSize);
-		using (var cursors = Registry.CurrentUser.CreateSubKey(CursorsKeyPath)!)
-			cursors.SetValue(CursorBaseSizeName, sizePx, RegistryValueKind.DWord);
-		using (var acc = Registry.CurrentUser.CreateSubKey(AccessibilityKeyPath)!)
-			acc.SetValue(CursorSizeName, (sizePx - SizeStep) / SizeStep, RegistryValueKind.DWord);
+		sizeInPixels = Math.Clamp(sizeInPixels / SizeStep * SizeStep, DefaultBaseSize, MaxBaseSize);
+		using (var cursorsKey = Registry.CurrentUser.CreateSubKey(CursorsKeyPath)!)
+			cursorsKey.SetValue(CursorBaseSizeName, sizeInPixels, RegistryValueKind.DWord);
+		using (var accessibilityKey = Registry.CurrentUser.CreateSubKey(AccessibilityKeyPath)!)
+			accessibilityKey.SetValue(CursorSizeName, (sizeInPixels - SizeStep) / SizeStep, RegistryValueKind.DWord);
 
-		SystemParametersInfo(SPI_SETCURSORSIZE, 0, (IntPtr)sizePx, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
-		SystemParametersInfo(SPI_SETCURSORS, 0, IntPtr.Zero, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+		SystemParametersInfo(SpiSetCursorSize, 0, (IntPtr)sizeInPixels, SpifUpdateIniFile | SpifSendChange);
+		SystemParametersInfo(SpiSetCursors, 0, IntPtr.Zero, SpifUpdateIniFile | SpifSendChange);
 	}
 
 	public static CursorSnapshot TakeSnapshot() => new()

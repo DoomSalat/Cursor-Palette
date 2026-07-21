@@ -15,6 +15,13 @@ public partial class RolePickerWindow : Window
 	private const double TileCornerRadius = 8;
 	private const double TileFontSize = 11;
 
+	private const string LocInfoTitle = "S.Info.Title";
+	private const string LocInfoRolePicker = "S.Info.RolePicker";
+	private const string BrushAccent = "Brush.Accent";
+	private const string BrushBorder = "Brush.Border";
+	private const string BrushSurface = "Brush.Surface";
+	private const string BrushSurfaceHover = "Brush.SurfaceHover";
+
 	private readonly Preset _source;
 	private readonly string _currentRole;
 	private bool _ready;
@@ -45,7 +52,7 @@ public partial class RolePickerWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.RolePicker")) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoRolePicker)) { Owner = this }.ShowDialog();
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
@@ -56,7 +63,7 @@ public partial class RolePickerWindow : Window
 
 		var onlyCurrent = OnlyCurrentRoleCheck.IsChecked == true;
 		var roles = onlyCurrent
-			? CursorRoles.All.Where(r => r.RegistryName == _currentRole)
+			? CursorRoles.All.Where(role => role.RegistryName == _currentRole)
 			: CursorRoles.All;
 
 		var any = false;
@@ -106,15 +113,15 @@ public partial class RolePickerWindow : Window
 			Height = TileSize,
 			Margin = new Thickness(TileMargin),
 			CornerRadius = new CornerRadius(TileCornerRadius),
-			Background = Brush("Brush.Surface"),
+			Background = Brush(BrushSurface),
 			BorderThickness = new Thickness(2),
-			BorderBrush = isCurrent ? Brush("Brush.Accent") : Brush("Brush.Border"),
+			BorderBrush = isCurrent ? Brush(BrushAccent) : Brush(BrushBorder),
 			Child = panel,
 			Cursor = Cursors.Hand,
 		};
 
-		tile.MouseEnter += (_, _) => tile.Background = Brush("Brush.SurfaceHover");
-		tile.MouseLeave += (_, _) => tile.Background = Brush("Brush.Surface");
+		tile.MouseEnter += (_, _) => tile.Background = Brush(BrushSurfaceHover);
+		tile.MouseLeave += (_, _) => tile.Background = Brush(BrushSurface);
 		tile.MouseLeftButtonUp += (_, _) =>
 		{
 			SelectedRole = role.RegistryName;

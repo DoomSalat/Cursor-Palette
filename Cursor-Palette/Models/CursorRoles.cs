@@ -33,11 +33,13 @@ public static class CursorRoles
 	{
 		var stem = Path.GetFileNameWithoutExtension(filePath).ToLowerInvariant();
 
-		var exactMatch = All.FirstOrDefault(r => r.Aliases.Contains(stem));
+		var exactMatch = All.FirstOrDefault(role => role.Aliases.Contains(stem));
+
 		if (exactMatch != null)
 			return exactMatch;
 
 		var words = stem.Split(FileNameWordSeparators, StringSplitOptions.RemoveEmptyEntries);
-		return All.FirstOrDefault(r => r.Aliases.Any(words.Contains));
+
+		return All.FirstOrDefault(role => role.Aliases.Any(words.Contains));
 	}
 }

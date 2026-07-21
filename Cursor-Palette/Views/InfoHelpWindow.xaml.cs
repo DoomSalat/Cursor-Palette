@@ -145,12 +145,12 @@ public partial class InfoHelpWindow : Window
 			Margin = new Thickness(0, 0, 0, 10),
 		};
 
-		var sp = new StackPanel();
+		var stackPanel = new StackPanel();
 
 		var header = para[0];
 		if (!string.IsNullOrEmpty(header))
 		{
-			sp.Children.Add(new TextBlock
+			stackPanel.Children.Add(new TextBlock
 			{
 				Text = header,
 				FontSize = Fs(14),
@@ -173,17 +173,17 @@ public partial class InfoHelpWindow : Window
 
 			if (arrowBlock.Count > 0)
 			{
-				sp.Children.Add(BuildArrowGrid(arrowBlock));
+				stackPanel.Children.Add(BuildArrowGrid(arrowBlock));
 				arrowBlock.Clear();
 			}
 
 			if (line.StartsWith("•"))
 			{
-				sp.Children.Add(BuildBulletItem(line));
+				stackPanel.Children.Add(BuildBulletItem(line));
 			}
 			else
 			{
-				sp.Children.Add(new TextBlock
+				stackPanel.Children.Add(new TextBlock
 				{
 					Text = line,
 					FontSize = Fs(13),
@@ -195,9 +195,9 @@ public partial class InfoHelpWindow : Window
 		}
 
 		if (arrowBlock.Count > 0)
-			sp.Children.Add(BuildArrowGrid(arrowBlock));
+			stackPanel.Children.Add(BuildArrowGrid(arrowBlock));
 
-		card.Child = sp;
+		card.Child = stackPanel;
 		BodyPanel.Children.Add(card);
 	}
 
@@ -213,14 +213,14 @@ public partial class InfoHelpWindow : Window
 			Margin = new Thickness(0, 0, 0, 10),
 		};
 
-		var sp = new StackPanel();
+		var stackPanel = new StackPanel();
 
 		for (int i = 0; i < para.Count; i++)
 		{
 			var line = para[i];
 			var (icon, text) = SplitLeadingIcon(line);
 
-			sp.Children.Add(icon is null
+			stackPanel.Children.Add(icon is null
 				? new TextBlock
 				{
 					Text = line,
@@ -233,7 +233,7 @@ public partial class InfoHelpWindow : Window
 
 			if (i < para.Count - 1)
 			{
-				sp.Children.Add(new Border
+				stackPanel.Children.Add(new Border
 				{
 					Height = 1,
 					Background = BrushBorder,
@@ -243,7 +243,7 @@ public partial class InfoHelpWindow : Window
 			}
 		}
 
-		card.Child = sp;
+		card.Child = stackPanel;
 		BodyPanel.Children.Add(card);
 	}
 
@@ -317,10 +317,10 @@ public partial class InfoHelpWindow : Window
 
 	private static StackPanel BuildArrowGrid(List<string> arrows)
 	{
-		var sp = new StackPanel { Margin = new Thickness(0, 4, 0, 0) };
+		var stackPanel = new StackPanel { Margin = new Thickness(0, 4, 0, 0) };
 		foreach (var arrow in arrows)
 		{
-			sp.Children.Add(new TextBlock
+			stackPanel.Children.Add(new TextBlock
 			{
 				Text = arrow,
 				FontSize = 13,
@@ -328,15 +328,15 @@ public partial class InfoHelpWindow : Window
 				Foreground = BrushTextDim,
 			});
 		}
-		return sp;
+		return stackPanel;
 	}
 
 	private static bool IsArrowLine(string text)
 	{
 		if (string.IsNullOrEmpty(text))
 			return false;
-		var c = text[0];
-		return c == '↖' || c == '↗' || c == '↙' || c == '↘' ||
-			   c == '↑' || c == '↓' || c == '←' || c == '→';
+		var firstChar = text[0];
+		return firstChar == '↖' || firstChar == '↗' || firstChar == '↙' || firstChar == '↘' ||
+			   firstChar == '↑' || firstChar == '↓' || firstChar == '←' || firstChar == '→';
 	}
 }

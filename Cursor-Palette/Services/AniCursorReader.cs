@@ -40,7 +40,7 @@ public static class AniCursorReader
 	private static extern IntPtr LoadCursorFromFile(string lpFileName);
 
 	[DllImport(User32Dll, SetLastError = true)]
-	private static extern bool DestroyCursor(IntPtr hCursor);
+	private static extern bool DestroyCursor(IntPtr cursorHandle);
 
 	public static AnimatedCursorFrames? Read(string path)
 	{
@@ -150,9 +150,9 @@ public static class AniCursorReader
 
 		var frames = new List<BitmapSource>(frameCount);
 
-		for (var i = 0; i < frameCount; i++)
+		for (var frameIndex = 0; frameIndex < frameCount; frameIndex++)
 		{
-			var (offset, length) = iconChunks[i];
+			var (offset, length) = iconChunks[frameIndex];
 			var frame = DecodeFrameViaTempCursorFile(bytes, offset, length);
 
 			if (frame == null)
@@ -223,6 +223,7 @@ public static class AniCursorReader
 	private static BitmapSource? LoadCursorAsFrozenBitmap(string cursorFilePath)
 	{
 		var handle = LoadCursorFromFile(cursorFilePath);
+
 		if (handle == IntPtr.Zero)
 			return null;
 
@@ -251,13 +252,13 @@ public static class AniCursorReader
 
 	private static void WalkChunks(byte[] bytes, int start, int end, Action<string, int, int> onChunk)
 	{
-		var pos = start;
+		var position = start;
 
-		while (pos + ChunkHeaderSize <= end)
+		while (position + ChunkHeaderSize <= end)
 		{
-			var fourCc = System.Text.Encoding.ASCII.GetString(bytes, pos, FourCcSize);
-			var size = (int)ReadUInt32(bytes, pos + FourCcSize);
-			var dataOffset = pos + ChunkHeaderSize;
+			var fourCc = System.Text.Encoding.ASCII.GetString(bytes, position, FourCcSize);
+			var size = (int)ReadUInt32(bytes, position + FourCcSize);
+			var dataOffset = position + ChunkHeaderSize;
 
 			if (dataOffset + size > end || size < 0)
 				break;
@@ -267,7 +268,7 @@ public static class AniCursorReader
 			else
 				onChunk(fourCc, dataOffset, size);
 
-			pos = dataOffset + size + (size % WordAlignment);
+			position = dataOffset + size + (size % WordAlignment);
 		}
 	}
 

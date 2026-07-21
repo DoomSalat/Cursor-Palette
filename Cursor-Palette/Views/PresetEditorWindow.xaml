@@ -8,7 +8,8 @@
 		ShowInTaskbar="False"
 		AllowDrop="True"
 		DragEnter="OnPresetWindowDragEnter"
-		DragLeave="OnPresetWindowDragLeave">
+		DragLeave="OnPresetWindowDragLeave"
+		Drop="OnPresetWindowDrop">
 
 	<Window.Resources>
 		<Style x:Key="Style.BrowseFolderButton" TargetType="Button" BasedOn="{StaticResource Style.Button}">

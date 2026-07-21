@@ -14,10 +14,12 @@ public static class AppPaths
 		get
 		{
 			var folderId = FolderIdDownloads;
-			if (SHGetKnownFolderPath(ref folderId, 0, 0, out var pathPtr) == 0)
+
+			if (SHGetKnownFolderPath(ref folderId, 0, 0, out var pathPointer) == 0)
 			{
-				var path = Marshal.PtrToStringUni(pathPtr);
-				Marshal.FreeCoTaskMem(pathPtr);
+				var path = Marshal.PtrToStringUni(pathPointer);
+				Marshal.FreeCoTaskMem(pathPointer);
+
 				if (!string.IsNullOrWhiteSpace(path))
 					return path;
 			}

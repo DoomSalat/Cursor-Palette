@@ -55,6 +55,10 @@ apply.
 - **Interface zoom and grid size** — independent controls to scale the whole
   UI (footer, VS Code-style) and the size of gallery tiles (50–350%),
   each remembered between launches.
+- **Mix roles from existing presets** — any slot in the preset editor can
+  pull a role from another saved preset instead of a file on disk: a
+  two-step picker (choose preset → choose role) with a "current role only"
+  filter. Mixed presets are marked with a 🧩 badge in the gallery.
 
 ## How it works
 

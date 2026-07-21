@@ -43,6 +43,9 @@ public partial class MainWindow : Window
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
 
+	private const string StyleAccentButton = "Style.AccentButton";
+	private const string StyleButton = "Style.Button";
+
 	private const double CellSize = 148;
 	private const double CellMargin = 6;
 	private const double CellCornerRadius = 10;
@@ -55,6 +58,10 @@ public partial class MainWindow : Window
 	private const string MixedBadgeText = "🧩";
 	private const double MixedBadgeFontSize = 15;
 	private const string LocMixedBadgeTooltip = "S.Gallery.MixedBadgeTooltip";
+
+	private const string LocInfoTitle = "S.Info.Title";
+	private const string LocInfoMain = "S.Info.Main";
+	private const string LocErrorArchiveExtractFailed = "S.Error.ArchiveExtractFailed";
 
 	private const double UiZoomStep = 0.1;
 	private const string ThemeIconDark = "🌙";
@@ -109,13 +116,13 @@ public partial class MainWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.Main")) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoMain)) { Owner = this }.ShowDialog();
 	}
 
-	private void SetSliderSilently(int sizePx)
+	private void SetSliderSilently(int sizeInPixels)
 	{
-		SizeSlider.Value = (sizePx - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
-		SizeValueText.Text = $"{sizePx} {PixelSuffix}";
+		SizeSlider.Value = (sizeInPixels - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
+		SizeValueText.Text = $"{sizeInPixels} {PixelSuffix}";
 	}
 
 	private void ApplyUiScale(double scale)
@@ -227,7 +234,7 @@ public partial class MainWindow : Window
 		Gallery.Items.Clear();
 		_activeCellSizeText = null;
 
-		if (_activePresetId != null && _presets.All(p => p.Id != _activePresetId))
+		if (_activePresetId != null && _presets.All(preset => preset.Id != _activePresetId))
 		{
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
@@ -320,8 +327,8 @@ public partial class MainWindow : Window
 
 		var previewPath = PresetStore.GetRoleFilePath(preset, CursorRoles.ArrowRoleName)
 							?? preset.Roles.Keys.Concat(preset.RoleRefs.Keys)
-								.Select(r => PresetStore.GetRoleFilePath(preset, r))
-								.FirstOrDefault(p => p != null);
+								.Select(role => PresetStore.GetRoleFilePath(preset, role))
+								.FirstOrDefault(path => path != null);
 
 		var image = new Image
 		{
@@ -538,9 +545,9 @@ public partial class MainWindow : Window
 			ReloadGallery();
 			UpdateUndoButton();
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, exception.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 		finally
@@ -577,9 +584,9 @@ public partial class MainWindow : Window
 			ReloadGallery();
 			UpdateUndoButton();
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, exception.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 		finally
@@ -615,9 +622,9 @@ public partial class MainWindow : Window
 			ReloadGallery();
 			UpdateUndoButton();
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, exception.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 		finally
@@ -631,8 +638,8 @@ public partial class MainWindow : Window
 		if (!values.TryGetValue(CursorRoles.ArrowRoleName, out var arrow) || string.IsNullOrEmpty(arrow))
 			return null;
 
-		return _presets.FirstOrDefault(p =>
-			string.Equals(PresetStore.GetRoleFilePath(p, CursorRoles.ArrowRoleName), arrow,
+		return _presets.FirstOrDefault(preset =>
+			string.Equals(PresetStore.GetRoleFilePath(preset, CursorRoles.ArrowRoleName), arrow,
 				StringComparison.OrdinalIgnoreCase))?.Id;
 	}
 
@@ -698,54 +705,54 @@ public partial class MainWindow : Window
 		if (SizeValueText == null)
 			return;
 
-		var sizePx = RegistryCursorService.SizeStep + (int)e.NewValue * RegistryCursorService.SizeStep;
-		SizeValueText.Text = $"{sizePx} {PixelSuffix}";
-		UpdateApplySizeButtonHighlight(sizePx);
+		var sizeInPixels = RegistryCursorService.SizeStep + (int)e.NewValue * RegistryCursorService.SizeStep;
+		SizeValueText.Text = $"{sizeInPixels} {PixelSuffix}";
+		UpdateApplySizeButtonHighlight(sizeInPixels);
 	}
 
-	private void UpdateApplySizeButtonHighlight(int sizePx) =>
+	private void UpdateApplySizeButtonHighlight(int sizeInPixels) =>
 		ApplySizeButton.Style = (Style)Application.Current.Resources[
-			sizePx != _baselineSizePx ? "Style.AccentButton" : "Style.Button"];
+			sizeInPixels != _baselineSizePx ? StyleAccentButton : StyleButton];
 
 	private void OnApplySizeButtonClick(object sender, RoutedEventArgs e)
 	{
-		var sizePx = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
-		ApplyAndPersistSize(sizePx);
+		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
+		ApplyAndPersistSize(sizeInPixels);
 	}
 
-	public async void ApplyAndPersistSize(int sizePx)
+	public async void ApplyAndPersistSize(int sizeInPixels)
 	{
 		try
 		{
 			ShowLoadingOverlay();
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
-			await Task.Run(() => RegistryCursorService.SetBaseSize(sizePx));
+			await Task.Run(() => RegistryCursorService.SetBaseSize(sizeInPixels));
 
 			if (_activePresetId != null)
 			{
-				PresetStore.UpdateBaseSize(_activePresetId, sizePx);
+				PresetStore.UpdateBaseSize(_activePresetId, sizeInPixels);
 
-				var preset = _presets.FirstOrDefault(p => p.Id == _activePresetId);
+				var preset = _presets.FirstOrDefault(preset => preset.Id == _activePresetId);
 				if (preset != null)
-					preset.BaseSize = sizePx;
+					preset.BaseSize = sizeInPixels;
 			}
 			else
 			{
-				AppState.SetDefaultBaseSize(sizePx);
+				AppState.SetDefaultBaseSize(sizeInPixels);
 			}
 
 			if (_activeCellSizeText != null)
-				_activeCellSizeText.Text = $"{sizePx} {PixelSuffix}";
+				_activeCellSizeText.Text = $"{sizeInPixels} {PixelSuffix}";
 
-			_baselineSizePx = sizePx;
-			UpdateApplySizeButtonHighlight(sizePx);
+			_baselineSizePx = sizeInPixels;
+			UpdateApplySizeButtonHighlight(sizeInPixels);
 
 			ToastService.Show(RootGrid, Loc.Get(LocToastSizeApplied));
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			MessageBox.Show(Loc.Format(LocErrorApplyFailed, ex.Message),
+			MessageBox.Show(Loc.Format(LocErrorApplyFailed, exception.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 		finally
@@ -754,7 +761,7 @@ public partial class MainWindow : Window
 		}
 	}
 
-	public void SyncSizeSlider(int sizePx) => SetSliderSilently(sizePx);
+	public void SyncSizeSlider(int sizeInPixels) => SetSliderSilently(sizeInPixels);
 
 	private void OnWindowDragOver(object sender, DragEventArgs e)
 	{
@@ -793,9 +800,9 @@ public partial class MainWindow : Window
 		{
 			files = ResolveCursorFiles(paths);
 		}
-		catch (Exception ex)
+		catch (Exception exception)
 		{
-			MessageBox.Show(Loc.Format("S.Error.ArchiveExtractFailed", ex.Message),
+			MessageBox.Show(Loc.Format(LocErrorArchiveExtractFailed, exception.Message),
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
 			return;
 		}
@@ -847,9 +854,9 @@ public partial class MainWindow : Window
 
 	private static bool IsCursorFile(string path)
 	{
-		var ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
+		var extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
 
-		return ext is CurExtension or AniExtension;
+		return extension is CurExtension or AniExtension;
 	}
 }
 

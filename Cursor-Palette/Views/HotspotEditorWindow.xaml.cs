@@ -13,6 +13,11 @@ public partial class HotspotEditorWindow : Window
 	private const double MaxScaleFactor = 10;
 	private const string CoordsFormat = "X: {0}   Y: {1}";
 
+	private const string LocInfoTitle = "S.Info.Title";
+	private const string LocInfoHotspot = "S.Info.Hotspot";
+	private const string StyleAccentButton = "Style.AccentButton";
+	private const string StyleButton = "Style.Button";
+
 	private readonly int _nativeWidth;
 	private readonly int _nativeHeight;
 	private readonly double _scale;
@@ -58,7 +63,7 @@ public partial class HotspotEditorWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.Hotspot")) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoHotspot)) { Owner = this }.ShowDialog();
 	}
 
 	private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
@@ -130,7 +135,7 @@ public partial class HotspotEditorWindow : Window
 			var isCurrent = PixelForFraction(fractionX, _nativeWidth) == _x &&
 				PixelForFraction(fractionY, _nativeHeight) == _y;
 
-			button.Style = (Style)Application.Current.Resources[isCurrent ? "Style.AccentButton" : "Style.Button"];
+			button.Style = (Style)Application.Current.Resources[isCurrent ? StyleAccentButton : StyleButton];
 		}
 	}
 

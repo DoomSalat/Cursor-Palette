@@ -42,9 +42,9 @@ public static class PresetStore
 		if (!Directory.Exists(AppPaths.PresetsDir))
 			return result;
 
-		foreach (var dir in Directory.GetDirectories(AppPaths.PresetsDir))
+		foreach (var directory in Directory.GetDirectories(AppPaths.PresetsDir))
 		{
-			var manifestPath = Path.Combine(dir, ManifestFileName);
+			var manifestPath = Path.Combine(directory, ManifestFileName);
 
 			if (!File.Exists(manifestPath))
 				continue;
@@ -59,7 +59,7 @@ public static class PresetStore
 			}
 		}
 
-		return result.OrderBy(p => p.CreatedAt).ToList();
+		return result.OrderBy(preset => preset.CreatedAt).ToList();
 	}
 
 	public static Preset Save(PresetDraft draft)
@@ -69,7 +69,7 @@ public static class PresetStore
 		Directory.CreateDirectory(filesDir);
 
 		var allPresets = LoadAll();
-		var existing = draft.Id != null ? allPresets.FirstOrDefault(p => p.Id == draft.Id) : null;
+		var existing = draft.Id != null ? allPresets.FirstOrDefault(preset => preset.Id == draft.Id) : null;
 
 		var roles = new Dictionary<string, string>();
 		var roleRefs = new Dictionary<string, RoleRef>();
@@ -110,10 +110,10 @@ public static class PresetStore
 		// another preset (or by this same preset, for a self-reference) — those must survive
 		// even though they are no longer part of this preset's own `roles`.
 		foreach (var protectedFileName in allPresets
-					.SelectMany(p => p.RoleRefs.Values)
+					.SelectMany(preset => preset.RoleRefs.Values)
 					.Concat(roleRefs.Values)
-					.Where(r => r.PresetId == id)
-					.Select(r => r.FileName))
+					.Where(refEntry => refEntry.PresetId == id)
+					.Select(refEntry => refEntry.FileName))
 		{
 			referenced.Add(protectedFileName);
 		}
@@ -141,9 +141,9 @@ public static class PresetStore
 		return preset;
 	}
 
-	public static void UpdateBaseSize(string id, int sizePx)
+	public static void UpdateBaseSize(string presetId, int sizeInPixels)
 	{
-		var manifestPath = Path.Combine(GetPresetDir(id), ManifestFileName);
+		var manifestPath = Path.Combine(GetPresetDir(presetId), ManifestFileName);
 
 		if (!File.Exists(manifestPath))
 			return;
@@ -155,7 +155,7 @@ public static class PresetStore
 			if (preset == null)
 				return;
 
-			preset.BaseSize = sizePx;
+			preset.BaseSize = sizeInPixels;
 			File.WriteAllText(manifestPath, JsonSerializer.Serialize(preset, JsonOptions));
 		}
 		catch
@@ -163,16 +163,16 @@ public static class PresetStore
 		}
 	}
 
-	public static void Delete(string id)
+	public static void Delete(string presetId)
 	{
-		var dir = GetPresetDir(id);
+		var directory = GetPresetDir(presetId);
 
-		if (Directory.Exists(dir))
-			Directory.Delete(dir, recursive: true);
+		if (Directory.Exists(directory))
+			Directory.Delete(directory, recursive: true);
 	}
 
-	private static bool PathsEqual(string a, string b) =>
-		string.Equals(Path.GetFullPath(a), Path.GetFullPath(b), StringComparison.OrdinalIgnoreCase);
+	private static bool PathsEqual(string leftPath, string rightPath) =>
+		string.Equals(Path.GetFullPath(leftPath), Path.GetFullPath(rightPath), StringComparison.OrdinalIgnoreCase);
 
 	private static void TryDelete(string path)
 	{
