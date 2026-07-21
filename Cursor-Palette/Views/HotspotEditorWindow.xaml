@@ -8,21 +8,26 @@
 		ResizeMode="NoResize"
 		ShowInTaskbar="False">
 
-	<DockPanel x:Name="RootPanel" Margin="16">
+	<DockPanel x:Name="RootPanel">
 		<DockPanel.LayoutTransform>
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
 		</DockPanel.LayoutTransform>
 
-		<Button DockPanel.Dock="Top"
-				Style="{StaticResource Style.Button}"
-				Padding="8,6"
-				ToolTip="{DynamicResource S.Info.Tooltip}"
-				Click="OnInfoButtonClick"
-				HorizontalAlignment="Right"
-				Margin="0,0,0,10">
-			<TextBlock Text="ⓘ" FontSize="15" />
-		</Button>
+		<Border DockPanel.Dock="Top"
+				Background="{StaticResource Brush.Surface}"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="0,0,0,1"
+				Padding="16,8">
+			<Button Style="{StaticResource Style.Button}"
+					Padding="8,6"
+					ToolTip="{DynamicResource S.Info.Tooltip}"
+					Click="OnInfoButtonClick"
+					HorizontalAlignment="Right">
+				<TextBlock Text="ⓘ" FontSize="15" />
+			</Button>
+		</Border>
 
+		<DockPanel Margin="16">
 		<TextBlock DockPanel.Dock="Top"
 					 Text="{DynamicResource S.Hotspot.Hint}"
 					 Foreground="{StaticResource Brush.TextDim}"
@@ -98,5 +103,6 @@
 				</UniformGrid>
 			</StackPanel>
 		</StackPanel>
+		</DockPanel>
 	</DockPanel>
 </Window>

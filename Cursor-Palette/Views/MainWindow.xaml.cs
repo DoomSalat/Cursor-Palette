@@ -38,6 +38,8 @@ public partial class MainWindow : Window
 	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
 	private const string LocConfirmDeleteText = "S.ConfirmDelete.Text";
 	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
+	private const string LocToastSaved = "S.Toast.Saved";
+	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
 
@@ -686,6 +688,8 @@ public partial class MainWindow : Window
 				ApplyPreset(saved, force: true);
 			else
 				ReloadGallery();
+
+			ToastService.Show(RootGrid, Loc.Get(LocToastSaved));
 		}
 	}
 
@@ -736,6 +740,8 @@ public partial class MainWindow : Window
 
 			_baselineSizePx = sizePx;
 			UpdateApplySizeButtonHighlight(sizePx);
+
+			ToastService.Show(RootGrid, Loc.Get(LocToastSizeApplied));
 		}
 		catch (Exception ex)
 		{

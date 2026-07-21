@@ -5,6 +5,11 @@
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
 
+	<sys:String x:Key="S.Toast.Saved">Ajuste guardado</sys:String>
+	<sys:String x:Key="S.Toast.Downloaded">Descargado: {0}</sys:String>
+	<sys:String x:Key="S.Toast.PresetDownloaded">Preajuste "{0}" descargado a Descargas ({1} elementos)</sys:String>
+	<sys:String x:Key="S.Toast.SizeApplied">Tamaño de cursor aplicado</sys:String>
+
 	<sys:String x:Key="S.About.Title">Acerca de</sys:String>
 	<sys:String x:Key="S.About.Close">Cerrar</sys:String>
 	<sys:String x:Key="S.About.LicenseHint">Licencia MIT — haz clic para más detalles</sys:String>
@@ -54,6 +59,8 @@
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Vinculado a: {0}</sys:String>
 	<sys:String x:Key="S.Editor.Lock.Tooltip">Bloquear rol (proteger de la importación de carpetas y de arrastrar y soltar)</sys:String>
 	<sys:String x:Key="S.Editor.Unlock.Tooltip">Desbloquear rol</sys:String>
+	<sys:String x:Key="S.Editor.Download.Tooltip">Descargar a la carpeta de descargas</sys:String>
+	<sys:String x:Key="S.Editor.DownloadPreset.Tooltip">Descargar preajuste</sys:String>
 
 	<sys:String x:Key="S.PresetPicker.Title">Elegir preset</sys:String>
 	<sys:String x:Key="S.PresetPicker.Empty">Aún no hay otros preajustes de los que elegir un rol.</sys:String>
@@ -99,7 +106,7 @@
 
 	<sys:String x:Key="S.Info.Main">🏠 Principal — galería de preajustes&#x0a;&#x0a;📦 Galería — muestra todos tus preajustes de cursor.&#x0a;   • Clic izquierdo — aplicar cursores.&#x0a;   • Clic derecho — menú (editar, eliminar).&#x0a;   • Insignia 🧩 — algunos roles provienen de otros preajustes.&#x0a;&#x0a;➕ "Añadir preajuste" — crear nuevo preajuste.&#x0a;   • Arrastra archivos .cur/.ani o una carpeta a la ventana.&#x0a;&#x0a;🎨 Tamaño de cuadrícula — cambia el tamaño de las celdas.&#x0a;📏 Tamaño del cursor — deslizador + "Aplicar" cambia el tamaño del sistema.&#x0a;↩️ "Atrás" — revertir al conjunto anterior.&#x0a;🌙/☀ — cambiar tema oscuro/claro.&#x0a;🌐 — cambiar idioma.&#x0a;🔍 −/+ — zoom de interfaz.&#x0a;📄 Clic en el pie — ventana "Acerca de".</sys:String>
 
-	<sys:String x:Key="S.Info.Editor">✏️ Editor de preajuste&#x0a;&#x0a;🎯 Cada espacio — un rol de cursor (flecha, texto, ocupado, etc.).&#x0a;   • Arrastra un archivo .cur/.ani a un espacio — llena ese rol.&#x0a;   • 🎯 en un espacio — configurar punto de referencia.&#x0a;   • ✕ en un espacio — quitar archivo, vuelve al cursor del sistema.&#x0a;   • "Elegir de existentes" — tomar rol de otro preajuste.&#x0a;   • Insignia "auto" — cursor auto-rellenado.&#x0a;&#x0a;📁 "Elegir carpeta" — importar todos los cursores de una carpeta.&#x0a;   • Los archivos se asocian a roles por nombre de archivo.&#x0a;&#x0a;📝 Escribe el nombre del preajuste abajo.&#x0a;📏 Deslizador de tamaño — vista previa del tamaño del cursor.&#x0a;💾 "Guardar" — guardar preajuste en la galería.</sys:String>
+	<sys:String x:Key="S.Info.Editor">✏️ Editor de preajuste&#x0a;&#x0a;🎯 Cada espacio — un rol de cursor (flecha, texto, ocupado, etc.).&#x0a;   • Arrastra un archivo .cur/.ani a un espacio — llena ese rol.&#x0a;   • 🎯 en un espacio — configurar punto de referencia.&#x0a;   • ✕ en un espacio — quitar archivo, vuelve al cursor del sistema.&#x0a;   • 🔒 en un espacio — bloquear rol (proteger de importación de carpeta y arrastrar y soltar).&#x0a;   • ⬇ en un espacio — descargar cursor a la carpeta de descargas (nombre por rol estándar).&#x0a;   • "Elegir de existentes" — tomar rol de otro preajuste.&#x0a;   • 🔗 — el rol proviene de otro preajuste (vínculo).&#x0a;   • Insignia "auto" — cursor auto-rellenado.&#x0a;&#x0a;📁 "Elegir carpeta" — importar todos los cursores de una carpeta.&#x0a;   • Los archivos se asocian a roles por nombre de archivo.&#x0a;&#x0a;📝 Escribe el nombre del preajuste abajo.&#x0a;⬇ A la izquierda del nombre — descargar todo el preajuste como carpeta a Descargas.&#x0a;📏 Deslizador de tamaño — vista previa del tamaño del cursor.&#x0a;💾 "Guardar" — guardar preajuste en la galería.</sys:String>
 
 	<sys:String x:Key="S.Info.RolePicker">🔀 Elegir rol&#x0a;&#x0a;Elige un rol de cursor del preajuste seleccionado.&#x0a;&#x0a;☑️ "Mostrar solo el rol actual" — filtro:&#x0a;   • Marcado — solo el rol que estás reemplazando.&#x0a;   • Desmarcado — todos los roles del preajuste.&#x0a;&#x0a;Clic izquierdo en una ficha — seleccionar rol y confirmar.&#x0a;Fichas vacías — rol no asignado en ese preajuste.</sys:String>
 

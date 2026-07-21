@@ -1,7 +1,33 @@
+using System.Runtime.InteropServices;
+
 namespace CursorPalette.Services;
 
 public static class AppPaths
 {
+	private static readonly Guid FolderIdDownloads = new("374DE290-123F-4565-9164-39C4925E467B");
+
+	[DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+	private static extern int SHGetKnownFolderPath(ref Guid id, uint flags, nint token, out nint path);
+
+	public static string DownloadsDir
+	{
+		get
+		{
+			var folderId = FolderIdDownloads;
+			if (SHGetKnownFolderPath(ref folderId, 0, 0, out var pathPtr) == 0)
+			{
+				var path = Marshal.PtrToStringUni(pathPtr);
+				Marshal.FreeCoTaskMem(pathPtr);
+				if (!string.IsNullOrWhiteSpace(path))
+					return path;
+			}
+
+			return Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+				"Downloads");
+		}
+	}
+
 	private const string AppDataFolderName = "Cursor-Palette";
 	private const string PresetsDirName = "presets";
 	private const string StateDirName = "state";

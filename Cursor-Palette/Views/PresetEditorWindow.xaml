@@ -48,6 +48,7 @@
 		</Style>
 	</Window.Resources>
 
+	<Grid x:Name="EditorRootGrid">
 	<DockPanel x:Name="RootPanel">
 		<DockPanel.LayoutTransform>
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
@@ -76,25 +77,38 @@
 			<Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
-				<TextBlock Grid.Column="0"
+				<Button x:Name="DownloadPresetButton" Grid.Column="0"
+						Style="{StaticResource Style.Button}"
+						ToolTip="{DynamicResource S.Editor.DownloadPreset.Tooltip}"
+						Width="32" Height="32" Padding="0"
+						Margin="0,0,8,0"
+						Click="OnDownloadPresetClick">
+					<Rectangle Width="16" Height="16" Fill="{StaticResource Brush.Text}">
+						<Rectangle.OpacityMask>
+							<ImageBrush ImageSource="pack://application:,,,/Resources/DownloadIcon32.png" />
+						</Rectangle.OpacityMask>
+					</Rectangle>
+				</Button>
+				<TextBlock Grid.Column="1"
 							 Text="{DynamicResource S.Editor.PresetName}"
 							 Foreground="{StaticResource Brush.TextDim}"
 							 VerticalAlignment="Center" Margin="0,0,8,0" />
-				<TextBox x:Name="NameBox" Grid.Column="1"
+				<TextBox x:Name="NameBox" Grid.Column="2"
 						 Style="{StaticResource Style.TextBox}"
 						 VerticalAlignment="Center" MaxLength="60" />
 
-				<Button Grid.Column="2"
+				<Button Grid.Column="3"
 						Style="{StaticResource Style.Button}"
 						Content="{DynamicResource S.Editor.Cancel}"
 						Margin="12,0,8,0" MinWidth="90"
 						IsCancel="True" />
-				<Button Grid.Column="3"
+				<Button Grid.Column="4"
 						Style="{StaticResource Style.AccentButton}"
 						Content="{DynamicResource S.Editor.Save}"
 						MinWidth="110"
@@ -180,4 +194,5 @@
 		</ScrollViewer>
 
 	</DockPanel>
+	</Grid>
 </Window>

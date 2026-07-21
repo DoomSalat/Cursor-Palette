@@ -27,6 +27,7 @@ public partial class PresetEditorWindow : Window
 		public Button PivotButton { get; init; } = null!;
 		public Button LockButton { get; init; } = null!;
 		public Rectangle LockIcon { get; init; } = null!;
+		public Border DownloadButton { get; init; } = null!;
 		public StackPanel PrimaryButtons { get; init; } = null!;
 		public Rectangle DropIndicator { get; init; } = null!;
 		public FrameworkElement PlaceholderBadge { get; init; } = null!;
@@ -60,6 +61,8 @@ public partial class PresetEditorWindow : Window
 	private const double LinkBadgeIconSize = 16;
 	private const string LockIconUri = "pack://application:,,,/Resources/LockIcon26.png";
 	private const double LockIconSize = 14;
+	private const string DownloadIconUri = "pack://application:,,,/Resources/DownloadIcon32.png";
+	private const double DownloadIconSize = 16;
 
 	private readonly List<Slot> _slots = new();
 
@@ -163,6 +166,7 @@ public partial class PresetEditorWindow : Window
 		RegistryCursorService.SetBaseSize(_baseSize);
 		_appliedPreviewSizePx = _baseSize;
 		UpdateApplySizeButtonHighlight();
+		ToastService.Show(EditorRootGrid, Loc.Get("S.Toast.SizeApplied"));
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
@@ -328,6 +332,31 @@ public partial class PresetEditorWindow : Window
 			ToolTip = Loc.Get("S.Editor.Lock.Tooltip"),
 		};
 
+		var downloadIcon = new Rectangle
+		{
+			Width = DownloadIconSize,
+			Height = DownloadIconSize,
+			Fill = Brush("Brush.TextDim"),
+			OpacityMask = new ImageBrush(new BitmapImage(new Uri(DownloadIconUri))),
+			IsHitTestVisible = false,
+		};
+
+		var downloadButton = new Border
+		{
+			Width = CornerBadgeSize,
+			Height = CornerBadgeSize,
+			Background = Brushes.Transparent,
+			HorizontalAlignment = HorizontalAlignment.Right,
+			VerticalAlignment = VerticalAlignment.Bottom,
+			Margin = new Thickness(0, 0, 6, 6),
+			Cursor = Cursors.Hand,
+			ToolTip = Loc.Get("S.Editor.Download.Tooltip"),
+			Visibility = Visibility.Collapsed,
+			Child = downloadIcon,
+		};
+		downloadButton.MouseEnter += (_, _) => downloadIcon.Fill = Brush("Brush.Accent");
+		downloadButton.MouseLeave += (_, _) => downloadIcon.Fill = Brush("Brush.TextDim");
+
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 		panel.Children.Add(placeholderBadge);
 		panel.Children.Add(linkBadge);
@@ -352,6 +381,7 @@ public partial class PresetEditorWindow : Window
 		slotContent.Children.Add(panel);
 		slotContent.Children.Add(clearButton);
 		slotContent.Children.Add(lockButton);
+		slotContent.Children.Add(downloadButton);
 		slotContent.Children.Add(dropIndicator);
 
 		var border = new Border
@@ -377,6 +407,7 @@ public partial class PresetEditorWindow : Window
 			PivotButton = pivotButton,
 			LockButton = lockButton,
 			LockIcon = lockIcon,
+			DownloadButton = downloadButton,
 			PrimaryButtons = primaryButtons,
 			DropIndicator = dropIndicator,
 			PlaceholderBadge = placeholderBadge,
@@ -389,6 +420,11 @@ public partial class PresetEditorWindow : Window
 		pivotButton.Click += (_, _) => OpenHotspotEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 		lockButton.Click += (_, _) => SetSlotLocked(slot, !slot.IsLocked);
+		downloadButton.MouseLeftButtonUp += (_, e) =>
+		{
+			DownloadSlot(slot);
+			e.Handled = true;
+		};
 
 		border.DragOver += (_, e) =>
 		{
@@ -443,6 +479,7 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Foreground = Brush("Brush.Text");
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
+		slot.DownloadButton.Visibility = Visibility.Visible;
 		UpdateHotspotDot(slot);
 	}
 
@@ -463,6 +500,7 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Foreground = Brush("Brush.Text");
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
+		slot.DownloadButton.Visibility = Visibility.Visible;
 		UpdateHotspotDot(slot);
 	}
 
@@ -486,6 +524,7 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Foreground = Brush("Brush.TextDim");
 		slot.ClearButton.Visibility = Visibility.Collapsed;
 		slot.PivotButton.Visibility = Visibility.Collapsed;
+		slot.DownloadButton.Visibility = Visibility.Collapsed;
 		slot.HotspotDot.Visibility = Visibility.Collapsed;
 		slot.LinkBadge.Visibility = Visibility.Collapsed;
 	}
@@ -528,6 +567,69 @@ public partial class PresetEditorWindow : Window
 		Canvas.SetLeft(slot.HotspotDot, displayX - HotspotDotSize / 2);
 		Canvas.SetTop(slot.HotspotDot, displayY - HotspotDotSize / 2);
 		slot.HotspotDot.Visibility = Visibility.Visible;
+	}
+
+	private void DownloadSlot(Slot slot)
+	{
+		var resolvedPath = GetSlotResolvedPath(slot);
+		if (resolvedPath == null || !File.Exists(resolvedPath))
+			return;
+
+		Directory.CreateDirectory(AppPaths.DownloadsDir);
+
+		var baseName = slot.Role.RegistryName;
+		var ext = Path.GetExtension(resolvedPath);
+		var destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName}{ext}");
+
+		var attempt = 1;
+		while (File.Exists(destPath))
+			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}){ext}");
+
+		File.Copy(resolvedPath, destPath);
+		var now = DateTime.Now;
+		File.SetCreationTime(destPath, now);
+		File.SetLastWriteTime(destPath, now);
+		ToastService.Show(EditorRootGrid, Loc.Format("S.Toast.Downloaded", Path.GetFileName(destPath)));
+	}
+
+	private void OnDownloadPresetClick(object sender, RoutedEventArgs e)
+	{
+		var invalid = Path.GetInvalidPathChars();
+		var presetName = string.Join("", NameBox.Text.Where(c => !invalid.Contains(c))).Trim();
+		if (string.IsNullOrWhiteSpace(presetName))
+			presetName = Loc.Get("S.DefaultPresetName");
+
+		var destDir = Path.Combine(AppPaths.DownloadsDir, presetName);
+
+		var attempt = 1;
+		while (Directory.Exists(destDir))
+			destDir = Path.Combine(AppPaths.DownloadsDir, $"{presetName} ({attempt++})");
+
+		Directory.CreateDirectory(destDir);
+
+		var count = 0;
+		foreach (var slot in _slots)
+		{
+			var resolvedPath = GetSlotResolvedPath(slot);
+			if (resolvedPath == null || !File.Exists(resolvedPath))
+				continue;
+
+			var ext = Path.GetExtension(resolvedPath);
+			var destPath = Path.Combine(destDir, $"{slot.Role.RegistryName}{ext}");
+			File.Copy(resolvedPath, destPath);
+			var now = DateTime.Now;
+			File.SetCreationTime(destPath, now);
+			File.SetLastWriteTime(destPath, now);
+			count++;
+		}
+
+		if (count == 0)
+		{
+			Directory.Delete(destDir);
+			return;
+		}
+
+		ToastService.Show(EditorRootGrid, Loc.Format("S.Toast.PresetDownloaded", presetName, count));
 	}
 
 	private void OpenHotspotEditor(Slot slot)
