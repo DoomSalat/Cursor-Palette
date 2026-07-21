@@ -16,7 +16,7 @@ public static class ArchiveImportService
 		var destination = Path.Combine(Path.GetTempPath(), $"{TempFolderPrefix}{Guid.NewGuid():N}");
 		Directory.CreateDirectory(destination);
 
-		using var archive = ArchiveFactory.Open(archivePath);
+		using var archive = ArchiveFactory.OpenArchive(archivePath);
 
 		foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
 		{

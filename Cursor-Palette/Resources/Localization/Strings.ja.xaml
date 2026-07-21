@@ -107,4 +107,19 @@
 
 	<sys:String x:Key="S.Info.About">ℹ️ このアプリについて&#x0a;&#x0a;アプリの情報がここに表示されます:&#x0a;   • 名前とバージョン。&#x0a;   • 作者とライセンス (MIT)。&#x0a;&#x0a;これはフリーソフトウェアです — MIT ライセンスの条件に&#x0a;従って使用、変更、配布できます。</sys:String>
 
+	<sys:String x:Key="S.Update.Available">アップデートあり</sys:String>
+	<sys:String x:Key="S.Update.Available.Tooltip">新しいバージョンが利用可能です — クリックしてダウンロード</sys:String>
+	<sys:String x:Key="S.Update.UpToDate">最新です</sys:String>
+	<sys:String x:Key="S.Update.WindowTitle">アップデート</sys:String>
+	<sys:String x:Key="S.Update.CurrentVersion">現在のバージョン</sys:String>
+	<sys:String x:Key="S.Update.NewVersion">新しいバージョン</sys:String>
+	<sys:String x:Key="S.Update.AutoUpdate">自動更新</sys:String>
+	<sys:String x:Key="S.Update.ManualDownload">手動ダウンロード</sys:String>
+	<sys:String x:Key="S.Update.Cancel">キャンセル</sys:String>
+	<sys:String x:Key="S.Update.Downloading">ダウンロード中…</sys:String>
+	<sys:String x:Key="S.Update.DownloadedTo">ダウンロード先:</sys:String>
+	<sys:String x:Key="S.Update.DownloadFailed">ダウンロード失敗</sys:String>
+	<sys:String x:Key="S.Toast.UpdateAvailable">新しいバージョンが利用可能です！</sys:String>
+	<sys:String x:Key="S.Toast.ManualDownload">ダウンロードフォルダに保存されました</sys:String>
+
 </ResourceDictionary>

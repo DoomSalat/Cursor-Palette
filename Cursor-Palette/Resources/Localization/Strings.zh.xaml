@@ -107,4 +107,19 @@
 
 	<sys:String x:Key="S.Info.About">ℹ️ 关于&#x0a;&#x0a;这里显示应用信息:&#x0a;   • 名称和版本。&#x0a;   • 作者和许可证 (MIT)。&#x0a;&#x0a;这是自由软件 — 您可以在 MIT 许可证条款下&#x0a;使用、修改和分发它。</sys:String>
 
+	<sys:String x:Key="S.Update.Available">有可用更新</sys:String>
+	<sys:String x:Key="S.Update.Available.Tooltip">有新版本可用 — 点击下载</sys:String>
+	<sys:String x:Key="S.Update.UpToDate">已是最新</sys:String>
+	<sys:String x:Key="S.Update.WindowTitle">更新</sys:String>
+	<sys:String x:Key="S.Update.CurrentVersion">当前版本</sys:String>
+	<sys:String x:Key="S.Update.NewVersion">新版本</sys:String>
+	<sys:String x:Key="S.Update.AutoUpdate">自动更新</sys:String>
+	<sys:String x:Key="S.Update.ManualDownload">手动下载</sys:String>
+	<sys:String x:Key="S.Update.Cancel">取消</sys:String>
+	<sys:String x:Key="S.Update.Downloading">下载中…</sys:String>
+	<sys:String x:Key="S.Update.DownloadedTo">已下载到:</sys:String>
+	<sys:String x:Key="S.Update.DownloadFailed">下载失败</sys:String>
+	<sys:String x:Key="S.Toast.UpdateAvailable">有新版本可用！</sys:String>
+	<sys:String x:Key="S.Toast.ManualDownload">文件已下载到下载文件夹</sys:String>
+
 </ResourceDictionary>

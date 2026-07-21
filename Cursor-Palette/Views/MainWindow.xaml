@@ -19,6 +19,11 @@
 							  Storyboard.TargetProperty="Angle"
 							  From="0" To="360" Duration="0:0:0.8" />
 		</Storyboard>
+		<Storyboard x:Key="UpdateSpinnerStoryboard" RepeatBehavior="Forever">
+			<DoubleAnimation Storyboard.TargetName="UpdateSpinnerRotate"
+							  Storyboard.TargetProperty="Angle"
+							  From="0" To="360" Duration="0:0:0.8" />
+		</Storyboard>
 	</Window.Resources>
 
 	<Grid x:Name="RootGrid">
@@ -197,6 +202,43 @@
 							Padding="8,2"
 							ToolTip="{DynamicResource S.UiZoom.InTooltip}"
 							Click="OnUiZoomInClick" />
+
+					<Ellipse x:Name="UpdateSpinner"
+							 Width="12" Height="12"
+							 Stroke="{StaticResource Brush.Accent}"
+							 StrokeThickness="2"
+							 StrokeStartLineCap="Round"
+							 StrokeEndLineCap="Round"
+							 StrokeDashArray="14,5"
+							 RenderTransformOrigin="0.5,0.5"
+							 VerticalAlignment="Center"
+							 Margin="16,0,0,0">
+						<Ellipse.RenderTransform>
+							<RotateTransform x:Name="UpdateSpinnerRotate" Angle="0" />
+						</Ellipse.RenderTransform>
+					</Ellipse>
+
+					<StackPanel x:Name="UpdateIndicator"
+								Orientation="Horizontal"
+								VerticalAlignment="Center"
+								Margin="16,0,0,0"
+								Visibility="Collapsed">
+						<Button Style="{StaticResource Style.AccentButton}"
+								Content="{DynamicResource S.Update.Available}"
+								FontSize="11"
+								Padding="14,5"
+								Cursor="Hand"
+								ToolTip="{DynamicResource S.Update.Available.Tooltip}"
+								Click="OnUpdateIndicatorClick" />
+					</StackPanel>
+
+					<TextBlock x:Name="UpToDateLabel"
+							   Text="{DynamicResource S.Update.UpToDate}"
+							   Foreground="{StaticResource Brush.TextDim}"
+							   FontSize="11"
+							   VerticalAlignment="Center"
+							   Margin="16,0,0,0"
+							   Visibility="Collapsed" />
 				</StackPanel>
 
 				<StackPanel Grid.Column="2" Orientation="Horizontal"

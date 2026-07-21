@@ -40,8 +40,10 @@ public partial class MainWindow : Window
 	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
 	private const string LocToastSaved = "S.Toast.Saved";
 	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
+	private const string LocToastUpdateAvailable = "S.Toast.UpdateAvailable";
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
+	private const string UpdateSpinnerStoryboardKey = "UpdateSpinnerStoryboard";
 
 	private const string StyleAccentButton = "Style.AccentButton";
 	private const string StyleButton = "Style.Button";
@@ -98,6 +100,45 @@ public partial class MainWindow : Window
 
 		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
 		FooterRun.Text = string.Format(FooterFormat, AppInfo.Author, version, AppInfo.LicenseName);
+
+		_ = CheckForUpdatesAsync(version);
+	}
+
+	private UpdateInfo? _updateInfo;
+
+	private async Task CheckForUpdatesAsync(string currentVersion)
+	{
+		((Storyboard)Resources[UpdateSpinnerStoryboardKey]).Begin(this, true);
+
+		_updateInfo = await UpdateChecker.GetLatestReleaseInfoAsync();
+
+		((Storyboard)Resources[UpdateSpinnerStoryboardKey]).Stop(this);
+		UpdateSpinner.Visibility = Visibility.Collapsed;
+
+		if (_updateInfo is null)
+			return;
+
+		if (!Version.TryParse(_updateInfo.Version, out var latestVersion))
+			return;
+
+		if (!Version.TryParse(currentVersion, out var currentVer))
+			return;
+
+		if (latestVersion > currentVer)
+		{
+			UpdateIndicator.Visibility = Visibility.Visible;
+			ToastService.Show(RootGrid, Loc.Get(LocToastUpdateAvailable));
+		}
+		else
+			UpToDateLabel.Visibility = Visibility.Visible;
+	}
+
+	private void OnUpdateIndicatorClick(object sender, RoutedEventArgs e)
+	{
+		if (_updateInfo is null)
+			return;
+
+		new UpdateWindow(_updateInfo) { Owner = this }.ShowDialog();
 	}
 
 	private void OnFooterClick(object sender, RoutedEventArgs e)

@@ -116,4 +116,19 @@
 
 	<sys:String x:Key="S.Info.About">ℹ️ О программе&#x0a;&#x0a;Здесь указана информация о приложении:&#x0a;   • Название и версия.&#x0a;   • Автор и лицензия (MIT).&#x0a;&#x0a;Это свободное ПО — вы можете использовать, изменять&#x0a;и распространять его на условиях MIT License.</sys:String>
 
+	<sys:String x:Key="S.Update.Available">Доступно обновление</sys:String>
+	<sys:String x:Key="S.Update.Available.Tooltip">Доступна новая версия — нажмите, чтобы скачать</sys:String>
+	<sys:String x:Key="S.Update.UpToDate">Версия актуальна</sys:String>
+	<sys:String x:Key="S.Update.WindowTitle">Обновление</sys:String>
+	<sys:String x:Key="S.Update.CurrentVersion">Текущая версия</sys:String>
+	<sys:String x:Key="S.Update.NewVersion">Новая версия</sys:String>
+	<sys:String x:Key="S.Update.AutoUpdate">Автообновление</sys:String>
+	<sys:String x:Key="S.Update.ManualDownload">Ручное скачивание</sys:String>
+	<sys:String x:Key="S.Update.Cancel">Отмена</sys:String>
+	<sys:String x:Key="S.Update.Downloading">Скачивание…</sys:String>
+	<sys:String x:Key="S.Update.DownloadedTo">Скачано в:</sys:String>
+	<sys:String x:Key="S.Update.DownloadFailed">Ошибка скачивания</sys:String>
+	<sys:String x:Key="S.Toast.UpdateAvailable">Доступна новая версия!</sys:String>
+	<sys:String x:Key="S.Toast.ManualDownload">Файл скачан в папку загрузок</sys:String>
+
 </ResourceDictionary>

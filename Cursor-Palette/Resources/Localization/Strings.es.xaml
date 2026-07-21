@@ -116,4 +116,19 @@
 
 	<sys:String x:Key="S.Info.About">ℹ️ Acerca de&#x0a;&#x0a;Aquí se muestra la información de la aplicación:&#x0a;   • Nombre y versión.&#x0a;   • Autor y licencia (MIT).&#x0a;&#x0a;Este es software libre — puedes usarlo, modificarlo&#x0a;y distribuirlo bajo los términos de la licencia MIT.</sys:String>
 
+	<sys:String x:Key="S.Update.Available">Actualización disponible</sys:String>
+	<sys:String x:Key="S.Update.Available.Tooltip">Hay una nueva versión disponible — haz clic para descargar</sys:String>
+	<sys:String x:Key="S.Update.UpToDate">Actualizado</sys:String>
+	<sys:String x:Key="S.Update.WindowTitle">Actualización</sys:String>
+	<sys:String x:Key="S.Update.CurrentVersion">Versión actual</sys:String>
+	<sys:String x:Key="S.Update.NewVersion">Nueva versión</sys:String>
+	<sys:String x:Key="S.Update.AutoUpdate">Auto-actualizar</sys:String>
+	<sys:String x:Key="S.Update.ManualDownload">Descarga manual</sys:String>
+	<sys:String x:Key="S.Update.Cancel">Cancelar</sys:String>
+	<sys:String x:Key="S.Update.Downloading">Descargando…</sys:String>
+	<sys:String x:Key="S.Update.DownloadedTo">Descargado en:</sys:String>
+	<sys:String x:Key="S.Update.DownloadFailed">Error de descarga</sys:String>
+	<sys:String x:Key="S.Toast.UpdateAvailable">¡Hay una nueva versión disponible!</sys:String>
+	<sys:String x:Key="S.Toast.ManualDownload">Archivo descargado a la carpeta de descargas</sys:String>
+
 </ResourceDictionary>

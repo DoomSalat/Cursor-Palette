@@ -116,4 +116,19 @@
 
 	<sys:String x:Key="S.Info.About">ℹ️ About&#x0a;&#x0a;App information is shown here:&#x0a;   • Name and version.&#x0a;   • Author and license (MIT).&#x0a;&#x0a;This is free software — you can use, modify&#x0a;and distribute it under the MIT License terms.</sys:String>
 
+	<sys:String x:Key="S.Update.Available">Update available</sys:String>
+	<sys:String x:Key="S.Update.Available.Tooltip">A new version is available — click to download</sys:String>
+	<sys:String x:Key="S.Update.UpToDate">Up to date</sys:String>
+	<sys:String x:Key="S.Update.WindowTitle">Update</sys:String>
+	<sys:String x:Key="S.Update.CurrentVersion">Current version</sys:String>
+	<sys:String x:Key="S.Update.NewVersion">New version</sys:String>
+	<sys:String x:Key="S.Update.AutoUpdate">Auto update</sys:String>
+	<sys:String x:Key="S.Update.ManualDownload">Manual download</sys:String>
+	<sys:String x:Key="S.Update.Cancel">Cancel</sys:String>
+	<sys:String x:Key="S.Update.Downloading">Downloading…</sys:String>
+	<sys:String x:Key="S.Update.DownloadedTo">Downloaded to:</sys:String>
+	<sys:String x:Key="S.Update.DownloadFailed">Download failed</sys:String>
+	<sys:String x:Key="S.Toast.UpdateAvailable">A new version is available!</sys:String>
+	<sys:String x:Key="S.Toast.ManualDownload">File downloaded to Downloads folder</sys:String>
+
 </ResourceDictionary>

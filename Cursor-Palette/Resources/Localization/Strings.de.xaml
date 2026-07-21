@@ -107,4 +107,19 @@
 
 	<sys:String x:Key="S.Info.About">ℹ️ Über&#x0a;&#x0a;Hier werden App-Informationen angezeigt:&#x0a;   • Name und Version.&#x0a;   • Autor und Lizenz (MIT).&#x0a;&#x0a;Dies ist freie Software — Sie können sie unter den&#x0a;Bedingungen der MIT-Lizenz nutzen, ändern und verbreiten.</sys:String>
 
+	<sys:String x:Key="S.Update.Available">Update verfügbar</sys:String>
+	<sys:String x:Key="S.Update.Available.Tooltip">Eine neue Version ist verfügbar — klicken zum Herunterladen</sys:String>
+	<sys:String x:Key="S.Update.UpToDate">Aktuell</sys:String>
+	<sys:String x:Key="S.Update.WindowTitle">Aktualisierung</sys:String>
+	<sys:String x:Key="S.Update.CurrentVersion">Aktuelle Version</sys:String>
+	<sys:String x:Key="S.Update.NewVersion">Neue Version</sys:String>
+	<sys:String x:Key="S.Update.AutoUpdate">Auto-Update</sys:String>
+	<sys:String x:Key="S.Update.ManualDownload">Manueller Download</sys:String>
+	<sys:String x:Key="S.Update.Cancel">Abbrechen</sys:String>
+	<sys:String x:Key="S.Update.Downloading">Wird heruntergeladen…</sys:String>
+	<sys:String x:Key="S.Update.DownloadedTo">Heruntergeladen nach:</sys:String>
+	<sys:String x:Key="S.Update.DownloadFailed">Download fehlgeschlagen</sys:String>
+	<sys:String x:Key="S.Toast.UpdateAvailable">Eine neue Version ist verfügbar!</sys:String>
+	<sys:String x:Key="S.Toast.ManualDownload">Datei in Downloads-Ordner heruntergeladen</sys:String>
+
 </ResourceDictionary>
