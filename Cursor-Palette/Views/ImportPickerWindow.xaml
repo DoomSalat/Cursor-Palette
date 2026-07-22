@@ -7,6 +7,41 @@
 		WindowStartupLocation="CenterOwner"
 		ShowInTaskbar="False">
 
+	<Window.Resources>
+		<Style x:Key="Style.ToggleCheckBox" TargetType="CheckBox">
+			<Setter Property="Foreground" Value="{StaticResource Brush.Text}" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="CheckBox">
+						<StackPanel Orientation="Horizontal">
+							<Border x:Name="Box" Width="18" Height="18"
+									CornerRadius="4"
+									Background="{StaticResource Brush.Surface}"
+									BorderBrush="{StaticResource Brush.Border}"
+									BorderThickness="1">
+								<Path x:Name="CheckMark"
+									  Width="10" Height="8" Stretch="Uniform"
+									  Fill="{StaticResource Brush.Accent}"
+									  Data="M 0,4 L 3,7 L 9,0"
+									  Visibility="Collapsed"
+									  HorizontalAlignment="Center"
+									  VerticalAlignment="Center" />
+							</Border>
+							<ContentPresenter VerticalAlignment="Center" Margin="8,0,0,0" />
+						</StackPanel>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
+								<Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+
 	<DockPanel>
 		<DockPanel.LayoutTransform>
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
@@ -81,6 +116,43 @@
 						MinWidth="110"
 						Click="OnImportButtonClick" />
 			</Grid>
+		</Border>
+
+		<Border DockPanel.Dock="Top"
+				Background="{StaticResource Brush.Surface}"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="0,0,0,1"
+				Padding="16,10">
+			<StackPanel>
+				<CheckBox x:Name="IgnoreSizesCheck"
+						  Style="{StaticResource Style.ToggleCheckBox}"
+						  Content="{DynamicResource S.Import.IgnoreSizes}"
+						  Checked="OnIgnoreSizesChanged"
+						  Unchecked="OnIgnoreSizesChanged" />
+
+				<Grid x:Name="UniformSizeRow" Margin="0,10,0,0" Visibility="Collapsed">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+
+					<TextBlock Grid.Column="0" Text="{DynamicResource S.CursorSize}"
+							   Foreground="{StaticResource Brush.TextDim}"
+							   VerticalAlignment="Center" />
+					<Slider x:Name="UniformSizeSlider" Grid.Column="1"
+							Style="{StaticResource Style.Slider}"
+							MinWidth="90" Margin="8,0"
+							Minimum="1" Maximum="15"
+							TickFrequency="1" IsSnapToTickEnabled="True"
+							VerticalAlignment="Center"
+							ValueChanged="OnUniformSizeSliderValueChanged" />
+					<TextBlock x:Name="UniformSizeValueText" Grid.Column="2"
+							   Width="46"
+							   Foreground="{StaticResource Brush.TextDim}"
+							   VerticalAlignment="Center" />
+				</Grid>
+			</StackPanel>
 		</Border>
 
 		<Grid Margin="16">

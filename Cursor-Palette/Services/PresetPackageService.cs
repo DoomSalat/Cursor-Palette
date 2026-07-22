@@ -31,7 +31,7 @@ public static class PresetPackageService
 		ArchiveImportService.IsArchiveFile(path) ||
 		string.Equals(Path.GetExtension(path), BundleExtension, StringComparison.OrdinalIgnoreCase);
 
-	public static (string Path, int Count) ExportBundle(IReadOnlyList<Preset> presets)
+	public static (string Path, int Count) ExportBundle(IReadOnlyList<Preset> presets, string? customName = null)
 	{
 		var stagingDir = CreateTempDir();
 		try
@@ -86,7 +86,7 @@ public static class PresetPackageService
 			File.WriteAllText(Path.Combine(stagingDir, BundleMarkerFileName),
 				JsonSerializer.Serialize(new PackageMarker { Format = BundleFormatId, Version = FormatVersion }, JsonOptions));
 
-			var destPath = GetUniqueDownloadPath(DefaultBundleName, BundleExtension);
+			var destPath = GetUniqueDownloadPath(ResolveExportName(customName, DefaultBundleName), BundleExtension);
 
 			CreateZipFromDirectory(stagingDir, destPath);
 
@@ -98,7 +98,7 @@ public static class PresetPackageService
 		}
 	}
 
-	public static (string Path, int Count) ExportArchive(IReadOnlyList<Preset> presets)
+	public static (string Path, int Count) ExportArchive(IReadOnlyList<Preset> presets, string? customName = null)
 	{
 		var stagingDir = CreateTempDir();
 
@@ -137,7 +137,7 @@ public static class PresetPackageService
 					new ArchiveMarker { Format = ArchiveFormatId, Version = FormatVersion, Presets = markerEntries },
 					JsonOptions));
 
-			var destPath = GetUniqueDownloadPath(DefaultArchiveName, ".zip");
+			var destPath = GetUniqueDownloadPath(ResolveExportName(customName, DefaultArchiveName), ".zip");
 
 			CreateZipFromDirectory(stagingDir, destPath);
 
@@ -263,7 +263,8 @@ public static class PresetPackageService
 		return null;
 	}
 
-	public static int ImportSelected(DetectedPackage package, IReadOnlyList<PackageEntry> selectedEntries)
+	public static int ImportSelected(DetectedPackage package, IReadOnlyList<PackageEntry> selectedEntries,
+		bool ignoreIndividualSizes = false, int uniformSize = RegistryCursorService.DefaultBaseSize)
 	{
 		var imported = 0;
 
@@ -275,6 +276,9 @@ public static class PresetPackageService
 
 			if (draft == null || draft.RoleSources.Count == 0)
 				continue;
+
+			if (ignoreIndividualSizes)
+				draft.BaseSize = uniformSize;
 
 			PresetStore.Save(draft);
 			imported++;
@@ -348,6 +352,9 @@ public static class PresetPackageService
 
 		return path;
 	}
+
+	private static string ResolveExportName(string? customName, string fallback) =>
+		string.IsNullOrWhiteSpace(customName) ? fallback : SanitizeName(customName);
 
 	private static string SanitizeName(string name)
 	{

@@ -58,6 +58,21 @@
 					BorderThickness="0,1,0,0"
 					Padding="16,10">
 				<StackPanel>
+					<Grid Margin="0,0,0,8">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+
+						<TextBlock Grid.Column="0" Text="{DynamicResource S.Export.Name}"
+								   Foreground="{StaticResource Brush.TextDim}"
+								   VerticalAlignment="Center" Margin="0,0,8,0" />
+						<TextBox x:Name="ExportNameBox" Grid.Column="1"
+								 Style="{StaticResource Style.TextBox}"
+								 ToolTip="{DynamicResource S.Export.Name.Tooltip}"
+								 VerticalAlignment="Center" MaxLength="60" />
+					</Grid>
+
 					<TextBlock x:Name="SelectionCountText"
 							   Foreground="{StaticResource Brush.TextDim}"
 							   FontSize="12"

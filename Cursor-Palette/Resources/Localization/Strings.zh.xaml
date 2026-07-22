@@ -110,9 +110,9 @@
 
 	<sys:String x:Key="S.Info.Hotspot">🎯 热点&#x0a;&#x0a;热点是光标点击注册的位置。&#x0a;&#x0a;🖱️ 在光标图像上拖动标记（圆圈）。&#x0a;   • 或点击预览中所需的位置。&#x0a;&#x0a;⚡ 快速设置 — 9个按钮对应典型位置:&#x0a;   ↖ ↑ ↗   — 上排&#x0a;   ← ✛ →   — 中排（✛ = 中心）&#x0a;   ↙ ↓ ↘   — 下排&#x0a;&#x0a;坐标显示在左下角。&#x0a;💾 "保存" — 应用热点。</sys:String>
 
-	<sys:String x:Key="S.Info.Export">📤 导出预设&#x0a;&#x0a;🖼️ 卡片 — 点击预设即可选中/取消选中（蓝色边框 = 已选中）。&#x0a;   • "全选" / "全不选" — 顶部按钮。&#x0a;&#x0a;🗂️ 包文件 vs ZIP 压缩包 — 两个导出按钮生成不同的文件:&#x0a;   • 包文件 (.cursorpalette) — 完整副本：保留所有角色、锁定的角色和光标大小，从其他预设借用的角色也会被复制进来，因此文件是自包含的。用于以后完整地重新导入本应用。&#x0a;   • ZIP 压缩包 — 每个预设一个文件夹，包含原始的 .cur/.ani 文件，供本应用之外或其他工具使用。不会保存锁定的角色和自定义光标大小 — 重新导入时只会恢复光标文件本身。&#x0a;&#x0a;⬇ 两者都会保存到"下载"文件夹，导出后资源管理器会自动打开并选中新文件。</sys:String>
+	<sys:String x:Key="S.Info.Export">📤 导出预设&#x0a;&#x0a;🖼️ 卡片 — 点击预设即可选中/取消选中（蓝色边框 = 已选中）。&#x0a;   • "全选" / "全不选" — 顶部按钮。&#x0a;&#x0a;📝 文件名 — 可选；可以为导出的文件输入自定义名称，留空则使用默认名称。&#x0a;&#x0a;🗂️ 包文件 vs ZIP 压缩包 — 两个导出按钮生成不同的文件:&#x0a;   • 包文件 (.cursorpalette) — 完整副本：保留所有角色、锁定的角色和光标大小，从其他预设借用的角色也会被复制进来，因此文件是自包含的。用于以后完整地重新导入本应用。&#x0a;   • ZIP 压缩包 — 每个预设一个文件夹，包含原始的 .cur/.ani 文件，供本应用之外或其他工具使用。不会保存锁定的角色和自定义光标大小 — 重新导入时只会恢复光标文件本身。&#x0a;&#x0a;⬇ 两者都会保存到"下载"文件夹，导出后资源管理器会自动打开并选中新文件。</sys:String>
 
-	<sys:String x:Key="S.Info.Import">📥 导入预设&#x0a;&#x0a;选择 Cursor Palette 包文件 (.cursorpalette) 或 ZIP 压缩包后会打开此窗口——通过导入按钮，或将文件拖到主窗口。&#x0a;&#x0a;🖼️ 卡片 — 文件中找到的每个预设对应一张；点击即可选中/取消选中（蓝色边框 = 已选中）。&#x0a;   • "全选" / "全不选" — 顶部按钮。&#x0a;&#x0a;📦 "导入" — 将选中的预设作为新预设添加到画廊中（使用新的 id，因此不会与现有预设冲突）。&#x0a;&#x0a;ℹ️ 包文件会恢复全部内容（角色、锁定的角色、光标大小）；ZIP 压缩包只会恢复光标文件本身，通过文件名匹配到角色。</sys:String>
+	<sys:String x:Key="S.Info.Import">📥 导入预设&#x0a;&#x0a;选择 Cursor Palette 包文件 (.cursorpalette) 或 ZIP 压缩包后会打开此窗口——通过导入按钮，或将文件拖到主窗口。&#x0a;&#x0a;🖼️ 卡片 — 文件中找到的每个预设对应一张；点击即可选中/取消选中（蓝色边框 = 已选中）。&#x0a;   • "全选" / "全不选" — 顶部按钮。&#x0a;&#x0a;☑️ "忽略各个预设的大小" — 勾选后会出现大小滑块；所有导入的预设都会使用这一统一的光标大小，而不是文件中保存的大小。取消勾选可恢复每个预设自身在文件中的大小。&#x0a;&#x0a;📦 "导入" — 将选中的预设作为新预设添加到画廊中（使用新的 id，因此不会与现有预设冲突）。&#x0a;&#x0a;ℹ️ 包文件会恢复全部内容（角色、锁定的角色、光标大小）；ZIP 压缩包只会恢复光标文件本身，通过文件名匹配到角色。</sys:String>
 
 	<sys:String x:Key="S.Info.About">ℹ️ 关于&#x0a;&#x0a;这里显示应用信息:&#x0a;   • 名称和版本。&#x0a;   • 作者和许可证 (MIT)。&#x0a;&#x0a;这是自由软件 — 您可以在 MIT 许可证条款下&#x0a;使用、修改和分发它。</sys:String>
 
@@ -145,12 +145,15 @@
 	<sys:String x:Key="S.Export.AsBundle.Tooltip">将所选预设保存为单个文件，之后可以完整地重新导入本应用</sys:String>
 	<sys:String x:Key="S.Export.AsArchive">导出为 ZIP 压缩包</sys:String>
 	<sys:String x:Key="S.Export.AsArchive.Tooltip">将所选预设的原始光标文件保存为 ZIP 压缩包，供本应用以外使用</sys:String>
+	<sys:String x:Key="S.Export.Name">文件名</sys:String>
+	<sys:String x:Key="S.Export.Name.Tooltip">可选 — 留空则使用默认名称</sys:String>
 
 	<sys:String x:Key="S.Import.Title">导入预设</sys:String>
 	<sys:String x:Key="S.Import.Confirm">导入</sys:String>
 	<sys:String x:Key="S.Import.Empty">此文件中没有可导入的预设。</sys:String>
 	<sys:String x:Key="S.Import.SelectionCount">已选择 {0}/{1}</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Cursor Palette 包 (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
+	<sys:String x:Key="S.Import.IgnoreSizes">忽略各个预设的大小</sys:String>
 
 	<sys:String x:Key="S.Toast.ExportedBundle">已导出 {0} 个预设到 {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedArchive">已将 {0} 个预设导出为压缩包 {1}</sys:String>

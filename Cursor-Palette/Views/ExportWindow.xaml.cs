@@ -159,7 +159,7 @@ public partial class ExportWindow : Window
 
 		try
 		{
-			var (path, count) = PresetPackageService.ExportBundle(selected);
+			var (path, count) = PresetPackageService.ExportBundle(selected, ExportNameBox.Text);
 			ToastService.Show(RootGrid, Loc.Format(LocToastExportedBundle, count, System.IO.Path.GetFileName(path)));
 			RevealInExplorer(path);
 		}
@@ -178,7 +178,7 @@ public partial class ExportWindow : Window
 
 		try
 		{
-			var (path, count) = PresetPackageService.ExportArchive(selected);
+			var (path, count) = PresetPackageService.ExportArchive(selected, ExportNameBox.Text);
 			ToastService.Show(RootGrid, Loc.Format(LocToastExportedArchive, count, System.IO.Path.GetFileName(path)));
 			RevealInExplorer(path);
 		}
@@ -196,7 +196,7 @@ public partial class ExportWindow : Window
 			Process.Start(new ProcessStartInfo
 			{
 				FileName = "explorer.exe",
-				ArgumentList = { $"/select,\"{path}\"" },
+				Arguments = $"/select,\"{path}\"",
 				UseShellExecute = true,
 			});
 		}

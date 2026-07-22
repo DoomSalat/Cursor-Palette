@@ -26,9 +26,15 @@ public partial class ImportPickerWindow : Window
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocInfoImport = "S.Info.Import";
 
+	private const string PixelSuffix = "px";
+
 	private readonly List<(PackageEntry Entry, Border Cell)> _tiles = new();
 
 	public IReadOnlyList<PackageEntry> SelectedEntries { get; private set; } = Array.Empty<PackageEntry>();
+
+	public bool IgnoreIndividualSizes { get; private set; }
+
+	public int UniformSize { get; private set; }
 
 	public ImportPickerWindow(IReadOnlyList<PackageEntry> entries)
 	{
@@ -42,6 +48,10 @@ public partial class ImportPickerWindow : Window
 			_tiles.Add((entry, CreateTile(entry)));
 
 		EmptyHint.Visibility = entries.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+		var defaultSize = AppState.GetDefaultBaseSize();
+		UniformSizeSlider.Value = (defaultSize - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
+		UniformSizeValueText.Text = $"{defaultSize} {PixelSuffix}";
 
 		UpdateSelectionCount();
 	}
@@ -145,6 +155,23 @@ public partial class ImportPickerWindow : Window
 		if (SelectedEntries.Count == 0)
 			return;
 
+		IgnoreIndividualSizes = IgnoreSizesCheck.IsChecked == true;
+		UniformSize = RegistryCursorService.SizeStep + (int)UniformSizeSlider.Value * RegistryCursorService.SizeStep;
+
 		DialogResult = true;
+	}
+
+	private void OnIgnoreSizesChanged(object sender, RoutedEventArgs e)
+	{
+		UniformSizeRow.Visibility = IgnoreSizesCheck.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+	}
+
+	private void OnUniformSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+	{
+		if (UniformSizeValueText == null)
+			return;
+
+		var sizePx = RegistryCursorService.SizeStep + (int)e.NewValue * RegistryCursorService.SizeStep;
+		UniformSizeValueText.Text = $"{sizePx} {PixelSuffix}";
 	}
 }

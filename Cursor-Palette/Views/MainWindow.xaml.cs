@@ -235,7 +235,8 @@ public partial class MainWindow : Window
 
 		if (picker.ShowDialog() == true)
 		{
-			var imported = PresetPackageService.ImportSelected(detected, picker.SelectedEntries);
+			var imported = PresetPackageService.ImportSelected(detected, picker.SelectedEntries,
+				picker.IgnoreIndividualSizes, picker.UniformSize);
 			ReloadGallery();
 
 			if (imported > 0)
