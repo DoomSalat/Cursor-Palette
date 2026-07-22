@@ -12,6 +12,7 @@ public static class CursorPreviewService
 {
 	private const string User32Dll = "user32.dll";
 	private const string AniExtension = ".ani";
+	private const string CurExtension = ".cur";
 
 	private static readonly Dictionary<string, ImageSource?> Cache = new(StringComparer.OrdinalIgnoreCase);
 	private static readonly Dictionary<string, AnimatedCursorFrames?> AnimatedCache = new(StringComparer.OrdinalIgnoreCase);
@@ -36,6 +37,18 @@ public static class CursorPreviewService
 
 		if (File.Exists(expanded))
 		{
+			if (string.Equals(Path.GetExtension(expanded), CurExtension, StringComparison.OrdinalIgnoreCase))
+			{
+				image = CursorCanvasService.TryReadAsBitmap(expanded);
+
+				if (image != null)
+				{
+					Cache[expanded] = image;
+
+					return image;
+				}
+			}
+
 			var handle = LoadCursorFromFile(expanded);
 
 			if (handle != IntPtr.Zero)

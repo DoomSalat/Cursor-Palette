@@ -37,6 +37,124 @@ public static class CursorCanvasService
 		if (!IsSupportedFile(filePath) || !File.Exists(filePath))
 			return null;
 
+		try
+		{
+			var direct = TryReadFromBytes(File.ReadAllBytes(filePath));
+
+			if (direct != null)
+				return direct;
+		}
+		catch
+		{
+		}
+
+		return TryReadViaWin32(filePath);
+	}
+
+	public static CursorCanvasImage? TryReadFromBytes(byte[] bytes)
+	{
+		if (bytes.Length < IconDirSize + IconDirEntrySize)
+			return null;
+
+		var type = BitConverter.ToUInt16(bytes, 2);
+		if (type != CursorResourceType)
+			return null;
+
+		var count = BitConverter.ToUInt16(bytes, 4);
+		if (count == 0)
+			return null;
+
+		var entryOffset = IconDirSize;
+		var hotspotX = BitConverter.ToUInt16(bytes, entryOffset + 4);
+		var hotspotY = BitConverter.ToUInt16(bytes, entryOffset + 6);
+		var imageOffset = (int)BitConverter.ToUInt32(bytes, entryOffset + 12);
+
+		if (imageOffset + BitmapInfoHeaderSize > bytes.Length)
+			return null;
+
+		var width = Math.Abs(BitConverter.ToInt32(bytes, imageOffset + 4));
+		var heightRaw = BitConverter.ToInt32(bytes, imageOffset + 8);
+		var bitCount = BitConverter.ToUInt16(bytes, imageOffset + 14);
+		var actualHeight = Math.Abs(heightRaw) / 2;
+
+		if (width <= 0 || actualHeight <= 0 || width > MaxClassicDimension || actualHeight > MaxClassicDimension)
+			return null;
+
+		if (bitCount != CursorBitCount)
+			return null;
+
+		var colorRowStride = width * BytesPerPixel;
+		var colorDataOffset = imageOffset + BitmapInfoHeaderSize;
+
+		if (colorDataOffset + colorRowStride * actualHeight > bytes.Length)
+			return null;
+
+		var pixels = new byte[colorRowStride * actualHeight];
+
+		for (var y = 0; y < actualHeight; y++)
+		{
+			var srcY = actualHeight - 1 - y;
+			Array.Copy(bytes, colorDataOffset + srcY * colorRowStride, pixels, y * colorRowStride, colorRowStride);
+		}
+
+		var hasAlpha = false;
+
+		for (var i = 3; i < pixels.Length; i += 4)
+		{
+			if (pixels[i] == 0)
+				continue;
+
+			hasAlpha = true;
+			break;
+		}
+
+		if (!hasAlpha)
+		{
+			var maskRowStride = ((width + RowAlignmentBits - 1) / RowAlignmentBits) * (RowAlignmentBits / 8);
+			var maskDataOffset = colorDataOffset + colorRowStride * actualHeight;
+
+			if (maskDataOffset + maskRowStride * actualHeight <= bytes.Length)
+			{
+				for (var y = 0; y < actualHeight; y++)
+				{
+					var srcY = actualHeight - 1 - y;
+					for (var x = 0; x < width; x++)
+					{
+						var maskByte = bytes[maskDataOffset + srcY * maskRowStride + x / 8];
+						var isTransparent = (maskByte & (0x80 >> (x % 8))) != 0;
+						pixels[y * colorRowStride + x * BytesPerPixel + 3] = isTransparent ? (byte)0 : (byte)255;
+					}
+				}
+			}
+		}
+
+		return new CursorCanvasImage(width, actualHeight, hotspotX, hotspotY, pixels);
+	}
+
+	public static BitmapSource? TryReadAsBitmap(string filePath)
+	{
+		if (!IsSupportedFile(filePath) || !File.Exists(filePath))
+			return null;
+
+		try
+		{
+			var image = TryReadFromBytes(File.ReadAllBytes(filePath));
+			if (image == null)
+				return null;
+
+			var bitmap = new WriteableBitmap(image.Width, image.Height, 96, 96, PixelFormats.Bgra32, null);
+			bitmap.WritePixels(new Int32Rect(0, 0, image.Width, image.Height), image.Bgra, image.Width * BytesPerPixel, 0);
+			bitmap.Freeze();
+			return bitmap;
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	private static CursorCanvasImage? TryReadViaWin32(string filePath)
+	{
 		var hotspot = CursorHotspotService.Read(filePath);
 
 		if (hotspot == null)

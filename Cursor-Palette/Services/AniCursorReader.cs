@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace CursorPalette.Services;
@@ -35,6 +36,7 @@ public static class AniCursorReader
 	private const string RiffSignature = "RIFF";
 	private const string AconTypeSignature = "ACON";
 	private const int AconTypeOffset = 8;
+	private const int BytesPerPixel = 4;
 
 	[DllImport(User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
 	private static extern IntPtr LoadCursorFromFile(string lpFileName);
@@ -153,7 +155,7 @@ public static class AniCursorReader
 		for (var frameIndex = 0; frameIndex < frameCount; frameIndex++)
 		{
 			var (offset, length) = iconChunks[frameIndex];
-			var frame = DecodeFrameViaTempCursorFile(bytes, offset, length);
+			var frame = DecodeFrame(bytes, offset, length);
 
 			if (frame == null)
 				break;
@@ -199,7 +201,30 @@ public static class AniCursorReader
 		return TimeSpan.FromSeconds(jiffies / JiffiesPerSecond);
 	}
 
-	private static BitmapSource? DecodeFrameViaTempCursorFile(byte[] bytes, int offset, int length)
+	private static BitmapSource? DecodeFrame(byte[] bytes, int offset, int length)
+	{
+		try
+		{
+			var frameBytes = new byte[length];
+			Array.Copy(bytes, offset, frameBytes, 0, length);
+
+			var image = CursorCanvasService.TryReadFromBytes(frameBytes);
+			if (image != null)
+			{
+				var bitmap = new WriteableBitmap(image.Width, image.Height, 96, 96, PixelFormats.Bgra32, null);
+				bitmap.WritePixels(new Int32Rect(0, 0, image.Width, image.Height), image.Bgra, image.Width * BytesPerPixel, 0);
+				bitmap.Freeze();
+				return bitmap;
+			}
+		}
+		catch
+		{
+		}
+
+		return DecodeFrameViaTempFileFallback(bytes, offset, length);
+	}
+
+	private static BitmapSource? DecodeFrameViaTempFileFallback(byte[] bytes, int offset, int length)
 	{
 		var tempPath = Path.Combine(Path.GetTempPath(), $"{TempFilePrefix}{Guid.NewGuid():N}{TempFileExtension}");
 
