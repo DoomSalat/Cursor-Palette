@@ -45,29 +45,29 @@ public partial class PaintEditorWindow
 		return result;
 	}
 
-	private static void Blit(byte[] dest, int destWidth, int destHeight, byte[] src, int srcWidth, int srcHeight, int offsetX, int offsetY)
+	private static void Blit(byte[] destination, int destinationWidth, int destinationHeight, byte[] source, int sourceWidth, int sourceHeight, int offsetX, int offsetY)
 	{
-		for (var y = 0; y < srcHeight; y++)
+		for (var y = 0; y < sourceHeight; y++)
 		{
-			var destY = y + offsetY;
+			var destinationY = y + offsetY;
 
-			if (destY < 0 || destY >= destHeight)
+			if (destinationY < 0 || destinationY >= destinationHeight)
 				continue;
 
-			for (var x = 0; x < srcWidth; x++)
+			for (var x = 0; x < sourceWidth; x++)
 			{
-				var destX = x + offsetX;
+				var destinationX = x + offsetX;
 
-				if (destX < 0 || destX >= destWidth)
+				if (destinationX < 0 || destinationX >= destinationWidth)
 					continue;
 
-				var srcIndex = (y * srcWidth + x) * BytesPerPixel;
-				var destIndex = (destY * destWidth + destX) * BytesPerPixel;
+				var sourceIndex = (y * sourceWidth + x) * BytesPerPixel;
+				var destinationIndex = (destinationY * destinationWidth + destinationX) * BytesPerPixel;
 
-				dest[destIndex] = src[srcIndex];
-				dest[destIndex + 1] = src[srcIndex + 1];
-				dest[destIndex + 2] = src[srcIndex + 2];
-				dest[destIndex + 3] = src[srcIndex + 3];
+				destination[destinationIndex] = source[sourceIndex];
+				destination[destinationIndex + 1] = source[sourceIndex + 1];
+				destination[destinationIndex + 2] = source[sourceIndex + 2];
+				destination[destinationIndex + 3] = source[sourceIndex + 3];
 			}
 		}
 	}

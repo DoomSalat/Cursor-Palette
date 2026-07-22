@@ -122,6 +122,9 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Canvas</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Hotspot</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Coming soon</sys:String>
+	<sys:String x:Key="S.Editor.Tool.EraserHint">Click and drag to erase pixels.</sys:String>
+	<sys:String x:Key="S.Editor.Color.Brightness">Brightness</sys:String>
+	<sys:String x:Key="S.Editor.Color.Alpha">Alpha</sys:String>
 	<sys:String x:Key="S.Editor.Tool.HandHint">Hold and drag to pan the canvas. You can also hold the middle mouse button at any time.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Drag the canvas edges or corners to resize, then Apply.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Apply</sys:String>

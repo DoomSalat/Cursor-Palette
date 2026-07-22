@@ -57,6 +57,12 @@ public static class AppState
 		public double MainWindowHeight { get; set; } = 640;
 		public double PaintEditorZoom { get; set; } = PaintEditorZoomDefault;
 		public string? PaintEditorTool { get; set; } = PaintEditorToolDefault;
+		public double PaintEditorColorHue { get; set; }
+		public double PaintEditorColorSaturation { get; set; } = 1.0;
+		public double PaintEditorColorValue { get; set; } = 1.0;
+		public double PaintEditorColorAlpha { get; set; } = 100;
+		public double? PaintEditorPanX { get; set; }
+		public double? PaintEditorPanY { get; set; }
 	}
 
 	public static string? GetActivePresetId()
@@ -245,6 +251,40 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.PaintEditorTool = tool;
+
+		SaveSettings(settings);
+	}
+
+	public static (double Hue, double Saturation, double Value, double Alpha) GetPaintEditorColor()
+	{
+		var settings = LoadSettings();
+
+		return (settings.PaintEditorColorHue, settings.PaintEditorColorSaturation, settings.PaintEditorColorValue, settings.PaintEditorColorAlpha);
+	}
+
+	public static void SetPaintEditorColor(double hue, double saturation, double value, double alpha)
+	{
+		var settings = LoadSettings();
+		settings.PaintEditorColorHue = hue;
+		settings.PaintEditorColorSaturation = saturation;
+		settings.PaintEditorColorValue = value;
+		settings.PaintEditorColorAlpha = alpha;
+
+		SaveSettings(settings);
+	}
+
+	public static (double? PanX, double? PanY) GetPaintEditorPan()
+	{
+		var settings = LoadSettings();
+
+		return (settings.PaintEditorPanX, settings.PaintEditorPanY);
+	}
+
+	public static void SetPaintEditorPan(double panX, double panY)
+	{
+		var settings = LoadSettings();
+		settings.PaintEditorPanX = panX;
+		settings.PaintEditorPanY = panY;
 
 		SaveSettings(settings);
 	}

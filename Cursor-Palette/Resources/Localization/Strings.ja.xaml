@@ -113,6 +113,9 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">キャンバス</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">ホットスポット</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">近日対応</sys:String>
+	<sys:String x:Key="S.Editor.Tool.EraserHint">クリックしてドラッグし、ピクセルを消去します。</sys:String>
+	<sys:String x:Key="S.Editor.Color.Brightness">明るさ</sys:String>
+	<sys:String x:Key="S.Editor.Color.Alpha">アルファ</sys:String>
 	<sys:String x:Key="S.Editor.Tool.HandHint">ドラッグしてキャンバスをパンできます。いつでもマウスの中央ボタンを押しながらでも移動できます。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">キャンバスの端や角をドラッグしてサイズを変更し、「適用」をクリックしてください。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">適用</sys:String>

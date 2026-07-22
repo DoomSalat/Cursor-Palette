@@ -122,6 +122,9 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Lienzo</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Punto de clic</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Próximamente</sys:String>
+	<sys:String x:Key="S.Editor.Tool.EraserHint">Haz clic y arrastra para borrar píxeles.</sys:String>
+	<sys:String x:Key="S.Editor.Color.Brightness">Brillo</sys:String>
+	<sys:String x:Key="S.Editor.Color.Alpha">Alfa</sys:String>
 	<sys:String x:Key="S.Editor.Tool.HandHint">Mantén pulsado y arrastra para desplazarte por el lienzo. También puedes mantener pulsado el botón central del ratón en cualquier momento.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Arrastra los bordes o las esquinas del lienzo para cambiar el tamaño y luego pulsa Aplicar.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Aplicar</sys:String>

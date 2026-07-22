@@ -1,0 +1,53 @@
+<UserControl x:Class="CursorPalette.Controls.ColorWheelControl"
+			xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<StackPanel>
+		<Grid Width="140" Height="140" HorizontalAlignment="Center" Margin="0,0,0,10">
+			<Image x:Name="WheelImage" Width="140" Height="140" Cursor="Cross"
+				   MouseLeftButtonDown="OnWheelMouseDown"
+				   MouseMove="OnWheelMouseMove"
+				   MouseLeftButtonUp="OnWheelMouseUp" />
+			<Rectangle x:Name="BrightnessOverlay" Width="140" Height="140" IsHitTestVisible="False" Fill="Black" Opacity="0" />
+			<Canvas Width="140" Height="140" IsHitTestVisible="False">
+				<Ellipse x:Name="Indicator" Width="10" Height="10"
+						 Stroke="White" StrokeThickness="2"
+						 Fill="Transparent" />
+			</Canvas>
+		</Grid>
+
+		<TextBlock Text="{DynamicResource S.Editor.Color.Brightness}"
+				   FontSize="11" Foreground="{DynamicResource Brush.TextDim}"
+				   Margin="0,0,0,4" />
+		<Slider x:Name="BrightnessSlider" Style="{StaticResource Style.Slider}"
+				Minimum="0" Maximum="1" Value="1"
+				SmallChange="0.01" LargeChange="0.1"
+				Margin="0,0,0,10" ValueChanged="OnBrightnessChanged" />
+
+		<Grid Margin="0,0,0,10">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<TextBlock Text="{DynamicResource S.Editor.Color.Alpha}"
+					   FontSize="11" Foreground="{DynamicResource Brush.TextDim}"
+					   VerticalAlignment="Center" />
+			<TextBlock x:Name="AlphaPercentText" Grid.Column="1"
+					   FontSize="11" Foreground="{DynamicResource Brush.TextDim}"
+					   VerticalAlignment="Center" />
+		</Grid>
+		<Slider x:Name="AlphaSlider" Style="{StaticResource Style.Slider}"
+				Minimum="0" Maximum="100" Value="100"
+				SmallChange="1" LargeChange="10"
+				Margin="0,0,0,10" ValueChanged="OnAlphaChanged" />
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+			<Grid Width="24" Height="24">
+				<Rectangle Fill="{DynamicResource Brush.Checkerboard}" />
+				<Rectangle x:Name="ColorPreview" />
+			</Grid>
+			<TextBlock x:Name="HexText" FontSize="12"
+					   FontFamily="Consolas" VerticalAlignment="Center"
+					   Margin="8,0,0,0" />
+		</StackPanel>
+	</StackPanel>
+</UserControl>

@@ -1,6 +1,7 @@
 <Window x:Class="CursorPalette.Views.PaintEditorWindow"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:controls="clr-namespace:CursorPalette.Controls"
 		Title="{DynamicResource S.Paint.Title}"
 		Width="820" Height="680"
 	MinWidth="560" MinHeight="460"
@@ -322,8 +323,9 @@
 				  PreviewMouseWheel="OnViewportMouseWheel"
 				  PreviewMouseDown="OnViewportPreviewMouseDown"
 				  PreviewMouseMove="OnViewportPreviewMouseMove"
-				  PreviewMouseUp="OnViewportPreviewMouseUp">
-				<Canvas x:Name="ViewportContent" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top">
+				  PreviewMouseUp="OnViewportPreviewMouseUp"
+			  MouseLeave="OnViewportMouseLeave">
+				<Canvas x:Name="ViewportContent" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False">
 					<Canvas.RenderTransform>
 						<TransformGroup>
 							<ScaleTransform x:Name="CanvasZoomTransform" ScaleX="8" ScaleY="8" />
@@ -334,6 +336,7 @@
 					<Rectangle x:Name="CanvasBgRect" Fill="{DynamicResource Brush.Checkerboard}" />
 					<Image x:Name="PreviewImage" SnapsToDevicePixels="True" MouseLeftButtonDown="OnSpriteMouseLeftButtonDown" MouseMove="OnSpriteMouseMove" MouseLeftButtonUp="OnSpriteMouseLeftButtonUp" Cursor="SizeAll" />
 					<Rectangle x:Name="SpriteBoundsRect" Stroke="#FFFF8800" StrokeThickness="2" IsHitTestVisible="False" Visibility="Collapsed" />
+					<Rectangle x:Name="PaintCursorRect" Width="1" Height="1" Stroke="#FFFFFFFF" StrokeThickness="0.05" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Canvas x:Name="ResizeOverlay" IsHitTestVisible="True" UseLayoutRounding="False" Visibility="Collapsed">
 						<Rectangle x:Name="CanvasBorderRect" Stroke="{DynamicResource Brush.Accent}" StrokeThickness="2" IsHitTestVisible="False" />
 						<Thumb x:Name="ThumbTop" Style="{StaticResource Style.ResizeThumbEdge}" Cursor="SizeNS" DragDelta="OnThumbTopDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
@@ -447,8 +450,11 @@
 								HorizontalAlignment="Stretch"
 								Click="OnCanvasToolApplyClick" />
 					</StackPanel>
-					<StackPanel x:Name="BrushToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
-						<TextBlock Text="{DynamicResource S.Editor.Tool.ComingSoon}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+					<StackPanel x:Name="BrushToolPanel" DockPanel.Dock="Top" Visibility="Collapsed">
+						<controls:ColorWheelControl x:Name="ColorWheel" />
+					</StackPanel>
+					<StackPanel x:Name="EraserToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
+						<TextBlock Text="{DynamicResource S.Editor.Tool.EraserHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
 					</StackPanel>
 					<StackPanel x:Name="FillToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
 						<TextBlock Text="{DynamicResource S.Editor.Tool.ComingSoon}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />

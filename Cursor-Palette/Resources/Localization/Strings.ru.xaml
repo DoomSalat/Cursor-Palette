@@ -122,6 +122,9 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Холст</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Точка клика</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Скоро</sys:String>
+	<sys:String x:Key="S.Editor.Tool.EraserHint">Нажмите и перетащите, чтобы стереть пиксели.</sys:String>
+	<sys:String x:Key="S.Editor.Color.Brightness">Яркость</sys:String>
+	<sys:String x:Key="S.Editor.Color.Alpha">Прозрачность</sys:String>
 	<sys:String x:Key="S.Editor.Tool.HandHint">Зажмите и перетащите, чтобы перемещаться по холсту. Также можно в любой момент зажать среднюю кнопку мыши.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Потяните за края или углы холста, чтобы изменить размер, затем нажмите «Применить».</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Применить</sys:String>

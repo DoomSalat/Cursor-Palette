@@ -113,6 +113,9 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">画布</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">热点</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">即将推出</sys:String>
+	<sys:String x:Key="S.Editor.Tool.EraserHint">点击并拖动以擦除像素。</sys:String>
+	<sys:String x:Key="S.Editor.Color.Brightness">亮度</sys:String>
+	<sys:String x:Key="S.Editor.Color.Alpha">透明度</sys:String>
 	<sys:String x:Key="S.Editor.Tool.HandHint">按住并拖动即可平移画布。也可以随时按住鼠标中键进行平移。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">拖动画布边缘或角落调整大小,然后点击应用。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">应用</sys:String>

@@ -11,7 +11,8 @@ public partial class PaintEditorWindow
 		var isMove = _currentTool == AppState.PaintEditorToolMove;
 		var isHand = _currentTool == AppState.PaintEditorToolHand;
 		var isCanvas = _currentTool == AppState.PaintEditorToolCanvas;
-		var isBrushOrEraser = !isMove && !isHand && !isCanvas && _currentTool != AppState.PaintEditorToolFill && _currentTool != AppState.PaintEditorToolHotspot;
+		var isBrush = _currentTool == AppState.PaintEditorToolBrush;
+		var isEraser = _currentTool == AppState.PaintEditorToolEraser;
 		var isFill = _currentTool == AppState.PaintEditorToolFill;
 		var isHotspot = _currentTool == AppState.PaintEditorToolHotspot;
 
@@ -26,13 +27,15 @@ public partial class PaintEditorWindow
 		MoveToolPanel.Visibility = isMove ? Visibility.Visible : Visibility.Collapsed;
 		HandToolPanel.Visibility = isHand ? Visibility.Visible : Visibility.Collapsed;
 		CanvasToolPanel.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
-		BrushToolPanel.Visibility = isBrushOrEraser ? Visibility.Visible : Visibility.Collapsed;
+		BrushToolPanel.Visibility = isBrush ? Visibility.Visible : Visibility.Collapsed;
+		EraserToolPanel.Visibility = isEraser ? Visibility.Visible : Visibility.Collapsed;
 		FillToolPanel.Visibility = isFill ? Visibility.Visible : Visibility.Collapsed;
 		HotspotToolPanel.Visibility = isHotspot ? Visibility.Visible : Visibility.Collapsed;
 
 		PreviewImage.IsHitTestVisible = isMove;
 		ResizeOverlay.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
-		ViewportHost.Cursor = isHand ? Cursors.Hand : Cursors.Arrow;
+		ViewportHost.Cursor = isHand ? Cursors.Hand : (isBrush || isEraser) ? Cursors.Cross : Cursors.Arrow;
+		PaintCursorRect.Visibility = Visibility.Collapsed;
 
 		if (isCanvas)
 			UpdateResizeOverlay();
@@ -48,6 +51,7 @@ public partial class PaintEditorWindow
 			_offsetY = _canvasResizeSnapshotOffsetY;
 			CanvasPanTransform.X = _canvasResizeSnapshotPanX;
 			CanvasPanTransform.Y = _canvasResizeSnapshotPanY;
+
 			RenderAll();
 		}
 

@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using CursorPalette.Services;
 
@@ -45,21 +46,40 @@ public partial class PaintEditorWindow
 
 	private void OnViewportPreviewMouseDown(object sender, MouseButtonEventArgs e)
 	{
+		if (e.ChangedButton == MouseButton.Left && IsPaintTool)
+		{
+			PaintBegin(GetCanvasPosition(e));
+			ViewportHost.CaptureMouse();
+			e.Handled = true;
+
+			return;
+		}
+
 		var isHandDrag = e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolHand;
 
 		if (e.ChangedButton != MouseButton.Middle && !isHandDrag)
 			return;
 
 		_isPanning = true;
-		_panStart = e.GetPosition(ViewportHost);
-		_panStartHOffset = CanvasPanTransform.X;
-		_panStartVOffset = CanvasPanTransform.Y;
+		_panStartPosition = e.GetPosition(ViewportHost);
+		_panStartHorizontalOffset = CanvasPanTransform.X;
+		_panStartVerticalOffset = CanvasPanTransform.Y;
+
 		ViewportHost.CaptureMouse();
 		e.Handled = true;
 	}
 
 	private void OnViewportPreviewMouseUp(object sender, MouseButtonEventArgs e)
 	{
+		if (_isPainting)
+		{
+			PaintEnd();
+			ViewportHost.ReleaseMouseCapture();
+			e.Handled = true;
+
+			return;
+		}
+
 		var isHandDrag = e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolHand;
 
 		if ((e.ChangedButton != MouseButton.Middle && !isHandDrag) || !_isPanning)
@@ -71,13 +91,60 @@ public partial class PaintEditorWindow
 
 	private void OnViewportPreviewMouseMove(object sender, MouseEventArgs e)
 	{
+		if (_isPainting)
+		{
+			var paintPosition = GetCanvasPosition(e);
+			PaintStrokeTo(paintPosition);
+			UpdatePaintCursor(paintPosition);
+			e.Handled = true;
+
+			return;
+		}
+
+		if (IsPaintTool)
+		{
+			UpdatePaintCursor(GetCanvasPosition(e));
+		}
+
 		if (!_isPanning)
 			return;
 
-		var pos = e.GetPosition(ViewportHost);
+		var panPosition = e.GetPosition(ViewportHost);
 
-		CanvasPanTransform.X = _panStartHOffset + (pos.X - _panStart.X);
-		CanvasPanTransform.Y = _panStartVOffset + (pos.Y - _panStart.Y);
+		CanvasPanTransform.X = _panStartHorizontalOffset + (panPosition.X - _panStartPosition.X);
+		CanvasPanTransform.Y = _panStartVerticalOffset + (panPosition.Y - _panStartPosition.Y);
+	}
+
+	private Point GetCanvasPosition(MouseEventArgs e)
+	{
+		return e.GetPosition(ViewportContent);
+	}
+
+	private void OnViewportMouseLeave(object sender, MouseEventArgs e)
+	{
+		PaintCursorRect.Visibility = Visibility.Collapsed;
+	}
+
+	private void UpdatePaintCursor(Point canvasPosition)
+	{
+		var pixelX = (int)Math.Floor(canvasPosition.X);
+		var pixelY = (int)Math.Floor(canvasPosition.Y);
+
+		if (pixelX < 0 || pixelX >= _canvasWidth || pixelY < 0 || pixelY >= _canvasHeight)
+		{
+			PaintCursorRect.Visibility = Visibility.Collapsed;
+			return;
+		}
+
+		var strokeThickness = 1.0 / _zoom;
+		PaintCursorRect.StrokeThickness = strokeThickness;
+		PaintCursorRect.Width = 1 + strokeThickness;
+		PaintCursorRect.Height = 1 + strokeThickness;
+
+		Canvas.SetLeft(PaintCursorRect, pixelX - strokeThickness / 2.0);
+		Canvas.SetTop(PaintCursorRect, pixelY - strokeThickness / 2.0);
+
+		PaintCursorRect.Visibility = Visibility.Visible;
 	}
 
 	private void CenterViewport()
@@ -89,7 +156,18 @@ public partial class PaintEditorWindow
 		CanvasPanTransform.Y = Math.Round((ViewportHost.ActualHeight - _canvasHeight * _zoom) / 2.0);
 	}
 
-	private void OnWindowLoaded(object sender, RoutedEventArgs e) => CenterViewport();
+	private void OnWindowLoaded(object sender, RoutedEventArgs e)
+	{
+		if (_savedPanX.HasValue && _savedPanY.HasValue)
+		{
+			CanvasPanTransform.X = _savedPanX.Value;
+			CanvasPanTransform.Y = _savedPanY.Value;
+		}
+		else
+		{
+			CenterViewport();
+		}
+	}
 
 	private void OnUiZoomOutClick(object sender, RoutedEventArgs e) => AdjustUiZoom(-UiZoomStep);
 	private void OnUiZoomInClick(object sender, RoutedEventArgs e) => AdjustUiZoom(UiZoomStep);

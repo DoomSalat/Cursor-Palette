@@ -113,6 +113,9 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Leinwand</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Hotspot</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Demnächst</sys:String>
+	<sys:String x:Key="S.Editor.Tool.EraserHint">Klicken und ziehen, um Pixel zu löschen.</sys:String>
+	<sys:String x:Key="S.Editor.Color.Brightness">Helligkeit</sys:String>
+	<sys:String x:Key="S.Editor.Color.Alpha">Alpha</sys:String>
 	<sys:String x:Key="S.Editor.Tool.HandHint">Halten und ziehen, um die Leinwand zu verschieben. Sie können jederzeit auch die mittlere Maustaste gedrückt halten.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Ziehen Sie an den Rändern oder Ecken der Leinwand, um die Größe zu ändern, und klicken Sie dann auf Anwenden.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Anwenden</sys:String>

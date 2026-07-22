@@ -28,7 +28,7 @@ public partial class PaintEditorWindow : Window
 
 	private readonly int _spriteWidth;
 	private readonly int _spriteHeight;
-	private readonly byte[] _spriteBgra;
+	private byte[] _spriteBgra;
 	private readonly int _hotspotOffsetX;
 	private readonly int _hotspotOffsetY;
 
@@ -41,9 +41,11 @@ public partial class PaintEditorWindow : Window
 	private bool _ready;
 
 	private bool _isPanning;
-	private Point _panStart;
-	private double _panStartHOffset;
-	private double _panStartVOffset;
+	private Point _panStartPosition;
+	private double _panStartHorizontalOffset;
+	private double _panStartVerticalOffset;
+	private double? _savedPanX;
+	private double? _savedPanY;
 
 	private bool _isDraggingSprite;
 	private Point _spriteDragStart;
@@ -65,8 +67,8 @@ public partial class PaintEditorWindow : Window
 	private double _canvasResizeSnapshotPanX;
 	private double _canvasResizeSnapshotPanY;
 
-	private double _resizeAccumX;
-	private double _resizeAccumY;
+	private double _resizeAccumulatorX;
+	private double _resizeAccumulatorY;
 
 	private readonly string? _presetName;
 	private readonly string? _roleName;
@@ -104,9 +106,16 @@ public partial class PaintEditorWindow : Window
 		_zoom = AppState.GetPaintEditorZoom();
 		_currentTool = AppState.GetPaintEditorTool();
 
+		var (savedPanX, savedPanY) = AppState.GetPaintEditorPan();
+		_savedPanX = savedPanX;
+		_savedPanY = savedPanY;
+
 		var showBounds = AppState.GetShowSpriteBounds();
 		ShowSpriteBoundsCheck.IsChecked = showBounds;
 		SpriteBoundsRect.Visibility = showBounds ? Visibility.Visible : Visibility.Collapsed;
+
+		var (hue, saturation, value, alpha) = AppState.GetPaintEditorColor();
+		ColorWheel.SetColor(hue, saturation, value, alpha);
 
 		UpdateToolButtons();
 
@@ -120,6 +129,11 @@ public partial class PaintEditorWindow : Window
 		AppState.SetPaintEditorSize(Width, Height);
 		AppState.SetPaintEditorZoom(_zoom);
 		AppState.SetPaintEditorTool(_currentTool);
+
+		var (hue, saturation, value, alpha) = ColorWheel.GetHsv();
+		AppState.SetPaintEditorColor(hue, saturation, value, alpha);
+		AppState.SetPaintEditorPan(CanvasPanTransform.X, CanvasPanTransform.Y);
+
 		base.OnClosed(e);
 	}
 }

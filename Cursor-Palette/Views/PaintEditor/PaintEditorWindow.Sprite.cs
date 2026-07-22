@@ -25,14 +25,14 @@ public partial class PaintEditorWindow
 		if (!_isDraggingSprite)
 			return;
 
-		var pos = e.GetPosition(ViewportContent);
-		var dx = (int)Math.Round(pos.X - _spriteDragStart.X);
-		var dy = (int)Math.Round(pos.Y - _spriteDragStart.Y);
+		var position = e.GetPosition(ViewportContent);
+		var deltaX = (int)Math.Round(position.X - _spriteDragStart.X);
+		var deltaY = (int)Math.Round(position.Y - _spriteDragStart.Y);
 
 		var (minX, maxX) = HorizontalRange();
 		var (minY, maxY) = VerticalRange();
-		_offsetX = Math.Clamp(_dragStartOffsetX + dx, minX, maxX);
-		_offsetY = Math.Clamp(_dragStartOffsetY + dy, minY, maxY);
+		_offsetX = Math.Clamp(_dragStartOffsetX + deltaX, minX, maxX);
+		_offsetY = Math.Clamp(_dragStartOffsetY + deltaY, minY, maxY);
 
 		RenderAll();
 	}

@@ -107,17 +107,17 @@ public partial class PaintEditorWindow
 
 	private void UpdateResizeOverlay()
 	{
-		var inv = 1.0 / _zoom;
+		var inverseZoom = 1.0 / _zoom;
 
 		Canvas.SetLeft(CanvasBorderRect, 0);
 		Canvas.SetTop(CanvasBorderRect, 0);
 		CanvasBorderRect.Width = _canvasWidth;
 		CanvasBorderRect.Height = _canvasHeight;
-		CanvasBorderRect.StrokeThickness = BorderStrokePx * inv;
+		CanvasBorderRect.StrokeThickness = BorderStrokePx * inverseZoom;
 
-		var edgeThickness = ThumbEdgeThicknessPx * inv;
-		var cornerSize = ThumbCornerSizePx * inv;
-		var cornerBorder = new Thickness(ThumbCornerBorderPx * inv);
+		var edgeThickness = ThumbEdgeThicknessPx * inverseZoom;
+		var cornerSize = ThumbCornerSizePx * inverseZoom;
+		var cornerBorder = new Thickness(ThumbCornerBorderPx * inverseZoom);
 		var edgeThicknessHalf = edgeThickness / 2.0;
 		var cornerHalf = cornerSize / 2.0;
 
@@ -160,6 +160,6 @@ public partial class PaintEditorWindow
 		Canvas.SetLeft(ThumbBottomRight, _canvasWidth - cornerHalf);
 		Canvas.SetTop(ThumbBottomRight, _canvasHeight - cornerHalf);
 
-		ResizeSizeLabel.FontSize = ResizeLabelFontSizePx * inv;
+		ResizeSizeLabel.FontSize = ResizeLabelFontSizePx * inverseZoom;
 	}
 }
