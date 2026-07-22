@@ -59,6 +59,29 @@ apply.
   pull a role from another saved preset instead of a file on disk: a
   two-step picker (choose preset → choose role) with a "current role only"
   filter. Mixed presets are marked with a 🧩 badge in the gallery.
+- **Preset context menu** — right-click a tile in the gallery to edit,
+  rename, move it left/right, download it, or delete it, without opening
+  the editor.
+- **Export presets** — pick any set of presets and save them either as a
+  `.cursorpalette` bundle (full-fidelity: roles, locked roles, and cursor
+  size are preserved, and roles borrowed from other presets are copied in
+  so the file is self-contained and safe to share) or as a plain ZIP
+  archive with the raw `.cur`/`.ani` files for use outside the app. Both are
+  saved to the Downloads folder.
+- **Import presets** — pick a `.cursorpalette` bundle or a `.zip`/`.rar`/
+  `.7z` archive (via the Import button or by dropping the file onto the
+  main window), choose which presets to bring in, and they're added to
+  the gallery as new presets. Importing a bundle created by a newer,
+  incompatible version of the app is detected and blocked with a clear
+  message.
+- **Update checker** — the footer shows whether the app is up to date and
+  lets you download and install a new version in one click, or check again
+  on demand.
+- **Built-in help on every screen** — the ⓘ button in the top-right corner
+  of every window opens an infobox that explains everything on that
+  specific screen: the main gallery, the preset editor, the pivot point
+  editor, export/import windows, and the role/preset pickers all have
+  their own contextual help, with independent text zoom controls.
 
 ## How it works
 
