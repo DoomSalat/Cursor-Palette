@@ -157,5 +157,6 @@
 	<sys:String x:Key="S.Toast.Imported">{0} Preset(s) importiert</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">Presets konnten nicht exportiert werden: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Diese Datei ist kein erkanntes Cursor-Palette-Preset-Paket.</sys:String>
+	<sys:String x:Key="S.Error.ImportVersionUnsupported">Dieses Preset-Paket wurde mit einer neueren Version von Cursor Palette erstellt (Format {0}, diese App unterstützt bis {1}). Aktualisieren Sie die App, um es zu importieren.</sys:String>
 
 </ResourceDictionary>

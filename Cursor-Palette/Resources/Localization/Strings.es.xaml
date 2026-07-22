@@ -166,5 +166,6 @@
 	<sys:String x:Key="S.Toast.Imported">Se importaron {0} preset(s)</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">No se pudieron exportar los presets: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Este archivo no es un paquete de presets de Cursor Palette reconocido.</sys:String>
+	<sys:String x:Key="S.Error.ImportVersionUnsupported">Este paquete de preajustes fue creado con una versión más reciente de Cursor Palette (formato {0}, esta app admite hasta {1}). Actualiza la app para importarlo.</sys:String>
 
 </ResourceDictionary>

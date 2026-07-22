@@ -166,5 +166,6 @@
 	<sys:String x:Key="S.Toast.Imported">Импортировано пресетов: {0}</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">Не удалось экспортировать пресеты: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Этот файл не распознан как пакет пресетов Cursor Palette.</sys:String>
+	<sys:String x:Key="S.Error.ImportVersionUnsupported">Этот пакет пресетов создан более новой версией Cursor Palette (формат {0}, эта версия приложения поддерживает до {1}). Обновите приложение, чтобы импортировать его.</sys:String>
 
 </ResourceDictionary>

@@ -157,5 +157,6 @@
 	<sys:String x:Key="S.Toast.Imported">已导入 {0} 个预设</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">导出预设失败：{0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">此文件不是可识别的 Cursor Palette 预设包。</sys:String>
+	<sys:String x:Key="S.Error.ImportVersionUnsupported">此预设包由更新版本的 Cursor Palette 创建（格式 {0}，此应用支持到 {1}）。请更新应用后再导入。</sys:String>
 
 </ResourceDictionary>

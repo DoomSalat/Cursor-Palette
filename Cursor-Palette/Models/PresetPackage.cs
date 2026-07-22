@@ -39,3 +39,16 @@ public sealed class ArchiveMarkerEntry
 	public required string Folder { get; set; }
 	public required string Name { get; set; }
 }
+
+public sealed class PackageVersionUnsupportedException : Exception
+{
+	public int FoundVersion { get; }
+	public int MaxSupportedVersion { get; }
+
+	public PackageVersionUnsupportedException(int foundVersion, int maxSupportedVersion)
+		: base($"Package version {foundVersion} is newer than the supported version {maxSupportedVersion}.")
+	{
+		FoundVersion = foundVersion;
+		MaxSupportedVersion = maxSupportedVersion;
+	}
+}

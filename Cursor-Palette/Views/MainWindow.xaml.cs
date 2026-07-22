@@ -54,6 +54,7 @@ public partial class MainWindow : Window
 	private const string LocToastImported = "S.Toast.Imported";
 	private const string LocImportFileFilter = "S.Import.FileFilter";
 	private const string LocErrorImportUnrecognized = "S.Error.ImportUnrecognized";
+	private const string LocErrorImportVersionUnsupported = "S.Error.ImportVersionUnsupported";
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
 	private const string UpdateSpinnerStoryboardKey = "UpdateSpinnerStoryboard";
@@ -205,7 +206,18 @@ public partial class MainWindow : Window
 		if (dialog.ShowDialog(this) != true)
 			return;
 
-		var detected = PresetPackageService.TryDetectPackage(dialog.FileName);
+		DetectedPackage? detected;
+		try
+		{
+			detected = PresetPackageService.TryDetectPackage(dialog.FileName);
+		}
+		catch (PackageVersionUnsupportedException exception)
+		{
+			MessageBox.Show(Loc.Format(LocErrorImportVersionUnsupported, exception.FoundVersion, exception.MaxSupportedVersion),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
+			return;
+		}
+
 		if (detected == null)
 		{
 			MessageBox.Show(Loc.Get(LocErrorImportUnrecognized),
@@ -1252,7 +1264,18 @@ public partial class MainWindow : Window
 		var packagePath = paths.FirstOrDefault(path => File.Exists(path) && PresetPackageService.IsSupportedPackageFile(path));
 		if (packagePath != null)
 		{
-			var detected = PresetPackageService.TryDetectPackage(packagePath);
+			DetectedPackage? detected;
+			try
+			{
+				detected = PresetPackageService.TryDetectPackage(packagePath);
+			}
+			catch (PackageVersionUnsupportedException exception)
+			{
+				MessageBox.Show(Loc.Format(LocErrorImportVersionUnsupported, exception.FoundVersion, exception.MaxSupportedVersion),
+					Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
+				return;
+			}
+
 			if (detected != null)
 			{
 				ImportPackage(detected);

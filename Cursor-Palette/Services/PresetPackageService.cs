@@ -4,14 +4,6 @@ using CursorPalette.Models;
 
 namespace CursorPalette.Services;
 
-/// <summary>
-/// Multi-preset export/import. Two package kinds share one on-disk zip shape:
-/// a "bundle" (full-fidelity, self-contained manifests under presets/{id}/) that round-trips
-/// perfectly back into the app, and a plain "archive" (raw .cur/.ani files per preset folder)
-/// meant for use outside the app. Both carry a small marker file so drag-and-drop and the
-/// import dialog can recognize them and route to the multi-select picker instead of the
-/// single-preset "create from dropped files" flow.
-/// </summary>
 public static class PresetPackageService
 {
 	public const string BundleExtension = ".cursorpalette";
@@ -163,8 +155,15 @@ public static class PresetPackageService
 		}
 
 		var bundleMarkerPath = Path.Combine(extractedDir, BundleMarkerFileName);
-		if (File.Exists(bundleMarkerPath) && TryReadJson<PackageMarker>(bundleMarkerPath)?.Format == BundleFormatId)
+		var bundleMarker = File.Exists(bundleMarkerPath) ? TryReadJson<PackageMarker>(bundleMarkerPath) : null;
+		if (bundleMarker?.Format == BundleFormatId)
 		{
+			if (bundleMarker.Version > FormatVersion)
+			{
+				TryDeleteDir(extractedDir);
+				throw new PackageVersionUnsupportedException(bundleMarker.Version, FormatVersion);
+			}
+
 			var entries = new List<PackageEntry>();
 			var presetsRoot = Path.Combine(extractedDir, PresetsFolderName);
 
@@ -203,8 +202,15 @@ public static class PresetPackageService
 		}
 
 		var archiveMarkerPath = Path.Combine(extractedDir, ArchiveMarkerFileName);
-		if (File.Exists(archiveMarkerPath) && TryReadJson<ArchiveMarker>(archiveMarkerPath) is { Format: ArchiveFormatId } archiveMarker)
+		var archiveMarker = File.Exists(archiveMarkerPath) ? TryReadJson<ArchiveMarker>(archiveMarkerPath) : null;
+		if (archiveMarker?.Format == ArchiveFormatId)
 		{
+			if (archiveMarker.Version > FormatVersion)
+			{
+				TryDeleteDir(extractedDir);
+				throw new PackageVersionUnsupportedException(archiveMarker.Version, FormatVersion);
+			}
+
 			var entries = archiveMarker.Presets
 				.Where(entry => Directory.Exists(Path.Combine(extractedDir, entry.Folder)))
 				.Select(entry =>

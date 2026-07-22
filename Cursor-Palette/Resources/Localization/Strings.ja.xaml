@@ -157,5 +157,6 @@
 	<sys:String x:Key="S.Toast.Imported">{0} 個のプリセットをインポートしました</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">プリセットのエクスポートに失敗しました: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">このファイルは認識可能な Cursor Palette プリセットパッケージではありません。</sys:String>
+	<sys:String x:Key="S.Error.ImportVersionUnsupported">このプリセットパッケージは新しいバージョンの Cursor Palette で作成されています（フォーマット {0}、このアプリは {1} までサポート）。インポートするにはアプリを更新してください。</sys:String>
 
 </ResourceDictionary>
