@@ -721,8 +721,7 @@ public partial class PresetEditorWindow : Window
 				continue;
 
 			var extension = Path.GetExtension(resolvedPath);
-			var baseName = ExportFileNaming.Build(presetName, slot.Role.RegistryName, slot.Role.RegistryName);
-			var destPath = Path.Combine(destDir, $"{baseName}{extension}");
+			var destPath = Path.Combine(destDir, $"{slot.Role.RegistryName}{extension}");
 			File.Copy(resolvedPath, destPath);
 			var now = DateTime.Now;
 			File.SetCreationTime(destPath, now);
