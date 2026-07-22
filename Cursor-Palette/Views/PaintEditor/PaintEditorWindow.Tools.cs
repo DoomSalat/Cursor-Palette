@@ -99,6 +99,20 @@ public partial class PaintEditorWindow
 
 	private void OnCanvasToolApplyClick(object sender, RoutedEventArgs e)
 	{
+		if (_hasCanvasResizeSnapshot)
+		{
+			PushHistory(new EditorSnapshot(
+				(byte[])_spriteBgra.Clone(),
+				_canvasResizeSnapshotWidth,
+				_canvasResizeSnapshotHeight,
+				_canvasResizeSnapshotOffsetX,
+				_canvasResizeSnapshotOffsetY,
+				_hotspotOffsetX,
+				_hotspotOffsetY,
+				_canvasResizeSnapshotPanX,
+				_canvasResizeSnapshotPanY));
+		}
+
 		_hasCanvasResizeSnapshot = false;
 		SetTool(AppState.PaintEditorToolMove);
 	}

@@ -44,6 +44,27 @@ public partial class PaintEditorWindow
 		if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt))
 			RefreshEyedropperVisuals();
 
+		if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+		{
+			if (e.Key == Key.Z)
+			{
+				if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+					Redo();
+				else
+					Undo();
+
+				e.Handled = true;
+				return;
+			}
+
+			if (e.Key == Key.Y)
+			{
+				Redo();
+				e.Handled = true;
+				return;
+			}
+		}
+
 		if (Keyboard.Modifiers != ModifierKeys.None)
 			return;
 

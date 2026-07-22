@@ -76,6 +76,8 @@ public partial class PaintEditorWindow
 
 	private void OnHotspotPresetClick(object sender, RoutedEventArgs e)
 	{
+		PushHistory();
+
 		var (fractionX, fractionY) = ParseFraction((Button)sender);
 
 		var canvasX = Math.Clamp((int)Math.Round(fractionX * (_canvasWidth - 1)), 0, _canvasWidth - 1);

@@ -201,6 +201,29 @@
 								  Click="OnToolHotspotClick">
 						<TextBlock Text="🎯" FontSize="16" />
 					</ToggleButton>
+
+					<Border Width="1" Height="28" Background="{StaticResource Brush.Border}" Margin="8,0,4,0" />
+
+					<Button x:Name="UndoButton"
+							Style="{StaticResource Style.Button}"
+							Padding="8,6"
+							Margin="0,0,4,0"
+							MinWidth="44"
+							MinHeight="40"
+							ToolTip="{DynamicResource S.Editor.Undo.Tooltip}"
+							Click="OnUndoClick">
+						<TextBlock Text="↶" FontSize="18" />
+					</Button>
+					<Button x:Name="RedoButton"
+							Style="{StaticResource Style.Button}"
+							Padding="8,6"
+							Margin="0,0,0,0"
+							MinWidth="44"
+							MinHeight="40"
+							ToolTip="{DynamicResource S.Editor.Redo.Tooltip}"
+							Click="OnRedoClick">
+						<TextBlock Text="↷" FontSize="18" />
+					</Button>
 				</StackPanel>
 			</DockPanel>
 		</Border>

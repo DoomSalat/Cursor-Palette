@@ -69,6 +69,9 @@ public partial class PaintEditorWindow
 		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolFill)
 		{
 			var pos = GetCanvasPosition(e);
+
+			PushHistory();
+
 			FloodFill((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y));
 			RenderAll();
 			e.Handled = true;
@@ -78,6 +81,8 @@ public partial class PaintEditorWindow
 
 		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolHotspot)
 		{
+			PushHistory();
+
 			_isDraggingHotspot = true;
 			SetHotspotFromCanvasPosition(GetCanvasPosition(e));
 			ViewportHost.CaptureMouse();

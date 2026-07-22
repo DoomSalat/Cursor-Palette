@@ -28,6 +28,8 @@ public partial class PaintEditorWindow
 
 	private void ApplyCanvasSize(int width, int height, int anchorX, int anchorY)
 	{
+		PushHistory();
+
 		width = Math.Clamp(width, MinCanvasDimension, MaxCanvasDimension);
 		height = Math.Clamp(height, MinCanvasDimension, MaxCanvasDimension);
 

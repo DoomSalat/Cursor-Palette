@@ -24,6 +24,8 @@ public partial class PaintEditorWindow
 
 	private void PaintBegin(Point position)
 	{
+		PushHistory();
+
 		_isPainting = true;
 		_hasLastPaintPosition = false;
 
