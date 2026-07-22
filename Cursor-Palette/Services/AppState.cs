@@ -29,6 +29,13 @@ public static class AppState
 		public double InfoTextScale { get; set; } = InfoTextScaleDefault;
 		public string? ThemeMode { get; set; }
 		public string? Language { get; set; }
+		public bool ShowSpriteBounds { get; set; }
+		public double PositionEditorWidth { get; set; } = 680;
+		public double PositionEditorHeight { get; set; } = 600;
+		public double HotspotEditorWidth { get; set; } = 680;
+		public double HotspotEditorHeight { get; set; } = 600;
+		public double MainWindowWidth { get; set; } = 860;
+		public double MainWindowHeight { get; set; } = 640;
 	}
 
 	public static string? GetActivePresetId()
@@ -129,6 +136,52 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.Language = code;
+
+		SaveSettings(settings);
+	}
+
+	public static bool GetShowSpriteBounds() => LoadSettings().ShowSpriteBounds;
+
+	public static void SetShowSpriteBounds(bool value)
+	{
+		var settings = LoadSettings();
+		settings.ShowSpriteBounds = value;
+
+		SaveSettings(settings);
+	}
+
+	public static double GetPositionEditorWidth() => LoadSettings().PositionEditorWidth;
+	public static double GetPositionEditorHeight() => LoadSettings().PositionEditorHeight;
+
+	public static void SetPositionEditorSize(double width, double height)
+	{
+		var settings = LoadSettings();
+		settings.PositionEditorWidth = width;
+		settings.PositionEditorHeight = height;
+
+		SaveSettings(settings);
+	}
+
+	public static double GetHotspotEditorWidth() => LoadSettings().HotspotEditorWidth;
+	public static double GetHotspotEditorHeight() => LoadSettings().HotspotEditorHeight;
+
+	public static void SetHotspotEditorSize(double width, double height)
+	{
+		var settings = LoadSettings();
+		settings.HotspotEditorWidth = width;
+		settings.HotspotEditorHeight = height;
+
+		SaveSettings(settings);
+	}
+
+	public static double GetMainWindowWidth() => LoadSettings().MainWindowWidth;
+	public static double GetMainWindowHeight() => LoadSettings().MainWindowHeight;
+
+	public static void SetMainWindowSize(double width, double height)
+	{
+		var settings = LoadSettings();
+		settings.MainWindowWidth = width;
+		settings.MainWindowHeight = height;
 
 		SaveSettings(settings);
 	}

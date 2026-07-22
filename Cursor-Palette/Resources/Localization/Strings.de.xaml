@@ -47,6 +47,8 @@
 	<sys:String x:Key="S.Editor.ClearSlot">Entfernen</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">Ankerpunkt festlegen</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">Nicht verfügbar für verknüpfte Rollen</sys:String>
+	<sys:String x:Key="S.Editor.Position.Tooltip">Sprite-Position und Leinwandgröße bearbeiten</sys:String>
+	<sys:String x:Key="S.Editor.Position.Disabled.Tooltip">Nicht verfügbar für verknüpfte Rollen</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">System</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Datei auf einen Platz ziehen, um diese Rolle zu ersetzen</sys:String>
@@ -68,6 +70,16 @@
 	<sys:String x:Key="S.Hotspot.Title">Ankerpunkt</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">Marker auf die gewünschte Klickposition ziehen</sys:String>
 	<sys:String x:Key="S.Hotspot.Presets">Schnellauswahl</sys:String>
+
+	<sys:String x:Key="S.Position.Title">Sprite-Position</sys:String>
+	<sys:String x:Key="S.Position.Hint">Verschieben Sie das Bild auf der Leinwand oder ändern Sie die Leinwandgröße</sys:String>
+	<sys:String x:Key="S.Position.CanvasWidth">Leinwandbreite</sys:String>
+	<sys:String x:Key="S.Position.CanvasHeight">Leinwandhöhe</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize">Anwenden</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize.Tooltip">Leinwandgröße ändern</sys:String>
+	<sys:String x:Key="S.Position.Move">Verschieben</sys:String>
+	<sys:String x:Key="S.Position.Snap">An Kante ausrichten</sys:String>
+	<sys:String x:Key="S.Position.ShowSpriteBounds">Sprite-Grenzen</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">Neues Preset</sys:String>
 	<sys:String x:Key="S.WindowsDefault">Standard</sys:String>
@@ -109,6 +121,8 @@
 	<sys:String x:Key="S.Info.PresetPicker">📂 Preset wählen&#x0a;&#x0a;Wählen Sie ein Preset, um eine Cursor-Rolle zu übernehmen.&#x0a;&#x0a;Linksklick auf Zelle — Preset wählen und zur Rollenauswahl gehen.&#x0a;Zahl unten — wie viele Rollen im Preset gefüllt sind.</sys:String>
 
 	<sys:String x:Key="S.Info.Hotspot">🎯 Ankerpunkt&#x0a;&#x0a;Der Ankerpunkt ist die Position, an der der Klick registriert wird.&#x0a;&#x0a;🖱️ Marker (Kreis) auf dem Cursor-Bild ziehen.&#x0a;   • Oder auf die gewünschte Stelle im Vorschaubild klicken.&#x0a;&#x0a;⚡ Schnellauswahl — 9 Schaltflächen mit typischen Positionen:&#x0a;   ↖ ↑ ↗   — obere Reihe&#x0a;   ← ✛ →   — mittlere Reihe (✛ = Mitte)&#x0a;   ↙ ↓ ↘   — untere Reihe&#x0a;&#x0a;Koordinaten unten links angezeigt.&#x0a;💾 "Speichern" — Ankerpunkt anwenden.</sys:String>
+
+	<sys:String x:Key="S.Info.Position">🖌️ Sprite-Position&#x0a;&#x0a;Verschiebt das Cursorbild innerhalb seiner Leinwand oder ändert die Leinwandgröße.&#x0a;&#x0a;🕹️ Pfeile — Bild um 1 Pixel verschieben. Wird deaktiviert, sobald das Bild diese Kante erreicht.&#x0a;⚡ Ausrichtungsraster — 9 Schaltflächen, um das Bild sofort an eine Kante/Ecke zu drücken oder zu zentrieren.&#x0a;📐 Leinwandbreite/-höhe — Größe ändern, dann "Anwenden".&#x0a;&#x0a;Koordinaten unten links angezeigt.&#x0a;💾 "Speichern" — Änderungen übernehmen.</sys:String>
 
 	<sys:String x:Key="S.Info.Export">📤 Presets exportieren&#x0a;&#x0a;🖼️ Kacheln — auf ein Preset klicken, um es aus-/abzuwählen (blauer Rahmen = ausgewählt).&#x0a;   • "Alle auswählen" / "Auswahl aufheben" — Schaltflächen oben.&#x0a;&#x0a;📝 Dateiname — optional; einen Namen für die exportierte Datei eingeben oder leer lassen, um den Standardnamen zu verwenden.&#x0a;&#x0a;🗂️ Bundle vs. ZIP-Archiv — die beiden Export-Schaltflächen erzeugen unterschiedliche Dateien:&#x0a;   • Bundle (.cursorpalette) — vollständige Kopie: alle Rollen, gesperrte Rollen und die Cursorgröße bleiben erhalten, und aus anderen Presets geliehene Rollen werden mitkopiert, sodass die Datei in sich geschlossen ist. Gedacht zum späteren vollständigen Re-Import in diese App.&#x0a;   • ZIP-Archiv — ein Ordner pro Preset mit den rohen .cur/.ani-Dateien, zur Verwendung außerhalb dieser App oder mit anderen Tools. Gesperrte Rollen und die eigene Cursorgröße werden nicht gespeichert — beim Re-Import werden nur die Cursordateien selbst wiederhergestellt.&#x0a;&#x0a;⬇ Beide werden im Downloads-Ordner gespeichert, und der Explorer öffnet sich mit der neuen Datei markiert.</sys:String>
 

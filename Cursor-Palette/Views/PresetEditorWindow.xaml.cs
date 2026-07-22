@@ -41,6 +41,7 @@ public partial class PresetEditorWindow : Window
 		public TextBlock FileText { get; init; } = null!;
 		public Button ClearButton { get; init; } = null!;
 		public Button PivotButton { get; init; } = null!;
+		public Button PositionButton { get; init; } = null!;
 		public Button LockButton { get; init; } = null!;
 		public Rectangle LockIcon { get; init; } = null!;
 		public Border DownloadButton { get; init; } = null!;
@@ -69,6 +70,7 @@ public partial class PresetEditorWindow : Window
 	private const double HotspotDotSize = 8;
 	private const string ClearButtonContent = "✕";
 	private const string PivotButtonContent = "🎯";
+	private const string PositionButtonContent = "🖌";
 	private const string PickExistingButtonContent = "🧩";
 	private const string LinkIconUri = "pack://application:,,,/Resources/LinkIcon32.png";
 	private const double IconButtonSize = 28;
@@ -102,6 +104,8 @@ public partial class PresetEditorWindow : Window
 	private const string LocEditorPickExisting = "S.Editor.PickExisting";
 	private const string LocEditorPivotTooltip = "S.Editor.Pivot.Tooltip";
 	private const string LocEditorPivotDisabledTooltip = "S.Editor.Pivot.Disabled.Tooltip";
+	private const string LocEditorPositionTooltip = "S.Editor.Position.Tooltip";
+	private const string LocEditorPositionDisabledTooltip = "S.Editor.Position.Disabled.Tooltip";
 	private const string LocEditorClearSlot = "S.Editor.ClearSlot";
 	private const string LocEditorLockTooltip = "S.Editor.Lock.Tooltip";
 	private const string LocEditorUnlockTooltip = "S.Editor.Unlock.Tooltip";
@@ -327,6 +331,19 @@ public partial class PresetEditorWindow : Window
 			Visibility = Visibility.Collapsed,
 		};
 
+		var positionButton = new Button
+		{
+			Content = PositionButtonContent,
+			Style = (Style)Application.Current.Resources[StyleButton],
+			FontSize = ButtonFontSize,
+			Width = IconButtonSize,
+			Height = IconButtonSize,
+			Padding = new Thickness(0),
+			Margin = new Thickness(6, 0, 0, 0),
+			ToolTip = Loc.Get(LocEditorPositionTooltip),
+			Visibility = Visibility.Collapsed,
+		};
+
 		var iconButtonsRow = new StackPanel
 		{
 			Orientation = Orientation.Horizontal,
@@ -335,6 +352,7 @@ public partial class PresetEditorWindow : Window
 		};
 		iconButtonsRow.Children.Add(pickExistingButton);
 		iconButtonsRow.Children.Add(pivotButton);
+		iconButtonsRow.Children.Add(positionButton);
 
 		var primaryButtons = new StackPanel
 		{
@@ -464,6 +482,7 @@ public partial class PresetEditorWindow : Window
 			FileText = fileText,
 			ClearButton = clearButton,
 			PivotButton = pivotButton,
+			PositionButton = positionButton,
 			LockButton = lockButton,
 			LockIcon = lockIcon,
 			DownloadButton = downloadButton,
@@ -477,6 +496,7 @@ public partial class PresetEditorWindow : Window
 		browseButton.Click += (_, _) => BrowseForSlot(slot);
 		pickExistingButton.Click += (_, _) => PickExistingForSlot(slot);
 		pivotButton.Click += (_, _) => OpenHotspotEditor(slot);
+		positionButton.Click += (_, _) => OpenPositionEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 		lockButton.Click += (_, _) => SetSlotLocked(slot, !slot.IsLocked);
 		downloadButton.MouseLeftButtonUp += (_, e) =>
@@ -544,6 +564,12 @@ public partial class PresetEditorWindow : Window
 		slot.PivotButton.ToolTip = Loc.Get(LocEditorPivotTooltip);
 		slot.DownloadButton.Visibility = Visibility.Visible;
 
+		slot.PositionButton.Visibility = CursorCanvasService.IsSupportedFile(path)
+			? Visibility.Visible
+			: Visibility.Collapsed;
+		slot.PositionButton.IsEnabled = true;
+		slot.PositionButton.ToolTip = Loc.Get(LocEditorPositionTooltip);
+
 		UpdateHotspotDot(slot);
 	}
 
@@ -567,6 +593,12 @@ public partial class PresetEditorWindow : Window
 		slot.PivotButton.IsEnabled = false;
 		slot.PivotButton.ToolTip = Loc.Get(LocEditorPivotDisabledTooltip);
 		slot.DownloadButton.Visibility = Visibility.Visible;
+
+		slot.PositionButton.Visibility = CursorCanvasService.IsSupportedFile(resolvedPath)
+			? Visibility.Visible
+			: Visibility.Collapsed;
+		slot.PositionButton.IsEnabled = false;
+		slot.PositionButton.ToolTip = Loc.Get(LocEditorPositionDisabledTooltip);
 
 		UpdateHotspotDot(slot);
 	}
@@ -592,6 +624,7 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Foreground = Brush(BrushTextDim);
 		slot.ClearButton.Visibility = Visibility.Collapsed;
 		slot.PivotButton.Visibility = Visibility.Collapsed;
+		slot.PositionButton.Visibility = Visibility.Collapsed;
 		slot.DownloadButton.Visibility = Visibility.Collapsed;
 		slot.HotspotDot.Visibility = Visibility.Collapsed;
 		slot.LinkBadge.Visibility = Visibility.Collapsed;
@@ -725,6 +758,31 @@ public partial class PresetEditorWindow : Window
 		var tempPath = Path.Combine(Path.GetTempPath(),
 			$"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
 		CursorHotspotService.WriteWithHotspot(resolvedPath, tempPath, editor.ResultX, editor.ResultY);
+		CursorPreviewService.Invalidate(tempPath);
+
+		SetSlotSource(slot, tempPath);
+	}
+
+	private void OpenPositionEditor(Slot slot)
+	{
+		var resolvedPath = GetSlotResolvedPath(slot);
+
+		if (resolvedPath == null)
+			return;
+
+		var image = CursorCanvasService.TryRead(resolvedPath);
+
+		if (image == null)
+			return;
+
+		var editor = new PositionEditorWindow(image) { Owner = this };
+
+		if (editor.ShowDialog() != true || editor.Result == null)
+			return;
+
+		var tempPath = Path.Combine(Path.GetTempPath(),
+			$"cursor-palette-position-{Guid.NewGuid():N}{CurExtension}");
+		CursorCanvasService.Write(tempPath, editor.Result);
 		CursorPreviewService.Invalidate(tempPath);
 
 		SetSlotSource(slot, tempPath);

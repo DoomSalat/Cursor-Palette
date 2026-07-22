@@ -7,41 +7,6 @@
 		WindowStartupLocation="CenterOwner"
 		ShowInTaskbar="False">
 
-	<Window.Resources>
-		<Style x:Key="Style.ToggleCheckBox" TargetType="CheckBox">
-			<Setter Property="Foreground" Value="{StaticResource Brush.Text}" />
-			<Setter Property="Cursor" Value="Hand" />
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="CheckBox">
-						<StackPanel Orientation="Horizontal">
-							<Border x:Name="Box" Width="18" Height="18"
-									CornerRadius="4"
-									Background="{StaticResource Brush.Surface}"
-									BorderBrush="{StaticResource Brush.Border}"
-									BorderThickness="1">
-								<Path x:Name="CheckMark"
-									  Width="10" Height="8" Stretch="Uniform"
-									  Fill="{StaticResource Brush.Accent}"
-									  Data="M 0,4 L 3,7 L 9,0"
-									  Visibility="Collapsed"
-									  HorizontalAlignment="Center"
-									  VerticalAlignment="Center" />
-							</Border>
-							<ContentPresenter VerticalAlignment="Center" Margin="8,0,0,0" />
-						</StackPanel>
-						<ControlTemplate.Triggers>
-							<Trigger Property="IsChecked" Value="True">
-								<Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
-								<Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
-							</Trigger>
-						</ControlTemplate.Triggers>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-	</Window.Resources>
-
 	<DockPanel>
 		<DockPanel.LayoutTransform>
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />

@@ -11,6 +11,7 @@ public partial class HotspotEditorWindow : Window
 {
 	private const double MaxDisplaySize = 320;
 	private const double MaxScaleFactor = 10;
+	private const double UiZoomStep = 0.1;
 	private const string CoordsFormat = "X: {0}   Y: {1}";
 
 	private const string LocInfoTitle = "S.Info.Title";
@@ -32,9 +33,13 @@ public partial class HotspotEditorWindow : Window
 	{
 		InitializeComponent();
 
+		Width = AppState.GetHotspotEditorWidth();
+		Height = AppState.GetHotspotEditorHeight();
+
 		var uiScale = AppState.GetUiScale();
 		UiScaleTransform.ScaleX = uiScale;
 		UiScaleTransform.ScaleY = uiScale;
+		UiZoomText.Text = $"{(int)Math.Round(uiScale * 100)}%";
 
 		_nativeWidth = hotspot.Width;
 		_nativeHeight = hotspot.Height;
@@ -157,5 +162,23 @@ public partial class HotspotEditorWindow : Window
 		ResultX = _x;
 		ResultY = _y;
 		DialogResult = true;
+	}
+
+	private void OnUiZoomOutClick(object sender, RoutedEventArgs e) => AdjustUiZoom(-UiZoomStep);
+	private void OnUiZoomInClick(object sender, RoutedEventArgs e) => AdjustUiZoom(UiZoomStep);
+
+	private void AdjustUiZoom(double delta)
+	{
+		var scale = Math.Clamp(Math.Round(AppState.GetUiScale() + delta, 2), AppState.UiScaleMin, AppState.UiScaleMax);
+		UiScaleTransform.ScaleX = scale;
+		UiScaleTransform.ScaleY = scale;
+		UiZoomText.Text = $"{(int)Math.Round(scale * 100)}%";
+		AppState.SetUiScale(scale);
+	}
+
+	protected override void OnClosed(EventArgs e)
+	{
+		AppState.SetHotspotEditorSize(Width, Height);
+		base.OnClosed(e);
 	}
 }

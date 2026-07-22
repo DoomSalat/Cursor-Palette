@@ -100,6 +100,9 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 
+		Width = AppState.GetMainWindowWidth();
+		Height = AppState.GetMainWindowHeight();
+
 		_activePresetId = AppState.GetActivePresetId();
 
 		_baselineSizePx = RegistryCursorService.GetBaseSize();
@@ -1350,6 +1353,12 @@ public partial class MainWindow : Window
 		var extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
 
 		return extension is CurExtension or AniExtension;
+	}
+
+	protected override void OnClosed(EventArgs e)
+	{
+		AppState.SetMainWindowSize(Width, Height);
+		base.OnClosed(e);
 	}
 }
 

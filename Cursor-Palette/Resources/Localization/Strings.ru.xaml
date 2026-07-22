@@ -52,6 +52,8 @@
 	<sys:String x:Key="S.Editor.ClearSlot">Убрать</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">Настроить точку опоры</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">Недоступно для связанных ролей</sys:String>
+	<sys:String x:Key="S.Editor.Position.Tooltip">Редактировать позицию спрайта и размер холста</sys:String>
+	<sys:String x:Key="S.Editor.Position.Disabled.Tooltip">Недоступно для связанных ролей</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">системный</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">авто</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Перетащите файл на слот, чтобы заменить роль</sys:String>
@@ -77,6 +79,16 @@
 	<sys:String x:Key="S.Hotspot.Title">Точка опоры</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">Перетащите маркер в точку, где должен срабатывать клик</sys:String>
 	<sys:String x:Key="S.Hotspot.Presets">Быстрая установка</sys:String>
+
+	<sys:String x:Key="S.Position.Title">Позиция спрайта</sys:String>
+	<sys:String x:Key="S.Position.Hint">Переместите изображение по холсту или измените размер холста</sys:String>
+	<sys:String x:Key="S.Position.CanvasWidth">Ширина холста</sys:String>
+	<sys:String x:Key="S.Position.CanvasHeight">Высота холста</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize">Применить</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize.Tooltip">Изменить размер холста</sys:String>
+	<sys:String x:Key="S.Position.Move">Сдвинуть</sys:String>
+	<sys:String x:Key="S.Position.Snap">Прижать к краю</sys:String>
+	<sys:String x:Key="S.Position.ShowSpriteBounds">Границы спрайта</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">Новый пресет</sys:String>
 	<sys:String x:Key="S.WindowsDefault">По умолчанию</sys:String>
@@ -118,6 +130,8 @@
 	<sys:String x:Key="S.Info.PresetPicker">📂 Выбор пресета&#x0a;&#x0a;Выберите пресет, из которого вы хотите взять роль курсора.&#x0a;&#x0a;ЛКМ по ячейке — выбрать пресет и перейти к выбору роли.&#x0a;Число внизу — сколько ролей заполнено в пресете.</sys:String>
 
 	<sys:String x:Key="S.Info.Hotspot">🎯 Точка опоры&#x0a;&#x0a;Точка опоры — место, где регистрируется клик курсора.&#x0a;&#x0a;🖱️ Перетащите маркер (кружок) на изображении курсора.&#x0a;   • Или кликните в нужное место на превью.&#x0a;&#x0a;⚡ Быстрая установка — 9 кнопок с типичными позициями:&#x0a;   ↖ ↑ ↗   — верхний ряд&#x0a;   ← ✛ →   — средний ряд (✛ = центр)&#x0a;   ↙ ↓ ↘   — нижний ряд&#x0a;&#x0a;Координаты показываются слева внизу.&#x0a;💾 «Сохранить» — применить точку опоры.</sys:String>
+
+	<sys:String x:Key="S.Info.Position">🖌️ Позиция спрайта&#x0a;&#x0a;Позволяет сдвинуть изображение курсора внутри холста или изменить размер самого холста.&#x0a;&#x0a;🕹️ Стрелки — сдвигают изображение на 1 пиксель. Кнопка отключается, когда край изображения упирается в край холста.&#x0a;⚡ Сетка прижатия — 9 кнопок, которые мгновенно прижимают изображение к нужному краю, углу или центрируют его.&#x0a;📐 Ширина/высота холста — задайте новый размер и нажмите «Применить».&#x0a;&#x0a;Координаты показываются слева внизу.&#x0a;💾 «Сохранить» — применить изменения.</sys:String>
 
 	<sys:String x:Key="S.Info.Export">📤 Экспорт пресетов&#x0a;&#x0a;🖼️ Плитки — кликните по пресету, чтобы выбрать/снять выбор (синяя рамка = выбран).&#x0a;   • «Выбрать всё» / «Выбрать ничего» — кнопки сверху.&#x0a;&#x0a;📝 Имя файла — необязательно; можно ввести своё имя для экспортируемого файла, а если оставить поле пустым — будет использовано имя по умолчанию.&#x0a;&#x0a;🗂️ Файл vs ZIP-архив — две кнопки экспорта создают разные файлы:&#x0a;   • Файл (.cursorpalette) — полная копия: сохраняются все роли, заблокированные роли и размер курсора, а роли, взятые из других пресетов, копируются внутрь — файл получается самодостаточным. Предназначен для полного обратного импорта в это приложение.&#x0a;   • ZIP-архив — по папке на пресет с исходными .cur/.ani файлами, для использования вне приложения или в других программах. Заблокированные роли и размер курсора не сохраняются — при обратном импорте восстановятся только сами файлы курсоров.&#x0a;&#x0a;⬇ Оба варианта сохраняются в папку «Загрузки», и после экспорта открывается проводник с выделенным файлом.</sys:String>
 

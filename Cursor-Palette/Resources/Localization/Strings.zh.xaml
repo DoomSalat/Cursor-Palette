@@ -47,6 +47,8 @@
 	<sys:String x:Key="S.Editor.ClearSlot">移除</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">设置热点</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">链接角色不可用</sys:String>
+	<sys:String x:Key="S.Editor.Position.Tooltip">编辑精灵位置和画布大小</sys:String>
+	<sys:String x:Key="S.Editor.Position.Disabled.Tooltip">链接角色不可用</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">系统</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">默认</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">将文件拖到某个槽位以替换该角色</sys:String>
@@ -68,6 +70,16 @@
 	<sys:String x:Key="S.Hotspot.Title">热点</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">将标记拖到应触发点击的位置</sys:String>
 	<sys:String x:Key="S.Hotspot.Presets">快速设置</sys:String>
+
+	<sys:String x:Key="S.Position.Title">精灵位置</sys:String>
+	<sys:String x:Key="S.Position.Hint">在画布内移动图像，或调整画布大小</sys:String>
+	<sys:String x:Key="S.Position.CanvasWidth">画布宽度</sys:String>
+	<sys:String x:Key="S.Position.CanvasHeight">画布高度</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize">应用</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize.Tooltip">调整画布大小</sys:String>
+	<sys:String x:Key="S.Position.Move">移动</sys:String>
+	<sys:String x:Key="S.Position.Snap">贴边</sys:String>
+	<sys:String x:Key="S.Position.ShowSpriteBounds">精灵边界</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">新建预设</sys:String>
 	<sys:String x:Key="S.WindowsDefault">默认</sys:String>
@@ -109,6 +121,8 @@
 	<sys:String x:Key="S.Info.PresetPicker">📂 选择预设&#x0a;&#x0a;选择一个预设来借用光标角色。&#x0a;&#x0a;左键点击单元格 — 选择预设并进入角色选择。&#x0a;底部数字 — 预设中已填充的角色数。</sys:String>
 
 	<sys:String x:Key="S.Info.Hotspot">🎯 热点&#x0a;&#x0a;热点是光标点击注册的位置。&#x0a;&#x0a;🖱️ 在光标图像上拖动标记（圆圈）。&#x0a;   • 或点击预览中所需的位置。&#x0a;&#x0a;⚡ 快速设置 — 9个按钮对应典型位置:&#x0a;   ↖ ↑ ↗   — 上排&#x0a;   ← ✛ →   — 中排（✛ = 中心）&#x0a;   ↙ ↓ ↘   — 下排&#x0a;&#x0a;坐标显示在左下角。&#x0a;💾 "保存" — 应用热点。</sys:String>
+
+	<sys:String x:Key="S.Info.Position">🖌️ 精灵位置&#x0a;&#x0a;在画布内移动光标图像，或调整画布本身的大小。&#x0a;&#x0a;🕹️ 箭头 — 将图像移动1像素。当图像到达该边缘时按钮会禁用。&#x0a;⚡ 贴靠网格 — 9个按钮，可立即将图像贴到边缘/角落或居中。&#x0a;📐 画布宽度/高度 — 更改大小后点击"应用"。&#x0a;&#x0a;坐标显示在左下角。&#x0a;💾 "保存" — 应用更改。</sys:String>
 
 	<sys:String x:Key="S.Info.Export">📤 导出预设&#x0a;&#x0a;🖼️ 卡片 — 点击预设即可选中/取消选中（蓝色边框 = 已选中）。&#x0a;   • "全选" / "全不选" — 顶部按钮。&#x0a;&#x0a;📝 文件名 — 可选；可以为导出的文件输入自定义名称，留空则使用默认名称。&#x0a;&#x0a;🗂️ 包文件 vs ZIP 压缩包 — 两个导出按钮生成不同的文件:&#x0a;   • 包文件 (.cursorpalette) — 完整副本：保留所有角色、锁定的角色和光标大小，从其他预设借用的角色也会被复制进来，因此文件是自包含的。用于以后完整地重新导入本应用。&#x0a;   • ZIP 压缩包 — 每个预设一个文件夹，包含原始的 .cur/.ani 文件，供本应用之外或其他工具使用。不会保存锁定的角色和自定义光标大小 — 重新导入时只会恢复光标文件本身。&#x0a;&#x0a;⬇ 两者都会保存到"下载"文件夹，导出后资源管理器会自动打开并选中新文件。</sys:String>
 

@@ -47,6 +47,8 @@
 	<sys:String x:Key="S.Editor.ClearSlot">削除</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">基準点を設定</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Disabled.Tooltip">リンクされたロールには使用できません</sys:String>
+	<sys:String x:Key="S.Editor.Position.Tooltip">スプライトの位置とキャンバスサイズを編集</sys:String>
+	<sys:String x:Key="S.Editor.Position.Disabled.Tooltip">リンクされたロールには使用できません</sys:String>
 	<sys:String x:Key="S.Editor.EmptySlot">システム</sys:String>
 	<sys:String x:Key="S.Editor.PlaceholderBadge">既定</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">ファイルをスロットにドロップするとそのロールが置き換わります</sys:String>
@@ -68,6 +70,16 @@
 	<sys:String x:Key="S.Hotspot.Title">基準点</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">クリック位置になるようマーカーをドラッグしてください</sys:String>
 	<sys:String x:Key="S.Hotspot.Presets">クイック設定</sys:String>
+
+	<sys:String x:Key="S.Position.Title">スプライトの位置</sys:String>
+	<sys:String x:Key="S.Position.Hint">画像をキャンバス内で移動するか、キャンバスのサイズを変更します</sys:String>
+	<sys:String x:Key="S.Position.CanvasWidth">キャンバスの幅</sys:String>
+	<sys:String x:Key="S.Position.CanvasHeight">キャンバスの高さ</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize">適用</sys:String>
+	<sys:String x:Key="S.Position.ApplyCanvasSize.Tooltip">キャンバスのサイズを変更</sys:String>
+	<sys:String x:Key="S.Position.Move">移動</sys:String>
+	<sys:String x:Key="S.Position.Snap">端に寄せる</sys:String>
+	<sys:String x:Key="S.Position.ShowSpriteBounds">スプライト範囲</sys:String>
 
 	<sys:String x:Key="S.DefaultPresetName">新しいプリセット</sys:String>
 	<sys:String x:Key="S.WindowsDefault">既定</sys:String>
@@ -109,6 +121,8 @@
 	<sys:String x:Key="S.Info.PresetPicker">📂 プリセット選択&#x0a;&#x0a;カーソルロールを借用するプリセットを選びます。&#x0a;&#x0a;セルを左クリック — プリセットを選択し、ロール選択へ進む。&#x0a;下の数字 — プリセット内のロール充填数。</sys:String>
 
 	<sys:String x:Key="S.Info.Hotspot">🎯 基準点&#x0a;&#x0a;基準点はカーソルのクリックが登録される位置です。&#x0a;&#x0a;🖱️ カーソル画像上のマーカー（円）をドラッグ。&#x0a;   • またはプレビューの目的の位置をクリック。&#x0a;&#x0a;⚡ クイック設定 — 9つのボタンで典型的な位置:&#x0a;   ↖ ↑ ↗   — 上段&#x0a;   ← ✛ →   — 中段（✛ = 中央）&#x0a;   ↙ ↓ ↘   — 下段&#x0a;&#x0a;座標は左下に表示。&#x0a;💾 「保存」— 基準点を適用。</sys:String>
+
+	<sys:String x:Key="S.Info.Position">🖌️ スプライトの位置&#x0a;&#x0a;カーソル画像をキャンバス内で移動したり、キャンバスのサイズを変更したりできます。&#x0a;&#x0a;🕹️ 矢印 — 画像を1ピクセルずつ移動します。画像がその端に達すると無効になります。&#x0a;⚡ スナップグリッド — 9個のボタンで画像を端・角に瞬時に寄せたり中央に配置したりできます。&#x0a;📐 キャンバスの幅/高さ — サイズを変更して「適用」をクリックします。&#x0a;&#x0a;座標は左下に表示。&#x0a;💾 「保存」— 変更を適用。</sys:String>
 
 	<sys:String x:Key="S.Info.Export">📤 プリセットのエクスポート&#x0a;&#x0a;🖼️ タイル — プリセットをクリックすると選択/選択解除できます（青い枠 = 選択中）。&#x0a;   • 「すべて選択」「選択解除」— 上部のボタン。&#x0a;&#x0a;📝 ファイル名 — 任意。エクスポートするファイルの名前を入力するか、空欄のままにしてデフォルトの名前を使用します。&#x0a;&#x0a;🗂️ バンドル vs ZIPアーカイブ — 2つのエクスポートボタンは異なるファイルを作成します:&#x0a;   • バンドル (.cursorpalette) — 完全なコピー。すべてのロール、ロックされたロール、カーソルサイズが保持され、他のプリセットから借用したロールもコピーされるため、ファイル単体で完結します。後でこのアプリに完全に再インポートすることを想定しています。&#x0a;   • ZIPアーカイブ — プリセットごとに1つのフォルダに元の .cur/.ani ファイルが入ります。このアプリ以外や他のツールでの使用向けです。ロックされたロールやカスタムのカーソルサイズは保存されません — 再インポート時にはカーソルファイル自体のみが復元されます。&#x0a;&#x0a;⬇ どちらもダウンロードフォルダに保存され、新しいファイルが選択された状態でエクスプローラーが開きます。</sys:String>
 
