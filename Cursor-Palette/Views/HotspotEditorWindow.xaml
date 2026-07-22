@@ -43,58 +43,21 @@
 			<Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
-					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
-				<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-					<Button x:Name="UiZoomOutButton"
-							Style="{StaticResource Style.Button}"
-							Content="−"
-							Padding="8,2"
-							ToolTip="{DynamicResource S.UiZoom.OutTooltip}"
-							Click="OnUiZoomOutClick" />
-					<TextBlock x:Name="UiZoomText"
-								   Width="40"
-								   TextAlignment="Center"
-								   Foreground="{StaticResource Brush.TextDim}"
-								   FontSize="11"
-								   VerticalAlignment="Center" Margin="6,0" />
-					<Button x:Name="UiZoomInButton"
-							Style="{StaticResource Style.Button}"
-							Content="+"
-							Padding="8,2"
-							ToolTip="{DynamicResource S.UiZoom.InTooltip}"
-							Click="OnUiZoomInClick" />
-					<Button x:Name="ExportPngButton"
-							Style="{StaticResource Style.Button}"
-							Padding="8,2"
-							Margin="8,0,0,0"
-							ToolTip="{DynamicResource S.Editor.ExportPng}"
-							Click="OnExportPngClick">
-						<Rectangle Width="14" Height="14"
-								   Fill="{StaticResource Brush.TextDim}"
-								   RenderTransformOrigin="0.5,0.5">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="pack://application:,,,/Resources/DownloadIcon32.png" Stretch="Uniform" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Button>
-				</StackPanel>
-
-				<TextBlock x:Name="CoordsText" Grid.Column="1"
+				<TextBlock x:Name="CoordsText" Grid.Column="0"
 							 Foreground="{StaticResource Brush.TextDim}"
-							 VerticalAlignment="Center"
-							 Margin="12,0,0,0" />
+							 VerticalAlignment="Center" />
 
-				<Button Grid.Column="3"
+				<Button Grid.Column="2"
 						Style="{StaticResource Style.Button}"
 						Content="{DynamicResource S.Editor.Cancel}"
 						Margin="0,0,8,0" MinWidth="90"
 						IsCancel="True" />
-				<Button Grid.Column="4"
+				<Button Grid.Column="3"
 						Style="{StaticResource Style.AccentButton}"
 						Content="{DynamicResource S.Editor.Save}"
 						MinWidth="90"

@@ -1,11 +1,8 @@
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using CursorPalette.Services;
 
 namespace CursorPalette.Views;
@@ -14,7 +11,6 @@ public partial class HotspotEditorWindow : Window
 {
 	private const double MaxDisplaySize = 320;
 	private const double MaxScaleFactor = 10;
-	private const double UiZoomStep = 0.1;
 	private const string CoordsFormat = "X: {0}   Y: {1}";
 
 	private const string LocInfoTitle = "S.Info.Title";
@@ -25,7 +21,6 @@ public partial class HotspotEditorWindow : Window
 	private readonly int _nativeWidth;
 	private readonly int _nativeHeight;
 	private readonly double _scale;
-	private readonly string _filePath;
 	private int _x;
 	private int _y;
 	private bool _dragging;
@@ -37,15 +32,12 @@ public partial class HotspotEditorWindow : Window
 	{
 		InitializeComponent();
 
-		_filePath = filePath;
-
 		Width = AppState.GetHotspotEditorWidth();
 		Height = AppState.GetHotspotEditorHeight();
 
-		var uiScale = AppState.GetEditorUiScale();
+		var uiScale = AppState.GetUiScale();
 		UiScaleTransform.ScaleX = uiScale;
 		UiScaleTransform.ScaleY = uiScale;
-		UiZoomText.Text = $"{(int)Math.Round(uiScale * 100)}%";
 
 		_nativeWidth = hotspot.Width;
 		_nativeHeight = hotspot.Height;
@@ -168,47 +160,6 @@ public partial class HotspotEditorWindow : Window
 		ResultX = _x;
 		ResultY = _y;
 		DialogResult = true;
-	}
-
-	private void OnUiZoomOutClick(object sender, RoutedEventArgs e) => AdjustUiZoom(-UiZoomStep);
-	private void OnUiZoomInClick(object sender, RoutedEventArgs e) => AdjustUiZoom(UiZoomStep);
-
-	private void AdjustUiZoom(double delta)
-	{
-		var scale = Math.Clamp(Math.Round(AppState.GetEditorUiScale() + delta, 2), AppState.EditorUiScaleMin, AppState.EditorUiScaleMax);
-		UiScaleTransform.ScaleX = scale;
-		UiScaleTransform.ScaleY = scale;
-		UiZoomText.Text = $"{(int)Math.Round(scale * 100)}%";
-		AppState.SetEditorUiScale(scale);
-	}
-
-	private void OnExportPngClick(object sender, RoutedEventArgs e)
-	{
-		var image = CursorCanvasService.TryRead(_filePath);
-
-		if (image == null)
-			return;
-
-		var bitmap = new WriteableBitmap(image.Width, image.Height, 96, 96, PixelFormats.Bgra32, null);
-		bitmap.WritePixels(new Int32Rect(0, 0, image.Width, image.Height), image.Bgra, image.Width * 4, 0);
-
-		Directory.CreateDirectory(AppPaths.DownloadsDir);
-
-		var baseName = Path.GetFileNameWithoutExtension(_filePath);
-		var fileName = $"{baseName}.png";
-		var destPath = Path.Combine(AppPaths.DownloadsDir, fileName);
-		var attempt = 1;
-
-		while (File.Exists(destPath))
-			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}).png");
-
-		var encoder = new PngBitmapEncoder();
-		encoder.Frames.Add(BitmapFrame.Create(bitmap));
-
-		using var stream = File.Create(destPath);
-		encoder.Save(stream);
-
-		Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{destPath}\"") { UseShellExecute = true });
 	}
 
 	protected override void OnClosed(EventArgs e)

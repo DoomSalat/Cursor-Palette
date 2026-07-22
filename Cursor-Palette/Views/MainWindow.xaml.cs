@@ -886,7 +886,8 @@ public partial class MainWindow : Window
 				continue;
 
 			var extension = Path.GetExtension(resolvedPath);
-			var destPath = Path.Combine(destDir, $"{role.RegistryName}{extension}");
+			var baseName = ExportFileNaming.Build(presetName, role.RegistryName, role.RegistryName);
+			var destPath = Path.Combine(destDir, $"{baseName}{extension}");
 			File.Copy(resolvedPath, destPath);
 			var now = DateTime.Now;
 			File.SetCreationTime(destPath, now);

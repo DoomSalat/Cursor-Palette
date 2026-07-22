@@ -679,7 +679,7 @@ public partial class PresetEditorWindow : Window
 
 		Directory.CreateDirectory(AppPaths.DownloadsDir);
 
-		var baseName = slot.Role.RegistryName;
+		var baseName = ExportFileNaming.Build(NameBox.Text, slot.Role.RegistryName, slot.Role.RegistryName);
 		var extension = Path.GetExtension(resolvedPath);
 		var destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName}{extension}");
 
@@ -721,7 +721,8 @@ public partial class PresetEditorWindow : Window
 				continue;
 
 			var extension = Path.GetExtension(resolvedPath);
-			var destPath = Path.Combine(destDir, $"{slot.Role.RegistryName}{extension}");
+			var baseName = ExportFileNaming.Build(presetName, slot.Role.RegistryName, slot.Role.RegistryName);
+			var destPath = Path.Combine(destDir, $"{baseName}{extension}");
 			File.Copy(resolvedPath, destPath);
 			var now = DateTime.Now;
 			File.SetCreationTime(destPath, now);
