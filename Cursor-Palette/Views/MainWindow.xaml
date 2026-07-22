@@ -334,6 +334,50 @@
 			</Grid>
 		</Border>
 
+		<Border x:Name="GroupToolbar" DockPanel.Dock="Bottom"
+				Background="{StaticResource Brush.Surface}"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="0,1,0,0"
+				Padding="16,10"
+				Visibility="Collapsed">
+			<Grid VerticalAlignment="Center">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<TextBlock x:Name="GroupSelectionCountText" Grid.Column="0"
+						   Foreground="{StaticResource Brush.TextDim}"
+						   VerticalAlignment="Center" Margin="0,0,16,0" />
+
+				<WrapPanel x:Name="GroupColorSwatches" Grid.Column="1"
+						   Orientation="Horizontal"
+						   VerticalAlignment="Center"
+						   Margin="0,0,16,0" />
+
+				<TextBox x:Name="GroupNameBox" Grid.Column="2"
+						 Style="{StaticResource Style.TextBox}"
+						 VerticalAlignment="Center"
+						 MaxLength="60"
+						 Margin="0,0,12,0" />
+
+				<Button x:Name="GroupCancelButton" Grid.Column="3"
+						Style="{StaticResource Style.Button}"
+						Content="{DynamicResource S.Group.Cancel}"
+						Margin="0,0,8,0" MinWidth="90"
+						Click="OnGroupCancelClick" />
+
+				<Button x:Name="GroupCreateButton" Grid.Column="4"
+						Style="{StaticResource Style.AccentButton}"
+						Content="{DynamicResource S.Group.Create}"
+						MinWidth="110"
+						Click="OnGroupCreateClick" />
+			</Grid>
+		</Border>
+
 		<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
 			<StackPanel>
 				<TextBlock x:Name="EmptyHint"
@@ -363,6 +407,20 @@
 			   IsHitTestVisible="False"
 			   Visibility="Collapsed"
 			   Panel.ZIndex="900" />
+
+	<Rectangle x:Name="GroupAttachIndicator"
+			   StrokeThickness="1.5"
+			   StrokeDashArray="4 3"
+			   RadiusX="14" RadiusY="14"
+			   IsHitTestVisible="False"
+			   Visibility="Collapsed"
+			   Panel.ZIndex="955"
+			   HorizontalAlignment="Left"
+			   VerticalAlignment="Top">
+		<Rectangle.RenderTransform>
+			<TranslateTransform x:Name="GroupAttachIndicatorTransform" />
+		</Rectangle.RenderTransform>
+	</Rectangle>
 
 	<Rectangle x:Name="ReorderInsertionLine"
 			   Fill="{StaticResource Brush.Accent}"

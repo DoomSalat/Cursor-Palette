@@ -27,22 +27,29 @@ public partial class ImportPickerWindow : Window
 	private const string LocInfoImport = "S.Info.Import";
 
 	private const string PixelSuffix = "px";
+	private const string LocGroupMembersCount = "S.Group.MembersCount";
 
 	private readonly List<(PackageEntry Entry, Border Cell, TextBlock SizeText)> _tiles = new();
+	private readonly List<(PackageGroupEntry Group, Border Cell)> _groupTiles = new();
 
 	public IReadOnlyList<PackageEntry> SelectedEntries { get; private set; } = Array.Empty<PackageEntry>();
+
+	public IReadOnlyList<PackageGroupEntry> SelectedGroups { get; private set; } = Array.Empty<PackageGroupEntry>();
 
 	public bool IgnoreIndividualSizes { get; private set; }
 
 	public int UniformSize { get; private set; }
 
-	public ImportPickerWindow(IReadOnlyList<PackageEntry> entries)
+	public ImportPickerWindow(IReadOnlyList<PackageEntry> entries, IReadOnlyList<PackageGroupEntry>? groups = null)
 	{
 		InitializeComponent();
 
 		var uiScale = AppState.GetUiScale();
 		UiScaleTransform.ScaleX = uiScale;
 		UiScaleTransform.ScaleY = uiScale;
+
+		foreach (var group in groups ?? Array.Empty<PackageGroupEntry>())
+			_groupTiles.Add((group, CreateGroupTile(group)));
 
 		foreach (var entry in entries)
 		{
@@ -57,6 +64,82 @@ public partial class ImportPickerWindow : Window
 		UniformSizeValueText.Text = $"{defaultSize} {PixelSuffix}";
 
 		UpdateSelectionCount();
+	}
+
+	private Border CreateGroupTile(PackageGroupEntry group)
+	{
+		var colorBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(group.ColorKey))!);
+
+		var nameText = new TextBlock
+		{
+			Text = group.Name,
+			FontSize = CellNameFontSize,
+			FontWeight = FontWeights.SemiBold,
+			Foreground = System.Windows.Media.Brushes.White,
+			TextTrimming = TextTrimming.CharacterEllipsis,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(4, 6, 4, 0),
+		};
+
+		var countText = new TextBlock
+		{
+			Text = Loc.Format(LocGroupMembersCount, group.MemberKeys.Count),
+			Foreground = System.Windows.Media.Brushes.White,
+			Opacity = 0.85,
+			FontSize = CellCountFontSize,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(0, 2, 0, 0),
+		};
+
+		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+		panel.Children.Add(nameText);
+		panel.Children.Add(countText);
+
+		var cell = new Border
+		{
+			Width = CellSize,
+			Height = CellSize,
+			Margin = new Thickness(CellMargin),
+			CornerRadius = new CornerRadius(CellCornerRadius),
+			Background = colorBrush,
+			BorderThickness = new Thickness(CellBorderThickness),
+			BorderBrush = colorBrush,
+			Child = panel,
+			Cursor = Cursors.Hand,
+		};
+
+		SetSelected(cell, true);
+
+		cell.MouseLeftButtonUp += (_, _) =>
+		{
+			var selecting = !IsSelected(cell);
+			SetSelected(cell, selecting);
+
+			foreach (var memberKey in group.MemberKeys)
+			{
+				var memberTile = _tiles.FirstOrDefault(t => t.Entry.Key == memberKey);
+				if (memberTile.Cell != null)
+					SetSelected(memberTile.Cell, selecting);
+			}
+
+			UpdateSelectionCount();
+		};
+
+		Gallery.Items.Add(cell);
+
+		return cell;
+	}
+
+	private void SyncGroupTileSelections()
+	{
+		foreach (var (group, cell) in _groupTiles)
+		{
+			var allMembersSelected = group.MemberKeys.Count > 0 && group.MemberKeys.All(memberKey =>
+				_tiles.FirstOrDefault(t => t.Entry.Key == memberKey) is { Cell: not null } match &&
+				IsSelected(match.Cell));
+
+			SetSelected(cell, allMembersSelected);
+		}
 	}
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
@@ -140,6 +223,8 @@ public partial class ImportPickerWindow : Window
 
 	private void UpdateSelectionCount()
 	{
+		SyncGroupTileSelections();
+
 		var selected = _tiles.Count(tile => IsSelected(tile.Cell));
 		SelectionCountText.Text = Loc.Format(LocImportSelectionCount, selected, _tiles.Count);
 		ImportButton.IsEnabled = selected > 0;
@@ -164,6 +249,7 @@ public partial class ImportPickerWindow : Window
 	private void OnImportButtonClick(object sender, RoutedEventArgs e)
 	{
 		SelectedEntries = _tiles.Where(tile => IsSelected(tile.Cell)).Select(tile => tile.Entry).ToList();
+		SelectedGroups = _groupTiles.Where(tile => IsSelected(tile.Cell)).Select(tile => tile.Group).ToList();
 
 		if (SelectedEntries.Count == 0)
 			return;

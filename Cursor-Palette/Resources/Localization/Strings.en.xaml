@@ -40,6 +40,21 @@
 	<sys:String x:Key="S.Preset.ContextHint">Right-click for menu</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Some roles are taken from other presets</sys:String>
 
+	<sys:String x:Key="S.Menu.RemoveFromGroup">Remove from group</sys:String>
+	<sys:String x:Key="S.Menu.AssignToGroup">Add to group</sys:String>
+	<sys:String x:Key="S.Menu.RenameGroup">Rename group</sys:String>
+	<sys:String x:Key="S.Menu.Ungroup">Ungroup</sys:String>
+	<sys:String x:Key="S.Menu.ConsolidateGroup">Group cells together</sys:String>
+	<sys:String x:Key="S.Group.DefaultName">Group</sys:String>
+	<sys:String x:Key="S.Group.SelectedCount">{0} selected</sys:String>
+	<sys:String x:Key="S.Group.MembersCount">{0} preset(s)</sys:String>
+	<sys:String x:Key="S.Group.Create">Create group</sys:String>
+	<sys:String x:Key="S.Group.Cancel">Cancel</sys:String>
+	<sys:String x:Key="S.Group.CollapsedTooltip">Click to expand</sys:String>
+	<sys:String x:Key="S.Group.ExpandedTooltip">Click to collapse</sys:String>
+	<sys:String x:Key="S.Group.Toast.Created">Group "{0}" created</sys:String>
+	<sys:String x:Key="S.Group.Toast.Consolidated">Group "{0}" consolidated its cells</sys:String>
+
 	<sys:String x:Key="S.ConfirmDelete.Title">Delete preset</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">Delete preset "{0}"? Its files will be removed from the app cache.</sys:String>
 
@@ -95,7 +110,9 @@
 	<sys:String x:Key="S.Editor.Tool.Hand">Hand</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Brush">Brush</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Eraser">Eraser</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Fill">Fill</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Canvas">Canvas</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Hotspot">Hotspot</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Coming soon</sys:String>
 	<sys:String x:Key="S.Editor.Tool.HandHint">Hold and drag to pan the canvas. You can also hold the middle mouse button at any time.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Drag the canvas edges or corners to resize, then Apply.</sys:String>
@@ -144,7 +161,7 @@
 	<sys:String x:Key="S.Info.ZoomOutTooltip">Decrease text size</sys:String>
 	<sys:String x:Key="S.Info.ZoomInTooltip">Increase text size</sys:String>
 
-	<sys:String x:Key="S.Info.Main">🏠 Main — preset gallery&#x0a;&#x0a;📦 Gallery — shows all your cursor presets.&#x0a;   • Left-click a preset — apply cursors.&#x0a;   • Right-click a preset — menu (edit, rename, move left/right, download, delete).&#x0a;   • 🧩 badge — some roles are borrowed from other presets.&#x0a;   • Drag a tile onto another — reorder presets.&#x0a;&#x0a;➕ "Add preset" — create a new preset.&#x0a;   • Drag .cur/.ani files or a folder onto the window.&#x0a;&#x0a;🎨 Grid size — changes gallery cell size.&#x0a;📏 Cursor size — slider + "Apply" changes system cursor size.&#x0a;↩️ "Undo" — revert to previous cursor set.&#x0a;🌙/☀ — toggle dark/light theme.&#x0a;🌐 — change interface language.&#x0a;🔍 −/+ — zoom interface in/out.&#x0a;{img:OpenFolderIcon32} Open-folder toggle — blue = Downloads folder opens after download/export; gray = disabled.&#x0a;{img:DownloadIcon32} Export — pick presets and save them as a bundle (.cursorpalette, fully re-importable) or a plain ZIP archive (raw cursor files); saved to Downloads.&#x0a;{img:ImportIcon26} Import — pick a Cursor Palette bundle/archive file (or drop it onto the window) and choose which presets to add.&#x0a;📄 Click the footer — "About" window.&#x0a;{img:DownloadIcon32} Bottom-left — update indicator.&#x0a;   • Blue button — new version available, click to download.&#x0a;   • "Up to date" text — no updates.&#x0a;ⓘ Top-right button — window help.</sys:String>
+	<sys:String x:Key="S.Info.Main">🏠 Main — preset gallery&#x0a;&#x0a;📦 Gallery — shows all your cursor presets.&#x0a;   • Left-click a preset — apply cursors.&#x0a;   • Right-click a preset — menu (edit, rename, move left/right, download, delete).&#x0a;   • 🧩 badge — some roles are borrowed from other presets.&#x0a;   • Drag a tile onto another — reorder presets.&#x0a;   • Ctrl+click tiles — select several presets, then pick a color and name at the bottom to create a group. Click the group tile to collapse/expand it as a deck; right-click it to rename or ungroup.&#x0a;&#x0a;➕ "Add preset" — create a new preset.&#x0a;   • Drag .cur/.ani files or a folder onto the window.&#x0a;&#x0a;🎨 Grid size — changes gallery cell size.&#x0a;📏 Cursor size — slider + "Apply" changes system cursor size.&#x0a;↩️ "Undo" — revert to previous cursor set.&#x0a;🌙/☀ — toggle dark/light theme.&#x0a;🌐 — change interface language.&#x0a;🔍 −/+ — zoom interface in/out.&#x0a;{img:OpenFolderIcon32} Open-folder toggle — blue = Downloads folder opens after download/export; gray = disabled.&#x0a;{img:DownloadIcon32} Export — pick presets and save them as a bundle (.cursorpalette, fully re-importable) or a plain ZIP archive (raw cursor files); saved to Downloads.&#x0a;{img:ImportIcon26} Import — pick a Cursor Palette bundle/archive file (or drop it onto the window) and choose which presets to add.&#x0a;📄 Click the footer — "About" window.&#x0a;{img:DownloadIcon32} Bottom-left — update indicator.&#x0a;   • Blue button — new version available, click to download.&#x0a;   • "Up to date" text — no updates.&#x0a;ⓘ Top-right button — window help.</sys:String>
 
 	<sys:String x:Key="S.Info.Editor">✏️ Preset editor&#x0a;&#x0a;🎯 Each slot — one cursor role (arrow, text, busy, etc.).&#x0a;   • Drag a .cur/.ani file onto a slot — fills that role.&#x0a;   • 🎯 on a slot — set pivot point (click position).&#x0a;   • 🖌 on a slot — edit sprite position and canvas size (Paint editor).&#x0a;   • ✕ on a slot — remove file, reverts to system cursor.&#x0a;   • {img:LockIcon26} on a slot — lock role (protect from folder import and drag-and-drop).&#x0a;   • {img:DownloadIcon32} on a slot — download cursor to Downloads folder (named by preset + role).&#x0a;   • 🧩 on a slot — borrow a role from another preset.&#x0a;   • {img:LinkIcon32} — role is borrowed from another preset (link).&#x0a;   • "auto" badge — cursor is auto-filled.&#x0a;&#x0a;📁 "Choose folder" — import all cursors from a folder at once.&#x0a;   • Files are matched to roles by file name.&#x0a;&#x0a;📝 Enter a preset name at the bottom.&#x0a;{img:DownloadIcon32} Left of the name — download the whole preset as a folder to Downloads.&#x0a;📏 Size slider — preview cursor size in slots.&#x0a;💾 "Save" — save preset to gallery.</sys:String>
 
@@ -158,7 +175,7 @@
 
 	<sys:String x:Key="S.Info.Export">📤 Export presets&#x0a;&#x0a;🖼️ Tiles — click a preset to select/deselect it (blue border = selected).&#x0a;   • "Select all" / "Select none" — buttons at the top.&#x0a;&#x0a;📝 File name — optional; type a name for the exported file, or leave it empty to use the default name.&#x0a;&#x0a;🗂️ Bundle vs. ZIP archive — the two export buttons produce different files:&#x0a;   • Bundle (.cursorpalette) — full-fidelity: every role, locked roles and cursor size are preserved, and roles borrowed from other presets are copied in so the file is self-contained. Meant to be re-imported into this app later with everything intact.&#x0a;   • ZIP archive — one folder per preset with the raw .cur/.ani files, for use outside this app or with other tools. Locked roles and custom cursor size aren't stored — re-importing it only restores the cursor files themselves.&#x0a;&#x0a;{img:DownloadIcon32} Both are saved to the Downloads folder, and File Explorer opens with the new file selected.</sys:String>
 
-	<sys:String x:Key="S.Info.Import">📥 Import presets&#x0a;&#x0a;This window opens after picking a Cursor Palette bundle (.cursorpalette) or ZIP archive — either via the Import button or by dropping the file onto the main window.&#x0a;&#x0a;🖼️ Tiles — one per preset found in the file; click to select/deselect (blue border = selected).&#x0a;   • "Select all" / "Select none" — buttons at the top.&#x0a;&#x0a;☑️ "Uniform cursor size" — check to reveal a size slider; every imported preset then gets that one uniform cursor size instead of whatever size is stored in the file. Uncheck to restore each preset's own size from the file.&#x0a;&#x0a;📦 "Import" — adds the selected presets to your gallery as new presets (with new IDs, so they never collide with existing ones).&#x0a;&#x0a;ℹ️ Bundles restore everything (roles, locked roles, cursor size); ZIP archives only restore the cursor files themselves, matched to roles by file name.</sys:String>
+	<sys:String x:Key="S.Info.Import">📥 Import presets&#x0a;&#x0a;This window opens after picking a Cursor Palette bundle (.cursorpalette) or ZIP archive — either via the Import button or by dropping the file onto the main window.&#x0a;&#x0a;🖼️ Tiles — one per preset found in the file; click to select/deselect (blue border = selected).&#x0a;   • "Select all" / "Select none" — buttons at the top.&#x0a;&#x0a;☑️ "Uniform cursor size" — check to reveal a size slider; every imported preset then gets that one uniform cursor size instead of whatever size is stored in the file. Uncheck to restore each preset's own size from the file.&#x0a;&#x0a;📦 "Import" — adds the selected presets to your gallery as new presets (with new IDs, so they never collide with existing ones).&#x0a;&#x0a;🎨 Colored group tiles — selecting one auto-selects all its presets; deselecting a member auto-deselects the group. Only import a group's own tile to recreate the group itself.&#x0a;&#x0a;ℹ️ Bundles restore everything (roles, locked roles, cursor size, groups); ZIP archives only restore the cursor files themselves, matched to roles by file name.</sys:String>
 
 	<sys:String x:Key="S.Info.About">ℹ️ About&#x0a;&#x0a;App information is shown here:&#x0a;   • Name and version.&#x0a;   • Author and license (MIT).&#x0a;&#x0a;This is free software — you can use, modify&#x0a;and distribute it under the MIT License terms.</sys:String>
 

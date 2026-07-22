@@ -20,6 +20,16 @@ public sealed class DetectedPackage
 	public required PackageKind Kind { get; init; }
 	public required string ExtractedDir { get; init; }
 	public required List<PackageEntry> Entries { get; init; }
+	public List<PackageGroupEntry> Groups { get; init; } = new();
+}
+
+public sealed class PackageGroupEntry
+{
+	public required string Id { get; init; }
+	public required string Name { get; init; }
+	public required string ColorKey { get; init; }
+	public bool Collapsed { get; init; }
+	public List<string> MemberKeys { get; init; } = new();
 }
 
 public sealed class PackageMarker

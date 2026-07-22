@@ -28,6 +28,8 @@ public static class AppState
 	public const string PaintEditorToolHand = "Hand";
 	public const string PaintEditorToolBrush = "Brush";
 	public const string PaintEditorToolEraser = "Eraser";
+	public const string PaintEditorToolFill = "Fill";
+	public const string PaintEditorToolHotspot = "Hotspot";
 	public const string PaintEditorToolCanvas = "Canvas";
 	public const string PaintEditorToolDefault = PaintEditorToolMove;
 

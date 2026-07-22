@@ -21,8 +21,9 @@ public partial class MainWindow : Window
 	private const string EmptyValue = "";
 	private const string FileSearchPattern = "*.*";
 	private const string PresetDragFormatName = "CursorPalette.PresetId";
+	private const string GroupDragFormatName = "CursorPalette.GroupId";
 	private const double ReorderIndicatorWidth = 4;
-	private const double ReorderRowGroupingTolerance = 1;
+	private const double ReorderRowGroupingTolerance = 4;
 
 	private const string BrushTextDim = "Brush.TextDim";
 	private const string BrushBg = "Brush.Bg";
@@ -76,6 +77,33 @@ public partial class MainWindow : Window
 	private const double MixedBadgeFontSize = 15;
 	private const string LocMixedBadgeTooltip = "S.Gallery.MixedBadgeTooltip";
 
+	private const double GroupOutlineThickness = 1.5;
+	private const double GroupOutlinePadding = 7;
+	private const double GroupOutlineOpacity = 0.65;
+	private const double SelectionBorderThickness = 4;
+	private const string SelectionBadgeText = "✓";
+	private const double SelectionBadgeSize = 20;
+	private const double SelectionBadgeFontSize = 12;
+	private const double GroupSwatchSize = 22;
+	private const double GroupSwatchRingThickness = 2.5;
+	private const double GroupDeckPeekOffsetX = 9;
+	private const double GroupDeckPeekOffsetY = 6;
+	private const int GroupDeckMaxPeek = 3;
+	private const double GroupAttachZoneMargin = 0.25;
+	private const string LocMenuRemoveFromGroup = "S.Menu.RemoveFromGroup";
+	private const string LocMenuAssignToGroup = "S.Menu.AssignToGroup";
+	private const string LocMenuRenameGroup = "S.Menu.RenameGroup";
+	private const string LocMenuUngroup = "S.Menu.Ungroup";
+	private const string LocMenuConsolidateGroup = "S.Menu.ConsolidateGroup";
+	private const string LocGroupDefaultName = "S.Group.DefaultName";
+	private const string LocGroupSelectedCount = "S.Group.SelectedCount";
+	private const string LocGroupMembersCount = "S.Group.MembersCount";
+	private const string LocGroupCollapsedTooltip = "S.Group.CollapsedTooltip";
+	private const string LocGroupExpandedTooltip = "S.Group.ExpandedTooltip";
+	private const string LocGroupToastCreated = "S.Group.Toast.Created";
+	private const string LocGroupToastConsolidated = "S.Group.Toast.Consolidated";
+	private const string BrushText = "Brush.Text";
+
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocInfoMain = "S.Info.Main";
 	private const string LocErrorArchiveExtractFailed = "S.Error.ArchiveExtractFailed";
@@ -84,7 +112,17 @@ public partial class MainWindow : Window
 	private const string ThemeIconDark = "🌙";
 	private const string ThemeIconLight = "☀";
 
+	private sealed record BoardEntry(Preset? Preset, PresetGroup? Group, int BoardIndex);
+
 	private List<Preset> _presets = new();
+	private List<PresetGroup> _groups = new();
+	private Dictionary<string, PresetGroup> _presetToGroup = new();
+	private List<string> _boardOrderIds = new();
+	private List<string> _visibleBoardIds = new();
+	private readonly List<BoardEntry> _boardOrder = new();
+	private readonly HashSet<string> _selectedPresetIds = new();
+	private readonly List<Border> _groupColorSwatches = new();
+	private string? _pendingGroupColorKey;
 	private string? _activePresetId;
 	private TextBlock? _activeCellSizeText;
 	private double _cellScale = AppState.GalleryCellScaleDefault;
@@ -94,7 +132,10 @@ public partial class MainWindow : Window
 	private Point? _presetDragStartPoint;
 	private bool _justDraggedPreset;
 	private int? _pendingInsertIndex;
+	private string? _pendingGroupAttachId;
 	private string? _draggedPresetId;
+	private string? _draggedGroupId;
+	private bool _justDraggedGroup;
 
 	public MainWindow()
 	{
@@ -119,6 +160,7 @@ public partial class MainWindow : Window
 
 		UpdateOpenFolderToggleIcon();
 
+		BuildGroupColorSwatches();
 		ReloadGallery();
 		UpdateUndoButton();
 
@@ -248,12 +290,12 @@ public partial class MainWindow : Window
 
 	private void ImportPackage(DetectedPackage detected)
 	{
-		var picker = new ImportPickerWindow(detected.Entries) { Owner = this };
+		var picker = new ImportPickerWindow(detected.Entries, detected.Groups) { Owner = this };
 
 		if (picker.ShowDialog() == true)
 		{
 			var imported = PresetPackageService.ImportSelected(detected, picker.SelectedEntries,
-				picker.IgnoreIndividualSizes, picker.UniformSize);
+				picker.SelectedGroups, picker.IgnoreIndividualSizes, picker.UniformSize);
 			ReloadGallery();
 
 			if (imported > 0)
@@ -375,6 +417,18 @@ public partial class MainWindow : Window
 	private void ReloadGallery()
 	{
 		_presets = PresetStore.LoadAll();
+		_groups = GroupStore.LoadAll();
+		_presetToGroup = _groups
+			.SelectMany(group => group.MemberPresetIds.Select(presetId => (presetId, group)))
+			.GroupBy(entry => entry.presetId)
+			.ToDictionary(entry => entry.Key, entry => entry.First().group);
+
+		_boardOrderIds = ReconcileBoardOrder(BoardOrderStore.Load(), _presets, _groups, _presetToGroup);
+		BoardOrderStore.Save(_boardOrderIds);
+		_visibleBoardIds = _boardOrderIds.Where(IsBoardIdVisible).ToList();
+
+		ClearGroupSelection();
+
 		Gallery.Items.Clear();
 		_activeCellSizeText = null;
 
@@ -386,11 +440,69 @@ public partial class MainWindow : Window
 
 		Gallery.Items.Add(CreateDefaultCell());
 
-		foreach (var preset in _presets)
-			Gallery.Items.Add(CreatePresetCell(preset));
+		_boardOrder.Clear();
+		var presetsById = _presets.ToDictionary(preset => preset.Id);
+		var groupsById = _groups.ToDictionary(group => group.Id);
+
+		for (var boardIndex = 0; boardIndex < _boardOrderIds.Count; boardIndex++)
+		{
+			var id = _boardOrderIds[boardIndex];
+
+			if (groupsById.TryGetValue(id, out var group))
+			{
+				Gallery.Items.Add(CreateGroupCell(group));
+				_boardOrder.Add(new BoardEntry(null, group, boardIndex));
+				continue;
+			}
+
+			if (!presetsById.TryGetValue(id, out var preset))
+				continue;
+
+			if (_presetToGroup.TryGetValue(preset.Id, out var owningGroup) && owningGroup.Collapsed)
+				continue;
+
+			Gallery.Items.Add(CreatePresetCell(preset, _presetToGroup.GetValueOrDefault(preset.Id)));
+			_boardOrder.Add(new BoardEntry(preset, null, boardIndex));
+		}
 
 		Gallery.Items.Add(CreateAddCell());
 		EmptyHint.Visibility = _presets.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+	}
+
+	private bool IsBoardIdVisible(string id)
+	{
+		if (_presetToGroup.TryGetValue(id, out var group))
+			return !group.Collapsed;
+
+		return true;
+	}
+
+	private static List<string> ReconcileBoardOrder(List<string> persisted, List<Preset> presets,
+		List<PresetGroup> groups, Dictionary<string, PresetGroup> presetToGroup)
+	{
+		var validIds = new HashSet<string>(presets.Select(preset => preset.Id));
+		validIds.UnionWith(groups.Select(group => group.Id));
+
+		var result = persisted.Where(validIds.Contains).ToList();
+		var known = new HashSet<string>(result);
+		var placedGroups = new HashSet<string>();
+
+		foreach (var preset in presets)
+		{
+			if (presetToGroup.TryGetValue(preset.Id, out var group) && placedGroups.Add(group.Id) && known.Add(group.Id))
+				result.Add(group.Id);
+
+			if (known.Add(preset.Id))
+				result.Add(preset.Id);
+		}
+
+		foreach (var group in groups)
+		{
+			if (known.Add(group.Id))
+				result.Add(group.Id);
+		}
+
+		return result;
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
@@ -465,9 +577,10 @@ public partial class MainWindow : Window
 		return cell;
 	}
 
-	private FrameworkElement CreatePresetCell(Preset preset)
+	private FrameworkElement CreatePresetCell(Preset preset, PresetGroup? group)
 	{
 		var isActive = preset.Id == _activePresetId;
+		var isSelected = _selectedPresetIds.Contains(preset.Id);
 
 		var previewPath = PresetStore.GetRoleFilePath(preset, CursorRoles.ArrowRoleName)
 							?? preset.Roles.Keys.Concat(preset.RoleRefs.Keys)
@@ -536,6 +649,28 @@ public partial class MainWindow : Window
 			});
 		}
 
+		var selectionBadge = new Border
+		{
+			Width = SelectionBadgeSize * CellFontScale,
+			Height = SelectionBadgeSize * CellFontScale,
+			CornerRadius = new CornerRadius(SelectionBadgeSize),
+			Background = Brush(BrushAccent),
+			HorizontalAlignment = HorizontalAlignment.Left,
+			VerticalAlignment = VerticalAlignment.Top,
+			Margin = new Thickness(6, 4, 0, 0),
+			IsHitTestVisible = false,
+			Visibility = isSelected ? Visibility.Visible : Visibility.Collapsed,
+			Child = new TextBlock
+			{
+				Text = SelectionBadgeText,
+				FontSize = SelectionBadgeFontSize * CellFontScale,
+				Foreground = System.Windows.Media.Brushes.White,
+				HorizontalAlignment = HorizontalAlignment.Center,
+				VerticalAlignment = VerticalAlignment.Center,
+			},
+		};
+		cellContent.Children.Add(selectionBadge);
+
 		var cell = new Border
 		{
 			Width = CellSize * _cellScale,
@@ -543,21 +678,57 @@ public partial class MainWindow : Window
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			Background = Brush(BrushSurface),
-			BorderThickness = new Thickness(CellBorderThickness),
-			BorderBrush = isActive ? Brush(BrushAccent) : Brush(BrushBorder),
+			BorderThickness = new Thickness(isSelected ? SelectionBorderThickness : CellBorderThickness),
+			BorderBrush = isSelected ? Brush(BrushAccent) : (isActive ? Brush(BrushAccent) : Brush(BrushBorder)),
 			Child = cellContent,
 			Cursor = Cursors.Hand,
 			Tag = preset,
 		};
+
+		FrameworkElement result = cell;
+		if (group != null)
+		{
+			var groupBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(group.ColorKey))!);
+			var ringSize = CellSize * _cellScale + GroupOutlinePadding * 2;
+
+			var outlineRect = new System.Windows.Shapes.Rectangle
+			{
+				Width = ringSize,
+				Height = ringSize,
+				RadiusX = CellCornerRadius + GroupOutlinePadding,
+				RadiusY = CellCornerRadius + GroupOutlinePadding,
+				Stroke = groupBrush,
+				StrokeThickness = GroupOutlineThickness,
+				StrokeDashArray = new DoubleCollection { 4, 3 },
+				Opacity = GroupOutlineOpacity,
+				IsHitTestVisible = false,
+			};
+
+			cell.Margin = new Thickness(GroupOutlinePadding);
+
+			var wrapper = new Grid { Margin = new Thickness(CellMargin) };
+			wrapper.Children.Add(cell);
+			wrapper.Children.Add(outlineRect);
+			result = wrapper;
+		}
 
 		cell.MouseEnter += (_, _) =>
 		{
 			if (preset.Id != _activePresetId) cell.Background = Brush(BrushSurfaceHover);
 		};
 		cell.MouseLeave += (_, _) => cell.Background = Brush(BrushSurface);
-		cell.MouseLeftButtonDown += (_, e) => _presetDragStartPoint = e.GetPosition(cell);
+		cell.MouseLeftButtonDown += (_, e) =>
+		{
+			if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+				return;
+
+			_presetDragStartPoint = e.GetPosition(cell);
+		};
 		cell.MouseMove += (_, e) =>
 		{
+			if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+				return;
+
 			if (_presetDragStartPoint is not { } start || e.LeftButton != MouseButtonState.Pressed)
 				return;
 
@@ -574,6 +745,13 @@ public partial class MainWindow : Window
 		};
 		cell.MouseLeftButtonUp += (_, _) =>
 		{
+			if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+			{
+				_presetDragStartPoint = null;
+				ToggleSelection(preset, cell, selectionBadge);
+				return;
+			}
+
 			_presetDragStartPoint = null;
 
 			if (_justDraggedPreset)
@@ -590,9 +768,9 @@ public partial class MainWindow : Window
 			e.Handled = true;
 		};
 
-		var presetIndex = _presets.FindIndex(candidate => candidate.Id == preset.Id);
-		var isFirst = presetIndex <= 0;
-		var isLast = presetIndex < 0 || presetIndex >= _presets.Count - 1;
+		var visibleIndex = _visibleBoardIds.IndexOf(preset.Id);
+		var isFirst = visibleIndex <= 0;
+		var isLast = visibleIndex < 0 || visibleIndex >= _visibleBoardIds.Count - 1;
 
 		var menu = new ContextMenu();
 		var editItem = new MenuItem { Header = Loc.Get(LocMenuEdit) };
@@ -620,6 +798,50 @@ public partial class MainWindow : Window
 		menu.Items.Add(moveLeftItem);
 		menu.Items.Add(moveRightItem);
 		menu.Items.Add(downloadItem);
+
+		var assignableGroups = _groups.Where(candidate => group == null || candidate.Id != group.Id).ToList();
+		if (assignableGroups.Count > 0)
+		{
+			var assignToGroupItem = new MenuItem { Header = Loc.Get(LocMenuAssignToGroup) };
+
+			foreach (var targetGroup in assignableGroups)
+			{
+				var targetGroupItem = new MenuItem
+				{
+					Header = targetGroup.Name,
+					Icon = new Border
+					{
+						Width = 10,
+						Height = 10,
+						CornerRadius = new CornerRadius(10),
+						Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(targetGroup.ColorKey))!),
+					},
+				};
+				targetGroupItem.Click += (_, _) =>
+				{
+					if (_presetToGroup.TryGetValue(preset.Id, out var currentGroup))
+						GroupStore.RemoveMember(currentGroup.Id, preset.Id);
+
+					GroupStore.AddMember(targetGroup.Id, preset.Id);
+					ReloadGallery();
+				};
+				assignToGroupItem.Items.Add(targetGroupItem);
+			}
+
+			menu.Items.Add(assignToGroupItem);
+		}
+
+		if (group != null)
+		{
+			var removeFromGroupItem = new MenuItem { Header = Loc.Get(LocMenuRemoveFromGroup) };
+			removeFromGroupItem.Click += (_, _) =>
+			{
+				GroupStore.RemoveMember(group.Id, preset.Id);
+				ReloadGallery();
+			};
+			menu.Items.Add(removeFromGroupItem);
+		}
+
 		menu.Items.Add(new Separator());
 		menu.Items.Add(deleteItem);
 		cell.ContextMenu = menu;
@@ -649,8 +871,348 @@ public partial class MainWindow : Window
 			new RelayUiCommand(() => EditPreset(preset)),
 			new MouseGesture(MouseAction.LeftDoubleClick)));
 
-		return cell;
+		return result;
 	}
+
+	private FrameworkElement CreateGroupCell(PresetGroup group)
+	{
+		var colorBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(group.ColorKey))!);
+
+		var nameText = new TextBlock
+		{
+			Text = group.Name,
+			FontSize = CellNameFontSize * CellFontScale,
+			FontWeight = FontWeights.SemiBold,
+			Foreground = System.Windows.Media.Brushes.White,
+			TextTrimming = TextTrimming.CharacterEllipsis,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(4, 8, 4, 0),
+		};
+
+		var countText = new TextBlock
+		{
+			Text = Loc.Format(LocGroupMembersCount, group.MemberPresetIds.Count),
+			Foreground = System.Windows.Media.Brushes.White,
+			Opacity = 0.85,
+			FontSize = CellCountFontSize * CellFontScale,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(0, 2, 0, 0),
+		};
+
+		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+		panel.Children.Add(nameText);
+		panel.Children.Add(countText);
+
+		var tile = new Border
+		{
+			Width = CellSize * _cellScale,
+			Height = CellSize * _cellScale,
+			CornerRadius = new CornerRadius(CellCornerRadius),
+			Background = colorBrush,
+			BorderThickness = new Thickness(0),
+			SnapsToDevicePixels = true,
+			Child = panel,
+			Cursor = Cursors.Hand,
+		};
+		Panel.SetZIndex(tile, GroupDeckMaxPeek + 1);
+
+		tile.MouseLeftButtonDown += (_, e) =>
+		{
+			if (!group.Collapsed || Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+				return;
+
+			_presetDragStartPoint = e.GetPosition(tile);
+		};
+		tile.MouseMove += (_, e) =>
+		{
+			if (!group.Collapsed || Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+				return;
+
+			if (_presetDragStartPoint is not { } start || e.LeftButton != MouseButtonState.Pressed)
+				return;
+
+			var position = e.GetPosition(tile);
+			if (Math.Abs(position.X - start.X) < SystemParameters.MinimumHorizontalDragDistance &&
+				Math.Abs(position.Y - start.Y) < SystemParameters.MinimumVerticalDragDistance)
+				return;
+
+			_presetDragStartPoint = null;
+			_justDraggedGroup = true;
+			BeginGroupDragGhost(group);
+			DragDrop.DoDragDrop(tile, new DataObject(GroupDragFormatName, group.Id), DragDropEffects.Move);
+			EndDragGhost();
+		};
+		tile.MouseLeftButtonUp += (_, _) =>
+		{
+			_presetDragStartPoint = null;
+
+			if (_justDraggedGroup)
+			{
+				_justDraggedGroup = false;
+				return;
+			}
+
+			GroupStore.SetCollapsed(group.Id, !group.Collapsed);
+			ReloadGallery();
+		};
+
+		var menu = new ContextMenu();
+		var renameItem = new MenuItem { Header = Loc.Get(LocMenuRenameGroup) };
+		renameItem.Click += (_, _) => StartInlineGroupRename(group, nameText, panel);
+		var consolidateItem = new MenuItem { Header = Loc.Get(LocMenuConsolidateGroup) };
+		consolidateItem.Click += (_, _) => ConsolidateGroup(group.Id);
+		var ungroupItem = new MenuItem { Header = Loc.Get(LocMenuUngroup) };
+		ungroupItem.Click += (_, _) =>
+		{
+			GroupStore.Delete(group.Id);
+			ReloadGallery();
+		};
+		menu.Items.Add(renameItem);
+		menu.Items.Add(consolidateItem);
+		menu.Items.Add(ungroupItem);
+		tile.ContextMenu = menu;
+
+		tile.MouseRightButtonUp += (_, e) =>
+		{
+			tile.ContextMenu!.IsOpen = true;
+			e.Handled = true;
+		};
+
+		tile.ToolTip = new ToolTip
+		{
+			Content = Loc.Get(group.Collapsed ? LocGroupExpandedTooltip : LocGroupCollapsedTooltip),
+		};
+
+		if (!group.Collapsed)
+		{
+			var wrapper = new Border { Margin = new Thickness(CellMargin), Child = tile };
+			tile.Margin = new Thickness(0);
+			return wrapper;
+		}
+
+		var deckGrid = new Grid
+		{
+			Margin = new Thickness(CellMargin),
+			Width = CellSize * _cellScale + GroupDeckMaxPeek * GroupDeckPeekOffsetX * _cellScale,
+			Height = CellSize * _cellScale + GroupDeckMaxPeek * GroupDeckPeekOffsetY * _cellScale,
+			HorizontalAlignment = HorizontalAlignment.Left,
+			VerticalAlignment = VerticalAlignment.Top,
+		};
+
+		var peekCount = Math.Min(GroupDeckMaxPeek, group.MemberPresetIds.Count);
+		for (var i = peekCount; i >= 1; i--)
+		{
+			var ghost = new Border
+			{
+				Width = CellSize * _cellScale,
+				Height = CellSize * _cellScale,
+				CornerRadius = new CornerRadius(CellCornerRadius),
+				Background = Brush(BrushSurface),
+				BorderThickness = new Thickness(CellBorderThickness),
+				BorderBrush = Brush(BrushBorder),
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top,
+				Margin = new Thickness(i * GroupDeckPeekOffsetX * _cellScale, i * GroupDeckPeekOffsetY * _cellScale, 0, 0),
+			};
+			Panel.SetZIndex(ghost, GroupDeckMaxPeek + 1 - i);
+			deckGrid.Children.Add(ghost);
+		}
+
+		tile.Margin = new Thickness(0);
+		tile.HorizontalAlignment = HorizontalAlignment.Left;
+		tile.VerticalAlignment = VerticalAlignment.Top;
+		deckGrid.Children.Add(tile);
+
+		return deckGrid;
+	}
+
+	private void StartInlineGroupRename(PresetGroup group, TextBlock nameText, StackPanel panel)
+	{
+		var index = panel.Children.IndexOf(nameText);
+		if (index < 0)
+			return;
+
+		var done = false;
+
+		var textBox = new TextBox
+		{
+			Text = group.Name,
+			FontSize = nameText.FontSize,
+			FontWeight = FontWeights.SemiBold,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(nameText.Margin.Left, nameText.Margin.Top - 2, nameText.Margin.Right, nameText.Margin.Bottom),
+			Style = (Style)Application.Current.Resources[StyleTextBox],
+			Background = Brush(BrushBg),
+			BorderBrush = System.Windows.Media.Brushes.White,
+			BorderThickness = new Thickness(1.5),
+			Padding = new Thickness(6, 4, 6, 4),
+		};
+
+		void Restore()
+		{
+			var currentIndex = panel.Children.IndexOf(textBox);
+			if (currentIndex < 0)
+				return;
+
+			panel.Children.RemoveAt(currentIndex);
+			panel.Children.Insert(currentIndex, nameText);
+		}
+
+		void Commit()
+		{
+			if (done)
+				return;
+			done = true;
+
+			var newName = textBox.Text.Trim();
+			Restore();
+
+			if (!string.IsNullOrWhiteSpace(newName) && newName != group.Name)
+			{
+				GroupStore.Rename(group.Id, newName);
+				ReloadGallery();
+			}
+		}
+
+		void Cancel()
+		{
+			if (done)
+				return;
+			done = true;
+			Restore();
+		}
+
+		textBox.PreviewMouseLeftButtonDown += (_, e) => e.Handled = true;
+		textBox.PreviewMouseLeftButtonUp += (_, e) => e.Handled = true;
+		textBox.KeyDown += (_, e) =>
+		{
+			if (e.Key == Key.Enter)
+			{
+				Commit();
+				e.Handled = true;
+			}
+			else if (e.Key == Key.Escape)
+			{
+				Cancel();
+				e.Handled = true;
+			}
+		};
+		textBox.LostFocus += (_, _) => Commit();
+
+		panel.Children.RemoveAt(index);
+		panel.Children.Insert(index, textBox);
+		textBox.Focus();
+		textBox.SelectAll();
+	}
+
+	private void ClearGroupSelection()
+	{
+		_selectedPresetIds.Clear();
+		_pendingGroupColorKey = null;
+
+		if (GroupNameBox != null)
+			GroupNameBox.Text = Loc.Get(LocGroupDefaultName);
+
+		foreach (var swatch in _groupColorSwatches)
+			swatch.BorderThickness = new Thickness(0);
+
+		if (GroupToolbar != null)
+			GroupToolbar.Visibility = Visibility.Collapsed;
+	}
+
+	private void ToggleSelection(Preset preset, Border cell, Border selectionBadge)
+	{
+		var nowSelected = !_selectedPresetIds.Contains(preset.Id);
+
+		if (nowSelected)
+			_selectedPresetIds.Add(preset.Id);
+		else
+			_selectedPresetIds.Remove(preset.Id);
+
+		selectionBadge.Visibility = nowSelected ? Visibility.Visible : Visibility.Collapsed;
+		cell.BorderBrush = nowSelected || preset.Id == _activePresetId ? Brush(BrushAccent) : Brush(BrushBorder);
+
+		UpdateGroupToolbar();
+	}
+
+	private void UpdateGroupToolbar()
+	{
+		if (_selectedPresetIds.Count == 0)
+		{
+			GroupToolbar.Visibility = Visibility.Collapsed;
+			return;
+		}
+
+		GroupToolbar.Visibility = Visibility.Visible;
+		GroupSelectionCountText.Text = Loc.Format(LocGroupSelectedCount, _selectedPresetIds.Count);
+	}
+
+	private void BuildGroupColorSwatches()
+	{
+		GroupColorSwatches.Children.Clear();
+		_groupColorSwatches.Clear();
+
+		foreach (var (key, hex) in GroupColors.Palette)
+		{
+			var colorBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)!);
+
+			var swatch = new Border
+			{
+				Width = GroupSwatchSize,
+				Height = GroupSwatchSize,
+				CornerRadius = new CornerRadius(GroupSwatchSize),
+				Background = colorBrush,
+				BorderBrush = Brush(BrushText),
+				BorderThickness = new Thickness(0),
+				Margin = new Thickness(4, 0, 4, 0),
+				Cursor = Cursors.Hand,
+			};
+
+			swatch.MouseLeftButtonUp += (_, _) =>
+			{
+				_pendingGroupColorKey = key;
+
+				foreach (var other in _groupColorSwatches)
+					other.BorderThickness = new Thickness(0);
+
+				swatch.BorderThickness = new Thickness(GroupSwatchRingThickness);
+			};
+
+			GroupColorSwatches.Children.Add(swatch);
+			_groupColorSwatches.Add(swatch);
+		}
+	}
+
+	private void OnGroupCreateClick(object sender, RoutedEventArgs e)
+	{
+		if (_selectedPresetIds.Count == 0 || _pendingGroupColorKey == null)
+			return;
+
+		var name = GroupNameBox.Text.Trim();
+		if (name.Length == 0)
+			name = Loc.Get(LocGroupDefaultName);
+
+		foreach (var presetId in _selectedPresetIds)
+		{
+			if (_presetToGroup.TryGetValue(presetId, out var oldGroup))
+				GroupStore.RemoveMember(oldGroup.Id, presetId);
+		}
+
+		var group = new PresetGroup
+		{
+			Id = Guid.NewGuid().ToString("N"),
+			Name = name,
+			ColorKey = _pendingGroupColorKey,
+			Collapsed = false,
+			MemberPresetIds = _selectedPresetIds.ToList(),
+		};
+
+		GroupStore.Save(group);
+		ReloadGallery();
+		ToastService.Show(RootGrid, Loc.Format(LocGroupToastCreated, group.Name));
+	}
+
+	private void OnGroupCancelClick(object sender, RoutedEventArgs e) => ReloadGallery();
 
 	private FrameworkElement CreateAddCell()
 	{
@@ -852,6 +1414,9 @@ public partial class MainWindow : Window
 		if (answer != MessageBoxResult.Yes)
 			return;
 
+		if (_presetToGroup.TryGetValue(preset.Id, out var owningGroup))
+			GroupStore.RemoveMember(owningGroup.Id, preset.Id);
+
 		PresetStore.Delete(preset.Id);
 
 		if (_activePresetId == preset.Id)
@@ -865,16 +1430,21 @@ public partial class MainWindow : Window
 
 	private void MovePreset(Preset preset, int direction)
 	{
-		var index = _presets.FindIndex(candidate => candidate.Id == preset.Id);
-		if (index < 0)
+		var visibleIndex = _visibleBoardIds.IndexOf(preset.Id);
+		if (visibleIndex < 0)
 			return;
 
-		var targetIndex = index + direction;
-		if (targetIndex < 0 || targetIndex >= _presets.Count)
+		var targetVisibleIndex = visibleIndex + direction;
+		if (targetVisibleIndex < 0 || targetVisibleIndex >= _visibleBoardIds.Count)
 			return;
 
-		(_presets[index], _presets[targetIndex]) = (_presets[targetIndex], _presets[index]);
-		PersistPresetOrder();
+		var ownIndex = _boardOrderIds.IndexOf(preset.Id);
+		var targetIndex = _boardOrderIds.IndexOf(_visibleBoardIds[targetVisibleIndex]);
+		if (ownIndex < 0 || targetIndex < 0)
+			return;
+
+		(_boardOrderIds[ownIndex], _boardOrderIds[targetIndex]) = (_boardOrderIds[targetIndex], _boardOrderIds[ownIndex]);
+		PersistBoardOrder();
 	}
 
 	private void DownloadPreset(Preset preset)
@@ -996,27 +1566,49 @@ public partial class MainWindow : Window
 		textBox.SelectAll();
 	}
 
-	private void ReorderPreset(string draggedPresetId, int insertBeforeIndex)
+	private void ReorderBoardItem(string draggedId, int insertBeforeIndex)
 	{
-		var draggedIndex = _presets.FindIndex(preset => preset.Id == draggedPresetId);
+		var draggedIndex = _boardOrderIds.IndexOf(draggedId);
 		if (draggedIndex < 0)
 			return;
 
-		var dragged = _presets[draggedIndex];
-		_presets.RemoveAt(draggedIndex);
+		_boardOrderIds.RemoveAt(draggedIndex);
 
 		if (draggedIndex < insertBeforeIndex)
 			insertBeforeIndex--;
 
-		insertBeforeIndex = Math.Clamp(insertBeforeIndex, 0, _presets.Count);
-		_presets.Insert(insertBeforeIndex, dragged);
+		insertBeforeIndex = Math.Clamp(insertBeforeIndex, 0, _boardOrderIds.Count);
+		_boardOrderIds.Insert(insertBeforeIndex, draggedId);
 
-		PersistPresetOrder();
+		PersistBoardOrder();
 	}
 
-	private void PersistPresetOrder()
+	private void ConsolidateGroup(string groupId)
 	{
-		PresetStore.Reorder(_presets.Select(preset => preset.Id).ToList());
+		var group = _groups.FirstOrDefault(candidate => candidate.Id == groupId);
+		if (group == null)
+			return;
+
+		var groupIndex = _boardOrderIds.IndexOf(groupId);
+		if (groupIndex < 0)
+			return;
+
+		var memberIds = _boardOrderIds.Where(id => group.MemberPresetIds.Contains(id)).ToList();
+		if (memberIds.Count == 0)
+			return;
+
+		_boardOrderIds.RemoveAll(id => group.MemberPresetIds.Contains(id));
+
+		groupIndex = _boardOrderIds.IndexOf(groupId);
+		_boardOrderIds.InsertRange(groupIndex + 1, memberIds);
+
+		PersistBoardOrder();
+		ToastService.Show(RootGrid, Loc.Format(LocGroupToastConsolidated, group.Name));
+	}
+
+	private void PersistBoardOrder()
+	{
+		BoardOrderStore.Save(_boardOrderIds);
 		ReloadGallery();
 	}
 
@@ -1038,12 +1630,35 @@ public partial class MainWindow : Window
 		_draggedPresetId = preset.Id;
 	}
 
+	private void BeginGroupDragGhost(PresetGroup group)
+	{
+		var size = CellSize * _cellScale;
+		DragGhost.Width = size;
+		DragGhost.Height = size;
+
+		DragGhostImage.Visibility = Visibility.Collapsed;
+		DragGhost.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(group.ColorKey))!);
+
+		DragGhostText.Text = group.Name;
+		DragGhostText.FontSize = CellNameFontSize * CellFontScale;
+		DragGhostText.Foreground = System.Windows.Media.Brushes.White;
+
+		DragGhost.Visibility = Visibility.Visible;
+		_draggedGroupId = group.Id;
+	}
+
 	private void EndDragGhost()
 	{
 		DragGhost.Visibility = Visibility.Collapsed;
+		DragGhost.Background = Brush(BrushSurface);
+		DragGhostImage.Visibility = Visibility.Visible;
+		DragGhostText.ClearValue(TextBlock.ForegroundProperty);
 		ReorderInsertionLine.Visibility = Visibility.Collapsed;
+		GroupAttachIndicator.Visibility = Visibility.Collapsed;
 		_pendingInsertIndex = null;
+		_pendingGroupAttachId = null;
 		_draggedPresetId = null;
+		_draggedGroupId = null;
 	}
 
 	private void UpdateDragGhostPosition(Point positionInRoot)
@@ -1052,18 +1667,48 @@ public partial class MainWindow : Window
 		DragGhostTransform.Y = positionInRoot.Y - DragGhost.Height / 2;
 	}
 
-	private void UpdateReorderIndicator(Point positionInRoot)
+	private Rect GetClippedItemBoundsInGallery(FrameworkElement container)
 	{
-		var cells = new List<(int presetIndex, Rect bounds)>();
+		// Everything here stays in Gallery's own coordinate space (never RootGrid's) so that
+		// hit-testing/row-matching can never be thrown off by however Gallery's offset within
+		// RootGrid gets computed. The only place that offset matters is the final on-screen
+		// placement of the indicators, applied once, right before setting their transform.
+		var topLeftInGallery = container.TransformToAncestor(Gallery).Transform(new Point(0, 0));
 
-		for (var presetIndex = 0; presetIndex < _presets.Count; presetIndex++)
+		return new Rect(topLeftInGallery.X, topLeftInGallery.Y,
+			container.RenderSize.Width, container.RenderSize.Height);
+	}
+
+	private void UpdateReorderIndicator(Point positionInRoot, Point positionInGallery) =>
+		UpdateBoardReorderIndicator(positionInRoot, positionInGallery, _draggedPresetId, allowGroupAttach: true);
+
+	private void UpdateGroupReorderIndicator(Point positionInRoot, Point positionInGallery) =>
+		UpdateBoardReorderIndicator(positionInRoot, positionInGallery, _draggedGroupId, allowGroupAttach: false);
+
+	private void UpdateBoardReorderIndicator(Point positionInRoot, Point positionInGallery, string? draggedId, bool allowGroupAttach)
+	{
+		var galleryOffsetInRoot = positionInRoot - positionInGallery;
+		var cells = new List<(BoardEntry entry, Rect bounds)>();
+
+		for (var itemIndex = 0; itemIndex < _boardOrder.Count; itemIndex++)
 		{
-			if (Gallery.ItemContainerGenerator.ContainerFromIndex(presetIndex + 1) is not FrameworkElement container)
+			if (Gallery.ItemContainerGenerator.ContainerFromIndex(itemIndex + 1) is not FrameworkElement container)
 				continue;
 
-			var topLeft = container.TransformToAncestor(RootGrid).Transform(new Point(0, 0));
-			cells.Add((presetIndex, new Rect(topLeft, container.RenderSize)));
+			cells.Add((_boardOrder[itemIndex], GetClippedItemBoundsInGallery(container)));
 		}
+
+		if (allowGroupAttach)
+		{
+			var groupHover = cells.FirstOrDefault(cell => cell.entry.Group != null && IsInCenterZone(cell.bounds, positionInGallery));
+			if (groupHover.entry?.Group != null)
+			{
+				SetGroupAttachIndicator(groupHover.entry.Group.Id, groupHover.entry.Group.Collapsed, groupHover.bounds, galleryOffsetInRoot);
+				return;
+			}
+		}
+
+		ClearGroupAttachIndicator();
 
 		if (cells.Count == 0)
 		{
@@ -1072,35 +1717,54 @@ public partial class MainWindow : Window
 			return;
 		}
 
-		var rowTop = cells
-			.Select(cell => cell.bounds)
-			.OrderBy(bounds => Math.Abs(bounds.Top + bounds.Height / 2 - positionInRoot.Y))
-			.First()
-			.Top;
-
-		var rowCells = cells
-			.Where(cell => Math.Abs(cell.bounds.Top - rowTop) < ReorderRowGroupingTolerance)
-			.OrderBy(cell => cell.bounds.Left)
+		var rows = cells
+			.GroupBy(cell => Math.Round(cell.bounds.Top / ReorderRowGroupingTolerance) * ReorderRowGroupingTolerance)
+			.Select(group =>
+			{
+				var ordered = group.OrderBy(cell => cell.bounds.Left).ToList();
+				var top = ordered.Min(c => c.bounds.Top);
+				var bottom = ordered.Max(c => c.bounds.Bottom);
+				return (top, bottom, cells: ordered);
+			})
+			.OrderBy(r => r.top)
 			.ToList();
 
-		foreach (var (presetIndex, bounds) in rowCells)
+		if (rows.Count == 0)
 		{
-			if (positionInRoot.X >= bounds.Left + bounds.Width / 2)
-				continue;
-
-			SetInsertionIndicator(presetIndex, bounds.Left - CellMargin, bounds.Top, bounds.Height);
+			_pendingInsertIndex = 0;
+			ReorderInsertionLine.Visibility = Visibility.Collapsed;
 			return;
 		}
 
-		var lastCellBounds = rowCells[^1].bounds;
-		SetInsertionIndicator(rowCells[^1].presetIndex + 1, lastCellBounds.Right + CellMargin, lastCellBounds.Top, lastCellBounds.Height);
+		var selectedRow = rows.FirstOrDefault(row => positionInGallery.Y >= row.top && positionInGallery.Y <= row.bottom);
+		if (selectedRow.cells.Count == 0)
+		{
+			if (positionInGallery.Y < rows[0].top)
+				selectedRow = rows[0];
+			else
+				selectedRow = rows[^1];
+		}
+
+		var rowTop = selectedRow.top;
+		var rowHeight = selectedRow.bottom - selectedRow.top;
+		var rowCells = selectedRow.cells;
+
+		foreach (var (entry, bounds) in rowCells)
+		{
+			if (positionInGallery.X >= bounds.Left + bounds.Width / 2)
+				continue;
+
+			SetInsertionIndicator(entry.BoardIndex, bounds.Left - CellMargin, rowTop, rowHeight);
+			return;
+		}
+
+		var lastCell = rowCells[^1];
+		SetInsertionIndicator(lastCell.entry.BoardIndex + 1, lastCell.bounds.Right + CellMargin, rowTop, rowHeight);
 		return;
 
-		void SetInsertionIndicator(int insertBeforeIndex, double centerX, double top, double height)
+		void SetInsertionIndicator(int insertBeforeIndex, double centerXInGallery, double topInGallery, double height)
 		{
-			var draggedIndex = _draggedPresetId != null
-				? _presets.FindIndex(preset => preset.Id == _draggedPresetId)
-				: -1;
+			var draggedIndex = draggedId != null ? _boardOrderIds.IndexOf(draggedId) : -1;
 
 			if (draggedIndex >= 0 && (insertBeforeIndex == draggedIndex || insertBeforeIndex == draggedIndex + 1))
 			{
@@ -1110,11 +1774,70 @@ public partial class MainWindow : Window
 			}
 
 			_pendingInsertIndex = insertBeforeIndex;
-			ReorderInsertionLineTransform.X = centerX - ReorderIndicatorWidth / 2;
-			ReorderInsertionLineTransform.Y = top;
+			ReorderInsertionLineTransform.X = centerXInGallery + galleryOffsetInRoot.X - ReorderIndicatorWidth / 2;
+			ReorderInsertionLineTransform.Y = topInGallery + galleryOffsetInRoot.Y;
 			ReorderInsertionLine.Height = height;
 			ReorderInsertionLine.Visibility = Visibility.Visible;
 		}
+	}
+
+	private static bool IsInCenterZone(Rect bounds, Point point)
+	{
+		var marginX = bounds.Width * GroupAttachZoneMargin;
+		var marginY = bounds.Height * GroupAttachZoneMargin;
+		var zone = new Rect(bounds.Left + marginX, bounds.Top + marginY,
+			Math.Max(0, bounds.Width - 2 * marginX), Math.Max(0, bounds.Height - 2 * marginY));
+
+		return zone.Contains(point);
+	}
+
+	private void SetGroupAttachIndicator(string groupId, bool collapsed, Rect boundsInGallery, Vector galleryOffsetInRoot)
+	{
+		_pendingGroupAttachId = groupId;
+		_pendingInsertIndex = null;
+		ReorderInsertionLine.Visibility = Visibility.Collapsed;
+
+		var colorKey = _groups.FirstOrDefault(candidate => candidate.Id == groupId)?.ColorKey;
+		GroupAttachIndicator.Stroke = colorKey != null
+			? new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(colorKey))!)
+			: Brush(BrushAccent);
+
+		var cellSize = CellSize * _cellScale;
+		var tileTop = collapsed
+			? boundsInGallery.Top
+			: boundsInGallery.Top + (boundsInGallery.Height - cellSize) / 2;
+
+		GroupAttachIndicatorTransform.X = boundsInGallery.Left + galleryOffsetInRoot.X - GroupOutlinePadding;
+		GroupAttachIndicatorTransform.Y = tileTop + galleryOffsetInRoot.Y - GroupOutlinePadding;
+		GroupAttachIndicator.Width = cellSize + GroupOutlinePadding * 2;
+		GroupAttachIndicator.Height = cellSize + GroupOutlinePadding * 2;
+		GroupAttachIndicator.Visibility = Visibility.Visible;
+	}
+
+	private void ClearGroupAttachIndicator()
+	{
+		_pendingGroupAttachId = null;
+		GroupAttachIndicator.Visibility = Visibility.Collapsed;
+	}
+
+	private void AttachPresetToGroup(string draggedPresetId, string groupId)
+	{
+		if (!_groups.Any(candidate => candidate.Id == groupId))
+			return;
+
+		if (_presetToGroup.TryGetValue(draggedPresetId, out var oldGroup) && oldGroup.Id != groupId)
+			GroupStore.RemoveMember(oldGroup.Id, draggedPresetId);
+
+		GroupStore.AddMember(groupId, draggedPresetId);
+
+		var groupIndex = _boardOrderIds.IndexOf(groupId);
+		if (groupIndex < 0)
+		{
+			ReloadGallery();
+			return;
+		}
+
+		ReorderBoardItem(draggedPresetId, groupIndex + 1);
 	}
 
 	private void EditPreset(Preset preset) => OpenEditor(preset, Array.Empty<string>());
@@ -1218,8 +1941,21 @@ public partial class MainWindow : Window
 		if (e.Data.GetDataPresent(PresetDragFormatName))
 		{
 			var positionInRoot = e.GetPosition(RootGrid);
+			var positionInGallery = e.GetPosition(Gallery);
 			UpdateDragGhostPosition(positionInRoot);
-			UpdateReorderIndicator(positionInRoot);
+			UpdateReorderIndicator(positionInRoot, positionInGallery);
+
+			e.Effects = DragDropEffects.Move;
+			e.Handled = true;
+			return;
+		}
+
+		if (e.Data.GetDataPresent(GroupDragFormatName))
+		{
+			var positionInRoot = e.GetPosition(RootGrid);
+			var positionInGallery = e.GetPosition(Gallery);
+			UpdateDragGhostPosition(positionInRoot);
+			UpdateGroupReorderIndicator(positionInRoot, positionInGallery);
 
 			e.Effects = DragDropEffects.Move;
 			e.Handled = true;
@@ -1232,7 +1968,7 @@ public partial class MainWindow : Window
 
 	private void OnWindowDragEnter(object sender, DragEventArgs e)
 	{
-		if (e.Data.GetDataPresent(PresetDragFormatName))
+		if (e.Data.GetDataPresent(PresetDragFormatName) || e.Data.GetDataPresent(GroupDragFormatName))
 		{
 			DragGhost.Visibility = Visibility.Visible;
 			return;
@@ -1246,10 +1982,11 @@ public partial class MainWindow : Window
 	{
 		WindowDropIndicator.Visibility = Visibility.Collapsed;
 
-		if (e.Data.GetDataPresent(PresetDragFormatName))
+		if (e.Data.GetDataPresent(PresetDragFormatName) || e.Data.GetDataPresent(GroupDragFormatName))
 		{
 			DragGhost.Visibility = Visibility.Collapsed;
 			ReorderInsertionLine.Visibility = Visibility.Collapsed;
+			GroupAttachIndicator.Visibility = Visibility.Collapsed;
 		}
 	}
 
@@ -1261,8 +1998,20 @@ public partial class MainWindow : Window
 		{
 			e.Handled = true;
 
-			if (_pendingInsertIndex is { } insertIndex)
-				ReorderPreset(draggedPresetId, insertIndex);
+			if (_pendingGroupAttachId is { } groupId)
+				AttachPresetToGroup(draggedPresetId, groupId);
+			else if (_pendingInsertIndex is { } insertIndex)
+				ReorderBoardItem(draggedPresetId, insertIndex);
+
+			return;
+		}
+
+		if (e.Data.GetData(GroupDragFormatName) is string draggedGroupId)
+		{
+			e.Handled = true;
+
+			if (_pendingInsertIndex is { } groupInsertIndex)
+				ReorderBoardItem(draggedGroupId, groupInsertIndex);
 
 			return;
 		}

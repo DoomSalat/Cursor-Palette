@@ -14,6 +14,7 @@ public static class PresetPackageService
 
 	private const string BundleMarkerFileName = "bundle.json";
 	private const string ArchiveMarkerFileName = "cursor-palette-archive.json";
+	private const string GroupsFileName = "groups.json";
 	private const string PresetsFolderName = "presets";
 	private const string FilesFolderName = "files";
 	private const string ManifestFileName = "manifest.json";
@@ -85,6 +86,8 @@ public static class PresetPackageService
 
 			File.WriteAllText(Path.Combine(stagingDir, BundleMarkerFileName),
 				JsonSerializer.Serialize(new PackageMarker { Format = BundleFormatId, Version = FormatVersion }, JsonOptions));
+
+			WriteExportedGroups(stagingDir, presets);
 
 			var destPath = GetUniqueDownloadPath(ResolveExportName(customName, DefaultBundleName), BundleExtension);
 
@@ -213,7 +216,15 @@ public static class PresetPackageService
 				return null;
 			}
 
-			return new DetectedPackage { Kind = PackageKind.Bundle, ExtractedDir = extractedDir, Entries = entries };
+			var groups = ReadExportedGroups(extractedDir);
+
+			return new DetectedPackage
+			{
+				Kind = PackageKind.Bundle,
+				ExtractedDir = extractedDir,
+				Entries = entries,
+				Groups = groups,
+			};
 		}
 
 		var archiveMarkerPath = Path.Combine(extractedDir, ArchiveMarkerFileName);
@@ -266,9 +277,11 @@ public static class PresetPackageService
 	}
 
 	public static int ImportSelected(DetectedPackage package, IReadOnlyList<PackageEntry> selectedEntries,
+		IReadOnlyList<PackageGroupEntry>? selectedGroups = null,
 		bool ignoreIndividualSizes = false, int uniformSize = RegistryCursorService.DefaultBaseSize)
 	{
 		var imported = 0;
+		var keyToNewId = new Dictionary<string, string>();
 
 		foreach (var entry in selectedEntries)
 		{
@@ -282,14 +295,68 @@ public static class PresetPackageService
 			if (ignoreIndividualSizes)
 				draft.BaseSize = uniformSize;
 
-			PresetStore.Save(draft);
+			var saved = PresetStore.Save(draft);
+			keyToNewId[entry.Key] = saved.Id;
 			imported++;
+		}
+
+		foreach (var group in selectedGroups ?? Array.Empty<PackageGroupEntry>())
+		{
+			var memberIds = group.MemberKeys
+				.Where(keyToNewId.ContainsKey)
+				.Select(key => keyToNewId[key])
+				.ToList();
+
+			if (memberIds.Count == 0)
+				continue;
+
+			GroupStore.Save(new PresetGroup
+			{
+				Id = Guid.NewGuid().ToString("N"),
+				Name = group.Name,
+				ColorKey = group.ColorKey,
+				Collapsed = group.Collapsed,
+				MemberPresetIds = memberIds,
+			});
 		}
 
 		return imported;
 	}
 
 	public static void CleanupPackage(DetectedPackage package) => TryDeleteDir(package.ExtractedDir);
+
+	private static void WriteExportedGroups(string stagingDir, IReadOnlyList<Preset> exportedPresets)
+	{
+		var exportedIds = exportedPresets.Select(preset => preset.Id).ToHashSet();
+
+		var fullyIncludedGroups = GroupStore.LoadAll()
+			.Where(group => group.MemberPresetIds.Count > 0 && group.MemberPresetIds.All(exportedIds.Contains))
+			.Select(group => new PackageGroupEntry
+			{
+				Id = group.Id,
+				Name = group.Name,
+				ColorKey = group.ColorKey,
+				Collapsed = group.Collapsed,
+				MemberKeys = group.MemberPresetIds.ToList(),
+			})
+			.ToList();
+
+		if (fullyIncludedGroups.Count == 0)
+			return;
+
+		File.WriteAllText(Path.Combine(stagingDir, GroupsFileName),
+			JsonSerializer.Serialize(fullyIncludedGroups, JsonOptions));
+	}
+
+	private static List<PackageGroupEntry> ReadExportedGroups(string extractedDir)
+	{
+		var groupsPath = Path.Combine(extractedDir, GroupsFileName);
+
+		if (!File.Exists(groupsPath))
+			return new();
+
+		return TryReadJson<List<PackageGroupEntry>>(groupsPath) ?? new();
+	}
 
 	private static PresetDraft? BuildBundleDraft(string extractedDir, PackageEntry entry)
 	{

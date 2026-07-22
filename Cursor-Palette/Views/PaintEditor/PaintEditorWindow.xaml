@@ -172,12 +172,31 @@
 							</Rectangle.OpacityMask>
 						</Rectangle>
 					</ToggleButton>
+					<ToggleButton x:Name="ToolFillButton"
+								  Style="{StaticResource Style.ToolButton}"
+								  Margin="4,0,0,0"
+								  ToolTip="{DynamicResource S.Editor.Tool.Fill}"
+								  Click="OnToolFillClick">
+						<Rectangle Width="18" Height="18"
+								   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}">
+							<Rectangle.OpacityMask>
+								<ImageBrush ImageSource="pack://application:,,,/Resources/FillIcon32.png" Stretch="Uniform" />
+							</Rectangle.OpacityMask>
+						</Rectangle>
+					</ToggleButton>
 					<ToggleButton x:Name="ToolCanvasButton"
 								  Style="{StaticResource Style.ToolButton}"
 								  Margin="4,0,0,0"
 								  ToolTip="{DynamicResource S.Editor.Tool.Canvas}"
 								  Click="OnToolCanvasClick">
 						<TextBlock Text="⛶" FontSize="16" />
+					</ToggleButton>
+					<ToggleButton x:Name="ToolHotspotButton"
+								  Style="{StaticResource Style.ToolButton}"
+								  Margin="4,0,0,0"
+								  ToolTip="{DynamicResource S.Editor.Tool.Hotspot}"
+								  Click="OnToolHotspotClick">
+						<TextBlock Text="🎯" FontSize="16" />
 					</ToggleButton>
 				</StackPanel>
 			</DockPanel>
@@ -429,6 +448,12 @@
 								Click="OnCanvasToolApplyClick" />
 					</StackPanel>
 					<StackPanel x:Name="BrushToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
+						<TextBlock Text="{DynamicResource S.Editor.Tool.ComingSoon}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+					</StackPanel>
+					<StackPanel x:Name="FillToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
+						<TextBlock Text="{DynamicResource S.Editor.Tool.ComingSoon}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+					</StackPanel>
+					<StackPanel x:Name="HotspotToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
 						<TextBlock Text="{DynamicResource S.Editor.Tool.ComingSoon}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
 					</StackPanel>
 				</DockPanel>

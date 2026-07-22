@@ -11,18 +11,24 @@ public partial class PaintEditorWindow
 		var isMove = _currentTool == AppState.PaintEditorToolMove;
 		var isHand = _currentTool == AppState.PaintEditorToolHand;
 		var isCanvas = _currentTool == AppState.PaintEditorToolCanvas;
-		var isBrushOrEraser = !isMove && !isHand && !isCanvas;
+		var isBrushOrEraser = !isMove && !isHand && !isCanvas && _currentTool != AppState.PaintEditorToolFill && _currentTool != AppState.PaintEditorToolHotspot;
+		var isFill = _currentTool == AppState.PaintEditorToolFill;
+		var isHotspot = _currentTool == AppState.PaintEditorToolHotspot;
 
 		ToolMoveButton.IsChecked = isMove;
 		ToolHandButton.IsChecked = isHand;
 		ToolBrushButton.IsChecked = _currentTool == AppState.PaintEditorToolBrush;
 		ToolEraserButton.IsChecked = _currentTool == AppState.PaintEditorToolEraser;
+		ToolFillButton.IsChecked = isFill;
 		ToolCanvasButton.IsChecked = isCanvas;
+		ToolHotspotButton.IsChecked = isHotspot;
 
 		MoveToolPanel.Visibility = isMove ? Visibility.Visible : Visibility.Collapsed;
 		HandToolPanel.Visibility = isHand ? Visibility.Visible : Visibility.Collapsed;
 		CanvasToolPanel.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
 		BrushToolPanel.Visibility = isBrushOrEraser ? Visibility.Visible : Visibility.Collapsed;
+		FillToolPanel.Visibility = isFill ? Visibility.Visible : Visibility.Collapsed;
+		HotspotToolPanel.Visibility = isHotspot ? Visibility.Visible : Visibility.Collapsed;
 
 		PreviewImage.IsHitTestVisible = isMove;
 		ResizeOverlay.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
@@ -71,7 +77,11 @@ public partial class PaintEditorWindow
 
 	private void OnToolEraserClick(object sender, RoutedEventArgs e) => SetTool(AppState.PaintEditorToolEraser);
 
+	private void OnToolFillClick(object sender, RoutedEventArgs e) => SetTool(AppState.PaintEditorToolFill);
+
 	private void OnToolCanvasClick(object sender, RoutedEventArgs e) => SetTool(AppState.PaintEditorToolCanvas);
+
+	private void OnToolHotspotClick(object sender, RoutedEventArgs e) => SetTool(AppState.PaintEditorToolHotspot);
 
 	private void OnCanvasToolApplyClick(object sender, RoutedEventArgs e)
 	{
