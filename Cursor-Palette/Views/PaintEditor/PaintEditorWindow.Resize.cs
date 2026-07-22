@@ -12,6 +12,8 @@ public partial class PaintEditorWindow
 		_resizeOriginalHeight = _canvasHeight;
 		_resizeOriginalOffsetX = _offsetX;
 		_resizeOriginalOffsetY = _offsetY;
+		_resizeOriginalPanX = CanvasPanTransform.X;
+		_resizeOriginalPanY = CanvasPanTransform.Y;
 		_resizeAccumX = 0;
 		_resizeAccumY = 0;
 
@@ -42,6 +44,15 @@ public partial class PaintEditorWindow
 		ResizeSizeLabel.Text = $"{_canvasWidth}x{_canvasHeight}";
 	}
 
+	private void ShiftPanForGrowth(int growthX, int growthY)
+	{
+		CanvasPanTransform.X = _resizeOriginalPanX - growthX * _zoom;
+		CanvasPanTransform.Y = _resizeOriginalPanY - growthY * _zoom;
+
+		Canvas.SetLeft(ShadowRect, growthX);
+		Canvas.SetTop(ShadowRect, growthY);
+	}
+
 	private void OnThumbRightDrag(object sender, DragDeltaEventArgs e)
 	{
 		_resizeAccumX += e.HorizontalChange;
@@ -69,9 +80,11 @@ public partial class PaintEditorWindow
 		_resizeAccumX += e.HorizontalChange;
 		var delta = (int)Math.Round(_resizeAccumX);
 		var newWidth = Math.Clamp(_resizeOriginalWidth - delta, MinCanvasDimension, MaxCanvasDimension);
-		_offsetX = _resizeOriginalOffsetX + (newWidth - _resizeOriginalWidth);
+		var growthX = newWidth - _resizeOriginalWidth;
+		_offsetX = _resizeOriginalOffsetX + growthX;
 		_canvasWidth = newWidth;
 
+		ShiftPanForGrowth(growthX, 0);
 		ClampOffset();
 		RenderAll();
 		UpdateResizeLabel();
@@ -82,9 +95,11 @@ public partial class PaintEditorWindow
 		_resizeAccumY += e.VerticalChange;
 		var delta = (int)Math.Round(_resizeAccumY);
 		var newHeight = Math.Clamp(_resizeOriginalHeight - delta, MinCanvasDimension, MaxCanvasDimension);
-		_offsetY = _resizeOriginalOffsetY + (newHeight - _resizeOriginalHeight);
+		var growthY = newHeight - _resizeOriginalHeight;
+		_offsetY = _resizeOriginalOffsetY + growthY;
 		_canvasHeight = newHeight;
 
+		ShiftPanForGrowth(0, growthY);
 		ClampOffset();
 		RenderAll();
 		UpdateResizeLabel();
@@ -98,11 +113,14 @@ public partial class PaintEditorWindow
 		var dy = (int)Math.Round(_resizeAccumY);
 		var newWidth = Math.Clamp(_resizeOriginalWidth - dx, MinCanvasDimension, MaxCanvasDimension);
 		var newHeight = Math.Clamp(_resizeOriginalHeight - dy, MinCanvasDimension, MaxCanvasDimension);
-		_offsetX = _resizeOriginalOffsetX + (newWidth - _resizeOriginalWidth);
-		_offsetY = _resizeOriginalOffsetY + (newHeight - _resizeOriginalHeight);
+		var growthX = newWidth - _resizeOriginalWidth;
+		var growthY = newHeight - _resizeOriginalHeight;
+		_offsetX = _resizeOriginalOffsetX + growthX;
+		_offsetY = _resizeOriginalOffsetY + growthY;
 		_canvasWidth = newWidth;
 		_canvasHeight = newHeight;
 
+		ShiftPanForGrowth(growthX, growthY);
 		ClampOffset();
 		RenderAll();
 		UpdateResizeLabel();
@@ -116,10 +134,12 @@ public partial class PaintEditorWindow
 		var dy = (int)Math.Round(_resizeAccumY);
 		var newWidth = Math.Clamp(_resizeOriginalWidth + dx, MinCanvasDimension, MaxCanvasDimension);
 		var newHeight = Math.Clamp(_resizeOriginalHeight - dy, MinCanvasDimension, MaxCanvasDimension);
-		_offsetY = _resizeOriginalOffsetY + (newHeight - _resizeOriginalHeight);
+		var growthY = newHeight - _resizeOriginalHeight;
+		_offsetY = _resizeOriginalOffsetY + growthY;
 		_canvasWidth = newWidth;
 		_canvasHeight = newHeight;
 
+		ShiftPanForGrowth(0, growthY);
 		ClampOffset();
 		RenderAll();
 		UpdateResizeLabel();
@@ -133,10 +153,12 @@ public partial class PaintEditorWindow
 		var dy = (int)Math.Round(_resizeAccumY);
 		var newWidth = Math.Clamp(_resizeOriginalWidth - dx, MinCanvasDimension, MaxCanvasDimension);
 		var newHeight = Math.Clamp(_resizeOriginalHeight + dy, MinCanvasDimension, MaxCanvasDimension);
-		_offsetX = _resizeOriginalOffsetX + (newWidth - _resizeOriginalWidth);
+		var growthX = newWidth - _resizeOriginalWidth;
+		_offsetX = _resizeOriginalOffsetX + growthX;
 		_canvasWidth = newWidth;
 		_canvasHeight = newHeight;
 
+		ShiftPanForGrowth(growthX, 0);
 		ClampOffset();
 		RenderAll();
 		UpdateResizeLabel();

@@ -58,17 +58,33 @@
 			</Setter>
 		</Style>
 
-		<Style x:Key="Style.ResizeThumb" TargetType="Thumb">
-			<Setter Property="Background" Value="{StaticResource Brush.Accent}" />
-			<Setter Property="BorderBrush" Value="{StaticResource Brush.Surface}" />
-			<Setter Property="BorderThickness" Value="1" />
+		<Style x:Key="Style.ResizeThumbCorner" TargetType="Thumb">
+			<Setter Property="Background" Value="White" />
+			<Setter Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
+			<Setter Property="BorderThickness" Value="2" />
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="Thumb">
 						<Border Background="{TemplateBinding Background}"
 								BorderBrush="{TemplateBinding BorderBrush}"
-								BorderThickness="{TemplateBinding BorderThickness}"
-								CornerRadius="2" />
+								BorderThickness="{TemplateBinding BorderThickness}" />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<Style x:Key="Style.ResizeThumbEdge" TargetType="Thumb">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Thumb">
+						<Border x:Name="Bd" Background="{TemplateBinding Background}" />
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Bd" Property="Background" Value="{StaticResource Brush.Accent}" />
+								<Setter TargetName="Bd" Property="Opacity" Value="0.35" />
+							</Trigger>
+						</ControlTemplate.Triggers>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
@@ -299,16 +315,16 @@
 					<Rectangle x:Name="CanvasBgRect" Fill="{DynamicResource Brush.Checkerboard}" />
 					<Image x:Name="PreviewImage" SnapsToDevicePixels="True" MouseLeftButtonDown="OnSpriteMouseLeftButtonDown" MouseMove="OnSpriteMouseMove" MouseLeftButtonUp="OnSpriteMouseLeftButtonUp" Cursor="SizeAll" />
 					<Rectangle x:Name="SpriteBoundsRect" Stroke="#FFFF8800" StrokeThickness="2" IsHitTestVisible="False" Visibility="Collapsed" />
-					<Canvas x:Name="ResizeOverlay" IsHitTestVisible="True" Visibility="Collapsed">
+					<Canvas x:Name="ResizeOverlay" IsHitTestVisible="True" UseLayoutRounding="False" Visibility="Collapsed">
 						<Rectangle x:Name="CanvasBorderRect" Stroke="{DynamicResource Brush.Accent}" StrokeThickness="2" IsHitTestVisible="False" />
-						<Thumb x:Name="ThumbTop" Style="{StaticResource Style.ResizeThumb}" Width="20" Height="6" Cursor="SizeNS" DragDelta="OnThumbTopDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
-						<Thumb x:Name="ThumbBottom" Style="{StaticResource Style.ResizeThumb}" Width="20" Height="6" Cursor="SizeNS" DragDelta="OnThumbBottomDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
-						<Thumb x:Name="ThumbLeft" Style="{StaticResource Style.ResizeThumb}" Width="6" Height="20" Cursor="SizeWE" DragDelta="OnThumbLeftDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
-						<Thumb x:Name="ThumbRight" Style="{StaticResource Style.ResizeThumb}" Width="6" Height="20" Cursor="SizeWE" DragDelta="OnThumbRightDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
-						<Thumb x:Name="ThumbTopLeft" Style="{StaticResource Style.ResizeThumb}" Width="8" Height="8" Cursor="SizeNWSE" DragDelta="OnThumbTopLeftDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
-						<Thumb x:Name="ThumbTopRight" Style="{StaticResource Style.ResizeThumb}" Width="8" Height="8" Cursor="SizeNESW" DragDelta="OnThumbTopRightDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
-						<Thumb x:Name="ThumbBottomLeft" Style="{StaticResource Style.ResizeThumb}" Width="8" Height="8" Cursor="SizeNESW" DragDelta="OnThumbBottomLeftDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
-						<Thumb x:Name="ThumbBottomRight" Style="{StaticResource Style.ResizeThumb}" Width="8" Height="8" Cursor="SizeNWSE" DragDelta="OnThumbBottomRightDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbTop" Style="{StaticResource Style.ResizeThumbEdge}" Cursor="SizeNS" DragDelta="OnThumbTopDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbBottom" Style="{StaticResource Style.ResizeThumbEdge}" Cursor="SizeNS" DragDelta="OnThumbBottomDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbLeft" Style="{StaticResource Style.ResizeThumbEdge}" Cursor="SizeWE" DragDelta="OnThumbLeftDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbRight" Style="{StaticResource Style.ResizeThumbEdge}" Cursor="SizeWE" DragDelta="OnThumbRightDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbTopLeft" Style="{StaticResource Style.ResizeThumbCorner}" Cursor="SizeNWSE" DragDelta="OnThumbTopLeftDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbTopRight" Style="{StaticResource Style.ResizeThumbCorner}" Cursor="SizeNESW" DragDelta="OnThumbTopRightDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbBottomLeft" Style="{StaticResource Style.ResizeThumbCorner}" Cursor="SizeNESW" DragDelta="OnThumbBottomLeftDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
+						<Thumb x:Name="ThumbBottomRight" Style="{StaticResource Style.ResizeThumbCorner}" Cursor="SizeNWSE" DragDelta="OnThumbBottomRightDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
 						<TextBlock x:Name="ResizeSizeLabel" Foreground="{StaticResource Brush.Text}" FontSize="10" IsHitTestVisible="False" Visibility="Collapsed" />
 					</Canvas>
 				</Canvas>

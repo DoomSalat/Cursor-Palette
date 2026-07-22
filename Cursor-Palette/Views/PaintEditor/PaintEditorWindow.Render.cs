@@ -115,37 +115,41 @@ public partial class PaintEditorWindow
 		CanvasBorderRect.Height = _canvasHeight;
 		CanvasBorderRect.StrokeThickness = BorderStrokePx * inv;
 
-		var edgeLength = ThumbEdgeLengthPx * inv;
 		var edgeThickness = ThumbEdgeThicknessPx * inv;
 		var cornerSize = ThumbCornerSizePx * inv;
+		var cornerBorder = new Thickness(ThumbCornerBorderPx * inv);
 		var edgeThicknessHalf = edgeThickness / 2.0;
 		var cornerHalf = cornerSize / 2.0;
 
-		ThumbTop.Width = edgeLength;
+		ThumbTop.Width = _canvasWidth;
 		ThumbTop.Height = edgeThickness;
-		ThumbBottom.Width = edgeLength;
+		ThumbBottom.Width = _canvasWidth;
 		ThumbBottom.Height = edgeThickness;
 		ThumbLeft.Width = edgeThickness;
-		ThumbLeft.Height = edgeLength;
+		ThumbLeft.Height = _canvasHeight;
 		ThumbRight.Width = edgeThickness;
-		ThumbRight.Height = edgeLength;
+		ThumbRight.Height = _canvasHeight;
 		ThumbTopLeft.Width = cornerSize;
 		ThumbTopLeft.Height = cornerSize;
+		ThumbTopLeft.BorderThickness = cornerBorder;
 		ThumbTopRight.Width = cornerSize;
 		ThumbTopRight.Height = cornerSize;
+		ThumbTopRight.BorderThickness = cornerBorder;
 		ThumbBottomLeft.Width = cornerSize;
 		ThumbBottomLeft.Height = cornerSize;
+		ThumbBottomLeft.BorderThickness = cornerBorder;
 		ThumbBottomRight.Width = cornerSize;
 		ThumbBottomRight.Height = cornerSize;
+		ThumbBottomRight.BorderThickness = cornerBorder;
 
-		Canvas.SetLeft(ThumbTop, _canvasWidth / 2.0 - edgeLength / 2.0);
+		Canvas.SetLeft(ThumbTop, 0);
 		Canvas.SetTop(ThumbTop, -edgeThicknessHalf);
-		Canvas.SetLeft(ThumbBottom, _canvasWidth / 2.0 - edgeLength / 2.0);
+		Canvas.SetLeft(ThumbBottom, 0);
 		Canvas.SetTop(ThumbBottom, _canvasHeight - edgeThicknessHalf);
 		Canvas.SetLeft(ThumbLeft, -edgeThicknessHalf);
-		Canvas.SetTop(ThumbLeft, _canvasHeight / 2.0 - edgeLength / 2.0);
+		Canvas.SetTop(ThumbLeft, 0);
 		Canvas.SetLeft(ThumbRight, _canvasWidth - edgeThicknessHalf);
-		Canvas.SetTop(ThumbRight, _canvasHeight / 2.0 - edgeLength / 2.0);
+		Canvas.SetTop(ThumbRight, 0);
 
 		Canvas.SetLeft(ThumbTopLeft, -cornerHalf);
 		Canvas.SetTop(ThumbTopLeft, -cornerHalf);

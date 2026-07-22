@@ -40,6 +40,8 @@ public partial class PaintEditorWindow
 			_canvasHeight = _canvasResizeSnapshotHeight;
 			_offsetX = _canvasResizeSnapshotOffsetX;
 			_offsetY = _canvasResizeSnapshotOffsetY;
+			CanvasPanTransform.X = _canvasResizeSnapshotPanX;
+			CanvasPanTransform.Y = _canvasResizeSnapshotPanY;
 			RenderAll();
 		}
 
@@ -51,6 +53,8 @@ public partial class PaintEditorWindow
 			_canvasResizeSnapshotHeight = _canvasHeight;
 			_canvasResizeSnapshotOffsetX = _offsetX;
 			_canvasResizeSnapshotOffsetY = _offsetY;
+			_canvasResizeSnapshotPanX = CanvasPanTransform.X;
+			_canvasResizeSnapshotPanY = CanvasPanTransform.Y;
 			_hasCanvasResizeSnapshot = true;
 		}
 

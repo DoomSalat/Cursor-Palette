@@ -11,6 +11,7 @@ public sealed class PackageEntry
 	public required string Key { get; init; }
 	public required string DisplayName { get; init; }
 	public int RoleCount { get; init; }
+	public int BaseSize { get; init; }
 	public string? PreviewPath { get; init; }
 }
 

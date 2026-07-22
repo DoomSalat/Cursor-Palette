@@ -12,9 +12,9 @@ public partial class PaintEditorWindow : Window
 	private const double UiZoomStep = 0.1;
 	private const double CanvasZoomStep = 1.2;
 
-	private const double ThumbEdgeLengthPx = 16;
-	private const double ThumbEdgeThicknessPx = 6;
-	private const double ThumbCornerSizePx = 8;
+	private const double ThumbEdgeThicknessPx = 8;
+	private const double ThumbCornerSizePx = 12;
+	private const double ThumbCornerBorderPx = 2;
 	private const double BorderStrokePx = 2;
 	private const double SpriteBoundsStrokePx = 2;
 	private const double ShadowStrokePx = 1;
@@ -54,12 +54,16 @@ public partial class PaintEditorWindow : Window
 	private int _resizeOriginalHeight;
 	private int _resizeOriginalOffsetX;
 	private int _resizeOriginalOffsetY;
+	private double _resizeOriginalPanX;
+	private double _resizeOriginalPanY;
 
 	private bool _hasCanvasResizeSnapshot;
 	private int _canvasResizeSnapshotWidth;
 	private int _canvasResizeSnapshotHeight;
 	private int _canvasResizeSnapshotOffsetX;
 	private int _canvasResizeSnapshotOffsetY;
+	private double _canvasResizeSnapshotPanX;
+	private double _canvasResizeSnapshotPanY;
 
 	private double _resizeAccumX;
 	private double _resizeAccumY;

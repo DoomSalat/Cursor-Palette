@@ -28,7 +28,7 @@ public partial class ImportPickerWindow : Window
 
 	private const string PixelSuffix = "px";
 
-	private readonly List<(PackageEntry Entry, Border Cell)> _tiles = new();
+	private readonly List<(PackageEntry Entry, Border Cell, TextBlock SizeText)> _tiles = new();
 
 	public IReadOnlyList<PackageEntry> SelectedEntries { get; private set; } = Array.Empty<PackageEntry>();
 
@@ -45,7 +45,10 @@ public partial class ImportPickerWindow : Window
 		UiScaleTransform.ScaleY = uiScale;
 
 		foreach (var entry in entries)
-			_tiles.Add((entry, CreateTile(entry)));
+		{
+			var tile = CreateTile(entry);
+			_tiles.Add((entry, tile.Cell, tile.SizeText));
+		}
 
 		EmptyHint.Visibility = entries.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -71,7 +74,7 @@ public partial class ImportPickerWindow : Window
 		cell.BorderBrush = selected ? Brush(BrushAccent) : Brush(BrushBorder);
 	}
 
-	private Border CreateTile(PackageEntry entry)
+	private (Border Cell, TextBlock SizeText) CreateTile(PackageEntry entry)
 	{
 		var image = new Image { Width = CellPreviewSize, Height = CellPreviewSize, SnapsToDevicePixels = true };
 		RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
@@ -95,10 +98,20 @@ public partial class ImportPickerWindow : Window
 			Margin = new Thickness(0, 2, 0, 0),
 		};
 
+		var sizeText = new TextBlock
+		{
+			Text = $"{entry.BaseSize} {PixelSuffix}",
+			Foreground = Brush(BrushTextDim),
+			FontSize = CellCountFontSize,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(0, 1, 0, 0),
+		};
+
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 		panel.Children.Add(image);
 		panel.Children.Add(nameText);
 		panel.Children.Add(countText);
+		panel.Children.Add(sizeText);
 
 		var cell = new Border
 		{
@@ -122,7 +135,7 @@ public partial class ImportPickerWindow : Window
 
 		Gallery.Items.Add(cell);
 
-		return cell;
+		return (cell, sizeText);
 	}
 
 	private void UpdateSelectionCount()
@@ -134,7 +147,7 @@ public partial class ImportPickerWindow : Window
 
 	private void OnSelectAllClick(object sender, RoutedEventArgs e)
 	{
-		foreach (var (_, cell) in _tiles)
+		foreach (var (_, cell, _) in _tiles)
 			SetSelected(cell, true);
 
 		UpdateSelectionCount();
@@ -142,7 +155,7 @@ public partial class ImportPickerWindow : Window
 
 	private void OnSelectNoneClick(object sender, RoutedEventArgs e)
 	{
-		foreach (var (_, cell) in _tiles)
+		foreach (var (_, cell, _) in _tiles)
 			SetSelected(cell, false);
 
 		UpdateSelectionCount();
@@ -163,7 +176,9 @@ public partial class ImportPickerWindow : Window
 
 	private void OnIgnoreSizesChanged(object sender, RoutedEventArgs e)
 	{
-		UniformSizeRow.Visibility = IgnoreSizesCheck.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+		var ignore = IgnoreSizesCheck.IsChecked == true;
+		UniformSizeRow.Visibility = ignore ? Visibility.Visible : Visibility.Collapsed;
+		UpdateTileSizes();
 	}
 
 	private void OnUniformSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -173,5 +188,15 @@ public partial class ImportPickerWindow : Window
 
 		var sizePx = RegistryCursorService.SizeStep + (int)e.NewValue * RegistryCursorService.SizeStep;
 		UniformSizeValueText.Text = $"{sizePx} {PixelSuffix}";
+		UpdateTileSizes();
+	}
+
+	private void UpdateTileSizes()
+	{
+		var ignore = IgnoreSizesCheck?.IsChecked == true;
+		var uniformPx = RegistryCursorService.SizeStep + (int)UniformSizeSlider.Value * RegistryCursorService.SizeStep;
+
+		foreach (var (entry, _, sizeText) in _tiles)
+			sizeText.Text = ignore ? $"{uniformPx} {PixelSuffix}" : $"{entry.BaseSize} {PixelSuffix}";
 	}
 }

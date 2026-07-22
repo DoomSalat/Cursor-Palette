@@ -198,6 +198,7 @@ public static class PresetPackageService
 						Key = Path.GetFileName(presetDir),
 						DisplayName = preset.Name,
 						RoleCount = preset.Roles.Count,
+						BaseSize = preset.BaseSize,
 						PreviewPath = previewFileName != null
 							? Path.Combine(presetDir, FilesFolderName, previewFileName)
 							: null,
@@ -242,6 +243,7 @@ public static class PresetPackageService
 						Key = entry.Folder,
 						DisplayName = entry.Name,
 						RoleCount = cursorFiles.Count,
+						BaseSize = RegistryCursorService.DefaultBaseSize,
 						PreviewPath = previewPath,
 					};
 				})

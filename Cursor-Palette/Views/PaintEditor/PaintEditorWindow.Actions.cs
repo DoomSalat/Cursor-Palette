@@ -31,8 +31,10 @@ public partial class PaintEditorWindow
 		width = Math.Clamp(width, MinCanvasDimension, MaxCanvasDimension);
 		height = Math.Clamp(height, MinCanvasDimension, MaxCanvasDimension);
 
-		var newOffsetX = _offsetX + (int)((width - _canvasWidth) * anchorX / 2.0);
-		var newOffsetY = _offsetY + (int)((height - _canvasHeight) * anchorY / 2.0);
+		var leftGrowthX = (int)((width - _canvasWidth) * anchorX / 2.0);
+		var topGrowthY = (int)((height - _canvasHeight) * anchorY / 2.0);
+		var newOffsetX = _offsetX + leftGrowthX;
+		var newOffsetY = _offsetY + topGrowthY;
 
 		_canvasWidth = width;
 		_canvasHeight = height;
@@ -41,6 +43,9 @@ public partial class PaintEditorWindow
 		var (minY, maxY) = VerticalRange();
 		_offsetX = Math.Clamp(newOffsetX, minX, maxX);
 		_offsetY = Math.Clamp(newOffsetY, minY, maxY);
+
+		CanvasPanTransform.X -= leftGrowthX * _zoom;
+		CanvasPanTransform.Y -= topGrowthY * _zoom;
 
 		RenderAll();
 	}
