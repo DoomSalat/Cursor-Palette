@@ -387,7 +387,7 @@
 							 Margin="8,16"
 							 Visibility="Collapsed" />
 
-				<ItemsControl x:Name="Gallery">
+				<ItemsControl x:Name="Gallery" MouseRightButtonUp="OnGalleryRightClick">
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>
 							<WrapPanel />

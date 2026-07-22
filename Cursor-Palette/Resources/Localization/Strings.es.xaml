@@ -43,6 +43,8 @@
 	<sys:String x:Key="S.Menu.RemoveFromGroup">Quitar del grupo</sys:String>
 	<sys:String x:Key="S.Menu.AssignToGroup">Añadir a grupo</sys:String>
 	<sys:String x:Key="S.Menu.RenameGroup">Renombrar grupo</sys:String>
+	<sys:String x:Key="S.Menu.EditGroup">Editar grupo</sys:String>
+	<sys:String x:Key="S.Menu.CreateGroup">Crear grupo</sys:String>
 	<sys:String x:Key="S.Menu.Ungroup">Desagrupar</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Agrupar celdas juntas</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Grupo</sys:String>
@@ -54,6 +56,9 @@
 	<sys:String x:Key="S.Group.ExpandedTooltip">Clic para colapsar</sys:String>
 	<sys:String x:Key="S.Group.Toast.Created">Grupo "{0}" creado</sys:String>
 	<sys:String x:Key="S.Group.Toast.Consolidated">Grupo "{0}" consolidó sus celdas</sys:String>
+	<sys:String x:Key="S.Group.Edit.Title">Editar grupo</sys:String>
+	<sys:String x:Key="S.Group.Edit.Name">Nombre del grupo</sys:String>
+	<sys:String x:Key="S.Group.Edit.Save">Guardar</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Eliminar preajuste</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">¿Eliminar el preajuste "{0}"? Sus archivos se borrarán de la caché de la aplicación.</sys:String>

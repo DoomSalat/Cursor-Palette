@@ -43,6 +43,8 @@
 	<sys:String x:Key="S.Menu.RemoveFromGroup">Убрать из группы</sys:String>
 	<sys:String x:Key="S.Menu.AssignToGroup">Добавить в группу</sys:String>
 	<sys:String x:Key="S.Menu.RenameGroup">Переименовать группу</sys:String>
+	<sys:String x:Key="S.Menu.EditGroup">Изменить группу</sys:String>
+	<sys:String x:Key="S.Menu.CreateGroup">Создать группу</sys:String>
 	<sys:String x:Key="S.Menu.Ungroup">Разгруппировать</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Собрать ячейки вместе</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Группа</sys:String>
@@ -54,6 +56,9 @@
 	<sys:String x:Key="S.Group.ExpandedTooltip">Нажмите, чтобы свернуть</sys:String>
 	<sys:String x:Key="S.Group.Toast.Created">Группа «{0}» создана</sys:String>
 	<sys:String x:Key="S.Group.Toast.Consolidated">Группа «{0}» собрала ячейки вместе</sys:String>
+	<sys:String x:Key="S.Group.Edit.Title">Изменение группы</sys:String>
+	<sys:String x:Key="S.Group.Edit.Name">Название группы</sys:String>
+	<sys:String x:Key="S.Group.Edit.Save">Сохранить</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Удаление пресета</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">Удалить пресет «{0}»? Файлы будут стёрты из кэша приложения.</sys:String>

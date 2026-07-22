@@ -1,0 +1,62 @@
+<Window x:Class="CursorPalette.Views.GroupEditWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		Title="{DynamicResource S.Group.Edit.Title}"
+		Width="360" Height="220" MinWidth="300" MinHeight="200"
+		Style="{StaticResource Style.Window}"
+		WindowStartupLocation="CenterOwner"
+		ShowInTaskbar="False"
+		ResizeMode="NoResize">
+
+	<DockPanel>
+		<DockPanel.LayoutTransform>
+			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
+		</DockPanel.LayoutTransform>
+
+		<Border DockPanel.Dock="Bottom"
+				Background="{StaticResource Brush.Surface}"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="0,1,0,0"
+				Padding="16,10">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+
+				<Button Grid.Column="1"
+						Style="{StaticResource Style.Button}"
+						Content="{DynamicResource S.Editor.Cancel}"
+						MinWidth="90"
+						Margin="0,0,8,0"
+						IsCancel="True" />
+				<Button x:Name="SaveButton" Grid.Column="2"
+						Style="{StaticResource Style.AccentButton}"
+						Content="{DynamicResource S.Group.Edit.Save}"
+						MinWidth="100"
+						Click="OnSaveClick" />
+			</Grid>
+		</Border>
+
+		<Grid Margin="16">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+
+			<TextBlock Grid.Row="0"
+					   Text="{DynamicResource S.Group.Edit.Name}"
+					   Foreground="{StaticResource Brush.TextDim}"
+					   Margin="0,0,0,4" />
+			<TextBox x:Name="NameBox" Grid.Row="1"
+					 Style="{StaticResource Style.TextBox}"
+					 MaxLength="60"
+					 Margin="0,0,0,16" />
+
+			<WrapPanel x:Name="ColorSwatches" Grid.Row="2"
+					   Orientation="Horizontal" />
+		</Grid>
+	</DockPanel>
+</Window>

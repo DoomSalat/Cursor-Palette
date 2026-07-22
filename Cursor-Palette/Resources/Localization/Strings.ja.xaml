@@ -38,6 +38,8 @@
 	<sys:String x:Key="S.Menu.RemoveFromGroup">グループから削除</sys:String>
 	<sys:String x:Key="S.Menu.AssignToGroup">グループに追加</sys:String>
 	<sys:String x:Key="S.Menu.RenameGroup">グループ名を変更</sys:String>
+	<sys:String x:Key="S.Menu.EditGroup">グループを編集</sys:String>
+	<sys:String x:Key="S.Menu.CreateGroup">グループを作成</sys:String>
 	<sys:String x:Key="S.Menu.Ungroup">グループ解除</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">セルをまとめる</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">グループ</sys:String>
@@ -49,6 +51,9 @@
 	<sys:String x:Key="S.Group.ExpandedTooltip">クリックで折りたたむ</sys:String>
 	<sys:String x:Key="S.Group.Toast.Created">グループ「{0}」を作成しました</sys:String>
 	<sys:String x:Key="S.Group.Toast.Consolidated">グループ「{0}」がセルをまとめました</sys:String>
+	<sys:String x:Key="S.Group.Edit.Title">グループを編集</sys:String>
+	<sys:String x:Key="S.Group.Edit.Name">グループ名</sys:String>
+	<sys:String x:Key="S.Group.Edit.Save">保存</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">プリセットの削除</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">プリセット「{0}」を削除しますか？ファイルはアプリのキャッシュから削除されます。</sys:String>

@@ -93,6 +93,8 @@ public partial class MainWindow : Window
 	private const string LocMenuRemoveFromGroup = "S.Menu.RemoveFromGroup";
 	private const string LocMenuAssignToGroup = "S.Menu.AssignToGroup";
 	private const string LocMenuRenameGroup = "S.Menu.RenameGroup";
+	private const string LocMenuEditGroup = "S.Menu.EditGroup";
+	private const string LocMenuCreateGroup = "S.Menu.CreateGroup";
 	private const string LocMenuUngroup = "S.Menu.Ungroup";
 	private const string LocMenuConsolidateGroup = "S.Menu.ConsolidateGroup";
 	private const string LocGroupDefaultName = "S.Group.DefaultName";
@@ -957,8 +959,8 @@ public partial class MainWindow : Window
 		};
 
 		var menu = new ContextMenu();
-		var renameItem = new MenuItem { Header = Loc.Get(LocMenuRenameGroup) };
-		renameItem.Click += (_, _) => StartInlineGroupRename(group, nameText, panel);
+		var editItem = new MenuItem { Header = Loc.Get(LocMenuEditGroup) };
+		editItem.Click += (_, _) => EditGroup(group);
 		var consolidateItem = new MenuItem { Header = Loc.Get(LocMenuConsolidateGroup) };
 		consolidateItem.Click += (_, _) => ConsolidateGroup(group.Id);
 		var ungroupItem = new MenuItem { Header = Loc.Get(LocMenuUngroup) };
@@ -967,7 +969,7 @@ public partial class MainWindow : Window
 			GroupStore.Delete(group.Id);
 			ReloadGallery();
 		};
-		menu.Items.Add(renameItem);
+		menu.Items.Add(editItem);
 		menu.Items.Add(consolidateItem);
 		menu.Items.Add(ungroupItem);
 		tile.ContextMenu = menu;
@@ -1105,6 +1107,52 @@ public partial class MainWindow : Window
 		textBox.SelectAll();
 	}
 
+	private void EditGroup(PresetGroup group)
+	{
+		var dialog = new GroupEditWindow(group) { Owner = this };
+		if (dialog.ShowDialog() != true)
+			return;
+
+		var newName = dialog.GroupName;
+		if (string.IsNullOrWhiteSpace(newName))
+			newName = Loc.Get(LocGroupDefaultName);
+
+		group.Name = newName;
+		group.ColorKey = dialog.ColorKey;
+
+		GroupStore.Save(group);
+
+		ReloadGallery();
+	}
+
+	private void CreateEmptyGroup()
+	{
+		var dialog = new GroupEditWindow() { Owner = this };
+		if (dialog.ShowDialog() != true)
+			return;
+
+		var name = dialog.GroupName;
+		if (string.IsNullOrWhiteSpace(name))
+			name = Loc.Get(LocGroupDefaultName);
+
+		var group = new PresetGroup
+		{
+			Id = Guid.NewGuid().ToString("N"),
+			Name = name,
+			ColorKey = dialog.ColorKey,
+			Collapsed = false,
+			MemberPresetIds = new List<string>(),
+		};
+
+		GroupStore.Save(group);
+
+		if (!_boardOrderIds.Contains(group.Id))
+			_boardOrderIds.Add(group.Id);
+
+		PersistBoardOrder();
+		ToastService.Show(RootGrid, Loc.Format(LocGroupToastCreated, group.Name));
+	}
+
 	private void ClearGroupSelection()
 	{
 		_selectedPresetIds.Clear();
@@ -1213,6 +1261,40 @@ public partial class MainWindow : Window
 	}
 
 	private void OnGroupCancelClick(object sender, RoutedEventArgs e) => ReloadGallery();
+
+	private void OnGalleryRightClick(object sender, MouseButtonEventArgs e)
+	{
+		if (e.OriginalSource is not DependencyObject source)
+			return;
+
+		if (source is FrameworkElement fe && fe.DataContext != null)
+			return;
+
+		var hit = Gallery.InputHitTest(e.GetPosition(Gallery)) as DependencyObject;
+		if (hit != null && FindAncestor<Border>(hit) is { } border && border.Parent == Gallery)
+			return;
+
+		var menu = new ContextMenu();
+		var createGroupItem = new MenuItem { Header = Loc.Get(LocMenuCreateGroup) };
+		createGroupItem.Click += (_, _) => CreateEmptyGroup();
+		menu.Items.Add(createGroupItem);
+
+		menu.IsOpen = true;
+		e.Handled = true;
+	}
+
+	private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
+	{
+		while (current != null)
+		{
+			if (current is T target)
+				return target;
+
+			current = VisualTreeHelper.GetParent(current);
+		}
+
+		return null;
+	}
 
 	private FrameworkElement CreateAddCell()
 	{

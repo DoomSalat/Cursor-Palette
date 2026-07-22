@@ -38,6 +38,8 @@
 	<sys:String x:Key="S.Menu.RemoveFromGroup">Aus Gruppe entfernen</sys:String>
 	<sys:String x:Key="S.Menu.AssignToGroup">Zu Gruppe hinzufügen</sys:String>
 	<sys:String x:Key="S.Menu.RenameGroup">Gruppe umbenennen</sys:String>
+	<sys:String x:Key="S.Menu.EditGroup">Gruppe bearbeiten</sys:String>
+	<sys:String x:Key="S.Menu.CreateGroup">Gruppe erstellen</sys:String>
 	<sys:String x:Key="S.Menu.Ungroup">Gruppierung aufheben</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Zellen zusammenlegen</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Gruppe</sys:String>
@@ -49,6 +51,9 @@
 	<sys:String x:Key="S.Group.ExpandedTooltip">Klicken zum Einklappen</sys:String>
 	<sys:String x:Key="S.Group.Toast.Created">Gruppe "{0}" erstellt</sys:String>
 	<sys:String x:Key="S.Group.Toast.Consolidated">Gruppe "{0}" hat ihre Zellen zusammengefasst</sys:String>
+	<sys:String x:Key="S.Group.Edit.Title">Gruppe bearbeiten</sys:String>
+	<sys:String x:Key="S.Group.Edit.Name">Gruppenname</sys:String>
+	<sys:String x:Key="S.Group.Edit.Save">Speichern</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Preset löschen</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">Preset "{0}" löschen? Die Dateien werden aus dem App-Cache entfernt.</sys:String>

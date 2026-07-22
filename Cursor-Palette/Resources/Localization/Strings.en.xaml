@@ -43,6 +43,8 @@
 	<sys:String x:Key="S.Menu.RemoveFromGroup">Remove from group</sys:String>
 	<sys:String x:Key="S.Menu.AssignToGroup">Add to group</sys:String>
 	<sys:String x:Key="S.Menu.RenameGroup">Rename group</sys:String>
+	<sys:String x:Key="S.Menu.EditGroup">Edit group</sys:String>
+	<sys:String x:Key="S.Menu.CreateGroup">Create group</sys:String>
 	<sys:String x:Key="S.Menu.Ungroup">Ungroup</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Group cells together</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Group</sys:String>
@@ -54,6 +56,9 @@
 	<sys:String x:Key="S.Group.ExpandedTooltip">Click to collapse</sys:String>
 	<sys:String x:Key="S.Group.Toast.Created">Group "{0}" created</sys:String>
 	<sys:String x:Key="S.Group.Toast.Consolidated">Group "{0}" consolidated its cells</sys:String>
+	<sys:String x:Key="S.Group.Edit.Title">Edit group</sys:String>
+	<sys:String x:Key="S.Group.Edit.Name">Group name</sys:String>
+	<sys:String x:Key="S.Group.Edit.Save">Save</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">Delete preset</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">Delete preset "{0}"? Its files will be removed from the app cache.</sys:String>

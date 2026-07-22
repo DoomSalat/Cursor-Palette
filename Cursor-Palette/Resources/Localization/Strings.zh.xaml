@@ -38,6 +38,8 @@
 	<sys:String x:Key="S.Menu.RemoveFromGroup">从分组中移除</sys:String>
 	<sys:String x:Key="S.Menu.AssignToGroup">添加到分组</sys:String>
 	<sys:String x:Key="S.Menu.RenameGroup">重命名分组</sys:String>
+	<sys:String x:Key="S.Menu.EditGroup">编辑分组</sys:String>
+	<sys:String x:Key="S.Menu.CreateGroup">创建分组</sys:String>
 	<sys:String x:Key="S.Menu.Ungroup">取消分组</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">整理分组卡片</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">分组</sys:String>
@@ -49,6 +51,9 @@
 	<sys:String x:Key="S.Group.ExpandedTooltip">点击折叠</sys:String>
 	<sys:String x:Key="S.Group.Toast.Created">已创建分组"{0}"</sys:String>
 	<sys:String x:Key="S.Group.Toast.Consolidated">分组"{0}"已将单元格归拢</sys:String>
+	<sys:String x:Key="S.Group.Edit.Title">编辑分组</sys:String>
+	<sys:String x:Key="S.Group.Edit.Name">分组名称</sys:String>
+	<sys:String x:Key="S.Group.Edit.Save">保存</sys:String>
 
 	<sys:String x:Key="S.ConfirmDelete.Title">删除预设</sys:String>
 	<sys:String x:Key="S.ConfirmDelete.Text">删除预设"{0}"？其文件将从应用缓存中移除。</sys:String>
