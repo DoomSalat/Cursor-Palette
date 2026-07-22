@@ -12,7 +12,7 @@ public partial class PaintEditorWindow
 {
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoPosition)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoPaint)) { Owner = this }.ShowDialog();
 	}
 
 	private void OnCanvasSizeButtonClick(object sender, RoutedEventArgs e)

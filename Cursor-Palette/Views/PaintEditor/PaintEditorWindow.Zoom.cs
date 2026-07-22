@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using CursorPalette.Services;
 
 namespace CursorPalette.Views;
@@ -55,6 +56,26 @@ public partial class PaintEditorWindow
 			return;
 		}
 
+		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolFill)
+		{
+			var pos = GetCanvasPosition(e);
+			FloodFill((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y));
+			RenderAll();
+			e.Handled = true;
+
+			return;
+		}
+
+		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolHotspot)
+		{
+			_isDraggingHotspot = true;
+			SetHotspotFromCanvasPosition(GetCanvasPosition(e));
+			ViewportHost.CaptureMouse();
+			e.Handled = true;
+
+			return;
+		}
+
 		var isHandDrag = e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolHand;
 
 		if (e.ChangedButton != MouseButton.Middle && !isHandDrag)
@@ -74,6 +95,15 @@ public partial class PaintEditorWindow
 		if (_isPainting)
 		{
 			PaintEnd();
+			ViewportHost.ReleaseMouseCapture();
+			e.Handled = true;
+
+			return;
+		}
+
+		if (_isDraggingHotspot)
+		{
+			_isDraggingHotspot = false;
 			ViewportHost.ReleaseMouseCapture();
 			e.Handled = true;
 
@@ -101,7 +131,15 @@ public partial class PaintEditorWindow
 			return;
 		}
 
-		if (IsPaintTool)
+		if (_isDraggingHotspot)
+		{
+			SetHotspotFromCanvasPosition(GetCanvasPosition(e));
+			e.Handled = true;
+
+			return;
+		}
+
+		if (IsPaintTool || _currentTool == AppState.PaintEditorToolFill)
 		{
 			UpdatePaintCursor(GetCanvasPosition(e));
 		}
@@ -133,16 +171,26 @@ public partial class PaintEditorWindow
 		if (pixelX < 0 || pixelX >= _canvasWidth || pixelY < 0 || pixelY >= _canvasHeight)
 		{
 			PaintCursorRect.Visibility = Visibility.Collapsed;
+
 			return;
 		}
 
 		var strokeThickness = 1.0 / _zoom;
-		PaintCursorRect.StrokeThickness = strokeThickness;
-		PaintCursorRect.Width = 1 + strokeThickness;
-		PaintCursorRect.Height = 1 + strokeThickness;
+		var size = 1 + strokeThickness;
+		var left = pixelX - strokeThickness / 2.0;
+		var top = pixelY - strokeThickness / 2.0;
 
-		Canvas.SetLeft(PaintCursorRect, pixelX - strokeThickness / 2.0);
-		Canvas.SetTop(PaintCursorRect, pixelY - strokeThickness / 2.0);
+		var cursorColor = _currentTool == AppState.PaintEditorToolEraser
+			? Color.FromArgb(120, 255, 255, 255)
+			: Color.FromArgb(120, ColorWheel.SelectedColor.R, ColorWheel.SelectedColor.G, ColorWheel.SelectedColor.B);
+
+		PaintCursorRect.StrokeThickness = strokeThickness;
+		PaintCursorRect.Width = size;
+		PaintCursorRect.Height = size;
+		PaintCursorRect.Fill = new SolidColorBrush(cursorColor);
+
+		Canvas.SetLeft(PaintCursorRect, left);
+		Canvas.SetTop(PaintCursorRect, top);
 
 		PaintCursorRect.Visibility = Visibility.Visible;
 	}

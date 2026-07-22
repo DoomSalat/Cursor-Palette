@@ -24,13 +24,13 @@ public partial class PaintEditorWindow : Window
 	private const string StyleButton = "Style.Button";
 
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoPosition = "S.Info.Position";
+	private const string LocInfoPaint = "S.Info.Paint";
 
 	private readonly int _spriteWidth;
 	private readonly int _spriteHeight;
 	private byte[] _spriteBgra;
-	private readonly int _hotspotOffsetX;
-	private readonly int _hotspotOffsetY;
+	private int _hotspotOffsetX;
+	private int _hotspotOffsetY;
 
 	private int _canvasWidth;
 	private int _canvasHeight;
@@ -116,6 +116,7 @@ public partial class PaintEditorWindow : Window
 
 		var (hue, saturation, value, alpha) = AppState.GetPaintEditorColor();
 		ColorWheel.SetColor(hue, saturation, value, alpha);
+		ColorWheel.SetColorMode(AppState.GetPaintEditorColorMode());
 
 		UpdateToolButtons();
 
@@ -132,6 +133,7 @@ public partial class PaintEditorWindow : Window
 
 		var (hue, saturation, value, alpha) = ColorWheel.GetHsv();
 		AppState.SetPaintEditorColor(hue, saturation, value, alpha);
+		AppState.SetPaintEditorColorMode(ColorWheel.GetColorMode());
 		AppState.SetPaintEditorPan(CanvasPanTransform.X, CanvasPanTransform.Y);
 
 		base.OnClosed(e);

@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Media;
 using CursorPalette.Services;
 
 namespace CursorPalette.Views;
@@ -87,6 +89,55 @@ public partial class PaintEditorWindow
 			_spriteBgra[pixelIndex + 1] = color.G;
 			_spriteBgra[pixelIndex + 2] = color.R;
 			_spriteBgra[pixelIndex + 3] = color.A;
+		}
+	}
+
+	private void FloodFill(int canvasX, int canvasY)
+	{
+		var spriteX = canvasX - _offsetX;
+		var spriteY = canvasY - _offsetY;
+
+		if (spriteX < 0 || spriteX >= _spriteWidth || spriteY < 0 || spriteY >= _spriteHeight)
+			return;
+
+		var startIndex = (spriteY * _spriteWidth + spriteX) * BytesPerPixel;
+		var targetB = _spriteBgra[startIndex];
+		var targetG = _spriteBgra[startIndex + 1];
+		var targetR = _spriteBgra[startIndex + 2];
+		var targetA = _spriteBgra[startIndex + 3];
+
+		var color = ColorWheel.SelectedColor;
+
+		if (targetB == color.B && targetG == color.G && targetR == color.R && targetA == color.A)
+			return;
+
+		var stack = new Stack<(int X, int Y)>();
+		stack.Push((spriteX, spriteY));
+
+		while (stack.Count > 0)
+		{
+			var (x, y) = stack.Pop();
+
+			if (x < 0 || x >= _spriteWidth || y < 0 || y >= _spriteHeight)
+				continue;
+
+			var index = (y * _spriteWidth + x) * BytesPerPixel;
+
+			if (_spriteBgra[index] != targetB ||
+				_spriteBgra[index + 1] != targetG ||
+				_spriteBgra[index + 2] != targetR ||
+				_spriteBgra[index + 3] != targetA)
+				continue;
+
+			_spriteBgra[index] = color.B;
+			_spriteBgra[index + 1] = color.G;
+			_spriteBgra[index + 2] = color.R;
+			_spriteBgra[index + 3] = color.A;
+
+			stack.Push((x + 1, y));
+			stack.Push((x - 1, y));
+			stack.Push((x, y + 1));
+			stack.Push((x, y - 1));
 		}
 	}
 }

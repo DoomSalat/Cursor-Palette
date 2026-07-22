@@ -337,6 +337,8 @@
 					<Image x:Name="PreviewImage" SnapsToDevicePixels="True" MouseLeftButtonDown="OnSpriteMouseLeftButtonDown" MouseMove="OnSpriteMouseMove" MouseLeftButtonUp="OnSpriteMouseLeftButtonUp" Cursor="SizeAll" />
 					<Rectangle x:Name="SpriteBoundsRect" Stroke="#FFFF8800" StrokeThickness="2" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Rectangle x:Name="PaintCursorRect" Width="1" Height="1" Stroke="#FFFFFFFF" StrokeThickness="0.05" IsHitTestVisible="False" Visibility="Collapsed" />
+					<Ellipse x:Name="HotspotMarkerGlow" Width="2" Height="2" Fill="{StaticResource Brush.Accent}" Opacity="0.3" IsHitTestVisible="False" Visibility="Collapsed" />
+					<Ellipse x:Name="HotspotMarker" Width="1.5" Height="1.5" Fill="{StaticResource Brush.Accent}" Stroke="White" StrokeThickness="0.15" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Canvas x:Name="ResizeOverlay" IsHitTestVisible="True" UseLayoutRounding="False" Visibility="Collapsed">
 						<Rectangle x:Name="CanvasBorderRect" Stroke="{DynamicResource Brush.Accent}" StrokeThickness="2" IsHitTestVisible="False" />
 						<Thumb x:Name="ThumbTop" Style="{StaticResource Style.ResizeThumbEdge}" Cursor="SizeNS" DragDelta="OnThumbTopDrag" DragStarted="OnResizeStarted" DragCompleted="OnResizeCompleted" />
@@ -456,11 +458,65 @@
 					<StackPanel x:Name="EraserToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
 						<TextBlock Text="{DynamicResource S.Editor.Tool.EraserHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
 					</StackPanel>
-					<StackPanel x:Name="FillToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
-						<TextBlock Text="{DynamicResource S.Editor.Tool.ComingSoon}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
-					</StackPanel>
-					<StackPanel x:Name="HotspotToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
-						<TextBlock Text="{DynamicResource S.Editor.Tool.ComingSoon}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+					<StackPanel x:Name="FillToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" />
+					<StackPanel x:Name="HotspotToolPanel" DockPanel.Dock="Top" Visibility="Collapsed">
+						<TextBlock Text="{DynamicResource S.Editor.Tool.HotspotHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,8" />
+						<TextBlock x:Name="HotspotCoordsText" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,8" />
+						<TextBlock Text="{DynamicResource S.Hotspot.Presets}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,6" />
+						<UniformGrid x:Name="HotspotPresetGrid" Rows="3" Columns="3" Width="114" Height="114" HorizontalAlignment="Center">
+							<Button Tag="0,0" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+									<Rectangle.RenderTransform><RotateTransform Angle="-135" /></Rectangle.RenderTransform>
+								</Rectangle>
+							</Button>
+							<Button Tag="0.5,0" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+									<Rectangle.RenderTransform><RotateTransform Angle="-90" /></Rectangle.RenderTransform>
+								</Rectangle>
+							</Button>
+							<Button Tag="1,0" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+									<Rectangle.RenderTransform><RotateTransform Angle="-45" /></Rectangle.RenderTransform>
+								</Rectangle>
+							</Button>
+							<Button Tag="0,0.5" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+									<Rectangle.RenderTransform><RotateTransform Angle="180" /></Rectangle.RenderTransform>
+								</Rectangle>
+							</Button>
+							<Button Tag="0.5,0.5" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/CenterIcon26.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+								</Rectangle>
+							</Button>
+							<Button Tag="1,0.5" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+								</Rectangle>
+							</Button>
+							<Button Tag="0,1" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+									<Rectangle.RenderTransform><RotateTransform Angle="135" /></Rectangle.RenderTransform>
+								</Rectangle>
+							</Button>
+							<Button Tag="0.5,1" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+									<Rectangle.RenderTransform><RotateTransform Angle="90" /></Rectangle.RenderTransform>
+								</Rectangle>
+							</Button>
+							<Button Tag="1,1" Style="{StaticResource Style.Button}" Margin="2" Padding="0" Click="OnHotspotPresetClick">
+								<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}" RenderTransformOrigin="0.5,0.5">
+									<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ArrowIcon48.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+									<Rectangle.RenderTransform><RotateTransform Angle="45" /></Rectangle.RenderTransform>
+								</Rectangle>
+							</Button>
+						</UniformGrid>
 					</StackPanel>
 				</DockPanel>
 			</Border>

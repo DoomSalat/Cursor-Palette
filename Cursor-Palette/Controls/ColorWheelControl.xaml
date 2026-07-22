@@ -1,27 +1,131 @@
 <UserControl x:Class="CursorPalette.Controls.ColorWheelControl"
 			xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<UserControl.Resources>
+		<Style x:Key="Style.HueSlider" TargetType="Slider">
+			<Setter Property="Height" Value="20" />
+			<Setter Property="Padding" Value="0" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Slider">
+						<Grid>
+							<Track x:Name="PART_Track" VerticalAlignment="Center">
+								<Track.DecreaseRepeatButton>
+									<RepeatButton Command="Slider.DecreaseLarge">
+										<RepeatButton.Template>
+											<ControlTemplate TargetType="RepeatButton">
+												<Border Background="Transparent" />
+											</ControlTemplate>
+										</RepeatButton.Template>
+									</RepeatButton>
+								</Track.DecreaseRepeatButton>
+								<Track.IncreaseRepeatButton>
+									<RepeatButton Command="Slider.IncreaseLarge">
+										<RepeatButton.Template>
+											<ControlTemplate TargetType="RepeatButton">
+												<Border Background="Transparent" />
+											</ControlTemplate>
+										</RepeatButton.Template>
+									</RepeatButton>
+								</Track.IncreaseRepeatButton>
+								<Track.Thumb>
+									<Thumb>
+										<Thumb.Template>
+											<ControlTemplate TargetType="Thumb">
+												<Border Width="8" Height="24"
+														CornerRadius="3"
+														Background="White"
+														BorderBrush="Black"
+														BorderThickness="1.5"
+														Margin="0,-2,0,0" />
+											</ControlTemplate>
+										</Thumb.Template>
+									</Thumb>
+								</Track.Thumb>
+							</Track>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</UserControl.Resources>
 	<StackPanel>
+		<Grid Width="140" Margin="0,0,0,6">
+			<StackPanel x:Name="ModeToggle" Orientation="Horizontal" HorizontalAlignment="Right">
+				<Border x:Name="WheelModeButton" Width="24" Height="20"
+						CornerRadius="4,0,0,4" Background="{DynamicResource Brush.Accent}"
+						BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,1,0,1"
+						Cursor="Hand" ToolTip="{DynamicResource S.Editor.Color.WheelMode}"
+						MouseLeftButtonDown="OnWheelModeClick">
+					<Ellipse Width="10" Height="10" Stroke="White" StrokeThickness="1.5" Fill="Transparent" />
+				</Border>
+				<Border x:Name="SquareModeButton" Width="24" Height="20"
+						CornerRadius="0,4,4,0" Background="{DynamicResource Brush.Surface}"
+						BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+						Cursor="Hand" ToolTip="{DynamicResource S.Editor.Color.SquareMode}"
+						MouseLeftButtonDown="OnSquareModeClick">
+					<Rectangle Width="10" Height="10" Stroke="{DynamicResource Brush.TextDim}" StrokeThickness="1.5" Fill="Transparent" />
+				</Border>
+			</StackPanel>
+		</Grid>
+
 		<Grid Width="140" Height="140" HorizontalAlignment="Center" Margin="0,0,0,10">
 			<Image x:Name="WheelImage" Width="140" Height="140" Cursor="Cross"
 				   MouseLeftButtonDown="OnWheelMouseDown"
 				   MouseMove="OnWheelMouseMove"
 				   MouseLeftButtonUp="OnWheelMouseUp" />
-			<Rectangle x:Name="BrightnessOverlay" Width="140" Height="140" IsHitTestVisible="False" Fill="Black" Opacity="0" />
+			<Ellipse x:Name="BrightnessOverlay" Width="140" Height="140" IsHitTestVisible="False" Fill="Black" Opacity="0" />
 			<Canvas Width="140" Height="140" IsHitTestVisible="False">
 				<Ellipse x:Name="Indicator" Width="10" Height="10"
 						 Stroke="White" StrokeThickness="2"
 						 Fill="Transparent" />
 			</Canvas>
+
+			<Image x:Name="SquareImage" Width="140" Height="140" Cursor="Cross" Visibility="Collapsed"
+				   MouseLeftButtonDown="OnSquareMouseDown"
+				   MouseMove="OnSquareMouseMove"
+				   MouseLeftButtonUp="OnSquareMouseUp" />
+			<Canvas x:Name="SquareIndicatorLayer" Width="140" Height="140" IsHitTestVisible="False" Visibility="Collapsed">
+				<Ellipse x:Name="SquareIndicator" Width="10" Height="10"
+						 Stroke="White" StrokeThickness="2"
+						 Fill="Transparent" />
+			</Canvas>
 		</Grid>
 
-		<TextBlock Text="{DynamicResource S.Editor.Color.Brightness}"
-				   FontSize="11" Foreground="{DynamicResource Brush.TextDim}"
-				   Margin="0,0,0,4" />
-		<Slider x:Name="BrightnessSlider" Style="{StaticResource Style.Slider}"
-				Minimum="0" Maximum="1" Value="1"
-				SmallChange="0.01" LargeChange="0.1"
-				Margin="0,0,0,10" ValueChanged="OnBrightnessChanged" />
+		<StackPanel x:Name="HueRow" Visibility="Collapsed">
+			<TextBlock Text="{DynamicResource S.Editor.Color.Hue}"
+					   FontSize="11" Foreground="{DynamicResource Brush.TextDim}"
+					   Margin="0,0,0,4" />
+			<Grid Height="20" Margin="0,0,0,10">
+				<Rectangle RadiusX="4" RadiusY="4">
+					<Rectangle.Fill>
+						<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+							<GradientStop Color="#FFFF0000" Offset="0" />
+							<GradientStop Color="#FFFFFF00" Offset="0.1667" />
+							<GradientStop Color="#FF00FF00" Offset="0.3333" />
+							<GradientStop Color="#FF00FFFF" Offset="0.5" />
+							<GradientStop Color="#FF0000FF" Offset="0.6667" />
+							<GradientStop Color="#FFFF00FF" Offset="0.8333" />
+							<GradientStop Color="#FFFF0000" Offset="1" />
+						</LinearGradientBrush>
+					</Rectangle.Fill>
+				</Rectangle>
+				<Slider x:Name="HueSlider" Style="{StaticResource Style.HueSlider}"
+						Minimum="0" Maximum="360" Value="0"
+						SmallChange="1" LargeChange="10"
+						ValueChanged="OnHueChanged" />
+			</Grid>
+		</StackPanel>
+
+		<StackPanel x:Name="BrightnessRow">
+			<TextBlock Text="{DynamicResource S.Editor.Color.Brightness}"
+					   FontSize="11" Foreground="{DynamicResource Brush.TextDim}"
+					   Margin="0,0,0,4" />
+			<Slider x:Name="BrightnessSlider" Style="{StaticResource Style.Slider}"
+					Minimum="0" Maximum="1" Value="1"
+					SmallChange="0.01" LargeChange="0.1"
+					Margin="0,0,0,10" ValueChanged="OnBrightnessChanged" />
+		</StackPanel>
 
 		<Grid Margin="0,0,0,10">
 			<Grid.ColumnDefinitions>
@@ -45,9 +149,14 @@
 				<Rectangle Fill="{DynamicResource Brush.Checkerboard}" />
 				<Rectangle x:Name="ColorPreview" />
 			</Grid>
-			<TextBlock x:Name="HexText" FontSize="12"
-					   FontFamily="Consolas" VerticalAlignment="Center"
-					   Margin="8,0,0,0" />
+			<TextBox x:Name="HexText" FontSize="12"
+					 FontFamily="Consolas" VerticalAlignment="Center"
+					 Margin="8,0,0,0" Width="90"
+					 Background="Transparent" BorderThickness="0"
+					 Foreground="{DynamicResource Brush.Text}"
+					 CaretBrush="{DynamicResource Brush.Text}"
+					 KeyDown="OnHexTextKeyDown"
+					 LostFocus="OnHexTextLostFocus" />
 		</StackPanel>
 	</StackPanel>
 </UserControl>

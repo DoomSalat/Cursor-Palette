@@ -33,6 +33,10 @@ public static class AppState
 	public const string PaintEditorToolCanvas = "Canvas";
 	public const string PaintEditorToolDefault = PaintEditorToolMove;
 
+	public const string PaintEditorColorModeWheel = "Wheel";
+	public const string PaintEditorColorModeSquare = "Square";
+	public const string PaintEditorColorModeDefault = PaintEditorColorModeWheel;
+
 	private sealed class ActiveState
 	{
 		public string? ActivePresetId { get; set; }
@@ -61,6 +65,7 @@ public static class AppState
 		public double PaintEditorColorSaturation { get; set; } = 1.0;
 		public double PaintEditorColorValue { get; set; } = 1.0;
 		public double PaintEditorColorAlpha { get; set; } = 100;
+		public string? PaintEditorColorMode { get; set; } = PaintEditorColorModeDefault;
 		public double? PaintEditorPanX { get; set; }
 		public double? PaintEditorPanY { get; set; }
 	}
@@ -269,6 +274,17 @@ public static class AppState
 		settings.PaintEditorColorSaturation = saturation;
 		settings.PaintEditorColorValue = value;
 		settings.PaintEditorColorAlpha = alpha;
+
+		SaveSettings(settings);
+	}
+
+	public static string GetPaintEditorColorMode() =>
+		LoadSettings().PaintEditorColorMode ?? PaintEditorColorModeDefault;
+
+	public static void SetPaintEditorColorMode(string mode)
+	{
+		var settings = LoadSettings();
+		settings.PaintEditorColorMode = mode;
 
 		SaveSettings(settings);
 	}

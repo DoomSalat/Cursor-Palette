@@ -27,18 +27,29 @@ public partial class PaintEditorWindow
 		MoveToolPanel.Visibility = isMove ? Visibility.Visible : Visibility.Collapsed;
 		HandToolPanel.Visibility = isHand ? Visibility.Visible : Visibility.Collapsed;
 		CanvasToolPanel.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
-		BrushToolPanel.Visibility = isBrush ? Visibility.Visible : Visibility.Collapsed;
+		BrushToolPanel.Visibility = (isBrush || isFill) ? Visibility.Visible : Visibility.Collapsed;
 		EraserToolPanel.Visibility = isEraser ? Visibility.Visible : Visibility.Collapsed;
 		FillToolPanel.Visibility = isFill ? Visibility.Visible : Visibility.Collapsed;
 		HotspotToolPanel.Visibility = isHotspot ? Visibility.Visible : Visibility.Collapsed;
 
 		PreviewImage.IsHitTestVisible = isMove;
 		ResizeOverlay.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
-		ViewportHost.Cursor = isHand ? Cursors.Hand : (isBrush || isEraser) ? Cursors.Cross : Cursors.Arrow;
+		ViewportHost.Cursor = isHand ? Cursors.Hand : (isBrush || isEraser || isHotspot || isFill) ? Cursors.Cross : Cursors.Arrow;
 		PaintCursorRect.Visibility = Visibility.Collapsed;
+
+		var markerVisible = isHotspot ? Visibility.Visible : Visibility.Collapsed;
+		HotspotMarker.Visibility = markerVisible;
+		HotspotMarkerGlow.Visibility = markerVisible;
 
 		if (isCanvas)
 			UpdateResizeOverlay();
+
+		if (isHotspot)
+		{
+			UpdateHotspotMarker();
+			UpdateHotspotCoords();
+			UpdateHotspotPresetHighlight();
+		}
 	}
 
 	private void SetTool(string tool)
