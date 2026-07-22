@@ -8,6 +8,8 @@ namespace CursorPalette.Views;
 
 public partial class PaintEditorWindow
 {
+	private Point _lastCanvasMousePosition;
+
 	private void OnCanvasZoomInClick(object sender, RoutedEventArgs e) =>
 		ZoomAtPoint(CanvasZoomStep, ViewportCenter());
 
@@ -47,6 +49,14 @@ public partial class PaintEditorWindow
 
 	private void OnViewportPreviewMouseDown(object sender, MouseButtonEventArgs e)
 	{
+		if (e.ChangedButton == MouseButton.Left && IsEyedropperActive())
+		{
+			PickColorUnderCursor();
+			e.Handled = true;
+
+			return;
+		}
+
 		if (e.ChangedButton == MouseButton.Left && IsPaintTool)
 		{
 			PaintBegin(GetCanvasPosition(e));
@@ -121,6 +131,8 @@ public partial class PaintEditorWindow
 
 	private void OnViewportPreviewMouseMove(object sender, MouseEventArgs e)
 	{
+		_lastCanvasMousePosition = GetCanvasPosition(e);
+
 		if (_isPainting)
 		{
 			var paintPosition = GetCanvasPosition(e);
@@ -143,6 +155,8 @@ public partial class PaintEditorWindow
 		{
 			UpdatePaintCursor(GetCanvasPosition(e));
 		}
+
+		RefreshEyedropperVisuals();
 
 		if (!_isPanning)
 			return;
@@ -180,9 +194,11 @@ public partial class PaintEditorWindow
 		var left = pixelX - strokeThickness / 2.0;
 		var top = pixelY - strokeThickness / 2.0;
 
-		var cursorColor = _currentTool == AppState.PaintEditorToolEraser
-			? Color.FromArgb(120, 255, 255, 255)
-			: Color.FromArgb(120, ColorWheel.SelectedColor.R, ColorWheel.SelectedColor.G, ColorWheel.SelectedColor.B);
+		var cursorColor = IsEyedropperActive()
+			? Colors.Transparent
+			: _currentTool == AppState.PaintEditorToolEraser
+				? Color.FromArgb(120, 255, 255, 255)
+				: Color.FromArgb(120, ColorWheel.SelectedColor.R, ColorWheel.SelectedColor.G, ColorWheel.SelectedColor.B);
 
 		PaintCursorRect.StrokeThickness = strokeThickness;
 		PaintCursorRect.Width = size;
@@ -193,6 +209,32 @@ public partial class PaintEditorWindow
 		Canvas.SetTop(PaintCursorRect, top);
 
 		PaintCursorRect.Visibility = Visibility.Visible;
+	}
+
+	private void RefreshEyedropperVisuals()
+	{
+		UpdateViewportCursor();
+		ColorWheel.SetEyedropperActive(IsEyedropperActive());
+
+		if (IsPaintTool || _currentTool == AppState.PaintEditorToolFill)
+			UpdatePaintCursor(_lastCanvasMousePosition);
+	}
+
+	private void UpdateViewportCursor()
+	{
+		if (IsEyedropperActive())
+		{
+			ViewportHost.Cursor = Cursors.Pen;
+			return;
+		}
+
+		var isHand = _currentTool == AppState.PaintEditorToolHand;
+		var isBrush = _currentTool == AppState.PaintEditorToolBrush;
+		var isEraser = _currentTool == AppState.PaintEditorToolEraser;
+		var isFill = _currentTool == AppState.PaintEditorToolFill;
+		var isHotspot = _currentTool == AppState.PaintEditorToolHotspot;
+
+		ViewportHost.Cursor = isHand ? Cursors.Hand : (isBrush || isEraser || isHotspot || isFill) ? Cursors.Cross : Cursors.Arrow;
 	}
 
 	private void CenterViewport()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using CursorPalette.Services;
 
@@ -11,6 +12,12 @@ public partial class PaintEditorWindow
 	private Point _lastPaintPosition;
 	private bool _hasLastPaintPosition;
 
+	private bool _isLineMode;
+	private Point _lineStartPosition;
+	private byte[]? _lineSnapshotBgra;
+	private Point _lastStrokeEndPosition;
+	private bool _hasLastStrokeEnd;
+
 	private bool IsPaintTool =>
 		_currentTool == AppState.PaintEditorToolBrush ||
 		_currentTool == AppState.PaintEditorToolEraser;
@@ -20,11 +27,28 @@ public partial class PaintEditorWindow
 		_isPainting = true;
 		_hasLastPaintPosition = false;
 
+		if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) && _hasLastStrokeEnd)
+		{
+			_isLineMode = true;
+			_lineStartPosition = _lastStrokeEndPosition;
+			_lineSnapshotBgra = (byte[])_spriteBgra.Clone();
+		}
+		else
+		{
+			_isLineMode = false;
+		}
+
 		PaintStrokeTo(position);
 	}
 
 	private void PaintStrokeTo(Point position)
 	{
+		if (_isLineMode)
+		{
+			PaintLinePreview(position);
+			return;
+		}
+
 		if (_hasLastPaintPosition)
 			PaintLine(_lastPaintPosition, position);
 		else
@@ -35,10 +59,62 @@ public partial class PaintEditorWindow
 		RenderAll();
 	}
 
+	private void PaintLinePreview(Point position)
+	{
+		Array.Copy(_lineSnapshotBgra!, _spriteBgra, _spriteBgra.Length);
+
+		var endPosition = Keyboard.Modifiers.HasFlag(ModifierKeys.Control)
+			? SnapToAngle(_lineStartPosition, position)
+			: position;
+
+		PaintLine(_lineStartPosition, endPosition);
+
+		_lastPaintPosition = endPosition;
+		RenderAll();
+	}
+
+	private static Point SnapToAngle(Point start, Point end)
+	{
+		var startX = Math.Floor(start.X);
+		var startY = Math.Floor(start.Y);
+		var deltaX = Math.Floor(end.X) - startX;
+		var deltaY = Math.Floor(end.Y) - startY;
+
+		var absX = Math.Abs(deltaX);
+		var absY = Math.Abs(deltaY);
+		var magnitude = Math.Max(absX, absY);
+
+		if (magnitude < 1)
+			return new Point(startX, startY);
+
+		var angle = Math.Atan2(deltaY, deltaX);
+		var octant = ((int)Math.Round(angle / (Math.PI / 4)) % 8 + 8) % 8;
+
+		var (signX, signY) = octant switch
+		{
+			0 => (1, 0),
+			1 => (1, 1),
+			2 => (0, 1),
+			3 => (-1, 1),
+			4 => (-1, 0),
+			5 => (-1, -1),
+			6 => (0, -1),
+			_ => (1, -1),
+		};
+
+		return new Point(startX + signX * magnitude, startY + signY * magnitude);
+	}
+
 	private void PaintEnd()
 	{
 		_isPainting = false;
 		_hasLastPaintPosition = false;
+
+		_lastStrokeEndPosition = _lastPaintPosition;
+		_hasLastStrokeEnd = true;
+
+		_isLineMode = false;
+		_lineSnapshotBgra = null;
 	}
 
 	private void PaintLine(Point from, Point to)

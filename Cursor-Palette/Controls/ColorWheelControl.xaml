@@ -51,20 +51,32 @@
 	</UserControl.Resources>
 	<StackPanel>
 		<Grid Width="140" Margin="0,0,0,6">
+			<Border x:Name="EyedropperButton" Width="24" Height="20" HorizontalAlignment="Left"
+					CornerRadius="4" Background="{DynamicResource Brush.Surface}"
+					BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+					Cursor="Hand" ToolTip="{DynamicResource S.Editor.Color.Eyedropper}"
+					MouseLeftButtonDown="OnEyedropperButtonClick">
+				<Rectangle Width="14" Height="14" Fill="{DynamicResource Brush.Text}">
+					<Rectangle.OpacityMask>
+						<ImageBrush ImageSource="pack://application:,,,/Resources/EyedropperIcon48.png" Stretch="Uniform" />
+					</Rectangle.OpacityMask>
+				</Rectangle>
+			</Border>
+
 			<StackPanel x:Name="ModeToggle" Orientation="Horizontal" HorizontalAlignment="Right">
 				<Border x:Name="WheelModeButton" Width="24" Height="20"
 						CornerRadius="4,0,0,4" Background="{DynamicResource Brush.Accent}"
 						BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1,1,0,1"
 						Cursor="Hand" ToolTip="{DynamicResource S.Editor.Color.WheelMode}"
 						MouseLeftButtonDown="OnWheelModeClick">
-					<Ellipse Width="10" Height="10" Stroke="White" StrokeThickness="1.5" Fill="Transparent" />
+					<Ellipse x:Name="WheelModeIcon" Width="10" Height="10" Stroke="White" StrokeThickness="1.5" Fill="Transparent" />
 				</Border>
 				<Border x:Name="SquareModeButton" Width="24" Height="20"
 						CornerRadius="0,4,4,0" Background="{DynamicResource Brush.Surface}"
 						BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
 						Cursor="Hand" ToolTip="{DynamicResource S.Editor.Color.SquareMode}"
 						MouseLeftButtonDown="OnSquareModeClick">
-					<Rectangle Width="10" Height="10" Stroke="{DynamicResource Brush.TextDim}" StrokeThickness="1.5" Fill="Transparent" />
+					<Rectangle x:Name="SquareModeIcon" Width="10" Height="10" Stroke="White" StrokeThickness="1.5" Fill="Transparent" />
 				</Border>
 			</StackPanel>
 		</Grid>

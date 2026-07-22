@@ -3,12 +3,22 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CursorPalette.Services;
 
 namespace CursorPalette.Controls;
 
 public partial class ColorWheelControl : UserControl
 {
 	private const int WheelSize = 140;
+	private const int BitmapDpi = 96;
+	private const int ByteMax = 255;
+	private const double AlphaToPercentFactor = 255.0 / 100.0;
+	private const double FullCircleDegrees = 360;
+	private const double HueSegmentDegrees = 60;
+	private const double DeltaEpsilon = 0.00001;
+	private const double IndicatorHalfSize = 5;
+	private const string BrushAccent = "Brush.Accent";
+	private const string BrushSurface = "Brush.Surface";
 
 	private enum PickerMode
 	{
@@ -33,7 +43,7 @@ public partial class ColorWheelControl : UserControl
 		get
 		{
 			var (red, green, blue) = HsvToRgb(_hue, _saturation, _value);
-			var alpha = (byte)Math.Round(_alphaPercent * 2.55);
+			var alpha = (byte)Math.Round(_alphaPercent * AlphaToPercentFactor);
 
 			return Color.FromArgb(alpha, red, green, blue);
 		}
@@ -94,12 +104,19 @@ public partial class ColorWheelControl : UserControl
 			return;
 		}
 
+		ApplyRgb(alpha, red, green, blue);
+	}
+
+	public void SetColorFromRgb(byte red, byte green, byte blue) => ApplyRgb(ByteMax, red, green, blue);
+
+	private void ApplyRgb(byte alpha, byte red, byte green, byte blue)
+	{
 		var (hue, saturation, value) = RgbToHsv(red, green, blue);
 
 		_hue = hue;
 		_saturation = saturation;
 		_value = value;
-		_alphaPercent = alpha / 2.55;
+		_alphaPercent = alpha / AlphaToPercentFactor;
 
 		BrightnessSlider.Value = _value;
 		HueSlider.Value = _hue;
@@ -117,7 +134,7 @@ public partial class ColorWheelControl : UserControl
 
 	private static bool TryParseHex(string text, out byte alpha, out byte red, out byte green, out byte blue)
 	{
-		alpha = 255;
+		alpha = ByteMax;
 		red = 0;
 		green = 0;
 		blue = 0;
@@ -129,6 +146,7 @@ public partial class ColorWheelControl : UserControl
 			if (!byte.TryParse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber, null, out red)) return false;
 			if (!byte.TryParse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber, null, out green)) return false;
 			if (!byte.TryParse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber, null, out blue)) return false;
+
 			return true;
 		}
 
@@ -138,6 +156,7 @@ public partial class ColorWheelControl : UserControl
 			if (!byte.TryParse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber, null, out red)) return false;
 			if (!byte.TryParse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber, null, out green)) return false;
 			if (!byte.TryParse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber, null, out blue)) return false;
+
 			return true;
 		}
 
@@ -155,12 +174,12 @@ public partial class ColorWheelControl : UserControl
 		var delta = max - min;
 
 		double hue;
-		if (delta < 0.00001) hue = 0;
-		else if (max == r) hue = 60 * (((g - b) / delta) % 6);
-		else if (max == g) hue = 60 * (((b - r) / delta) + 2);
-		else hue = 60 * (((r - g) / delta) + 4);
+		if (delta < DeltaEpsilon) hue = 0;
+		else if (max == r) hue = HueSegmentDegrees * (((g - b) / delta) % 6);
+		else if (max == g) hue = HueSegmentDegrees * (((b - r) / delta) + 2);
+		else hue = HueSegmentDegrees * (((r - g) / delta) + 4);
 
-		if (hue < 0) hue += 360;
+		if (hue < 0) hue += FullCircleDegrees;
 
 		var saturation = max <= 0 ? 0 : delta / max;
 		var value = max;
@@ -168,10 +187,20 @@ public partial class ColorWheelControl : UserControl
 		return (hue, saturation, value);
 	}
 
-	public string GetColorMode() => _mode == PickerMode.Square ? "Square" : "Wheel";
+	public event EventHandler? EyedropperRequested;
+
+	private void OnEyedropperButtonClick(object sender, MouseButtonEventArgs e) =>
+		EyedropperRequested?.Invoke(this, EventArgs.Empty);
+
+	public void SetEyedropperActive(bool active) =>
+		EyedropperButton.Background = active
+			? (Brush)FindResource(BrushAccent)
+			: (Brush)FindResource(BrushSurface);
+
+	public string GetColorMode() => _mode == PickerMode.Square ? AppState.PaintEditorColorModeSquare : AppState.PaintEditorColorModeWheel;
 
 	public void SetColorMode(string mode) =>
-		SetMode(string.Equals(mode, "Square", StringComparison.OrdinalIgnoreCase) ? PickerMode.Square : PickerMode.Wheel);
+		SetMode(string.Equals(mode, AppState.PaintEditorColorModeSquare, StringComparison.OrdinalIgnoreCase) ? PickerMode.Square : PickerMode.Wheel);
 
 	private void OnWheelModeClick(object sender, MouseButtonEventArgs e) => SetMode(PickerMode.Wheel);
 
@@ -195,11 +224,14 @@ public partial class ColorWheelControl : UserControl
 		BrightnessRow.Visibility = isSquare ? Visibility.Collapsed : Visibility.Visible;
 
 		WheelModeButton.Background = isSquare
-			? (Brush)FindResource("Brush.Surface")
-			: (Brush)FindResource("Brush.Accent");
+			? (Brush)FindResource(BrushSurface)
+			: (Brush)FindResource(BrushAccent);
 		SquareModeButton.Background = isSquare
-			? (Brush)FindResource("Brush.Accent")
-			: (Brush)FindResource("Brush.Surface");
+			? (Brush)FindResource(BrushAccent)
+			: (Brush)FindResource(BrushSurface);
+
+		WheelModeIcon.Stroke = Brushes.White;
+		SquareModeIcon.Stroke = Brushes.White;
 
 		if (isSquare)
 		{
@@ -211,7 +243,7 @@ public partial class ColorWheelControl : UserControl
 	private static WriteableBitmap GenerateWheelBitmap()
 	{
 		var size = WheelSize;
-		var bitmap = new WriteableBitmap(size, size, 96, 96, PixelFormats.Bgra32, null);
+		var bitmap = new WriteableBitmap(size, size, BitmapDpi, BitmapDpi, PixelFormats.Bgra32, null);
 		var pixels = new byte[size * size * 4];
 		var center = size / 2.0;
 
@@ -230,14 +262,14 @@ public partial class ColorWheelControl : UserControl
 					continue;
 				}
 
-				var hue = (Math.Atan2(deltaY, deltaX) * 180.0 / Math.PI + 360) % 360;
+				var hue = (Math.Atan2(deltaY, deltaX) * 180.0 / Math.PI + FullCircleDegrees) % FullCircleDegrees;
 				var saturation = Math.Min(1, distance / center);
 				var (red, green, blue) = HsvToRgb(hue, saturation, 1.0);
 
 				pixels[pixelIndex] = blue;
 				pixels[pixelIndex + 1] = green;
 				pixels[pixelIndex + 2] = red;
-				pixels[pixelIndex + 3] = 255;
+				pixels[pixelIndex + 3] = ByteMax;
 			}
 		}
 
@@ -249,7 +281,7 @@ public partial class ColorWheelControl : UserControl
 	private static WriteableBitmap GenerateSquareBitmap(double hue)
 	{
 		var size = WheelSize;
-		var bitmap = new WriteableBitmap(size, size, 96, 96, PixelFormats.Bgra32, null);
+		var bitmap = new WriteableBitmap(size, size, BitmapDpi, BitmapDpi, PixelFormats.Bgra32, null);
 		var pixels = new byte[size * size * 4];
 
 		for (var y = 0; y < size; y++)
@@ -265,7 +297,7 @@ public partial class ColorWheelControl : UserControl
 				pixels[pixelIndex] = blue;
 				pixels[pixelIndex + 1] = green;
 				pixels[pixelIndex + 2] = red;
-				pixels[pixelIndex + 3] = 255;
+				pixels[pixelIndex + 3] = ByteMax;
 			}
 		}
 
@@ -312,8 +344,8 @@ public partial class ColorWheelControl : UserControl
 
 	private void UpdateSquareIndicator()
 	{
-		var indicatorX = _saturation * WheelSize - 5;
-		var indicatorY = (1 - _value) * WheelSize - 5;
+		var indicatorX = _saturation * WheelSize - IndicatorHalfSize;
+		var indicatorY = (1 - _value) * WheelSize - IndicatorHalfSize;
 
 		Canvas.SetLeft(SquareIndicator, indicatorX);
 		Canvas.SetTop(SquareIndicator, indicatorY);
@@ -366,7 +398,7 @@ public partial class ColorWheelControl : UserControl
 		var deltaY = position.Y - center;
 		var distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
 
-		_hue = (Math.Atan2(deltaY, deltaX) * 180.0 / Math.PI + 360) % 360;
+		_hue = (Math.Atan2(deltaY, deltaX) * 180.0 / Math.PI + FullCircleDegrees) % FullCircleDegrees;
 		_saturation = Math.Min(1, distance / center);
 
 		UpdateIndicator();
@@ -380,8 +412,8 @@ public partial class ColorWheelControl : UserControl
 		var center = WheelSize / 2.0;
 		var angle = _hue * Math.PI / 180.0;
 		var radius = _saturation * center;
-		var indicatorX = center + radius * Math.Cos(angle) - 5;
-		var indicatorY = center + radius * Math.Sin(angle) - 5;
+		var indicatorX = center + radius * Math.Cos(angle) - IndicatorHalfSize;
+		var indicatorY = center + radius * Math.Sin(angle) - IndicatorHalfSize;
 
 		Canvas.SetLeft(Indicator, indicatorX);
 		Canvas.SetTop(Indicator, indicatorY);
@@ -390,7 +422,7 @@ public partial class ColorWheelControl : UserControl
 	private void UpdatePreview()
 	{
 		var (red, green, blue) = HsvToRgb(_hue, _saturation, _value);
-		var alpha = (byte)Math.Round(_alphaPercent * 2.55);
+		var alpha = (byte)Math.Round(_alphaPercent * AlphaToPercentFactor);
 		var color = Color.FromArgb(alpha, red, green, blue);
 		ColorPreview.Fill = new SolidColorBrush(color);
 		HexText.Text = $"#{alpha:X2}{red:X2}{green:X2}{blue:X2}";
@@ -430,25 +462,25 @@ public partial class ColorWheelControl : UserControl
 
 	private static (byte Red, byte Green, byte Blue) HsvToRgb(double hue, double saturation, double value)
 	{
-		hue = hue % 360;
-		if (hue < 0) hue += 360;
+		hue = hue % FullCircleDegrees;
+		if (hue < 0) hue += FullCircleDegrees;
 
 		var chroma = value * saturation;
-		var intermediate = chroma * (1 - Math.Abs((hue / 60) % 2 - 1));
+		var intermediate = chroma * (1 - Math.Abs((hue / HueSegmentDegrees) % 2 - 1));
 		var match = value - chroma;
 
 		double red, green, blue;
 
-		if (hue < 60) { red = chroma; green = intermediate; blue = 0; }
-		else if (hue < 120) { red = intermediate; green = chroma; blue = 0; }
-		else if (hue < 180) { red = 0; green = chroma; blue = intermediate; }
-		else if (hue < 240) { red = 0; green = intermediate; blue = chroma; }
-		else if (hue < 300) { red = intermediate; green = 0; blue = chroma; }
+		if (hue < HueSegmentDegrees) { red = chroma; green = intermediate; blue = 0; }
+		else if (hue < HueSegmentDegrees * 2) { red = intermediate; green = chroma; blue = 0; }
+		else if (hue < HueSegmentDegrees * 3) { red = 0; green = chroma; blue = intermediate; }
+		else if (hue < HueSegmentDegrees * 4) { red = 0; green = intermediate; blue = chroma; }
+		else if (hue < HueSegmentDegrees * 5) { red = intermediate; green = 0; blue = chroma; }
 		else { red = chroma; green = 0; blue = intermediate; }
 
 		return (
-			(byte)Math.Round((red + match) * 255),
-			(byte)Math.Round((green + match) * 255),
-			(byte)Math.Round((blue + match) * 255));
+			(byte)Math.Round((red + match) * ByteMax),
+			(byte)Math.Round((green + match) * ByteMax),
+			(byte)Math.Round((blue + match) * ByteMax));
 	}
 }

@@ -9,7 +9,9 @@
 	WindowStartupLocation="CenterOwner"
 	ResizeMode="CanResize"
 	ShowInTaskbar="False"
-	Loaded="OnWindowLoaded">
+	Loaded="OnWindowLoaded"
+	PreviewKeyDown="OnWindowPreviewKeyDown"
+	PreviewKeyUp="OnWindowPreviewKeyUp">
 
 	<Window.Resources>
 		<Style x:Key="Style.ArrowButton" TargetType="Button" BasedOn="{StaticResource Style.Button}">
@@ -136,18 +138,18 @@
 				</StackPanel>
 
 				<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-					<ToggleButton x:Name="ToolMoveButton"
-								  Style="{StaticResource Style.ToolButton}"
-								  ToolTip="{DynamicResource S.Editor.Tool.Move}"
-								  Click="OnToolMoveClick">
-						<TextBlock Text="✥" FontSize="18" />
-					</ToggleButton>
 					<ToggleButton x:Name="ToolHandButton"
 								  Style="{StaticResource Style.ToolButton}"
-								  Margin="4,0,0,0"
 								  ToolTip="{DynamicResource S.Editor.Tool.Hand}"
 								  Click="OnToolHandClick">
 						<TextBlock Text="✋" FontSize="16" />
+					</ToggleButton>
+					<ToggleButton x:Name="ToolMoveButton"
+								  Style="{StaticResource Style.ToolButton}"
+								  Margin="4,0,0,0"
+								  ToolTip="{DynamicResource S.Editor.Tool.Move}"
+								  Click="OnToolMoveClick">
+						<TextBlock Text="✥" FontSize="18" />
 					</ToggleButton>
 					<ToggleButton x:Name="ToolBrushButton"
 								  Style="{StaticResource Style.ToolButton}"
@@ -453,7 +455,7 @@
 								Click="OnCanvasToolApplyClick" />
 					</StackPanel>
 					<StackPanel x:Name="BrushToolPanel" DockPanel.Dock="Top" Visibility="Collapsed">
-						<controls:ColorWheelControl x:Name="ColorWheel" />
+						<controls:ColorWheelControl x:Name="ColorWheel" EyedropperRequested="OnEyedropperClick" />
 					</StackPanel>
 					<StackPanel x:Name="EraserToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" VerticalAlignment="Center">
 						<TextBlock Text="{DynamicResource S.Editor.Tool.EraserHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />

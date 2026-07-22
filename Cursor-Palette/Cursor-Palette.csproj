@@ -34,6 +34,7 @@
 		<Resource Include="Resources\EraseIcon32.png" />
 		<Resource Include="Resources\PencilIcon48.png" />
 		<Resource Include="Resources\FillIcon32.png" />
+		<Resource Include="Resources\EyedropperIcon48.png" />
 		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
 		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
 	</ItemGroup>

@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Input;
 using CursorPalette.Services;
 
 namespace CursorPalette.Views;
@@ -34,7 +33,7 @@ public partial class PaintEditorWindow
 
 		PreviewImage.IsHitTestVisible = isMove;
 		ResizeOverlay.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
-		ViewportHost.Cursor = isHand ? Cursors.Hand : (isBrush || isEraser || isHotspot || isFill) ? Cursors.Cross : Cursors.Arrow;
+		UpdateViewportCursor();
 		PaintCursorRect.Visibility = Visibility.Collapsed;
 
 		var markerVisible = isHotspot ? Visibility.Visible : Visibility.Collapsed;

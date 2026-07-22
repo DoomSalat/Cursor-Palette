@@ -8,6 +8,8 @@ namespace CursorPalette.Views;
 
 public partial class PaintEditorWindow
 {
+	private WriteableBitmap? _previewBitmap;
+
 	private void RenderAll()
 	{
 		CanvasZoomTransform.ScaleX = _zoom;
@@ -27,10 +29,14 @@ public partial class PaintEditorWindow
 		PreviewImage.Height = _canvasHeight;
 		RenderOptions.SetBitmapScalingMode(PreviewImage, BitmapScalingMode.NearestNeighbor);
 
-		var bitmap = new WriteableBitmap(_canvasWidth, _canvasHeight, 96, 96, PixelFormats.Bgra32, null);
+		if (_previewBitmap is null || _previewBitmap.PixelWidth != _canvasWidth || _previewBitmap.PixelHeight != _canvasHeight)
+		{
+			_previewBitmap = new WriteableBitmap(_canvasWidth, _canvasHeight, 96, 96, PixelFormats.Bgra32, null);
+			PreviewImage.Source = _previewBitmap;
+		}
+
 		var pixels = Compose();
-		bitmap.WritePixels(new Int32Rect(0, 0, _canvasWidth, _canvasHeight), pixels, _canvasWidth * BytesPerPixel, 0);
-		PreviewImage.Source = bitmap;
+		_previewBitmap.WritePixels(new Int32Rect(0, 0, _canvasWidth, _canvasHeight), pixels, _canvasWidth * BytesPerPixel, 0);
 
 		UpdateResizeOverlay();
 		UpdateSpriteBoundsRect();
