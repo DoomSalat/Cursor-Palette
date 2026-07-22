@@ -203,7 +203,17 @@
 							ToolTip="{DynamicResource S.UiZoom.InTooltip}"
 							Click="OnUiZoomInClick" />
 
-					<Button x:Name="ExportButton"
+					<CheckBox x:Name="OpenFolderCheck"
+						  Style="{StaticResource Style.ToggleCheckBox}"
+						  Content="{DynamicResource S.OpenFolderAfterDownload}"
+						  IsChecked="True"
+						  VerticalAlignment="Center"
+						  Margin="16,0,4,0"
+						  ToolTip="{DynamicResource S.OpenFolderAfterDownload.Tooltip}"
+						  Checked="OnOpenFolderCheckChanged"
+						  Unchecked="OnOpenFolderCheckChanged" />
+
+				<Button x:Name="ExportButton"
 							Style="{StaticResource Style.Button}"
 							Padding="8,6"
 							Margin="16,0,4,0"

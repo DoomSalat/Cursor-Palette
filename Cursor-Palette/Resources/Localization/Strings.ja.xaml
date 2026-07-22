@@ -191,6 +191,8 @@
 	<sys:String x:Key="S.Import.SelectionCount">{1} 件中 {0} 件選択</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Cursor Palette パッケージ (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">統一カーソルサイズ</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload">ダウンロード後にフォルダを開く</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">ファイルのダウンロードまたはエクスポート後に、ダウンロード フォルダをエクスプローラーで開きます</sys:String>
 
 	<sys:String x:Key="S.Toast.ExportedBundle">{0} 個のプリセットを {1} にエクスポートしました</sys:String>
 	<sys:String x:Key="S.Toast.ExportedArchive">{0} 個のプリセットをアーカイブとして {1} にエクスポートしました</sys:String>

@@ -191,6 +191,8 @@
 	<sys:String x:Key="S.Import.SelectionCount">已选择 {0}/{1}</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Cursor Palette 包 (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">统一光标大小</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload">下载后打开文件夹</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">下载或导出文件后，在文件资源管理器中打开下载文件夹</sys:String>
 
 	<sys:String x:Key="S.Toast.ExportedBundle">已导出 {0} 个预设到 {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedArchive">已将 {0} 个预设导出为压缩包 {1}</sys:String>

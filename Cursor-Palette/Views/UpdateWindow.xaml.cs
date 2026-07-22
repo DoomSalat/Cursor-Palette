@@ -75,12 +75,8 @@ public partial class UpdateWindow : Window
 
 			ToastService.Show(_toastHost, Loc.Get(LocToastManualDownload));
 
-			Process.Start(new ProcessStartInfo
-			{
-				FileName = ExplorerExe,
-				Arguments = string.Format(ExplorerSelectArgs, destPath),
-				UseShellExecute = true,
-			});
+			if (AppState.GetOpenFolderAfterDownload())
+				ExplorerService.RevealFile(destPath);
 		}
 		catch
 		{

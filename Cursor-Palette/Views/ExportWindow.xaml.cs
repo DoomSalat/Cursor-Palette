@@ -161,7 +161,8 @@ public partial class ExportWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportBundle(selected, ExportNameBox.Text);
 			ToastService.Show(RootGrid, Loc.Format(LocToastExportedBundle, count, System.IO.Path.GetFileName(path)));
-			RevealInExplorer(path);
+			if (AppState.GetOpenFolderAfterDownload())
+				RevealInExplorer(path);
 		}
 		catch (Exception exception)
 		{
@@ -180,7 +181,8 @@ public partial class ExportWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportArchive(selected, ExportNameBox.Text);
 			ToastService.Show(RootGrid, Loc.Format(LocToastExportedArchive, count, System.IO.Path.GetFileName(path)));
-			RevealInExplorer(path);
+			if (AppState.GetOpenFolderAfterDownload())
+				RevealInExplorer(path);
 		}
 		catch (Exception exception)
 		{
@@ -189,19 +191,5 @@ public partial class ExportWindow : Window
 		}
 	}
 
-	private static void RevealInExplorer(string path)
-	{
-		try
-		{
-			Process.Start(new ProcessStartInfo
-			{
-				FileName = "explorer.exe",
-				Arguments = $"/select,\"{path}\"",
-				UseShellExecute = true,
-			});
-		}
-		catch
-		{
-		}
-	}
+	private static void RevealInExplorer(string path) => ExplorerService.RevealFile(path);
 }

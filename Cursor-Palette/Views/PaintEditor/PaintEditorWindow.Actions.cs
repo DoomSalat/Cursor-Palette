@@ -91,6 +91,7 @@ public partial class PaintEditorWindow
 		using var stream = File.Create(destPath);
 		encoder.Save(stream);
 
-		Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{destPath}\"") { UseShellExecute = true });
+		if (AppState.GetOpenFolderAfterDownload())
+			ExplorerService.RevealFile(destPath);
 	}
 }

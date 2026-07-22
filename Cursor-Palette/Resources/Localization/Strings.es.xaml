@@ -200,6 +200,8 @@
 	<sys:String x:Key="S.Import.SelectionCount">{0} de {1} seleccionados</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Paquetes de Cursor Palette (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">Tamaño de cursor uniforme</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload">Abrir carpeta después de descargar</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">Abrir la carpeta de Descargas en el Explorador de archivos después de descargar o exportar un archivo</sys:String>
 
 	<sys:String x:Key="S.Toast.ExportedBundle">Se exportaron {0} preset(s) a {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedArchive">Se exportaron {0} preset(s) como archivo a {1}</sys:String>

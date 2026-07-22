@@ -200,6 +200,8 @@
 	<sys:String x:Key="S.Import.SelectionCount">Выбрано {0} из {1}</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Пакеты Cursor Palette (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">Общий размер курсора</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload">Открывать папку после скачивания</sys:String>
+	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">Открывать папку «Загрузки» в проводнике после скачивания или экспорта файла</sys:String>
 
 	<sys:String x:Key="S.Toast.ExportedBundle">Экспортировано пресетов: {0} — файл {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedArchive">Экспортировано пресетов: {0} — архив {1}</sys:String>

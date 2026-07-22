@@ -45,6 +45,7 @@ public static class AppState
 		public string? ThemeMode { get; set; }
 		public string? Language { get; set; }
 		public bool ShowSpriteBounds { get; set; }
+		public bool OpenFolderAfterDownload { get; set; } = true;
 		public double PaintEditorWidth { get; set; } = 680;
 		public double PaintEditorHeight { get; set; } = 600;
 		public double EditorUiScale { get; set; } = EditorUiScaleDefault;
@@ -174,6 +175,16 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.ShowSpriteBounds = value;
+
+		SaveSettings(settings);
+	}
+
+	public static bool GetOpenFolderAfterDownload() => LoadSettings().OpenFolderAfterDownload;
+
+	public static void SetOpenFolderAfterDownload(bool value)
+	{
+		var settings = LoadSettings();
+		settings.OpenFolderAfterDownload = value;
 
 		SaveSettings(settings);
 	}
