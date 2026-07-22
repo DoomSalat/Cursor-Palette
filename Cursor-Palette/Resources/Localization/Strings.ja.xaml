@@ -118,7 +118,9 @@
 
 	<sys:String x:Key="S.Update.Available">アップデートあり</sys:String>
 	<sys:String x:Key="S.Update.Available.Tooltip">新しいバージョンが利用可能です — クリックしてダウンロード</sys:String>
+	<sys:String x:Key="S.Update.Checking">バージョン確認中</sys:String>
 	<sys:String x:Key="S.Update.UpToDate">最新です</sys:String>
+	<sys:String x:Key="S.Update.Recheck.Tooltip">クリックして再確認</sys:String>
 	<sys:String x:Key="S.Update.WindowTitle">アップデート</sys:String>
 	<sys:String x:Key="S.Update.CurrentVersion">現在のバージョン</sys:String>
 	<sys:String x:Key="S.Update.NewVersion">新しいバージョン</sys:String>

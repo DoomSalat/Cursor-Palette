@@ -132,6 +132,7 @@ public partial class MainWindow : Window
 
 		((Storyboard)Resources[UpdateSpinnerStoryboardKey]).Stop(this);
 		UpdateSpinner.Visibility = Visibility.Collapsed;
+		UpdateCheckingLabel.Visibility = Visibility.Collapsed;
 
 		if (_updateInfo is null)
 			return;
@@ -157,6 +158,16 @@ public partial class MainWindow : Window
 			return;
 
 		new UpdateWindow(_updateInfo, RootGrid) { Owner = this }.ShowDialog();
+	}
+
+	private void OnUpToDateLabelClick(object sender, MouseButtonEventArgs e)
+	{
+		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+
+		UpToDateLabel.Visibility = Visibility.Collapsed;
+		UpdateCheckingLabel.Visibility = Visibility.Visible;
+
+		_ = CheckForUpdatesAsync(version);
 	}
 
 	private void OnFooterClick(object sender, RoutedEventArgs e)

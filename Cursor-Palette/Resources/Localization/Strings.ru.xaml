@@ -127,7 +127,9 @@
 
 	<sys:String x:Key="S.Update.Available">Доступно обновление</sys:String>
 	<sys:String x:Key="S.Update.Available.Tooltip">Доступна новая версия — нажмите, чтобы скачать</sys:String>
+	<sys:String x:Key="S.Update.Checking">Проверка версии</sys:String>
 	<sys:String x:Key="S.Update.UpToDate">Версия актуальна</sys:String>
+	<sys:String x:Key="S.Update.Recheck.Tooltip">Нажмите, чтобы проверить снова</sys:String>
 	<sys:String x:Key="S.Update.WindowTitle">Обновление</sys:String>
 	<sys:String x:Key="S.Update.CurrentVersion">Текущая версия</sys:String>
 	<sys:String x:Key="S.Update.NewVersion">Новая версия</sys:String>

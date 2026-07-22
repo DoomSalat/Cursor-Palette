@@ -118,7 +118,9 @@
 
 	<sys:String x:Key="S.Update.Available">有可用更新</sys:String>
 	<sys:String x:Key="S.Update.Available.Tooltip">有新版本可用 — 点击下载</sys:String>
+	<sys:String x:Key="S.Update.Checking">正在检查版本</sys:String>
 	<sys:String x:Key="S.Update.UpToDate">已是最新</sys:String>
+	<sys:String x:Key="S.Update.Recheck.Tooltip">点击重新检查</sys:String>
 	<sys:String x:Key="S.Update.WindowTitle">更新</sys:String>
 	<sys:String x:Key="S.Update.CurrentVersion">当前版本</sys:String>
 	<sys:String x:Key="S.Update.NewVersion">新版本</sys:String>

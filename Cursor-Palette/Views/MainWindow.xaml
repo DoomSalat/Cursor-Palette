@@ -250,6 +250,13 @@
 						</Ellipse.RenderTransform>
 					</Ellipse>
 
+					<TextBlock x:Name="UpdateCheckingLabel"
+							   Text="{DynamicResource S.Update.Checking}"
+							   Foreground="{StaticResource Brush.TextDim}"
+							   FontSize="11"
+							   VerticalAlignment="Center"
+							   Margin="6,0,0,0" />
+
 					<StackPanel x:Name="UpdateIndicator"
 								Orientation="Horizontal"
 								VerticalAlignment="Center"
@@ -265,12 +272,17 @@
 					</StackPanel>
 
 					<TextBlock x:Name="UpToDateLabel"
-							   Text="{DynamicResource S.Update.UpToDate}"
 							   Foreground="{StaticResource Brush.TextDim}"
 							   FontSize="11"
 							   VerticalAlignment="Center"
 							   Margin="16,0,0,0"
-							   Visibility="Collapsed" />
+							   Cursor="Hand"
+							   ToolTip="{DynamicResource S.Update.Recheck.Tooltip}"
+							   MouseLeftButtonUp="OnUpToDateLabelClick"
+							   Visibility="Collapsed">
+						<Run Text="&#x2713; " />
+						<Run Text="{DynamicResource S.Update.UpToDate}" />
+					</TextBlock>
 				</StackPanel>
 
 				<StackPanel Grid.Column="2" Orientation="Horizontal"

@@ -127,7 +127,9 @@
 
 	<sys:String x:Key="S.Update.Available">Actualización disponible</sys:String>
 	<sys:String x:Key="S.Update.Available.Tooltip">Hay una nueva versión disponible — haz clic para descargar</sys:String>
+	<sys:String x:Key="S.Update.Checking">Comprobando versión</sys:String>
 	<sys:String x:Key="S.Update.UpToDate">Actualizado</sys:String>
+	<sys:String x:Key="S.Update.Recheck.Tooltip">Haz clic para comprobar de nuevo</sys:String>
 	<sys:String x:Key="S.Update.WindowTitle">Actualización</sys:String>
 	<sys:String x:Key="S.Update.CurrentVersion">Versión actual</sys:String>
 	<sys:String x:Key="S.Update.NewVersion">Nueva versión</sys:String>
