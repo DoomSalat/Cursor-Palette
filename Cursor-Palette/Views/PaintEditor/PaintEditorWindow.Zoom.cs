@@ -14,8 +14,6 @@ public partial class PaintEditorWindow
 
 	private Point ViewportCenter() => new(ViewportHost.ActualWidth / 2.0, ViewportHost.ActualHeight / 2.0);
 
-	// Keeps the canvas point under `anchor` fixed on screen while the zoom level changes,
-	// e.g. zooming with the mouse wheel keeps the point under the cursor stationary.
 	private void ZoomAtPoint(double factor, Point anchor)
 	{
 		var newZoom = Math.Clamp(_zoom * factor, AppState.PaintEditorZoomMin, AppState.PaintEditorZoomMax);

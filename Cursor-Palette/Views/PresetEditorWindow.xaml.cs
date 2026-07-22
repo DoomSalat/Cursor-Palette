@@ -775,7 +775,7 @@ public partial class PresetEditorWindow : Window
 		if (image == null)
 			return;
 
-		var editor = new PaintEditorWindow(image) { Owner = this };
+		var editor = new PaintEditorWindow(image, NameBox.Text, slot.Role.RegistryName) { Owner = this };
 
 		if (editor.ShowDialog() != true || editor.Result == null)
 			return;

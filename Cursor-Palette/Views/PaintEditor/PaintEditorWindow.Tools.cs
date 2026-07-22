@@ -32,8 +32,6 @@ public partial class PaintEditorWindow
 			UpdateResizeOverlay();
 	}
 
-	// Entering the Canvas tool snapshots the current size/position so that switching away
-	// from it without hitting Apply reverts the live preview instead of leaving it applied.
 	private void SetTool(string tool)
 	{
 		if (_currentTool == AppState.PaintEditorToolCanvas && tool != AppState.PaintEditorToolCanvas && _hasCanvasResizeSnapshot)
@@ -73,7 +71,6 @@ public partial class PaintEditorWindow
 
 	private void OnCanvasToolApplyClick(object sender, RoutedEventArgs e)
 	{
-		// Commit: clear the snapshot first so SetTool's revert-on-leave branch doesn't fire.
 		_hasCanvasResizeSnapshot = false;
 		SetTool(AppState.PaintEditorToolMove);
 	}

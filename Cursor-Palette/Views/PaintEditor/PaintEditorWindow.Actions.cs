@@ -73,12 +73,12 @@ public partial class PaintEditorWindow
 
 		Directory.CreateDirectory(AppPaths.DownloadsDir);
 
-		var fileName = $"cursor_{_canvasWidth}x{_canvasHeight}.png";
-		var destPath = Path.Combine(AppPaths.DownloadsDir, fileName);
+		var baseName = BuildExportFileName();
+		var destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName}.png");
 		var attempt = 1;
 
 		while (File.Exists(destPath))
-			destPath = Path.Combine(AppPaths.DownloadsDir, $"cursor_{_canvasWidth}x{_canvasHeight} ({attempt++}).png");
+			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}).png");
 
 		var encoder = new PngBitmapEncoder();
 		encoder.Frames.Add(BitmapFrame.Create(bitmap));
@@ -87,5 +87,25 @@ public partial class PaintEditorWindow
 		encoder.Save(stream);
 
 		Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{destPath}\"") { UseShellExecute = true });
+	}
+
+	private string BuildExportFileName()
+	{
+		var parts = new[] { _presetName, _roleName }
+			.Where(part => !string.IsNullOrWhiteSpace(part))
+			.Select(SanitizeFileNamePart);
+
+		var prefix = string.Join(" ", parts);
+
+		return string.IsNullOrEmpty(prefix)
+			? $"cursor_{_canvasWidth}x{_canvasHeight}"
+			: $"{prefix} {_canvasWidth}x{_canvasHeight}";
+	}
+
+	private static string SanitizeFileNamePart(string? part)
+	{
+		var invalid = Path.GetInvalidFileNameChars();
+
+		return string.Join("", part!.Where(character => !invalid.Contains(character))).Trim();
 	}
 }

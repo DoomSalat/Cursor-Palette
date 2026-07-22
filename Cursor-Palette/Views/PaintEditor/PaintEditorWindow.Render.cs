@@ -105,8 +105,6 @@ public partial class PaintEditorWindow
 		SpriteBoundsRect.Height = _spriteHeight;
 	}
 
-	// Overlay chrome (border, thumbs, label) is sized in screen pixels regardless of canvas
-	// zoom, so it stays usable on small, heavily zoomed-in canvases instead of ballooning.
 	private void UpdateResizeOverlay()
 	{
 		var inv = 1.0 / _zoom;

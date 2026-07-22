@@ -25,9 +25,6 @@ public partial class PaintEditorWindow
 		if (!_isDraggingSprite)
 			return;
 
-		// GetPosition already returns coordinates in ViewportContent's local (unscaled) space,
-		// i.e. it divides out CanvasZoomTransform for us — dividing by _zoom again would halve
-		// sensitivity by the zoom factor a second time.
 		var pos = e.GetPosition(ViewportContent);
 		var dx = (int)Math.Round(pos.X - _spriteDragStart.X);
 		var dy = (int)Math.Round(pos.Y - _spriteDragStart.Y);

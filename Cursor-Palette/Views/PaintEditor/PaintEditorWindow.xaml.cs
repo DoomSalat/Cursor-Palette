@@ -12,8 +12,6 @@ public partial class PaintEditorWindow : Window
 	private const double UiZoomStep = 0.1;
 	private const double CanvasZoomStep = 1.2;
 
-	// On-screen sizes (device-independent pixels) for canvas overlay chrome; divided by
-	// zoom so thumbs/border/labels stay a constant, usable size at any zoom level.
 	private const double ThumbEdgeLengthPx = 16;
 	private const double ThumbEdgeThicknessPx = 6;
 	private const double ThumbCornerSizePx = 8;
@@ -57,25 +55,26 @@ public partial class PaintEditorWindow : Window
 	private int _resizeOriginalOffsetX;
 	private int _resizeOriginalOffsetY;
 
-	// Snapshot taken when the Canvas tool is entered; restored if the tool is switched away
-	// from without hitting Apply (see SetTool in PaintEditorWindow.Tools.cs).
 	private bool _hasCanvasResizeSnapshot;
 	private int _canvasResizeSnapshotWidth;
 	private int _canvasResizeSnapshotHeight;
 	private int _canvasResizeSnapshotOffsetX;
 	private int _canvasResizeSnapshotOffsetY;
 
-	// Thumb.DragDelta reports the change since the *previous* event, not since the drag
-	// started, so we accumulate the raw movement ourselves and always resize relative to
-	// the drag-start dimensions (matches how the *Original* fields above are used below).
 	private double _resizeAccumX;
 	private double _resizeAccumY;
 
+	private readonly string? _presetName;
+	private readonly string? _roleName;
+
 	public CursorCanvasImage? Result { get; private set; }
 
-	public PaintEditorWindow(CursorCanvasImage source)
+	public PaintEditorWindow(CursorCanvasImage source, string? presetName = null, string? roleName = null)
 	{
 		InitializeComponent();
+
+		_presetName = presetName;
+		_roleName = roleName;
 
 		Width = AppState.GetPaintEditorWidth();
 		Height = AppState.GetPaintEditorHeight();

@@ -34,6 +34,17 @@ apply.
   every frame of a `.ani`.
 
   ![Pivot point editor](docs/screenshots/hotspot-editor.png)
+- **Paint editor** — reposition a cursor's artwork within its canvas or
+  resize the canvas itself, right from a slot in the preset editor.
+  Move the sprite by dragging it or with the arrow/snap-to-edge pad, pan
+  around with the Hand tool or by holding the middle mouse button, and
+  zoom in for pixel-level precision on small cursors. The Canvas tool
+  shows resize handles on the canvas edges/corners and only applies the
+  new size once you confirm — switching tools without confirming
+  reverts it. Export the result as a `.png` (named after the preset and
+  cursor role) or save it back into the slot.
+
+  ![Paint editor](docs/screenshots/paint-editor.png)
 - **Animated `.ani` preview** — animated cursors (busy, working, etc.) play
   their full frame sequence with original timing in the gallery and preset
   editor, instead of a static first frame.
