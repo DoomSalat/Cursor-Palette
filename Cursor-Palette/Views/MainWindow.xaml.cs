@@ -7,6 +7,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using CursorPalette.Models;
 using CursorPalette.Services;
+using Microsoft.Win32;
 
 namespace CursorPalette.Views;
 
@@ -50,6 +51,9 @@ public partial class MainWindow : Window
 	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
 	private const string LocDefaultPresetName = "S.DefaultPresetName";
 	private const string LocToastUpdateAvailable = "S.Toast.UpdateAvailable";
+	private const string LocToastImported = "S.Toast.Imported";
+	private const string LocImportFileFilter = "S.Import.FileFilter";
+	private const string LocErrorImportUnrecognized = "S.Error.ImportUnrecognized";
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
 	private const string UpdateSpinnerStoryboardKey = "UpdateSpinnerStoryboard";
@@ -172,6 +176,49 @@ public partial class MainWindow : Window
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
 		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoMain)) { Owner = this }.ShowDialog();
+	}
+
+	private void OnExportButtonClick(object sender, RoutedEventArgs e)
+	{
+		new ExportWindow(_presets) { Owner = this }.ShowDialog();
+	}
+
+	private void OnImportButtonClick(object sender, RoutedEventArgs e)
+	{
+		var dialog = new OpenFileDialog
+		{
+			Filter = Loc.Get(LocImportFileFilter),
+			CheckFileExists = true,
+		};
+
+		if (dialog.ShowDialog(this) != true)
+			return;
+
+		var detected = PresetPackageService.TryDetectPackage(dialog.FileName);
+		if (detected == null)
+		{
+			MessageBox.Show(Loc.Get(LocErrorImportUnrecognized),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
+			return;
+		}
+
+		ImportPackage(detected);
+	}
+
+	private void ImportPackage(DetectedPackage detected)
+	{
+		var picker = new ImportPickerWindow(detected.Entries) { Owner = this };
+
+		if (picker.ShowDialog() == true)
+		{
+			var imported = PresetPackageService.ImportSelected(detected, picker.SelectedEntries);
+			ReloadGallery();
+
+			if (imported > 0)
+				ToastService.Show(RootGrid, Loc.Format(LocToastImported, imported));
+		}
+
+		PresetPackageService.CleanupPackage(detected);
 	}
 
 	private void SetSliderSilently(int sizeInPixels)
@@ -1191,6 +1238,17 @@ public partial class MainWindow : Window
 
 	private void HandleDroppedPaths(string[] paths)
 	{
+		var packagePath = paths.FirstOrDefault(path => File.Exists(path) && PresetPackageService.IsSupportedPackageFile(path));
+		if (packagePath != null)
+		{
+			var detected = PresetPackageService.TryDetectPackage(packagePath);
+			if (detected != null)
+			{
+				ImportPackage(detected);
+				return;
+			}
+		}
+
 		List<string> files;
 		try
 		{
@@ -1225,7 +1283,8 @@ public partial class MainWindow : Window
 			return false;
 
 		return paths.Any(path =>
-			Directory.Exists(path) || ArchiveImportService.IsArchiveFile(path) || IsCursorFile(path));
+			Directory.Exists(path) || ArchiveImportService.IsArchiveFile(path) ||
+			PresetPackageService.IsSupportedPackageFile(path) || IsCursorFile(path));
 	}
 
 	private static List<string> ResolveCursorFiles(IEnumerable<string> paths)

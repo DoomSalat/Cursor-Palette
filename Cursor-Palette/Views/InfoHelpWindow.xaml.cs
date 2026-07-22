@@ -292,10 +292,13 @@ public partial class InfoHelpWindow : Window
 		return (icon, rest);
 	}
 
-	private static StackPanel BuildBulletItem(string line)
+	private static Grid BuildBulletItem(string line)
 	{
-		var row = new StackPanel { Orientation = Orientation.Horizontal };
-		row.Children.Add(new TextBlock
+		var grid = new Grid();
+		grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, MinWidth = 16 });
+		grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+		var bullet = new TextBlock
 		{
 			Text = "•",
 			FontSize = 13,
@@ -303,16 +306,22 @@ public partial class InfoHelpWindow : Window
 			Foreground = BrushAccent,
 			Margin = new Thickness(0, 0, 8, 0),
 			VerticalAlignment = VerticalAlignment.Top,
-		});
-		row.Children.Add(new TextBlock
+		};
+		Grid.SetColumn(bullet, 0);
+
+		var text = new TextBlock
 		{
 			Text = line.TrimStart('•', ' '),
 			FontSize = 13,
 			TextWrapping = TextWrapping.Wrap,
 			Foreground = BrushTextDim,
 			VerticalAlignment = VerticalAlignment.Top,
-		});
-		return row;
+		};
+		Grid.SetColumn(text, 1);
+
+		grid.Children.Add(bullet);
+		grid.Children.Add(text);
+		return grid;
 	}
 
 	private static StackPanel BuildArrowGrid(List<string> arrows)

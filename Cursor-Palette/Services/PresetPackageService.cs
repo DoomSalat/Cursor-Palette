@@ -1,0 +1,379 @@
+using System.IO.Compression;
+using System.Text.Json;
+using CursorPalette.Models;
+
+namespace CursorPalette.Services;
+
+/// <summary>
+/// Multi-preset export/import. Two package kinds share one on-disk zip shape:
+/// a "bundle" (full-fidelity, self-contained manifests under presets/{id}/) that round-trips
+/// perfectly back into the app, and a plain "archive" (raw .cur/.ani files per preset folder)
+/// meant for use outside the app. Both carry a small marker file so drag-and-drop and the
+/// import dialog can recognize them and route to the multi-select picker instead of the
+/// single-preset "create from dropped files" flow.
+/// </summary>
+public static class PresetPackageService
+{
+	public const string BundleExtension = ".cursorpalette";
+
+	private const string BundleFormatId = "CursorPalette.Bundle";
+	private const string ArchiveFormatId = "CursorPalette.Archive";
+	private const int FormatVersion = 1;
+
+	private const string BundleMarkerFileName = "bundle.json";
+	private const string ArchiveMarkerFileName = "cursor-palette-archive.json";
+	private const string PresetsFolderName = "presets";
+	private const string FilesFolderName = "files";
+	private const string ManifestFileName = "manifest.json";
+
+	private const string DefaultBundleName = "Cursor Palette Presets";
+	private const string DefaultArchiveName = "Cursor Palette Presets";
+	private const string TempFolderPrefix = "cursor-palette-package-";
+
+	private const string CurExtension = ".cur";
+	private const string AniExtension = ".ani";
+
+	private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+
+	public static bool IsSupportedPackageFile(string path) =>
+		ArchiveImportService.IsArchiveFile(path) ||
+		string.Equals(Path.GetExtension(path), BundleExtension, StringComparison.OrdinalIgnoreCase);
+
+	public static (string Path, int Count) ExportBundle(IReadOnlyList<Preset> presets)
+	{
+		var stagingDir = CreateTempDir();
+		try
+		{
+			var presetsRoot = Path.Combine(stagingDir, PresetsFolderName);
+			Directory.CreateDirectory(presetsRoot);
+
+			var exported = 0;
+			foreach (var preset in presets)
+			{
+				var presetDir = Path.Combine(presetsRoot, preset.Id);
+				var filesDir = Path.Combine(presetDir, FilesFolderName);
+				Directory.CreateDirectory(filesDir);
+
+				var roles = new Dictionary<string, string>();
+				foreach (var role in CursorRoles.All)
+				{
+					var sourcePath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+					if (sourcePath == null || !File.Exists(sourcePath))
+						continue;
+
+					var fileName = $"{role.RegistryName}{Path.GetExtension(sourcePath)}";
+					File.Copy(sourcePath, Path.Combine(filesDir, fileName), overwrite: true);
+					roles[role.RegistryName] = fileName;
+				}
+
+				if (roles.Count == 0)
+				{
+					Directory.Delete(presetDir, recursive: true);
+					continue;
+				}
+
+				var flattened = new Preset
+				{
+					Id = preset.Id,
+					Name = preset.Name,
+					CreatedAt = preset.CreatedAt,
+					SortOrder = preset.SortOrder,
+					BaseSize = preset.BaseSize,
+					Roles = roles,
+					LockedRoles = new HashSet<string>(preset.LockedRoles),
+				};
+				File.WriteAllText(Path.Combine(presetDir, ManifestFileName),
+					JsonSerializer.Serialize(flattened, JsonOptions));
+				exported++;
+			}
+
+			File.WriteAllText(Path.Combine(stagingDir, BundleMarkerFileName),
+				JsonSerializer.Serialize(new PackageMarker { Format = BundleFormatId, Version = FormatVersion }, JsonOptions));
+
+			var destPath = GetUniqueDownloadPath(DefaultBundleName, BundleExtension);
+			CreateZipFromDirectory(stagingDir, destPath);
+			return (destPath, exported);
+		}
+		finally
+		{
+			TryDeleteDir(stagingDir);
+		}
+	}
+
+	public static (string Path, int Count) ExportArchive(IReadOnlyList<Preset> presets)
+	{
+		var stagingDir = CreateTempDir();
+		try
+		{
+			var markerEntries = new List<ArchiveMarkerEntry>();
+			var usedFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+			foreach (var preset in presets)
+			{
+				var folderName = MakeUniqueFolderName(SanitizeName(preset.Name), usedFolderNames);
+				var folderPath = Path.Combine(stagingDir, folderName);
+
+				var count = 0;
+				foreach (var role in CursorRoles.All)
+				{
+					var sourcePath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+					if (sourcePath == null || !File.Exists(sourcePath))
+						continue;
+
+					Directory.CreateDirectory(folderPath);
+					var fileName = $"{role.RegistryName}{Path.GetExtension(sourcePath)}";
+					File.Copy(sourcePath, Path.Combine(folderPath, fileName), overwrite: true);
+					count++;
+				}
+
+				if (count == 0)
+					continue;
+
+				markerEntries.Add(new ArchiveMarkerEntry { Folder = folderName, Name = preset.Name });
+			}
+
+			File.WriteAllText(Path.Combine(stagingDir, ArchiveMarkerFileName),
+				JsonSerializer.Serialize(
+					new ArchiveMarker { Format = ArchiveFormatId, Version = FormatVersion, Presets = markerEntries },
+					JsonOptions));
+
+			var destPath = GetUniqueDownloadPath(DefaultArchiveName, ".zip");
+			CreateZipFromDirectory(stagingDir, destPath);
+			return (destPath, markerEntries.Count);
+		}
+		finally
+		{
+			TryDeleteDir(stagingDir);
+		}
+	}
+
+	public static DetectedPackage? TryDetectPackage(string filePath)
+	{
+		if (!IsSupportedPackageFile(filePath))
+			return null;
+
+		string extractedDir;
+		try
+		{
+			extractedDir = ArchiveImportService.ExtractToTempFolder(filePath);
+		}
+		catch
+		{
+			return null;
+		}
+
+		var bundleMarkerPath = Path.Combine(extractedDir, BundleMarkerFileName);
+		if (File.Exists(bundleMarkerPath) && TryReadJson<PackageMarker>(bundleMarkerPath)?.Format == BundleFormatId)
+		{
+			var entries = new List<PackageEntry>();
+			var presetsRoot = Path.Combine(extractedDir, PresetsFolderName);
+
+			if (Directory.Exists(presetsRoot))
+			{
+				foreach (var presetDir in Directory.GetDirectories(presetsRoot))
+				{
+					var manifestPath = Path.Combine(presetDir, ManifestFileName);
+					var preset = File.Exists(manifestPath) ? TryReadJson<Preset>(manifestPath) : null;
+					if (preset == null)
+						continue;
+
+					var previewFileName = preset.Roles.TryGetValue(CursorRoles.ArrowRoleName, out var arrowFile)
+						? arrowFile
+						: preset.Roles.Values.FirstOrDefault();
+
+					entries.Add(new PackageEntry
+					{
+						Key = Path.GetFileName(presetDir),
+						DisplayName = preset.Name,
+						RoleCount = preset.Roles.Count,
+						PreviewPath = previewFileName != null
+							? Path.Combine(presetDir, FilesFolderName, previewFileName)
+							: null,
+					});
+				}
+			}
+
+			if (entries.Count == 0)
+			{
+				TryDeleteDir(extractedDir);
+				return null;
+			}
+
+			return new DetectedPackage { Kind = PackageKind.Bundle, ExtractedDir = extractedDir, Entries = entries };
+		}
+
+		var archiveMarkerPath = Path.Combine(extractedDir, ArchiveMarkerFileName);
+		if (File.Exists(archiveMarkerPath) && TryReadJson<ArchiveMarker>(archiveMarkerPath) is { Format: ArchiveFormatId } archiveMarker)
+		{
+			var entries = archiveMarker.Presets
+				.Where(entry => Directory.Exists(Path.Combine(extractedDir, entry.Folder)))
+				.Select(entry =>
+				{
+					var folderPath = Path.Combine(extractedDir, entry.Folder);
+					var cursorFiles = Directory.EnumerateFiles(folderPath).Where(IsCursorFile).ToList();
+					var previewPath = cursorFiles.FirstOrDefault(file =>
+						string.Equals(Path.GetFileNameWithoutExtension(file), CursorRoles.ArrowRoleName,
+							StringComparison.OrdinalIgnoreCase)) ?? cursorFiles.FirstOrDefault();
+
+					return new PackageEntry
+					{
+						Key = entry.Folder,
+						DisplayName = entry.Name,
+						RoleCount = cursorFiles.Count,
+						PreviewPath = previewPath,
+					};
+				})
+				.Where(entry => entry.RoleCount > 0)
+				.ToList();
+
+			if (entries.Count == 0)
+			{
+				TryDeleteDir(extractedDir);
+				return null;
+			}
+
+			return new DetectedPackage { Kind = PackageKind.Archive, ExtractedDir = extractedDir, Entries = entries };
+		}
+
+		TryDeleteDir(extractedDir);
+		return null;
+	}
+
+	public static int ImportSelected(DetectedPackage package, IReadOnlyList<PackageEntry> selectedEntries)
+	{
+		var imported = 0;
+
+		foreach (var entry in selectedEntries)
+		{
+			var draft = package.Kind == PackageKind.Bundle
+				? BuildBundleDraft(package.ExtractedDir, entry)
+				: BuildArchiveDraft(package.ExtractedDir, entry);
+
+			if (draft == null || draft.RoleSources.Count == 0)
+				continue;
+
+			PresetStore.Save(draft);
+			imported++;
+		}
+
+		return imported;
+	}
+
+	public static void CleanupPackage(DetectedPackage package) => TryDeleteDir(package.ExtractedDir);
+
+	private static PresetDraft? BuildBundleDraft(string extractedDir, PackageEntry entry)
+	{
+		var presetDir = Path.Combine(extractedDir, PresetsFolderName, entry.Key);
+		var manifestPath = Path.Combine(presetDir, ManifestFileName);
+		var preset = File.Exists(manifestPath) ? TryReadJson<Preset>(manifestPath) : null;
+		if (preset == null)
+			return null;
+
+		var filesDir = Path.Combine(presetDir, FilesFolderName);
+		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize };
+
+		foreach (var (role, fileName) in preset.Roles)
+		{
+			var filePath = Path.Combine(filesDir, fileName);
+			if (File.Exists(filePath))
+				draft.RoleSources[role] = new RoleSourceDraft { OwnFilePath = filePath };
+		}
+
+		foreach (var role in preset.LockedRoles)
+			draft.LockedRoles.Add(role);
+
+		return draft;
+	}
+
+	private static PresetDraft? BuildArchiveDraft(string extractedDir, PackageEntry entry)
+	{
+		var folderPath = Path.Combine(extractedDir, entry.Key);
+		if (!Directory.Exists(folderPath))
+			return null;
+
+		var draft = new PresetDraft { Name = entry.DisplayName };
+
+		foreach (var file in Directory.EnumerateFiles(folderPath).Where(IsCursorFile))
+		{
+			var role = CursorRoles.MatchByFileName(file);
+			if (role != null)
+				draft.RoleSources[role.RegistryName] = new RoleSourceDraft { OwnFilePath = file };
+		}
+
+		return draft;
+	}
+
+	private static void CreateZipFromDirectory(string sourceDir, string destPath)
+	{
+		if (File.Exists(destPath))
+			File.Delete(destPath);
+
+		ZipFile.CreateFromDirectory(sourceDir, destPath, CompressionLevel.Optimal, includeBaseDirectory: false);
+	}
+
+	private static string GetUniqueDownloadPath(string baseName, string extension)
+	{
+		var path = Path.Combine(AppPaths.DownloadsDir, $"{baseName}{extension}");
+		var attempt = 1;
+
+		while (File.Exists(path))
+			path = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}){extension}");
+
+		return path;
+	}
+
+	private static string SanitizeName(string name)
+	{
+		var invalid = Path.GetInvalidFileNameChars();
+		var sanitized = string.Join("", name.Where(character => !invalid.Contains(character))).Trim();
+		return string.IsNullOrWhiteSpace(sanitized) ? "Preset" : sanitized;
+	}
+
+	private static string MakeUniqueFolderName(string baseName, HashSet<string> usedNames)
+	{
+		var name = baseName;
+		var attempt = 1;
+
+		while (!usedNames.Add(name))
+			name = $"{baseName} ({attempt++})";
+
+		return name;
+	}
+
+	private static string CreateTempDir()
+	{
+		var dir = Path.Combine(Path.GetTempPath(), $"{TempFolderPrefix}{Guid.NewGuid():N}");
+		Directory.CreateDirectory(dir);
+		return dir;
+	}
+
+	private static void TryDeleteDir(string dir)
+	{
+		try
+		{
+			if (Directory.Exists(dir))
+				Directory.Delete(dir, recursive: true);
+		}
+		catch
+		{
+		}
+	}
+
+	private static T? TryReadJson<T>(string path)
+	{
+		try
+		{
+			return JsonSerializer.Deserialize<T>(File.ReadAllText(path));
+		}
+		catch
+		{
+			return default;
+		}
+	}
+
+	private static bool IsCursorFile(string path)
+	{
+		var extension = Path.GetExtension(path).ToLowerInvariant();
+		return extension is CurExtension or AniExtension;
+	}
+}

@@ -203,6 +203,38 @@
 							ToolTip="{DynamicResource S.UiZoom.InTooltip}"
 							Click="OnUiZoomInClick" />
 
+					<Button x:Name="ExportButton"
+							Style="{StaticResource Style.Button}"
+							Padding="8,6"
+							Margin="16,0,4,0"
+							ToolTip="{DynamicResource S.Export.Tooltip}"
+							Click="OnExportButtonClick">
+						<Rectangle Width="16" Height="16"
+								   SnapsToDevicePixels="True"
+								   Fill="{StaticResource Brush.TextDim}">
+							<Rectangle.OpacityMask>
+								<ImageBrush ImageSource="pack://application:,,,/Resources/DownloadIcon32.png"
+											Stretch="Uniform" />
+							</Rectangle.OpacityMask>
+						</Rectangle>
+					</Button>
+
+					<Button x:Name="ImportButton"
+							Style="{StaticResource Style.Button}"
+							Padding="8,6"
+							Margin="0,0,8,0"
+							ToolTip="{DynamicResource S.Import.Tooltip}"
+							Click="OnImportButtonClick">
+						<Rectangle Width="16" Height="16"
+								   SnapsToDevicePixels="True"
+								   Fill="{StaticResource Brush.TextDim}">
+							<Rectangle.OpacityMask>
+								<ImageBrush ImageSource="pack://application:,,,/Resources/ImportIcon26.png"
+											Stretch="Uniform" />
+							</Rectangle.OpacityMask>
+						</Rectangle>
+					</Button>
+
 					<Ellipse x:Name="UpdateSpinner"
 							 Width="12" Height="12"
 							 Stroke="{StaticResource Brush.Accent}"
