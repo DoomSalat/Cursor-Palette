@@ -134,6 +134,15 @@
 	<sys:String x:Key="S.Editor.BgRef.LoadPng">加载 PNG…</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetDefault">重置为角色默认</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetSettings">重置设置</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">加载图像到画布（可拖放）</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">加载图像</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">加载图像</sys:String>
+	<sys:String x:Key="S.ImportImage.Info">选择加载方式。画布将扩展到图像大小。</sys:String>
+	<sys:String x:Key="S.ImportImage.Mode">导入模式</sys:String>
+	<sys:String x:Key="S.ImportImage.Over">叠加</sys:String>
+	<sys:String x:Key="S.ImportImage.Replace">替换</sys:String>
+	<sys:String x:Key="S.ImportImage.Cancel">取消</sys:String>
+	<sys:String x:Key="S.ImportImage.OK">确定</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">画布大小</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">打开画布大小对话框</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">缩放</sys:String>

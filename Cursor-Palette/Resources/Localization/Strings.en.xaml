@@ -143,6 +143,15 @@
 	<sys:String x:Key="S.Editor.BgRef.LoadPng">Load PNG…</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetDefault">Reset to role default</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetSettings">Reset settings</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">Load image into canvas (drag image here)</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">Load image</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">Load image</sys:String>
+	<sys:String x:Key="S.ImportImage.Info">Choose how to load the image into the canvas. Canvas expands to fit the image size.</sys:String>
+	<sys:String x:Key="S.ImportImage.Mode">Import mode</sys:String>
+	<sys:String x:Key="S.ImportImage.Over">Over</sys:String>
+	<sys:String x:Key="S.ImportImage.Replace">Replace</sys:String>
+	<sys:String x:Key="S.ImportImage.Cancel">Cancel</sys:String>
+	<sys:String x:Key="S.ImportImage.OK">OK</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">Canvas size</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Open canvas size dialog</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">Zoom</sys:String>

@@ -134,6 +134,15 @@
 	<sys:String x:Key="S.Editor.BgRef.LoadPng">PNG laden…</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetDefault">Auf Rollen-Standard zurücksetzen</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetSettings">Einstellungen zurücksetzen</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">Bild in Leinwand laden (hierher ziehen)</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">Bild laden</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">Bild laden</sys:String>
+	<sys:String x:Key="S.ImportImage.Info">Wählen Sie, wie das Bild geladen wird. Die Leinwand wird auf die Bildgröße erweitert.</sys:String>
+	<sys:String x:Key="S.ImportImage.Mode">Importmodus</sys:String>
+	<sys:String x:Key="S.ImportImage.Over">Überlagern</sys:String>
+	<sys:String x:Key="S.ImportImage.Replace">Ersetzen</sys:String>
+	<sys:String x:Key="S.ImportImage.Cancel">Abbrechen</sys:String>
+	<sys:String x:Key="S.ImportImage.OK">OK</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">Leinwandgröße</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Dialog zur Leinwandgröße öffnen</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">Zoom</sys:String>

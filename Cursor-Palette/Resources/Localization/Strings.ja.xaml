@@ -134,6 +134,15 @@
 	<sys:String x:Key="S.Editor.BgRef.LoadPng">PNGを読み込む…</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetDefault">役割のデフォルトにリセット</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetSettings">設定をリセット</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">画像をキャンバスに読み込む（ドラッグ可）</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">画像を読み込む</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">画像を読み込む</sys:String>
+	<sys:String x:Key="S.ImportImage.Info">読み込み方法を選択。キャンバスは画像サイズに拡張されます。</sys:String>
+	<sys:String x:Key="S.ImportImage.Mode">インポートモード</sys:String>
+	<sys:String x:Key="S.ImportImage.Over">重ねる</sys:String>
+	<sys:String x:Key="S.ImportImage.Replace">置換</sys:String>
+	<sys:String x:Key="S.ImportImage.Cancel">キャンセル</sys:String>
+	<sys:String x:Key="S.ImportImage.OK">OK</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">キャンバスサイズ</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">キャンバスサイズダイアログを開く</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">ズーム</sys:String>

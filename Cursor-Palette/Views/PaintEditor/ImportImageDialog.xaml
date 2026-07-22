@@ -1,0 +1,80 @@
+<Window x:Class="CursorPalette.Views.ImportImageDialog"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		Title="{DynamicResource S.ImportImage.Title}"
+		Width="440" Height="500"
+		MinWidth="400" MinHeight="420"
+		ResizeMode="CanResize"
+		WindowStartupLocation="CenterOwner"
+		ShowInTaskbar="False"
+		Style="{StaticResource Style.Window}">
+
+	<Grid>
+		<DockPanel Margin="20">
+		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+			<Button Style="{StaticResource Style.Button}"
+					Content="{DynamicResource S.ImportImage.Cancel}"
+					MinWidth="88" Margin="0,0,8,0"
+					IsCancel="True" />
+			<Button x:Name="OkButton"
+					Style="{StaticResource Style.AccentButton}"
+					Content="{DynamicResource S.ImportImage.OK}"
+					MinWidth="88"
+					Click="OnOkClick" />
+		</StackPanel>
+
+		<ScrollViewer VerticalScrollBarVisibility="Auto">
+		<StackPanel>
+			<TextBlock Text="{DynamicResource S.ImportImage.Info}"
+					   Foreground="{StaticResource Brush.TextDim}"
+					   FontSize="12"
+					   TextWrapping="Wrap"
+					   Margin="0,0,0,16" />
+
+			<Border Background="{StaticResource Brush.SurfaceHover}"
+					BorderBrush="{StaticResource Brush.Border}"
+					BorderThickness="1"
+					CornerRadius="4"
+					Padding="8"
+					Margin="0,0,0,16">
+				<Grid>
+					<Image x:Name="PreviewImage"
+						   MaxHeight="180"
+						   Stretch="Uniform"
+						   HorizontalAlignment="Center" />
+				</Grid>
+			</Border>
+
+			<TextBlock x:Name="ImageInfoText"
+					   Foreground="{StaticResource Brush.TextDim}"
+					   FontSize="12"
+					   HorizontalAlignment="Center"
+					   Margin="0,0,0,16" />
+
+			<UniformGrid Columns="2" Margin="0,0,0,0">
+				<Button x:Name="ModeOverButton"
+						Style="{StaticResource Style.Button}"
+						Content="{DynamicResource S.ImportImage.Over}"
+						Margin="0,0,4,0"
+						Padding="12,10"
+						Click="OnModeButtonClick" />
+				<Button x:Name="ModeReplaceButton"
+						Style="{StaticResource Style.AccentButton}"
+						Content="{DynamicResource S.ImportImage.Replace}"
+						Margin="4,0,0,0"
+						Padding="12,10"
+						Click="OnModeButtonClick" />
+			</UniformGrid>
+		</StackPanel>
+		</ScrollViewer>
+		</DockPanel>
+		<Rectangle x:Name="DropIndicator"
+				   Stroke="{StaticResource Brush.Accent}"
+				   StrokeThickness="3"
+				   StrokeDashArray="4 2"
+				   RadiusX="6" RadiusY="6"
+				   Margin="4"
+				   IsHitTestVisible="False"
+				   Visibility="Collapsed" />
+	</Grid>
+</Window>

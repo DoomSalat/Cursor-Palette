@@ -143,6 +143,15 @@
 	<sys:String x:Key="S.Editor.BgRef.LoadPng">Cargar PNG…</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetDefault">Restablecer al valor predeterminado del rol</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.ResetSettings">Restablecer ajustes</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">Cargar imagen en el lienzo (arrastrar aquí)</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">Cargar imagen</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">Cargar imagen</sys:String>
+	<sys:String x:Key="S.ImportImage.Info">Elija cómo cargar la imagen. El lienzo se expande al tamaño de la imagen.</sys:String>
+	<sys:String x:Key="S.ImportImage.Mode">Modo de importación</sys:String>
+	<sys:String x:Key="S.ImportImage.Over">Superponer</sys:String>
+	<sys:String x:Key="S.ImportImage.Replace">Reemplazar</sys:String>
+	<sys:String x:Key="S.ImportImage.Cancel">Cancelar</sys:String>
+	<sys:String x:Key="S.ImportImage.OK">Aceptar</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">Tamaño del lienzo</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Abrir diálogo de tamaño del lienzo</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">Zoom</sys:String>

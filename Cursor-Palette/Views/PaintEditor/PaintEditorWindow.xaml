@@ -128,6 +128,38 @@
 									   Margin="6,0,0,0" />
 						</StackPanel>
 					</Button>
+				<Grid Margin="8,0,0,0">
+				<Button x:Name="ImportImageButton"
+					Style="{StaticResource Style.Button}"
+					Padding="10,6"
+					ToolTip="{DynamicResource S.ImportImage.Tooltip}"
+					Click="OnImportImageClick"
+					AllowDrop="True"
+					DragEnter="OnImportButtonDragEnter"
+					DragOver="OnImportButtonDragOver"
+					DragLeave="OnImportButtonDragLeave"
+					Drop="OnImportButtonDrop">
+					<StackPanel Orientation="Horizontal">
+						<Rectangle Width="18" Height="18"
+								Fill="{StaticResource Brush.Text}"
+								VerticalAlignment="Center">
+								<Rectangle.OpacityMask>
+									<ImageBrush ImageSource="pack://application:,,,/Resources/DownloadIcon32.png" Stretch="Uniform" />
+								</Rectangle.OpacityMask>
+						</Rectangle>
+						<TextBlock Text="{DynamicResource S.ImportImage.Button}"
+								VerticalAlignment="Center"
+								Margin="6,0,0,0" />
+					</StackPanel>
+				</Button>
+				<Rectangle x:Name="ImportDropIndicator"
+						   Stroke="{StaticResource Brush.Accent}"
+						   StrokeThickness="2"
+						   StrokeDashArray="4 2"
+						   RadiusX="6" RadiusY="6"
+						   IsHitTestVisible="False"
+						   Visibility="Collapsed" />
+			</Grid>
 					<Button Style="{StaticResource Style.Button}"
 							Padding="10,8"
 							Margin="8,0,0,0"

@@ -26,8 +26,8 @@ public partial class PaintEditorWindow : Window
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocInfoPaint = "S.Info.Paint";
 
-	private readonly int _spriteWidth;
-	private readonly int _spriteHeight;
+	private int _spriteWidth;
+	private int _spriteHeight;
 	private byte[] _spriteBgra;
 	private int _hotspotOffsetX;
 	private int _hotspotOffsetY;
