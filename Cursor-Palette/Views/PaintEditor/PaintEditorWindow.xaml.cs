@@ -123,6 +123,7 @@ public partial class PaintEditorWindow : Window
 		_ready = true;
 
 		RenderAll();
+		InitBgRef();
 
 		UpdateUndoRedoButtons();
 	}
@@ -137,6 +138,7 @@ public partial class PaintEditorWindow : Window
 		AppState.SetPaintEditorColor(hue, saturation, value, alpha);
 		AppState.SetPaintEditorColorMode(ColorWheel.GetColorMode());
 		AppState.SetPaintEditorPan(CanvasPanTransform.X, CanvasPanTransform.Y);
+		SaveBgRefSettings();
 
 		ClearHistory();
 

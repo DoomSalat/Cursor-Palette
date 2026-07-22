@@ -175,6 +175,12 @@ public partial class MainWindow : Window
 		_ = CheckForUpdatesAsync(version);
 	}
 
+	protected override void OnSourceInitialized(EventArgs e)
+	{
+		base.OnSourceInitialized(e);
+		SingleInstanceService.ListenForActivation(this);
+	}
+
 	private UpdateInfo? _updateInfo;
 
 	private async Task CheckForUpdatesAsync(string currentVersion)

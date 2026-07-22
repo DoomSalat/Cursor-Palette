@@ -77,6 +77,7 @@ public partial class PaintEditorWindow
 			Key.G => AppState.PaintEditorToolFill,
 			Key.C => AppState.PaintEditorToolCanvas,
 			Key.O => AppState.PaintEditorToolHotspot,
+			Key.R => AppState.PaintEditorToolBgRef,
 			_ => null
 		};
 

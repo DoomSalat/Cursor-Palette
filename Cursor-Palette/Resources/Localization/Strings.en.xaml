@@ -121,6 +121,7 @@
 	<sys:String x:Key="S.Editor.Tool.Fill">Fill (G)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Canvas">Canvas (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Hotspot (O)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRef">Background Ref (R)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">Undo (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">Redo (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Coming soon</sys:String>
@@ -135,6 +136,13 @@
 	<sys:String x:Key="S.Editor.Tool.HandHint">Hold and drag to pan the canvas. You can also hold the middle mouse button at any time.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Drag the canvas edges or corners to resize, then Apply.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Apply</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRefHint">Reference image for tracing. Not saved into the cursor.</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Opacity">Opacity</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Margin">Margin</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Offset">Offset from center</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.LoadPng">Load PNG…</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetDefault">Reset to role default</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetSettings">Reset settings</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">Canvas size</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Open canvas size dialog</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">Zoom</sys:String>
@@ -212,6 +220,7 @@
 	<sys:String x:Key="S.Update.DownloadedTo">Downloaded to:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">Download failed</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">A new version is available!</sys:String>
+	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette is already running</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">File downloaded to Downloads folder</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">Downloading to Downloads folder…</sys:String>
 

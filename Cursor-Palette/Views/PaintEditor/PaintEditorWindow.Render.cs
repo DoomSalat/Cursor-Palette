@@ -46,6 +46,7 @@ public partial class PaintEditorWindow
 		UpdateZoomText();
 		UpdateCanvasSizeLabel();
 		UpdateHotspotMarker();
+		UpdateBgRefRender();
 	}
 
 	private void UpdateCoordsText() =>

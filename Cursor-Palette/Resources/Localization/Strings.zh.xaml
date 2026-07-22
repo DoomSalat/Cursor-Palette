@@ -112,6 +112,7 @@
 	<sys:String x:Key="S.Editor.Tool.Fill">填充 (G)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Canvas">画布 (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">热点 (O)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRef">参考图 (R)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">撤销 (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">重做 (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">即将推出</sys:String>
@@ -126,6 +127,13 @@
 	<sys:String x:Key="S.Editor.Tool.HandHint">按住并拖动即可平移画布。也可以随时按住鼠标中键进行平移。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">拖动画布边缘或角落调整大小,然后点击应用。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">应用</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRefHint">用于描摹的参考图片。不会保存到光标中。</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Opacity">不透明度</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Margin">边距</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Offset">距中心偏移</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.LoadPng">加载 PNG…</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetDefault">重置为角色默认</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetSettings">重置设置</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">画布大小</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">打开画布大小对话框</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">缩放</sys:String>
@@ -203,6 +211,7 @@
 	<sys:String x:Key="S.Update.DownloadedTo">已下载到:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">下载失败</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">有新版本可用！</sys:String>
+	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette 已在运行</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">文件已下载到下载文件夹</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">正在下载到下载文件夹…</sys:String>
 

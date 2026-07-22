@@ -31,6 +31,7 @@ public static class AppState
 	public const string PaintEditorToolFill = "Fill";
 	public const string PaintEditorToolHotspot = "Hotspot";
 	public const string PaintEditorToolCanvas = "Canvas";
+	public const string PaintEditorToolBgRef = "BgRef";
 	public const string PaintEditorToolDefault = PaintEditorToolMove;
 
 	public const string PaintEditorColorModeWheel = "Wheel";
@@ -68,6 +69,11 @@ public static class AppState
 		public string? PaintEditorColorMode { get; set; } = PaintEditorColorModeDefault;
 		public double? PaintEditorPanX { get; set; }
 		public double? PaintEditorPanY { get; set; }
+		public double BgRefOpacity { get; set; } = 50;
+		public int BgRefMargin { get; set; }
+		public int BgRefOffsetX { get; set; }
+		public int BgRefOffsetY { get; set; }
+		public string? BgRefCustomPath { get; set; }
 	}
 
 	public static string? GetActivePresetId()
@@ -301,6 +307,52 @@ public static class AppState
 		var settings = LoadSettings();
 		settings.PaintEditorPanX = panX;
 		settings.PaintEditorPanY = panY;
+
+		SaveSettings(settings);
+	}
+
+	public static double GetBgRefOpacity() => LoadSettings().BgRefOpacity;
+
+	public static void SetBgRefOpacity(double opacity)
+	{
+		var settings = LoadSettings();
+		settings.BgRefOpacity = Math.Clamp(opacity, 0, 100);
+
+		SaveSettings(settings);
+	}
+
+	public static int GetBgRefMargin() => LoadSettings().BgRefMargin;
+
+	public static void SetBgRefMargin(int margin)
+	{
+		var settings = LoadSettings();
+		settings.BgRefMargin = Math.Max(0, margin);
+
+		SaveSettings(settings);
+	}
+
+	public static (int OffsetX, int OffsetY) GetBgRefOffset()
+	{
+		var settings = LoadSettings();
+
+		return (settings.BgRefOffsetX, settings.BgRefOffsetY);
+	}
+
+	public static void SetBgRefOffset(int offsetX, int offsetY)
+	{
+		var settings = LoadSettings();
+		settings.BgRefOffsetX = offsetX;
+		settings.BgRefOffsetY = offsetY;
+
+		SaveSettings(settings);
+	}
+
+	public static string? GetBgRefCustomPath() => LoadSettings().BgRefCustomPath;
+
+	public static void SetBgRefCustomPath(string? path)
+	{
+		var settings = LoadSettings();
+		settings.BgRefCustomPath = string.IsNullOrWhiteSpace(path) ? null : path;
 
 		SaveSettings(settings);
 	}

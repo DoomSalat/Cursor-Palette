@@ -14,6 +14,7 @@ public partial class PaintEditorWindow
 		var isEraser = _currentTool == AppState.PaintEditorToolEraser;
 		var isFill = _currentTool == AppState.PaintEditorToolFill;
 		var isHotspot = _currentTool == AppState.PaintEditorToolHotspot;
+		var isBgRef = _currentTool == AppState.PaintEditorToolBgRef;
 
 		ToolMoveButton.IsChecked = isMove;
 		ToolHandButton.IsChecked = isHand;
@@ -22,6 +23,7 @@ public partial class PaintEditorWindow
 		ToolFillButton.IsChecked = isFill;
 		ToolCanvasButton.IsChecked = isCanvas;
 		ToolHotspotButton.IsChecked = isHotspot;
+		ToolBgRefButton.IsChecked = isBgRef;
 
 		MoveToolPanel.Visibility = isMove ? Visibility.Visible : Visibility.Collapsed;
 		HandToolPanel.Visibility = isHand ? Visibility.Visible : Visibility.Collapsed;
@@ -30,6 +32,7 @@ public partial class PaintEditorWindow
 		EraserToolPanel.Visibility = isEraser ? Visibility.Visible : Visibility.Collapsed;
 		FillToolPanel.Visibility = isFill ? Visibility.Visible : Visibility.Collapsed;
 		HotspotToolPanel.Visibility = isHotspot ? Visibility.Visible : Visibility.Collapsed;
+		BgRefToolPanel.Visibility = isBgRef ? Visibility.Visible : Visibility.Collapsed;
 
 		PreviewImage.IsHitTestVisible = isMove;
 		ResizeOverlay.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
@@ -49,6 +52,8 @@ public partial class PaintEditorWindow
 			UpdateHotspotCoords();
 			UpdateHotspotPresetHighlight();
 		}
+
+		UpdateBgRefRender();
 	}
 
 	private void SetTool(string tool)

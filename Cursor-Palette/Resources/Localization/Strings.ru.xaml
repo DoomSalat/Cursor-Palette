@@ -121,6 +121,7 @@
 	<sys:String x:Key="S.Editor.Tool.Fill">Заливка (G)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Canvas">Холст (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Точка клика (O)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRef">Реф-картинка (R)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">Отменить (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">Вернуть (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Скоро</sys:String>
@@ -135,6 +136,13 @@
 	<sys:String x:Key="S.Editor.Tool.HandHint">Зажмите и перетащите, чтобы перемещаться по холсту. Также можно в любой момент зажать среднюю кнопку мыши.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Потяните за края или углы холста, чтобы изменить размер, затем нажмите «Применить».</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Применить</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRefHint">Картинка-референс для обводки. Не сохраняется в курсор.</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Opacity">Прозрачность</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Margin">Отступ от краёв</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Offset">Смещение от центра</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.LoadPng">Загрузить PNG…</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetDefault">Сбросить к роли по умолчанию</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetSettings">Сбросить настройки</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">Размер холста</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Открыть диалог размера холста</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">Масштаб</sys:String>
@@ -212,6 +220,7 @@
 	<sys:String x:Key="S.Update.DownloadedTo">Скачано в:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">Ошибка скачивания</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">Доступна новая версия!</sys:String>
+	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette уже запущен</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">Файл скачан в папку загрузок</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">Скачивание в папку загрузок началось…</sys:String>
 

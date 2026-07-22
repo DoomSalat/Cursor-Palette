@@ -201,6 +201,13 @@
 								  Click="OnToolHotspotClick">
 						<TextBlock Text="🎯" FontSize="16" />
 					</ToggleButton>
+					<ToggleButton x:Name="ToolBgRefButton"
+								  Style="{StaticResource Style.ToolButton}"
+								  Margin="4,0,0,0"
+								  ToolTip="{DynamicResource S.Editor.Tool.BgRef}"
+								  Click="OnToolBgRefClick">
+						<TextBlock Text="🖼" FontSize="16" />
+					</ToggleButton>
 
 					<Border Width="1" Height="28" Background="{StaticResource Brush.Border}" Margin="8,0,4,0" />
 
@@ -359,6 +366,7 @@
 					</Canvas.RenderTransform>
 					<Rectangle x:Name="ShadowRect" Stroke="{StaticResource Brush.TextDim}" StrokeThickness="1" StrokeDashArray="4,2" Fill="#40000000" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Rectangle x:Name="CanvasBgRect" Fill="{DynamicResource Brush.Checkerboard}" />
+					<Image x:Name="BgRefImage" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Image x:Name="PreviewImage" SnapsToDevicePixels="True" MouseLeftButtonDown="OnSpriteMouseLeftButtonDown" MouseMove="OnSpriteMouseMove" MouseLeftButtonUp="OnSpriteMouseLeftButtonUp" Cursor="SizeAll" />
 					<Rectangle x:Name="SpriteBoundsRect" Stroke="#FFFF8800" StrokeThickness="2" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Rectangle x:Name="PaintCursorRect" Width="1" Height="1" Stroke="#FFFFFFFF" StrokeThickness="0.05" IsHitTestVisible="False" Visibility="Collapsed" />
@@ -484,7 +492,45 @@
 						<TextBlock Text="{DynamicResource S.Editor.Tool.EraserHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
 					</StackPanel>
 					<StackPanel x:Name="FillToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" />
-					<StackPanel x:Name="HotspotToolPanel" DockPanel.Dock="Top" Visibility="Collapsed">
+					<StackPanel x:Name="BgRefToolPanel" DockPanel.Dock="Top" Visibility="Collapsed">
+					<TextBlock Text="{DynamicResource S.Editor.Tool.BgRefHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,10" />
+					<TextBlock Text="{DynamicResource S.Editor.BgRef.Opacity}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4" />
+					<Slider x:Name="BgRefOpacitySlider" Style="{StaticResource Style.Slider}" Minimum="0" Maximum="100" Value="50" Margin="0,0,0,12" ValueChanged="OnBgRefOpacityChanged" />
+					<TextBlock Text="{DynamicResource S.Editor.BgRef.Margin}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4" />
+					<Slider x:Name="BgRefMarginSlider" Style="{StaticResource Style.Slider}" Minimum="0" Maximum="128" Value="0" Margin="0,0,0,12" ValueChanged="OnBgRefMarginChanged" />
+					<TextBlock Text="{DynamicResource S.Editor.BgRef.Offset}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4" />
+					<Grid Margin="0,0,0,12">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="8" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<TextBlock Text="X:" Grid.Column="0" Foreground="{StaticResource Brush.TextDim}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0" />
+						<TextBox x:Name="BgRefOffsetXBox" Grid.Column="1" Style="{StaticResource Style.TextBox}" Padding="4,2" HorizontalContentAlignment="Center" Text="0" TextChanged="OnBgRefOffsetXChanged" />
+						<TextBlock Text="Y:" Grid.Column="3" Foreground="{StaticResource Brush.TextDim}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0" />
+						<TextBox x:Name="BgRefOffsetYBox" Grid.Column="4" Style="{StaticResource Style.TextBox}" Padding="4,2" HorizontalContentAlignment="Center" Text="0" TextChanged="OnBgRefOffsetYChanged" />
+					</Grid>
+					<Border x:Name="BgRefDropBorder" Background="{StaticResource Brush.SurfaceHover}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,12" Padding="4"
+							AllowDrop="True">
+						<Grid>
+							<Image x:Name="BgRefThumbnail" MaxWidth="148" MaxHeight="148" Stretch="Uniform" HorizontalAlignment="Center" />
+							<Rectangle x:Name="BgRefDropIndicator"
+									   Stroke="{StaticResource Brush.Accent}"
+									   StrokeThickness="3"
+									   StrokeDashArray="4 2"
+									   RadiusX="4" RadiusY="4"
+									   Margin="2"
+									   IsHitTestVisible="False"
+									   Visibility="Collapsed" />
+						</Grid>
+					</Border>
+					<Button Style="{StaticResource Style.Button}" Content="{DynamicResource S.Editor.BgRef.LoadPng}" Padding="8,6" Margin="0,0,0,8" Click="OnBgRefLoadClick" />
+					<Button Style="{StaticResource Style.Button}" Content="{DynamicResource S.Editor.BgRef.ResetDefault}" Padding="8,6" Margin="0,0,0,8" Click="OnBgRefResetClick" />
+					<Button Style="{StaticResource Style.Button}" Content="{DynamicResource S.Editor.BgRef.ResetSettings}" Padding="8,6" Click="OnBgRefResetSettingsClick" />
+				</StackPanel>
+				<StackPanel x:Name="HotspotToolPanel" DockPanel.Dock="Top" Visibility="Collapsed">
 						<TextBlock Text="{DynamicResource S.Editor.Tool.HotspotHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,8" />
 						<TextBlock x:Name="HotspotCoordsText" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,8" />
 						<TextBlock Text="{DynamicResource S.Hotspot.Presets}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,6" />

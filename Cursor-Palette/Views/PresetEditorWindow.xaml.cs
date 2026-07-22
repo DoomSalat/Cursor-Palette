@@ -503,15 +503,14 @@ public partial class PresetEditorWindow : Window
 			e.Handled = true;
 		};
 
-		border.DragOver += (_, e) =>
-		{
-			e.Effects = !slot.IsLocked && GetSingleCursorFile(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
-			e.Handled = true;
-		};
+		DropZoneService.AttachManaged(
+			border,
+			e => !slot.IsLocked && GetSingleCursorFile(e) != null,
+			_ => { },
+			HideAllDropIndicators);
+
 		border.Drop += (_, e) =>
 		{
-			HideAllDropIndicators();
-
 			if (slot.IsLocked)
 			{
 				e.Handled = true;

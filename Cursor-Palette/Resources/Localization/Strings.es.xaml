@@ -121,6 +121,7 @@
 	<sys:String x:Key="S.Editor.Tool.Fill">Rellenar (G)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Canvas">Lienzo (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Punto de clic (O)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRef">Ref de fondo (R)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">Deshacer (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">Rehacer (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Próximamente</sys:String>
@@ -135,6 +136,13 @@
 	<sys:String x:Key="S.Editor.Tool.HandHint">Mantén pulsado y arrastra para desplazarte por el lienzo. También puedes mantener pulsado el botón central del ratón en cualquier momento.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Arrastra los bordes o las esquinas del lienzo para cambiar el tamaño y luego pulsa Aplicar.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Aplicar</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRefHint">Imagen de referencia para calcar. No se guarda en el cursor.</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Opacity">Opacidad</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Margin">Margen</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Offset">Desplazamiento del centro</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.LoadPng">Cargar PNG…</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetDefault">Restablecer al valor predeterminado del rol</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetSettings">Restablecer ajustes</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">Tamaño del lienzo</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Abrir diálogo de tamaño del lienzo</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">Zoom</sys:String>
@@ -212,6 +220,7 @@
 	<sys:String x:Key="S.Update.DownloadedTo">Descargado en:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">Error de descarga</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">¡Hay una nueva versión disponible!</sys:String>
+	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette ya se está ejecutando</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">Archivo descargado a la carpeta de descargas</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">Descargando a la carpeta de descargas…</sys:String>
 

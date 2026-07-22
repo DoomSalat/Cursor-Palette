@@ -112,6 +112,7 @@
 	<sys:String x:Key="S.Editor.Tool.Fill">塗りつぶし (G)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Canvas">キャンバス (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">ホットスポット (O)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRef">参考画像 (R)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">元に戻す (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">やり直し (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">近日対応</sys:String>
@@ -126,6 +127,13 @@
 	<sys:String x:Key="S.Editor.Tool.HandHint">ドラッグしてキャンバスをパンできます。いつでもマウスの中央ボタンを押しながらでも移動できます。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">キャンバスの端や角をドラッグしてサイズを変更し、「適用」をクリックしてください。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">適用</sys:String>
+	<sys:String x:Key="S.Editor.Tool.BgRefHint">トレース用の参考画像です。カーソルには保存されません。</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Opacity">不透明度</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Margin">余白</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.Offset">中心からのオフセット</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.LoadPng">PNGを読み込む…</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetDefault">役割のデフォルトにリセット</sys:String>
+	<sys:String x:Key="S.Editor.BgRef.ResetSettings">設定をリセット</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize">キャンバスサイズ</sys:String>
 	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">キャンバスサイズダイアログを開く</sys:String>
 	<sys:String x:Key="S.Editor.Zoom">ズーム</sys:String>
@@ -203,6 +211,7 @@
 	<sys:String x:Key="S.Update.DownloadedTo">ダウンロード先:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">ダウンロード失敗</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">新しいバージョンが利用可能です！</sys:String>
+	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette はすでに起動しています</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">ダウンロードフォルダに保存されました</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">ダウンロードフォルダへのダウンロードを開始…</sys:String>
 
