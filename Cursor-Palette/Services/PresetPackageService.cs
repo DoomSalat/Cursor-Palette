@@ -47,9 +47,11 @@ public static class PresetPackageService
 				Directory.CreateDirectory(filesDir);
 
 				var roles = new Dictionary<string, string>();
+
 				foreach (var role in CursorRoles.All)
 				{
 					var sourcePath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+
 					if (sourcePath == null || !File.Exists(sourcePath))
 						continue;
 
@@ -74,8 +76,10 @@ public static class PresetPackageService
 					Roles = roles,
 					LockedRoles = new HashSet<string>(preset.LockedRoles),
 				};
+
 				File.WriteAllText(Path.Combine(presetDir, ManifestFileName),
 					JsonSerializer.Serialize(flattened, JsonOptions));
+
 				exported++;
 			}
 
@@ -83,7 +87,9 @@ public static class PresetPackageService
 				JsonSerializer.Serialize(new PackageMarker { Format = BundleFormatId, Version = FormatVersion }, JsonOptions));
 
 			var destPath = GetUniqueDownloadPath(DefaultBundleName, BundleExtension);
+
 			CreateZipFromDirectory(stagingDir, destPath);
+
 			return (destPath, exported);
 		}
 		finally
@@ -95,6 +101,7 @@ public static class PresetPackageService
 	public static (string Path, int Count) ExportArchive(IReadOnlyList<Preset> presets)
 	{
 		var stagingDir = CreateTempDir();
+
 		try
 		{
 			var markerEntries = new List<ArchiveMarkerEntry>();
@@ -109,6 +116,7 @@ public static class PresetPackageService
 				foreach (var role in CursorRoles.All)
 				{
 					var sourcePath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+
 					if (sourcePath == null || !File.Exists(sourcePath))
 						continue;
 
@@ -130,7 +138,9 @@ public static class PresetPackageService
 					JsonOptions));
 
 			var destPath = GetUniqueDownloadPath(DefaultArchiveName, ".zip");
+
 			CreateZipFromDirectory(stagingDir, destPath);
+
 			return (destPath, markerEntries.Count);
 		}
 		finally
@@ -156,11 +166,13 @@ public static class PresetPackageService
 
 		var bundleMarkerPath = Path.Combine(extractedDir, BundleMarkerFileName);
 		var bundleMarker = File.Exists(bundleMarkerPath) ? TryReadJson<PackageMarker>(bundleMarkerPath) : null;
+
 		if (bundleMarker?.Format == BundleFormatId)
 		{
 			if (bundleMarker.Version > FormatVersion)
 			{
 				TryDeleteDir(extractedDir);
+
 				throw new PackageVersionUnsupportedException(bundleMarker.Version, FormatVersion);
 			}
 
@@ -173,6 +185,7 @@ public static class PresetPackageService
 				{
 					var manifestPath = Path.Combine(presetDir, ManifestFileName);
 					var preset = File.Exists(manifestPath) ? TryReadJson<Preset>(manifestPath) : null;
+
 					if (preset == null)
 						continue;
 
@@ -195,6 +208,7 @@ public static class PresetPackageService
 			if (entries.Count == 0)
 			{
 				TryDeleteDir(extractedDir);
+
 				return null;
 			}
 
@@ -203,11 +217,13 @@ public static class PresetPackageService
 
 		var archiveMarkerPath = Path.Combine(extractedDir, ArchiveMarkerFileName);
 		var archiveMarker = File.Exists(archiveMarkerPath) ? TryReadJson<ArchiveMarker>(archiveMarkerPath) : null;
+
 		if (archiveMarker?.Format == ArchiveFormatId)
 		{
 			if (archiveMarker.Version > FormatVersion)
 			{
 				TryDeleteDir(extractedDir);
+
 				throw new PackageVersionUnsupportedException(archiveMarker.Version, FormatVersion);
 			}
 
@@ -235,6 +251,7 @@ public static class PresetPackageService
 			if (entries.Count == 0)
 			{
 				TryDeleteDir(extractedDir);
+
 				return null;
 			}
 
@@ -242,6 +259,7 @@ public static class PresetPackageService
 		}
 
 		TryDeleteDir(extractedDir);
+
 		return null;
 	}
 
@@ -272,6 +290,7 @@ public static class PresetPackageService
 		var presetDir = Path.Combine(extractedDir, PresetsFolderName, entry.Key);
 		var manifestPath = Path.Combine(presetDir, ManifestFileName);
 		var preset = File.Exists(manifestPath) ? TryReadJson<Preset>(manifestPath) : null;
+
 		if (preset == null)
 			return null;
 
@@ -294,6 +313,7 @@ public static class PresetPackageService
 	private static PresetDraft? BuildArchiveDraft(string extractedDir, PackageEntry entry)
 	{
 		var folderPath = Path.Combine(extractedDir, entry.Key);
+
 		if (!Directory.Exists(folderPath))
 			return null;
 
@@ -302,6 +322,7 @@ public static class PresetPackageService
 		foreach (var file in Directory.EnumerateFiles(folderPath).Where(IsCursorFile))
 		{
 			var role = CursorRoles.MatchByFileName(file);
+
 			if (role != null)
 				draft.RoleSources[role.RegistryName] = new RoleSourceDraft { OwnFilePath = file };
 		}
@@ -332,6 +353,7 @@ public static class PresetPackageService
 	{
 		var invalid = Path.GetInvalidFileNameChars();
 		var sanitized = string.Join("", name.Where(character => !invalid.Contains(character))).Trim();
+
 		return string.IsNullOrWhiteSpace(sanitized) ? "Preset" : sanitized;
 	}
 
@@ -380,6 +402,7 @@ public static class PresetPackageService
 	private static bool IsCursorFile(string path)
 	{
 		var extension = Path.GetExtension(path).ToLowerInvariant();
+
 		return extension is CurExtension or AniExtension;
 	}
 }

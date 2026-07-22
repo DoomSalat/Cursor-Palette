@@ -111,6 +111,7 @@ public partial class ImportPickerWindow : Window
 		};
 
 		Gallery.Items.Add(cell);
+
 		return cell;
 	}
 

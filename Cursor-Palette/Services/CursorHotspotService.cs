@@ -52,6 +52,7 @@ public static class CursorHotspotService
 			return 0;
 
 		var chunks = AniCursorReader.FindIconChunkRanges(bytes);
+
 		return chunks.Count > 0 ? chunks[0].Offset : null;
 	}
 

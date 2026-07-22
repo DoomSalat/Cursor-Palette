@@ -70,6 +70,7 @@ public static class CursorPreviewService
 		if (string.IsNullOrWhiteSpace(filePath))
 		{
 			image.Source = null;
+
 			return;
 		}
 

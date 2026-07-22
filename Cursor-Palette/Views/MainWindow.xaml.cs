@@ -201,6 +201,7 @@ public partial class MainWindow : Window
 		{
 			Filter = Loc.Get(LocImportFileFilter),
 			CheckFileExists = true,
+			InitialDirectory = AppPaths.DownloadsDir,
 		};
 
 		if (dialog.ShowDialog(this) != true)
@@ -1304,10 +1305,12 @@ public partial class MainWindow : Window
 	private static string? GetSuggestedPresetName(IEnumerable<string> paths)
 	{
 		var folder = paths.FirstOrDefault(Directory.Exists);
+
 		if (folder != null)
 			return System.IO.Path.GetFileName(folder);
 
 		var archive = paths.FirstOrDefault(ArchiveImportService.IsArchiveFile);
+
 		return archive != null ? System.IO.Path.GetFileNameWithoutExtension(archive) : null;
 	}
 

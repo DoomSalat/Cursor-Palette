@@ -89,6 +89,7 @@ public partial class RolePickerWindow : Window
 			Height = TilePreviewSize,
 			SnapsToDevicePixels = true,
 		};
+
 		RenderOptions.SetBitmapScalingMode(preview, BitmapScalingMode.NearestNeighbor);
 		CursorPreviewService.ApplyPreview(preview, path);
 
@@ -102,6 +103,7 @@ public partial class RolePickerWindow : Window
 		};
 
 		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+
 		panel.Children.Add(preview);
 		panel.Children.Add(label);
 

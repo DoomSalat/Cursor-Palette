@@ -58,6 +58,7 @@ public partial class HotspotEditorWindow : Window
 	private static double ComputeScale(int width, int height)
 	{
 		var factor = Math.Min(MaxScaleFactor, Math.Min(MaxDisplaySize / width, MaxDisplaySize / height));
+
 		return Math.Max(1, factor);
 	}
 
@@ -142,6 +143,7 @@ public partial class HotspotEditorWindow : Window
 	private static (double X, double Y) ParseFraction(Button presetButton)
 	{
 		var parts = ((string)presetButton.Tag).Split(',');
+
 		return (
 			double.Parse(parts[0], CultureInfo.InvariantCulture),
 			double.Parse(parts[1], CultureInfo.InvariantCulture));

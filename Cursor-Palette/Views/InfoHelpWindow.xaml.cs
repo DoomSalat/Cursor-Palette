@@ -43,7 +43,9 @@ public partial class InfoHelpWindow : Window
 	{
 		_textScale = Math.Clamp(Math.Round(_textScale + delta, 2),
 			Services.AppState.InfoTextScaleMin, Services.AppState.InfoTextScaleMax);
+
 		Services.AppState.SetInfoTextScale(_textScale);
+
 		ApplyTextZoom();
 	}
 
@@ -275,17 +277,20 @@ public partial class InfoHelpWindow : Window
 
 		grid.Children.Add(iconBlock);
 		grid.Children.Add(textBlock);
+
 		return grid;
 	}
 
 	private static (string? icon, string? rest) SplitLeadingIcon(string line)
 	{
 		var spaceIndex = line.IndexOf(' ');
+
 		if (spaceIndex <= 0 || spaceIndex > IconTokenMaxLength)
 			return (null, null);
 
 		var icon = line[..spaceIndex];
 		var rest = line[(spaceIndex + 1)..].TrimStart();
+
 		if (string.IsNullOrEmpty(rest) || char.IsLetterOrDigit(icon[0]))
 			return (null, null);
 
@@ -321,12 +326,14 @@ public partial class InfoHelpWindow : Window
 
 		grid.Children.Add(bullet);
 		grid.Children.Add(text);
+
 		return grid;
 	}
 
 	private static StackPanel BuildArrowGrid(List<string> arrows)
 	{
 		var stackPanel = new StackPanel { Margin = new Thickness(0, 4, 0, 0) };
+
 		foreach (var arrow in arrows)
 		{
 			stackPanel.Children.Add(new TextBlock
@@ -337,6 +344,7 @@ public partial class InfoHelpWindow : Window
 				Foreground = BrushTextDim,
 			});
 		}
+
 		return stackPanel;
 	}
 
@@ -344,7 +352,9 @@ public partial class InfoHelpWindow : Window
 	{
 		if (string.IsNullOrEmpty(text))
 			return false;
+
 		var firstChar = text[0];
+
 		return firstChar == '↖' || firstChar == '↗' || firstChar == '↙' || firstChar == '↘' ||
 			   firstChar == '↑' || firstChar == '↓' || firstChar == '←' || firstChar == '→';
 	}

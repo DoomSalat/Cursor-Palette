@@ -148,6 +148,7 @@ public partial class PresetEditorWindow : Window
 		foreach (var role in CursorRoles.All)
 		{
 			var defaultPath = systemDefaults.GetValueOrDefault(role.RegistryName);
+
 			if (string.IsNullOrWhiteSpace(defaultPath))
 				defaultPath = PlaceholderCursorDefaults.GetPath(role.RegistryName);
 
@@ -157,6 +158,7 @@ public partial class PresetEditorWindow : Window
 			if (existing != null)
 			{
 				var path = PresetStore.GetRoleFilePath(existing, role.RegistryName);
+
 				if (path != null && File.Exists(path))
 				{
 					if (existing.RoleRefs.TryGetValue(role.RegistryName, out var reference))
@@ -206,6 +208,7 @@ public partial class PresetEditorWindow : Window
 		_baseSize = sizePx;
 
 		(Owner as MainWindow)?.SyncSizeSlider(sizePx);
+
 		UpdateApplySizeButtonHighlight();
 	}
 
@@ -216,8 +219,11 @@ public partial class PresetEditorWindow : Window
 	private void OnEditorApplySizeClick(object sender, RoutedEventArgs e)
 	{
 		RegistryCursorService.SetBaseSize(_baseSize);
+
 		_appliedPreviewSizePx = _baseSize;
+
 		UpdateApplySizeButtonHighlight();
+
 		ToastService.Show(EditorRootGrid, Loc.Get(LocToastSizeApplied));
 	}
 
@@ -245,6 +251,7 @@ public partial class PresetEditorWindow : Window
 			Height = SlotPreviewSize,
 			Margin = new Thickness(0, PreviewTopMargin, 0, 0),
 		};
+
 		Canvas.SetLeft(preview, 0);
 		Canvas.SetTop(preview, 0);
 		previewHost.Children.Add(preview);
@@ -486,6 +493,7 @@ public partial class PresetEditorWindow : Window
 		border.Drop += (_, e) =>
 		{
 			HideAllDropIndicators();
+
 			if (slot.IsLocked)
 			{
 				e.Handled = true;
@@ -493,6 +501,7 @@ public partial class PresetEditorWindow : Window
 			}
 
 			var file = GetSingleCursorFile(e);
+
 			if (file != null)
 			{
 				SetSlotSource(slot, file);
@@ -534,6 +543,7 @@ public partial class PresetEditorWindow : Window
 		slot.PivotButton.IsEnabled = true;
 		slot.PivotButton.ToolTip = Loc.Get(LocEditorPivotTooltip);
 		slot.DownloadButton.Visibility = Visibility.Visible;
+
 		UpdateHotspotDot(slot);
 	}
 
@@ -557,12 +567,14 @@ public partial class PresetEditorWindow : Window
 		slot.PivotButton.IsEnabled = false;
 		slot.PivotButton.ToolTip = Loc.Get(LocEditorPivotDisabledTooltip);
 		slot.DownloadButton.Visibility = Visibility.Visible;
+
 		UpdateHotspotDot(slot);
 	}
 
 	private static string BuildReferenceLabel(string presetId, string fileName)
 	{
 		var sourceName = PresetStore.LoadAll().FirstOrDefault(p => p.Id == presetId)?.Name;
+
 		return sourceName != null ? $"{sourceName} / {fileName}" : fileName;
 	}
 
@@ -628,6 +640,7 @@ public partial class PresetEditorWindow : Window
 	private void DownloadSlot(Slot slot)
 	{
 		var resolvedPath = GetSlotResolvedPath(slot);
+
 		if (resolvedPath == null || !File.Exists(resolvedPath))
 			return;
 
@@ -638,6 +651,7 @@ public partial class PresetEditorWindow : Window
 		var destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName}{extension}");
 
 		var attempt = 1;
+
 		while (File.Exists(destPath))
 			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}){extension}");
 
@@ -652,18 +666,21 @@ public partial class PresetEditorWindow : Window
 	{
 		var invalid = Path.GetInvalidPathChars();
 		var presetName = string.Join("", NameBox.Text.Where(character => !invalid.Contains(character))).Trim();
+
 		if (string.IsNullOrWhiteSpace(presetName))
 			presetName = Loc.Get(LocDefaultPresetName);
 
 		var destDir = Path.Combine(AppPaths.DownloadsDir, presetName);
 
 		var attempt = 1;
+
 		while (Directory.Exists(destDir))
 			destDir = Path.Combine(AppPaths.DownloadsDir, $"{presetName} ({attempt++})");
 
 		Directory.CreateDirectory(destDir);
 
 		var count = 0;
+
 		foreach (var slot in _slots)
 		{
 			var resolvedPath = GetSlotResolvedPath(slot);
@@ -691,14 +708,17 @@ public partial class PresetEditorWindow : Window
 	private void OpenHotspotEditor(Slot slot)
 	{
 		var resolvedPath = GetSlotResolvedPath(slot);
+
 		if (resolvedPath == null)
 			return;
 
 		var hotspot = CursorHotspotService.Read(resolvedPath);
+
 		if (hotspot == null)
 			return;
 
 		var editor = new HotspotEditorWindow(resolvedPath, hotspot) { Owner = this };
+
 		if (editor.ShowDialog() != true)
 			return;
 
@@ -713,14 +733,17 @@ public partial class PresetEditorWindow : Window
 	private void PickExistingForSlot(Slot slot)
 	{
 		var presetPicker = new ExistingPresetPickerWindow(PresetStore.LoadAll()) { Owner = this };
+
 		if (presetPicker.ShowDialog() != true || presetPicker.SelectedPreset == null)
 			return;
 
 		var rolePicker = new RolePickerWindow(presetPicker.SelectedPreset, slot.Role.RegistryName) { Owner = this };
+
 		if (rolePicker.ShowDialog() != true || rolePicker.SelectedRole == null)
 			return;
 
 		var flatRef = PresetStore.ResolveLeafRef(presetPicker.SelectedPreset, rolePicker.SelectedRole);
+
 		if (flatRef == null)
 			return;
 
@@ -872,6 +895,7 @@ public partial class PresetEditorWindow : Window
 		}
 
 		var matched = 0;
+
 		foreach (var file in cursorFiles)
 		{
 			var role = CursorRoles.MatchByFileName(file);
@@ -911,6 +935,7 @@ public partial class PresetEditorWindow : Window
 		}
 
 		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, BaseSize = _baseSize };
+
 		foreach (var slot in _slots.Where(slot => slot.SourcePath != null || slot.RefPresetId != null))
 		{
 			draft.RoleSources[slot.Role.RegistryName] = slot.RefPresetId != null

@@ -153,6 +153,7 @@ public partial class ExportWindow : Window
 	private void OnExportBundleClick(object sender, RoutedEventArgs e)
 	{
 		var selected = GetSelectedPresets();
+
 		if (selected.Count == 0)
 			return;
 
@@ -195,7 +196,7 @@ public partial class ExportWindow : Window
 			Process.Start(new ProcessStartInfo
 			{
 				FileName = "explorer.exe",
-				ArgumentList = { $"/select,{path}" },
+				ArgumentList = { $"/select,\"{path}\"" },
 				UseShellExecute = true,
 			});
 		}

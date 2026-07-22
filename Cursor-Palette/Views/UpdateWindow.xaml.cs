@@ -70,6 +70,7 @@ public partial class UpdateWindow : Window
 			response.EnsureSuccessStatusCode();
 
 			await using var fs = File.Create(destPath);
+
 			await response.Content.CopyToAsync(fs);
 
 			ToastService.Show(_toastHost, Loc.Get(LocToastManualDownload));
@@ -96,9 +97,11 @@ public partial class UpdateWindow : Window
 			var tempPath = Path.Combine(Path.GetTempPath(), string.Format(TempFileFormat, _updateInfo.Version));
 
 			using var response = await HttpClient.GetAsync(_updateInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+
 			response.EnsureSuccessStatusCode();
 
 			await using var fs = File.Create(tempPath);
+
 			await response.Content.CopyToAsync(fs);
 
 			var currentExe = Environment.ProcessPath!;
@@ -143,6 +146,7 @@ public partial class UpdateWindow : Window
 	private static string GetDownloadsFolder()
 	{
 		var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), DownloadsFolderName);
+
 		return Directory.Exists(path) ? path : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 	}
 }
