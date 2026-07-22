@@ -206,7 +206,9 @@
 								  Margin="4,0,0,0"
 								  ToolTip="{DynamicResource S.Editor.Tool.BgRef}"
 								  Click="OnToolBgRefClick">
-						<TextBlock Text="🖼" FontSize="16" />
+						<Rectangle Width="20" Height="20" Fill="{DynamicResource Brush.Text}">
+							<Rectangle.OpacityMask><ImageBrush ImageSource="pack://application:,,,/Resources/ImageRefIcon32.png" Stretch="Uniform" /></Rectangle.OpacityMask>
+						</Rectangle>
 					</ToggleButton>
 
 					<Border Width="1" Height="28" Background="{StaticResource Brush.Border}" Margin="8,0,4,0" />
