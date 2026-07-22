@@ -32,6 +32,10 @@
 	<sys:String x:Key="S.EmptyGallery">No presets yet. Drop cursor files (.cur/.ani) onto the window or click "Add preset".</sys:String>
 
 	<sys:String x:Key="S.Menu.Edit">Edit</sys:String>
+	<sys:String x:Key="S.Menu.Rename">Rename</sys:String>
+	<sys:String x:Key="S.Menu.MoveLeft">Move left</sys:String>
+	<sys:String x:Key="S.Menu.MoveRight">Move right</sys:String>
+	<sys:String x:Key="S.Menu.Download">Download preset</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Delete</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Right-click for menu</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Some roles are taken from other presets</sys:String>
@@ -105,7 +109,7 @@
 	<sys:String x:Key="S.Info.ZoomOutTooltip">Decrease text size</sys:String>
 	<sys:String x:Key="S.Info.ZoomInTooltip">Increase text size</sys:String>
 
-	<sys:String x:Key="S.Info.Main">🏠 Main — preset gallery&#x0a;&#x0a;📦 Gallery — shows all your cursor presets.&#x0a;   • Left-click a preset — apply cursors.&#x0a;   • Right-click a preset — menu (edit, delete).&#x0a;   • 🧩 badge — some roles are borrowed from other presets.&#x0a;&#x0a;➕ "Add preset" — create a new preset.&#x0a;   • Drag .cur/.ani files or a folder onto the window.&#x0a;&#x0a;🎨 Grid size — changes gallery cell size.&#x0a;📏 Cursor size — slider + "Apply" changes system cursor size.&#x0a;↩️ "Undo" — revert to previous cursor set.&#x0a;🌙/☀ — toggle dark/light theme.&#x0a;🌐 — change interface language.&#x0a;🔍 −/+ — zoom interface in/out.&#x0a;📄 Click the footer — "About" window.&#x0a;⬇ Bottom-left — update indicator.&#x0a;   • Blue button — new version available, click to download.&#x0a;   • "Up to date" text — no updates.&#x0a;ⓘ Top-right button — window help.</sys:String>
+	<sys:String x:Key="S.Info.Main">🏠 Main — preset gallery&#x0a;&#x0a;📦 Gallery — shows all your cursor presets.&#x0a;   • Left-click a preset — apply cursors.&#x0a;   • Right-click a preset — menu (edit, rename, move left/right, download, delete).&#x0a;   • 🧩 badge — some roles are borrowed from other presets.&#x0a;   • Drag a tile onto another — reorder presets.&#x0a;&#x0a;➕ "Add preset" — create a new preset.&#x0a;   • Drag .cur/.ani files or a folder onto the window.&#x0a;&#x0a;🎨 Grid size — changes gallery cell size.&#x0a;📏 Cursor size — slider + "Apply" changes system cursor size.&#x0a;↩️ "Undo" — revert to previous cursor set.&#x0a;🌙/☀ — toggle dark/light theme.&#x0a;🌐 — change interface language.&#x0a;🔍 −/+ — zoom interface in/out.&#x0a;📄 Click the footer — "About" window.&#x0a;⬇ Bottom-left — update indicator.&#x0a;   • Blue button — new version available, click to download.&#x0a;   • "Up to date" text — no updates.&#x0a;ⓘ Top-right button — window help.</sys:String>
 
 	<sys:String x:Key="S.Info.Editor">✏️ Preset editor&#x0a;&#x0a;🎯 Each slot — one cursor role (arrow, text, busy, etc.).&#x0a;   • Drag a .cur/.ani file onto a slot — fills that role.&#x0a;   • 🎯 on a slot — set pivot point (click position).&#x0a;   • ✕ on a slot — remove file, reverts to system cursor.&#x0a;   • 🔒 on a slot — lock role (protect from folder import and drag-and-drop).&#x0a;   • ⬇ on a slot — download cursor to Downloads folder (named by standard role).&#x0a;   • 🧩 on a slot — borrow a role from another preset.&#x0a;   • 🔗 — role is borrowed from another preset (link).&#x0a;   • "auto" badge — cursor is auto-filled.&#x0a;&#x0a;📁 "Choose folder" — import all cursors from a folder at once.&#x0a;   • Files are matched to roles by file name.&#x0a;&#x0a;📝 Enter a preset name at the bottom.&#x0a;⬇ Left of the name — download the whole preset as a folder to Downloads.&#x0a;📏 Size slider — preview cursor size in slots.&#x0a;💾 "Save" — save preset to gallery.</sys:String>
 

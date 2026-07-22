@@ -166,6 +166,28 @@ public static class PresetStore
 		}
 	}
 
+	public static void Rename(string presetId, string newName)
+	{
+		var manifestPath = Path.Combine(GetPresetDir(presetId), ManifestFileName);
+
+		if (!File.Exists(manifestPath))
+			return;
+
+		try
+		{
+			var preset = JsonSerializer.Deserialize<Preset>(File.ReadAllText(manifestPath));
+
+			if (preset == null)
+				return;
+
+			preset.Name = string.IsNullOrWhiteSpace(newName) ? UntitledPresetName : newName.Trim();
+			File.WriteAllText(manifestPath, JsonSerializer.Serialize(preset, JsonOptions));
+		}
+		catch
+		{
+		}
+	}
+
 	public static void Reorder(IReadOnlyList<string> orderedPresetIds)
 	{
 		for (var i = 0; i < orderedPresetIds.Count; i++)

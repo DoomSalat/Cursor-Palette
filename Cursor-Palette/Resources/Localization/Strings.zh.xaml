@@ -27,6 +27,10 @@
 	<sys:String x:Key="S.EmptyGallery">还没有预设。将光标文件（.cur/.ani）拖到窗口中，或点击"添加预设"。</sys:String>
 
 	<sys:String x:Key="S.Menu.Edit">编辑</sys:String>
+	<sys:String x:Key="S.Menu.Rename">重命名</sys:String>
+	<sys:String x:Key="S.Menu.MoveLeft">左移</sys:String>
+	<sys:String x:Key="S.Menu.MoveRight">右移</sys:String>
+	<sys:String x:Key="S.Menu.Download">下载预设</sys:String>
 	<sys:String x:Key="S.Menu.Delete">删除</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">右键点击打开菜单</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">部分角色取自其他预设</sys:String>
@@ -96,7 +100,7 @@
 	<sys:String x:Key="S.Info.ZoomOutTooltip">缩小文字</sys:String>
 	<sys:String x:Key="S.Info.ZoomInTooltip">放大文字</sys:String>
 
-	<sys:String x:Key="S.Info.Main">🏠 主窗口 — 预设画廊&#x0a;&#x0a;📦 画廊 — 显示所有光标预设。&#x0a;   • 左键点击预设 — 应用光标。&#x0a;   • 右键点击预设 — 菜单（编辑、删除）。&#x0a;   • 🧩 标记 — 部分角色取自其他预设。&#x0a;&#x0a;➕ "添加预设" — 创建新预设。&#x0a;   • 将 .cur/.ani 文件或文件夹拖到窗口中。&#x0a;&#x0a;🎨 网格大小 — 改变画廊单元格大小。&#x0a;📏 光标大小 — 滑块 + "应用" 改变系统光标大小。&#x0a;↩️ "返回" — 恢复到上一个光标集。&#x0a;🌙/☀ — 切换深色/浅色主题。&#x0a;🌐 — 更改语言。&#x0a;🔍 −/+ — 界面缩放。&#x0a;📄 点击页脚 — "关于" 窗口。&#x0a;⬇ 左下角 — 更新指示器。&#x0a;   • 蓝色按钮 — 有新版本可用，点击下载。&#x0a;   • "已是最新" 文字 — 无更新。&#x0a;ⓘ 右上角按钮 — 窗口帮助。</sys:String>
+	<sys:String x:Key="S.Info.Main">🏠 主窗口 — 预设画廊&#x0a;&#x0a;📦 画廊 — 显示所有光标预设。&#x0a;   • 左键点击预设 — 应用光标。&#x0a;   • 右键点击预设 — 菜单（编辑、重命名、左移/右移、下载、删除）。&#x0a;   • 🧩 标记 — 部分角色取自其他预设。&#x0a;   • 将卡片拖到另一张上 — 调整预设顺序。&#x0a;&#x0a;➕ "添加预设" — 创建新预设。&#x0a;   • 将 .cur/.ani 文件或文件夹拖到窗口中。&#x0a;&#x0a;🎨 网格大小 — 改变画廊单元格大小。&#x0a;📏 光标大小 — 滑块 + "应用" 改变系统光标大小。&#x0a;↩️ "返回" — 恢复到上一个光标集。&#x0a;🌙/☀ — 切换深色/浅色主题。&#x0a;🌐 — 更改语言。&#x0a;🔍 −/+ — 界面缩放。&#x0a;📄 点击页脚 — "关于" 窗口。&#x0a;⬇ 左下角 — 更新指示器。&#x0a;   • 蓝色按钮 — 有新版本可用，点击下载。&#x0a;   • "已是最新" 文字 — 无更新。&#x0a;ⓘ 右上角按钮 — 窗口帮助。</sys:String>
 
 	<sys:String x:Key="S.Info.Editor">✏️ 预设编辑器&#x0a;&#x0a;🎯 每个槽位 — 一个光标角色（箭头、文本、忙碌等）。&#x0a;   • 将 .cur/.ani 文件拖到槽位 — 填充该角色。&#x0a;   • 🎯 槽位上 — 设置热点（点击位置）。&#x0a;   • ✕ 槽位上 — 移除文件，恢复系统光标。&#x0a;   • 🧩 槽位上 — 从其他预设借用角色。&#x0a;   • "默认" 标记 — 光标自动填充。&#x0a;&#x0a;📁 "选择文件夹" — 从文件夹批量导入光标。&#x0a;   • 文件按文件名匹配到角色。&#x0a;&#x0a;📝 在底部输入预设名称。&#x0a;📏 大小滑块 — 预览槽位中的光标大小。&#x0a;💾 "保存" — 保存预设到画廊。</sys:String>
 

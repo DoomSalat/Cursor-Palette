@@ -32,6 +32,10 @@ public partial class MainWindow : Window
 
 	private const string LocWindowsDefault = "S.WindowsDefault";
 	private const string LocMenuEdit = "S.Menu.Edit";
+	private const string LocMenuRename = "S.Menu.Rename";
+	private const string LocMenuMoveLeft = "S.Menu.MoveLeft";
+	private const string LocMenuMoveRight = "S.Menu.MoveRight";
+	private const string LocMenuDownload = "S.Menu.Download";
 	private const string LocMenuDelete = "S.Menu.Delete";
 	private const string LocPresetContextHint = "S.Preset.ContextHint";
 	private const string LocAddPreset = "S.AddPreset";
@@ -43,6 +47,8 @@ public partial class MainWindow : Window
 	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
 	private const string LocToastSaved = "S.Toast.Saved";
 	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
+	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
+	private const string LocDefaultPresetName = "S.DefaultPresetName";
 	private const string LocToastUpdateAvailable = "S.Toast.UpdateAvailable";
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
@@ -50,6 +56,7 @@ public partial class MainWindow : Window
 
 	private const string StyleAccentButton = "Style.AccentButton";
 	private const string StyleButton = "Style.Button";
+	private const string StyleTextBox = "Style.TextBox";
 
 	private const double CellSize = 148;
 	private const double CellMargin = 6;
@@ -494,12 +501,37 @@ public partial class MainWindow : Window
 			e.Handled = true;
 		};
 
+		var presetIndex = _presets.FindIndex(candidate => candidate.Id == preset.Id);
+		var isFirst = presetIndex <= 0;
+		var isLast = presetIndex < 0 || presetIndex >= _presets.Count - 1;
+
 		var menu = new ContextMenu();
 		var editItem = new MenuItem { Header = Loc.Get(LocMenuEdit) };
 		editItem.Click += (_, _) => EditPreset(preset);
+		var renameItem = new MenuItem { Header = Loc.Get(LocMenuRename) };
+		renameItem.Click += (_, _) => StartInlineRename(preset, nameText, panel);
+		var moveLeftItem = new MenuItem
+		{
+			Header = Loc.Get(LocMenuMoveLeft),
+			Visibility = isFirst ? Visibility.Collapsed : Visibility.Visible,
+		};
+		moveLeftItem.Click += (_, _) => MovePreset(preset, -1);
+		var moveRightItem = new MenuItem
+		{
+			Header = Loc.Get(LocMenuMoveRight),
+			Visibility = isLast ? Visibility.Collapsed : Visibility.Visible,
+		};
+		moveRightItem.Click += (_, _) => MovePreset(preset, 1);
+		var downloadItem = new MenuItem { Header = Loc.Get(LocMenuDownload) };
+		downloadItem.Click += (_, _) => DownloadPreset(preset);
 		var deleteItem = new MenuItem { Header = Loc.Get(LocMenuDelete) };
 		deleteItem.Click += (_, _) => DeletePreset(preset);
 		menu.Items.Add(editItem);
+		menu.Items.Add(renameItem);
+		menu.Items.Add(moveLeftItem);
+		menu.Items.Add(moveRightItem);
+		menu.Items.Add(downloadItem);
+		menu.Items.Add(new Separator());
 		menu.Items.Add(deleteItem);
 		cell.ContextMenu = menu;
 
@@ -740,6 +772,139 @@ public partial class MainWindow : Window
 		}
 
 		ReloadGallery();
+	}
+
+	private void MovePreset(Preset preset, int direction)
+	{
+		var index = _presets.FindIndex(candidate => candidate.Id == preset.Id);
+		if (index < 0)
+			return;
+
+		var targetIndex = index + direction;
+		if (targetIndex < 0 || targetIndex >= _presets.Count)
+			return;
+
+		(_presets[index], _presets[targetIndex]) = (_presets[targetIndex], _presets[index]);
+		PersistPresetOrder();
+	}
+
+	private void DownloadPreset(Preset preset)
+	{
+		var invalid = Path.GetInvalidPathChars();
+		var presetName = string.Join(EmptyValue, preset.Name.Where(character => !invalid.Contains(character))).Trim();
+		if (string.IsNullOrWhiteSpace(presetName))
+			presetName = Loc.Get(LocDefaultPresetName);
+
+		var destDir = Path.Combine(AppPaths.DownloadsDir, presetName);
+
+		var attempt = 1;
+		while (Directory.Exists(destDir))
+			destDir = Path.Combine(AppPaths.DownloadsDir, $"{presetName} ({attempt++})");
+
+		Directory.CreateDirectory(destDir);
+
+		var count = 0;
+		foreach (var role in CursorRoles.All)
+		{
+			var resolvedPath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+			if (resolvedPath == null || !File.Exists(resolvedPath))
+				continue;
+
+			var extension = Path.GetExtension(resolvedPath);
+			var destPath = Path.Combine(destDir, $"{role.RegistryName}{extension}");
+			File.Copy(resolvedPath, destPath);
+			var now = DateTime.Now;
+			File.SetCreationTime(destPath, now);
+			File.SetLastWriteTime(destPath, now);
+			count++;
+		}
+
+		if (count == 0)
+		{
+			Directory.Delete(destDir);
+			return;
+		}
+
+		ToastService.Show(RootGrid, Loc.Format(LocToastPresetDownloaded, presetName, count));
+	}
+
+	private void StartInlineRename(Preset preset, TextBlock nameText, StackPanel panel)
+	{
+		var index = panel.Children.IndexOf(nameText);
+		if (index < 0)
+			return;
+
+		var done = false;
+
+		var textBox = new TextBox
+		{
+			Text = preset.Name,
+			FontSize = nameText.FontSize,
+			FontWeight = FontWeights.SemiBold,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(nameText.Margin.Left, nameText.Margin.Top - 2, nameText.Margin.Right, nameText.Margin.Bottom),
+			Style = (Style)Application.Current.Resources[StyleTextBox],
+			Background = Brush(BrushBg),
+			BorderBrush = Brush(BrushAccent),
+			BorderThickness = new Thickness(1.5),
+			Padding = new Thickness(6, 4, 6, 4),
+		};
+
+		void Restore()
+		{
+			var currentIndex = panel.Children.IndexOf(textBox);
+			if (currentIndex < 0)
+				return;
+
+			panel.Children.RemoveAt(currentIndex);
+			panel.Children.Insert(currentIndex, nameText);
+		}
+
+		void Commit()
+		{
+			if (done)
+				return;
+			done = true;
+
+			var newName = textBox.Text.Trim();
+			Restore();
+
+			if (!string.IsNullOrWhiteSpace(newName) && newName != preset.Name)
+			{
+				PresetStore.Rename(preset.Id, newName);
+				ReloadGallery();
+			}
+		}
+
+		void Cancel()
+		{
+			if (done)
+				return;
+			done = true;
+			Restore();
+		}
+
+		textBox.PreviewMouseLeftButtonDown += (_, e) => e.Handled = true;
+		textBox.PreviewMouseLeftButtonUp += (_, e) => e.Handled = true;
+		textBox.KeyDown += (_, e) =>
+		{
+			if (e.Key == Key.Enter)
+			{
+				Commit();
+				e.Handled = true;
+			}
+			else if (e.Key == Key.Escape)
+			{
+				Cancel();
+				e.Handled = true;
+			}
+		};
+		textBox.LostFocus += (_, _) => Commit();
+
+		panel.Children.RemoveAt(index);
+		panel.Children.Insert(index, textBox);
+		textBox.Focus();
+		textBox.SelectAll();
 	}
 
 	private void ReorderPreset(string draggedPresetId, int insertBeforeIndex)

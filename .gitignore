@@ -56,3 +56,6 @@ Assets/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+## Claude Code
+.claude/settings.local.json
