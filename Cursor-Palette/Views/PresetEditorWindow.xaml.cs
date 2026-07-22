@@ -607,7 +607,7 @@ public partial class PresetEditorWindow : Window
 		slot.FileText.Foreground = Brush(BrushTextDim);
 		slot.ClearButton.Visibility = Visibility.Collapsed;
 		slot.PivotButton.Visibility = Visibility.Collapsed;
-		slot.PositionButton.Visibility = Visibility.Collapsed;
+		slot.PositionButton.Visibility = Visibility.Visible;
 		slot.DownloadButton.Visibility = Visibility.Collapsed;
 		slot.HotspotDot.Visibility = Visibility.Collapsed;
 		slot.LinkBadge.Visibility = Visibility.Collapsed;
@@ -750,13 +750,18 @@ public partial class PresetEditorWindow : Window
 	{
 		var resolvedPath = GetSlotResolvedPath(slot);
 
-		if (resolvedPath == null)
-			return;
+		CursorCanvasImage? image;
 
-		var image = CursorCanvasService.TryRead(resolvedPath);
-
-		if (image == null)
-			return;
+		if (resolvedPath != null)
+		{
+			image = CursorCanvasService.TryRead(resolvedPath);
+			if (image == null)
+				return;
+		}
+		else
+		{
+			image = new CursorCanvasImage(32, 32, 0, 0, new byte[32 * 32 * 4]);
+		}
 
 		var editor = new PaintEditorWindow(image, NameBox.Text, slot.Role.RegistryName) { Owner = this };
 
