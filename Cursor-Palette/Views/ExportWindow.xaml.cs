@@ -30,16 +30,21 @@ public partial class ExportWindow : Window
 	private const string LocErrorExportFailed = "S.Error.ExportFailed";
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocInfoExport = "S.Info.Export";
+	private const string LocGroupMembersCount = "S.Group.MembersCount";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
+	private readonly List<(PresetGroup Group, Border Cell)> _groupTiles = new();
 
-	public ExportWindow(IReadOnlyList<Preset> presets)
+	public ExportWindow(IReadOnlyList<Preset> presets, IReadOnlyList<PresetGroup>? groups = null)
 	{
 		InitializeComponent();
 
 		var uiScale = AppState.GetUiScale();
 		UiScaleTransform.ScaleX = uiScale;
 		UiScaleTransform.ScaleY = uiScale;
+
+		foreach (var group in groups ?? Array.Empty<PresetGroup>())
+			_groupTiles.Add((group, CreateGroupTile(group)));
 
 		foreach (var preset in presets)
 			_tiles.Add((preset, CreateTile(preset)));
@@ -62,6 +67,82 @@ public partial class ExportWindow : Window
 	{
 		cell.Tag = selected;
 		cell.BorderBrush = selected ? Brush(BrushAccent) : Brush(BrushBorder);
+	}
+
+	private Border CreateGroupTile(PresetGroup group)
+	{
+		var colorBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(group.ColorKey))!);
+
+		var nameText = new TextBlock
+		{
+			Text = group.Name,
+			FontSize = CellNameFontSize,
+			FontWeight = FontWeights.SemiBold,
+			Foreground = System.Windows.Media.Brushes.White,
+			TextTrimming = TextTrimming.CharacterEllipsis,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(4, 6, 4, 0),
+		};
+
+		var countText = new TextBlock
+		{
+			Text = Loc.Format(LocGroupMembersCount, group.MemberPresetIds.Count),
+			Foreground = System.Windows.Media.Brushes.White,
+			Opacity = 0.85,
+			FontSize = CellCountFontSize,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(0, 2, 0, 0),
+		};
+
+		var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+		panel.Children.Add(nameText);
+		panel.Children.Add(countText);
+
+		var cell = new Border
+		{
+			Width = CellSize,
+			Height = CellSize,
+			Margin = new Thickness(CellMargin),
+			CornerRadius = new CornerRadius(CellCornerRadius),
+			Background = colorBrush,
+			BorderThickness = new Thickness(CellBorderThickness),
+			BorderBrush = colorBrush,
+			Child = panel,
+			Cursor = Cursors.Hand,
+		};
+
+		SetSelected(cell, true);
+
+		cell.MouseLeftButtonUp += (_, _) =>
+		{
+			var selecting = !IsSelected(cell);
+			SetSelected(cell, selecting);
+
+			foreach (var memberPresetId in group.MemberPresetIds)
+			{
+				var memberTile = _tiles.FirstOrDefault(t => t.Preset.Id == memberPresetId);
+				if (memberTile.Cell != null)
+					SetSelected(memberTile.Cell, selecting);
+			}
+
+			UpdateSelectionCount();
+		};
+
+		Gallery.Items.Add(cell);
+
+		return cell;
+	}
+
+	private void SyncGroupTileSelections()
+	{
+		foreach (var (group, cell) in _groupTiles)
+		{
+			var allMembersSelected = group.MemberPresetIds.Count > 0 && group.MemberPresetIds.All(memberId =>
+				_tiles.FirstOrDefault(t => t.Preset.Id == memberId) is { Cell: not null } match &&
+				IsSelected(match.Cell));
+
+			SetSelected(cell, allMembersSelected);
+		}
 	}
 
 	private Border CreateTile(Preset preset)
@@ -127,6 +208,8 @@ public partial class ExportWindow : Window
 
 	private void UpdateSelectionCount()
 	{
+		SyncGroupTileSelections();
+
 		var selected = _tiles.Count(tile => IsSelected(tile.Cell));
 		SelectionCountText.Text = Loc.Format(LocSelectionCount, selected, _tiles.Count);
 

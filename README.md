@@ -73,6 +73,13 @@ apply.
 - **Preset context menu** — right-click a tile in the gallery to edit,
   rename, move it left/right, download it, or delete it, without opening
   the editor.
+- **Preset groups** — Ctrl+click multiple tiles to select them, then pick a
+  color and name at the bottom of the gallery to create a group. Click a
+  group tile to collapse/expand it (collapsed shows a stacked deck, expanded
+  shows members side by side). Right-click a group to rename, ungroup, or
+  consolidate its members next to it. Drag a preset onto a group to attach
+  it. Groups are preserved in board order across restarts and can be
+  exported/imported with `.cursorpalette` bundles.
 - **Export presets** — pick any set of presets and save them either as a
   `.cursorpalette` bundle (full-fidelity: roles, locked roles, and cursor
   size are preserved, and roles borrowed from other presets are copied in

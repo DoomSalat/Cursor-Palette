@@ -251,7 +251,7 @@ public partial class MainWindow : Window
 
 	private void OnExportButtonClick(object sender, RoutedEventArgs e)
 	{
-		new ExportWindow(_presets) { Owner = this }.ShowDialog();
+		new ExportWindow(_presets, _groups) { Owner = this }.ShowDialog();
 	}
 
 	private void OnImportButtonClick(object sender, RoutedEventArgs e)
