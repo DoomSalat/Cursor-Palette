@@ -117,7 +117,7 @@ public partial class MainWindow : Window
 		UpdateThemeToggleIcon();
 		UpdateLanguageButtonText();
 
-		OpenFolderCheck.IsChecked = AppState.GetOpenFolderAfterDownload();
+		UpdateOpenFolderToggleIcon();
 
 		ReloadGallery();
 		UpdateUndoButton();
@@ -195,9 +195,16 @@ public partial class MainWindow : Window
 		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoMain)) { Owner = this }.ShowDialog();
 	}
 
-	private void OnOpenFolderCheckChanged(object sender, RoutedEventArgs e)
+	private void OnOpenFolderToggleClick(object sender, RoutedEventArgs e)
 	{
-		AppState.SetOpenFolderAfterDownload(OpenFolderCheck.IsChecked == true);
+		AppState.SetOpenFolderAfterDownload(!AppState.GetOpenFolderAfterDownload());
+		UpdateOpenFolderToggleIcon();
+	}
+
+	private void UpdateOpenFolderToggleIcon()
+	{
+		var brushKey = AppState.GetOpenFolderAfterDownload() ? "Brush.Accent" : "Brush.TextDim";
+		OpenFolderIcon.Fill = (Brush)Application.Current.Resources[brushKey];
 	}
 
 	private void OnExportButtonClick(object sender, RoutedEventArgs e)

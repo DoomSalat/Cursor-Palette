@@ -203,15 +203,21 @@
 							ToolTip="{DynamicResource S.UiZoom.InTooltip}"
 							Click="OnUiZoomInClick" />
 
-					<CheckBox x:Name="OpenFolderCheck"
-						  Style="{StaticResource Style.ToggleCheckBox}"
-						  Content="{DynamicResource S.OpenFolderAfterDownload}"
-						  IsChecked="True"
-						  VerticalAlignment="Center"
-						  Margin="16,0,4,0"
-						  ToolTip="{DynamicResource S.OpenFolderAfterDownload.Tooltip}"
-						  Checked="OnOpenFolderCheckChanged"
-						  Unchecked="OnOpenFolderCheckChanged" />
+					<Button x:Name="OpenFolderToggle"
+							Style="{StaticResource Style.Button}"
+							Padding="8,6"
+							Margin="16,0,4,0"
+							ToolTip="{DynamicResource S.OpenFolderAfterDownload.Tooltip}"
+							Click="OnOpenFolderToggleClick">
+						<Rectangle x:Name="OpenFolderIcon" Width="16" Height="16"
+								   SnapsToDevicePixels="True"
+								   Fill="{StaticResource Brush.Accent}">
+							<Rectangle.OpacityMask>
+								<ImageBrush ImageSource="pack://application:,,,/Resources/OpenFolderIcon32.png"
+											Stretch="Uniform" />
+							</Rectangle.OpacityMask>
+						</Rectangle>
+					</Button>
 
 				<Button x:Name="ExportButton"
 							Style="{StaticResource Style.Button}"
