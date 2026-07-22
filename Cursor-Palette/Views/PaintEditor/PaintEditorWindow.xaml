@@ -9,6 +9,7 @@
 	WindowStartupLocation="CenterOwner"
 	ResizeMode="CanResize"
 	ShowInTaskbar="False"
+	AllowDrop="True"
 	Loaded="OnWindowLoaded"
 	PreviewKeyDown="OnWindowPreviewKeyDown"
 	PreviewKeyUp="OnWindowPreviewKeyUp">

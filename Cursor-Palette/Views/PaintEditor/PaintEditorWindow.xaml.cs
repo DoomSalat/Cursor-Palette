@@ -124,6 +124,7 @@ public partial class PaintEditorWindow : Window
 
 		RenderAll();
 		InitBgRef();
+		InitWindowWideDragDrop();
 
 		UpdateUndoRedoButtons();
 	}

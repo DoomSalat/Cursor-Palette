@@ -2074,8 +2074,12 @@ public partial class MainWindow : Window
 		e.Handled = true;
 	}
 
+	private IDisposable? _windowDragLeaveWatchdog;
+
 	private void OnWindowDragEnter(object sender, DragEventArgs e)
 	{
+		_windowDragLeaveWatchdog ??= DropZoneService.StartLeaveWatchdog(this, HideWindowDragIndicators);
+
 		if (e.Data.GetDataPresent(PresetDragFormatName) || e.Data.GetDataPresent(GroupDragFormatName))
 		{
 			DragGhost.Visibility = Visibility.Visible;
@@ -2086,21 +2090,25 @@ public partial class MainWindow : Window
 			WindowDropIndicator.Visibility = Visibility.Visible;
 	}
 
-	private void OnWindowDragLeave(object sender, DragEventArgs e)
+	private void OnWindowDragLeave(object sender, DragEventArgs e) =>
+		DropZoneService.HandleWindowDragLeave(this, HideWindowDragIndicators);
+
+	private void HideWindowDragIndicators()
 	{
 		WindowDropIndicator.Visibility = Visibility.Collapsed;
+		DragGhost.Visibility = Visibility.Collapsed;
+		ReorderInsertionLine.Visibility = Visibility.Collapsed;
+		GroupAttachIndicator.Visibility = Visibility.Collapsed;
 
-		if (e.Data.GetDataPresent(PresetDragFormatName) || e.Data.GetDataPresent(GroupDragFormatName))
-		{
-			DragGhost.Visibility = Visibility.Collapsed;
-			ReorderInsertionLine.Visibility = Visibility.Collapsed;
-			GroupAttachIndicator.Visibility = Visibility.Collapsed;
-		}
+		_windowDragLeaveWatchdog?.Dispose();
+		_windowDragLeaveWatchdog = null;
 	}
 
 	private void OnWindowDrop(object sender, DragEventArgs e)
 	{
 		WindowDropIndicator.Visibility = Visibility.Collapsed;
+		_windowDragLeaveWatchdog?.Dispose();
+		_windowDragLeaveWatchdog = null;
 
 		if (e.Data.GetData(PresetDragFormatName) is string draggedPresetId)
 		{

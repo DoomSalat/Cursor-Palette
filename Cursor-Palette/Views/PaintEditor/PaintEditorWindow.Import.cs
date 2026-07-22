@@ -11,6 +11,38 @@ public partial class PaintEditorWindow
 	private const string ImportFileDialogFilter = "Image files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.cur;*.ani)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.cur;*.ani|All files (*.*)|*.*";
 	private const string ImportDialogTitle = "Load image";
 
+	private IDisposable? _windowWideDragLeaveWatchdog;
+
+	private void InitWindowWideDragDrop()
+	{
+		AddHandler(DragEnterEvent, new DragEventHandler(OnPaintWindowDragEnter), true);
+		AddHandler(DragLeaveEvent, new DragEventHandler(OnPaintWindowDragLeave), true);
+		AddHandler(DropEvent, new DragEventHandler(OnPaintWindowDrop), true);
+	}
+
+	private void OnPaintWindowDragEnter(object sender, DragEventArgs e)
+	{
+		_windowWideDragLeaveWatchdog ??= DropZoneService.StartLeaveWatchdog(this, HideWindowWideDropIndicators);
+
+		ImportDropIndicator.Visibility = HasImportImageDrop(e) ? Visibility.Visible : Visibility.Collapsed;
+		BgRefDropIndicator.Visibility = DropZoneService.GetFirstFile(e, IsImageFile) != null ? Visibility.Visible : Visibility.Collapsed;
+	}
+
+	private void OnPaintWindowDragLeave(object sender, DragEventArgs e) =>
+		DropZoneService.HandleWindowDragLeave(this, HideWindowWideDropIndicators);
+
+	private void OnPaintWindowDrop(object sender, DragEventArgs e) =>
+		HideWindowWideDropIndicators();
+
+	private void HideWindowWideDropIndicators()
+	{
+		ImportDropIndicator.Visibility = Visibility.Collapsed;
+		BgRefDropIndicator.Visibility = Visibility.Collapsed;
+
+		_windowWideDragLeaveWatchdog?.Dispose();
+		_windowWideDragLeaveWatchdog = null;
+	}
+
 	private void OnImportImageClick(object sender, RoutedEventArgs e)
 	{
 		if (!_ready)
@@ -233,8 +265,12 @@ public partial class PaintEditorWindow
 		return paths.Any(p => File.Exists(p) && IsImportImageFile(p));
 	}
 
+	private IDisposable? _importDragLeaveWatchdog;
+
 	private void OnImportButtonDragEnter(object sender, DragEventArgs e)
 	{
+		_importDragLeaveWatchdog ??= DropZoneService.StartLeaveWatchdog(this, HideImportDropIndicator);
+
 		if (HasImportImageDrop(e))
 		{
 			e.Effects = DragDropEffects.Copy;
@@ -256,13 +292,20 @@ public partial class PaintEditorWindow
 
 	private void OnImportButtonDragLeave(object sender, DragEventArgs e)
 	{
-		ImportDropIndicator.Visibility = Visibility.Collapsed;
+		DropZoneService.HandleWindowDragLeave(this, HideImportDropIndicator);
 		e.Handled = true;
+	}
+
+	private void HideImportDropIndicator()
+	{
+		ImportDropIndicator.Visibility = Visibility.Collapsed;
+		_importDragLeaveWatchdog?.Dispose();
+		_importDragLeaveWatchdog = null;
 	}
 
 	private void OnImportButtonDrop(object sender, DragEventArgs e)
 	{
-		ImportDropIndicator.Visibility = Visibility.Collapsed;
+		HideImportDropIndicator();
 
 		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
 			return;

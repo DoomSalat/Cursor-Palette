@@ -1,8 +1,6 @@
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -16,20 +14,6 @@ namespace CursorPalette.Views;
 
 public partial class PresetEditorWindow : Window
 {
-	[DllImport("user32.dll")]
-	private static extern IntPtr WindowFromPoint(POINT cursorPoint);
-
-	[DllImport("user32.dll")]
-	private static extern IntPtr GetAncestor(IntPtr windowHandle, uint gaFlags);
-
-	[DllImport("user32.dll")]
-	private static extern bool GetCursorPos(out POINT cursorPosition);
-
-	private const uint GaRoot = 2;
-
-	[StructLayout(LayoutKind.Sequential)]
-	private struct POINT { public int X; public int Y; }
-
 	private sealed class Slot
 	{
 		public required CursorRoleInfo Role { get; init; }
@@ -818,8 +802,12 @@ public partial class PresetEditorWindow : Window
 			ImportFolder(dialog.FolderName);
 	}
 
+	private IDisposable? _dragLeaveWatchdog;
+
 	private void OnPresetWindowDragEnter(object sender, DragEventArgs e)
 	{
+		_dragLeaveWatchdog ??= DropZoneService.StartLeaveWatchdog(this, HideAllDropIndicators);
+
 		if (HasDroppableFolderSource(e))
 		{
 			FolderDropIndicator.Visibility = Visibility.Visible;
@@ -836,27 +824,8 @@ public partial class PresetEditorWindow : Window
 		}
 	}
 
-	private void OnPresetWindowDragLeave(object sender, DragEventArgs e)
-	{
-		if (IsMouseOverThisWindow())
-			return;
-
-		HideAllDropIndicators();
-	}
-
-	private bool IsMouseOverThisWindow()
-	{
-		GetCursorPos(out var cursorPoint);
-		var handleFromPoint = WindowFromPoint(cursorPoint);
-
-		if (handleFromPoint == IntPtr.Zero)
-			return false;
-
-		var windowHandle = new WindowInteropHelper(this).Handle;
-		var rootHandle = GetAncestor(handleFromPoint, GaRoot);
-
-		return rootHandle == windowHandle;
-	}
+	private void OnPresetWindowDragLeave(object sender, DragEventArgs e) =>
+		DropZoneService.HandleWindowDragLeave(this, HideAllDropIndicators);
 
 	private void OnPresetWindowDrop(object sender, DragEventArgs e)
 	{
@@ -867,6 +836,9 @@ public partial class PresetEditorWindow : Window
 	{
 		FolderDropIndicator.Visibility = Visibility.Collapsed;
 		SetSlotIndicatorsVisibility(Visibility.Collapsed);
+
+		_dragLeaveWatchdog?.Dispose();
+		_dragLeaveWatchdog = null;
 	}
 
 	private void SetSlotIndicatorsVisibility(Visibility visibility)

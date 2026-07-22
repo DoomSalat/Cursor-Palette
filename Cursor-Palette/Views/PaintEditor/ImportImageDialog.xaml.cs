@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CursorPalette.Services;
 
 namespace CursorPalette.Views;
 
@@ -68,8 +69,12 @@ public partial class ImportImageDialog : Window
 		return paths.Any(p => System.IO.File.Exists(p) && IsImageFile(p));
 	}
 
+	private IDisposable? _dragLeaveWatchdog;
+
 	private void OnDragEnter(object sender, DragEventArgs e)
 	{
+		_dragLeaveWatchdog ??= DropZoneService.StartLeaveWatchdog(this, HideDropIndicator);
+
 		if (HasImageDrop(e))
 		{
 			e.Effects = DragDropEffects.Copy;
@@ -91,13 +96,20 @@ public partial class ImportImageDialog : Window
 
 	private void OnDragLeave(object sender, DragEventArgs e)
 	{
-		DropIndicator.Visibility = Visibility.Collapsed;
+		DropZoneService.HandleWindowDragLeave(this, HideDropIndicator);
 		e.Handled = true;
+	}
+
+	private void HideDropIndicator()
+	{
+		DropIndicator.Visibility = Visibility.Collapsed;
+		_dragLeaveWatchdog?.Dispose();
+		_dragLeaveWatchdog = null;
 	}
 
 	private void OnDrop(object sender, DragEventArgs e)
 	{
-		DropIndicator.Visibility = Visibility.Collapsed;
+		HideDropIndicator();
 
 		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
 			return;
