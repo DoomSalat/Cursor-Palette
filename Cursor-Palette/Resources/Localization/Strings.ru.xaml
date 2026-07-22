@@ -91,6 +91,28 @@
 	<sys:String x:Key="S.Position.Snap">Прижать к краю</sys:String>
 	<sys:String x:Key="S.Position.ShowSpriteBounds">Границы спрайта</sys:String>
 
+	<sys:String x:Key="S.Editor.Tool.Move">Переместить</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Hand">Рука</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Brush">Кисть</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Eraser">Ластик</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Canvas">Холст</sys:String>
+	<sys:String x:Key="S.Editor.Tool.ComingSoon">Скоро</sys:String>
+	<sys:String x:Key="S.Editor.Tool.HandHint">Зажмите и перетащите, чтобы перемещаться по холсту. Также можно в любой момент зажать среднюю кнопку мыши.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasHint">Потяните за края или углы холста, чтобы изменить размер, затем нажмите «Применить».</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasApply">Применить</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize">Размер холста</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Открыть диалог размера холста</sys:String>
+	<sys:String x:Key="S.Editor.Zoom">Масштаб</sys:String>
+	<sys:String x:Key="S.CanvasSize.Title">Размер холста</sys:String>
+	<sys:String x:Key="S.CanvasSize.Preset">Пресет</sys:String>
+	<sys:String x:Key="S.CanvasSize.Width">Ширина</sys:String>
+	<sys:String x:Key="S.CanvasSize.Height">Высота</sys:String>
+	<sys:String x:Key="S.CanvasSize.Anchor">Привязка</sys:String>
+	<sys:String x:Key="S.CanvasSize.Current">Текущий</sys:String>
+	<sys:String x:Key="S.CanvasSize.New">Новый</sys:String>
+	<sys:String x:Key="S.CanvasSize.Apply">Применить</sys:String>
+	<sys:String x:Key="S.CanvasSize.Cancel">Отмена</sys:String>
+
 	<sys:String x:Key="S.DefaultPresetName">Новый пресет</sys:String>
 	<sys:String x:Key="S.WindowsDefault">По умолчанию</sys:String>
 	<sys:String x:Key="S.Error.Title">Ошибка</sys:String>

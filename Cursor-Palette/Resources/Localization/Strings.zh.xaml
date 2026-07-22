@@ -82,6 +82,28 @@
 	<sys:String x:Key="S.Position.Snap">贴边</sys:String>
 	<sys:String x:Key="S.Position.ShowSpriteBounds">精灵边界</sys:String>
 
+	<sys:String x:Key="S.Editor.Tool.Move">移动</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Hand">抓手</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Brush">画笔</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Eraser">橡皮擦</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Canvas">画布</sys:String>
+	<sys:String x:Key="S.Editor.Tool.ComingSoon">即将推出</sys:String>
+	<sys:String x:Key="S.Editor.Tool.HandHint">按住并拖动即可平移画布。也可以随时按住鼠标中键进行平移。</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasHint">拖动画布边缘或角落调整大小,然后点击应用。</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasApply">应用</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize">画布大小</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">打开画布大小对话框</sys:String>
+	<sys:String x:Key="S.Editor.Zoom">缩放</sys:String>
+	<sys:String x:Key="S.CanvasSize.Title">画布大小</sys:String>
+	<sys:String x:Key="S.CanvasSize.Preset">预设</sys:String>
+	<sys:String x:Key="S.CanvasSize.Width">宽度</sys:String>
+	<sys:String x:Key="S.CanvasSize.Height">高度</sys:String>
+	<sys:String x:Key="S.CanvasSize.Anchor">锚点</sys:String>
+	<sys:String x:Key="S.CanvasSize.Current">当前</sys:String>
+	<sys:String x:Key="S.CanvasSize.New">新</sys:String>
+	<sys:String x:Key="S.CanvasSize.Apply">应用</sys:String>
+	<sys:String x:Key="S.CanvasSize.Cancel">取消</sys:String>
+
 	<sys:String x:Key="S.DefaultPresetName">新建预设</sys:String>
 	<sys:String x:Key="S.WindowsDefault">默认</sys:String>
 	<sys:String x:Key="S.Error.Title">错误</sys:String>

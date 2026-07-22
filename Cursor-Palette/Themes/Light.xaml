@@ -175,6 +175,119 @@
 		</Setter>
 	</Style>
 
+	<Style TargetType="ComboBoxItem" x:Key="Style.ComboBoxItem">
+		<Setter Property="Foreground" Value="{StaticResource Brush.Text}" />
+		<Setter Property="Padding" Value="10,7" />
+		<Setter Property="Cursor" Value="Hand" />
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ComboBoxItem">
+					<Border x:Name="Bd"
+							Background="Transparent"
+							CornerRadius="4"
+							Padding="{TemplateBinding Padding}"
+							Margin="0,1">
+						<ContentPresenter />
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsHighlighted" Value="True">
+							<Setter TargetName="Bd" Property="Background" Value="{StaticResource Brush.SurfaceHover}" />
+						</Trigger>
+						<Trigger Property="IsSelected" Value="True">
+							<Setter TargetName="Bd" Property="Background" Value="{StaticResource Brush.Accent}" />
+							<Setter Property="Foreground" Value="White" />
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style TargetType="ComboBox" x:Key="Style.ComboBox">
+		<Setter Property="Background" Value="{StaticResource Brush.Surface}" />
+		<Setter Property="Foreground" Value="{StaticResource Brush.Text}" />
+		<Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="Padding" Value="10,7" />
+		<Setter Property="Cursor" Value="Hand" />
+		<Setter Property="ItemContainerStyle" Value="{StaticResource Style.ComboBoxItem}" />
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ComboBox">
+					<Grid>
+						<Border x:Name="Bd"
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								CornerRadius="6">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<ContentPresenter Grid.Column="0"
+												   Margin="{TemplateBinding Padding}"
+												   VerticalAlignment="Center"
+												   HorizontalAlignment="Left"
+												   Content="{TemplateBinding SelectionBoxItem}"
+												   ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+												   IsHitTestVisible="False" />
+								<Path Grid.Column="1"
+									  Width="9" Height="6" Stretch="Uniform"
+									  Margin="0,0,10,0"
+									  VerticalAlignment="Center"
+									  Fill="{StaticResource Brush.TextDim}"
+									  Data="M 0,0 L 4,5 L 8,0" />
+							</Grid>
+						</Border>
+						<ToggleButton x:Name="ToggleBd"
+									  Background="Transparent"
+									  BorderThickness="0"
+									  Focusable="False"
+									  ClickMode="Press"
+									  Cursor="Hand"
+									  IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+							<ToggleButton.Template>
+								<ControlTemplate TargetType="ToggleButton">
+									<Border Background="{TemplateBinding Background}" />
+								</ControlTemplate>
+							</ToggleButton.Template>
+						</ToggleButton>
+						<Popup x:Name="PART_Popup"
+							   Placement="Bottom"
+							   AllowsTransparency="True"
+							   Focusable="False"
+							   PopupAnimation="Slide"
+							   IsOpen="{TemplateBinding IsDropDownOpen}"
+							   MinWidth="{TemplateBinding ActualWidth}">
+							<Border Background="{StaticResource Brush.Surface}"
+									BorderBrush="{StaticResource Brush.Border}"
+									BorderThickness="1"
+									CornerRadius="8"
+									Padding="4"
+									SnapsToDevicePixels="True">
+								<Border.Effect>
+									<DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.25" Color="Black" />
+								</Border.Effect>
+								<ScrollViewer MaxHeight="260" SnapsToDevicePixels="True">
+									<StackPanel IsItemsHost="True" />
+								</ScrollViewer>
+							</Border>
+						</Popup>
+					</Grid>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter TargetName="Bd" Property="Background" Value="{StaticResource Brush.SurfaceHover}" />
+						</Trigger>
+						<Trigger Property="IsEnabled" Value="False">
+							<Setter Property="Opacity" Value="0.45" />
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
 	<Style TargetType="ToolTip">
 		<Setter Property="Background" Value="{StaticResource Brush.Surface}" />
 		<Setter Property="Foreground" Value="{StaticResource Brush.Text}" />

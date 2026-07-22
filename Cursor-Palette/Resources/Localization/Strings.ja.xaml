@@ -82,6 +82,28 @@
 	<sys:String x:Key="S.Position.Snap">端に寄せる</sys:String>
 	<sys:String x:Key="S.Position.ShowSpriteBounds">スプライト範囲</sys:String>
 
+	<sys:String x:Key="S.Editor.Tool.Move">移動</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Hand">手のひら</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Brush">ブラシ</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Eraser">消しゴム</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Canvas">キャンバス</sys:String>
+	<sys:String x:Key="S.Editor.Tool.ComingSoon">近日対応</sys:String>
+	<sys:String x:Key="S.Editor.Tool.HandHint">ドラッグしてキャンバスをパンできます。いつでもマウスの中央ボタンを押しながらでも移動できます。</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasHint">キャンバスの端や角をドラッグしてサイズを変更し、「適用」をクリックしてください。</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasApply">適用</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize">キャンバスサイズ</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">キャンバスサイズダイアログを開く</sys:String>
+	<sys:String x:Key="S.Editor.Zoom">ズーム</sys:String>
+	<sys:String x:Key="S.CanvasSize.Title">キャンバスサイズ</sys:String>
+	<sys:String x:Key="S.CanvasSize.Preset">プリセット</sys:String>
+	<sys:String x:Key="S.CanvasSize.Width">幅</sys:String>
+	<sys:String x:Key="S.CanvasSize.Height">高さ</sys:String>
+	<sys:String x:Key="S.CanvasSize.Anchor">アンカー</sys:String>
+	<sys:String x:Key="S.CanvasSize.Current">現在</sys:String>
+	<sys:String x:Key="S.CanvasSize.New">新規</sys:String>
+	<sys:String x:Key="S.CanvasSize.Apply">適用</sys:String>
+	<sys:String x:Key="S.CanvasSize.Cancel">キャンセル</sys:String>
+
 	<sys:String x:Key="S.DefaultPresetName">新しいプリセット</sys:String>
 	<sys:String x:Key="S.WindowsDefault">既定</sys:String>
 	<sys:String x:Key="S.Error.Title">エラー</sys:String>

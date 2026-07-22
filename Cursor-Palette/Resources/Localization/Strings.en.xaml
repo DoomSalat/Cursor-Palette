@@ -91,6 +91,28 @@
 	<sys:String x:Key="S.Position.Snap">Snap to edge</sys:String>
 	<sys:String x:Key="S.Position.ShowSpriteBounds">Sprite bounds</sys:String>
 
+	<sys:String x:Key="S.Editor.Tool.Move">Move</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Hand">Hand</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Brush">Brush</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Eraser">Eraser</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Canvas">Canvas</sys:String>
+	<sys:String x:Key="S.Editor.Tool.ComingSoon">Coming soon</sys:String>
+	<sys:String x:Key="S.Editor.Tool.HandHint">Hold and drag to pan the canvas. You can also hold the middle mouse button at any time.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasHint">Drag the canvas edges or corners to resize, then Apply.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasApply">Apply</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize">Canvas size</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Open canvas size dialog</sys:String>
+	<sys:String x:Key="S.Editor.Zoom">Zoom</sys:String>
+	<sys:String x:Key="S.CanvasSize.Title">Canvas size</sys:String>
+	<sys:String x:Key="S.CanvasSize.Preset">Preset</sys:String>
+	<sys:String x:Key="S.CanvasSize.Width">Width</sys:String>
+	<sys:String x:Key="S.CanvasSize.Height">Height</sys:String>
+	<sys:String x:Key="S.CanvasSize.Anchor">Anchor</sys:String>
+	<sys:String x:Key="S.CanvasSize.Current">Current</sys:String>
+	<sys:String x:Key="S.CanvasSize.New">New</sys:String>
+	<sys:String x:Key="S.CanvasSize.Apply">Apply</sys:String>
+	<sys:String x:Key="S.CanvasSize.Cancel">Cancel</sys:String>
+
 	<sys:String x:Key="S.DefaultPresetName">New preset</sys:String>
 	<sys:String x:Key="S.WindowsDefault">Default</sys:String>
 	<sys:String x:Key="S.Error.Title">Error</sys:String>

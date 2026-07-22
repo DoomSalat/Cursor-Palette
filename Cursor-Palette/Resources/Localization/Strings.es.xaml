@@ -91,6 +91,28 @@
 	<sys:String x:Key="S.Position.Snap">Ajustar al borde</sys:String>
 	<sys:String x:Key="S.Position.ShowSpriteBounds">Límites del sprite</sys:String>
 
+	<sys:String x:Key="S.Editor.Tool.Move">Mover</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Hand">Mano</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Brush">Pincel</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Eraser">Borrador</sys:String>
+	<sys:String x:Key="S.Editor.Tool.Canvas">Lienzo</sys:String>
+	<sys:String x:Key="S.Editor.Tool.ComingSoon">Próximamente</sys:String>
+	<sys:String x:Key="S.Editor.Tool.HandHint">Mantén pulsado y arrastra para desplazarte por el lienzo. También puedes mantener pulsado el botón central del ratón en cualquier momento.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasHint">Arrastra los bordes o las esquinas del lienzo para cambiar el tamaño y luego pulsa Aplicar.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.CanvasApply">Aplicar</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize">Tamaño del lienzo</sys:String>
+	<sys:String x:Key="S.Editor.CanvasSize.Tooltip">Abrir diálogo de tamaño del lienzo</sys:String>
+	<sys:String x:Key="S.Editor.Zoom">Zoom</sys:String>
+	<sys:String x:Key="S.CanvasSize.Title">Tamaño del lienzo</sys:String>
+	<sys:String x:Key="S.CanvasSize.Preset">Preset</sys:String>
+	<sys:String x:Key="S.CanvasSize.Width">Ancho</sys:String>
+	<sys:String x:Key="S.CanvasSize.Height">Alto</sys:String>
+	<sys:String x:Key="S.CanvasSize.Anchor">Ancla</sys:String>
+	<sys:String x:Key="S.CanvasSize.Current">Actual</sys:String>
+	<sys:String x:Key="S.CanvasSize.New">Nuevo</sys:String>
+	<sys:String x:Key="S.CanvasSize.Apply">Aplicar</sys:String>
+	<sys:String x:Key="S.CanvasSize.Cancel">Cancelar</sys:String>
+
 	<sys:String x:Key="S.DefaultPresetName">Nuevo preajuste</sys:String>
 	<sys:String x:Key="S.WindowsDefault">Predeterminado</sys:String>
 	<sys:String x:Key="S.Error.Title">Error</sys:String>

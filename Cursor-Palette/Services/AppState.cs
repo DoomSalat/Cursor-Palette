@@ -20,6 +20,17 @@ public static class AppState
 	public const double InfoTextScaleMax = 1.6;
 	public const double InfoTextScaleDefault = 1.0;
 
+	public const double PaintEditorZoomMin = 1.0;
+	public const double PaintEditorZoomMax = 32.0;
+	public const double PaintEditorZoomDefault = 8.0;
+
+	public const string PaintEditorToolMove = "Move";
+	public const string PaintEditorToolHand = "Hand";
+	public const string PaintEditorToolBrush = "Brush";
+	public const string PaintEditorToolEraser = "Eraser";
+	public const string PaintEditorToolCanvas = "Canvas";
+	public const string PaintEditorToolDefault = PaintEditorToolMove;
+
 	private sealed class ActiveState
 	{
 		public string? ActivePresetId { get; set; }
@@ -41,6 +52,8 @@ public static class AppState
 		public double HotspotEditorHeight { get; set; } = 600;
 		public double MainWindowWidth { get; set; } = 860;
 		public double MainWindowHeight { get; set; } = 640;
+		public double PaintEditorZoom { get; set; } = PaintEditorZoomDefault;
+		public string? PaintEditorTool { get; set; } = PaintEditorToolDefault;
 	}
 
 	public static string? GetActivePresetId()
@@ -197,6 +210,28 @@ public static class AppState
 		var settings = LoadSettings();
 		settings.MainWindowWidth = width;
 		settings.MainWindowHeight = height;
+
+		SaveSettings(settings);
+	}
+
+	public static double GetPaintEditorZoom() =>
+		Math.Clamp(LoadSettings().PaintEditorZoom, PaintEditorZoomMin, PaintEditorZoomMax);
+
+	public static void SetPaintEditorZoom(double zoom)
+	{
+		var settings = LoadSettings();
+		settings.PaintEditorZoom = Math.Clamp(zoom, PaintEditorZoomMin, PaintEditorZoomMax);
+
+		SaveSettings(settings);
+	}
+
+	public static string GetPaintEditorTool() =>
+		LoadSettings().PaintEditorTool ?? PaintEditorToolDefault;
+
+	public static void SetPaintEditorTool(string tool)
+	{
+		var settings = LoadSettings();
+		settings.PaintEditorTool = tool;
 
 		SaveSettings(settings);
 	}
