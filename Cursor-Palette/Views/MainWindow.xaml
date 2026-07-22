@@ -378,8 +378,8 @@
 			</Grid>
 		</Border>
 
-		<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
-			<StackPanel>
+		<ScrollViewer x:Name="GalleryScroll" Background="Transparent" VerticalScrollBarVisibility="Auto" Padding="12" MouseRightButtonUp="OnGalleryRightClick">
+			<StackPanel Background="Transparent">
 				<TextBlock x:Name="EmptyHint"
 							 Text="{DynamicResource S.EmptyGallery}"
 							 Foreground="{StaticResource Brush.TextDim}"
@@ -387,7 +387,7 @@
 							 Margin="8,16"
 							 Visibility="Collapsed" />
 
-				<ItemsControl x:Name="Gallery" MouseRightButtonUp="OnGalleryRightClick">
+				<ItemsControl x:Name="Gallery" Background="Transparent">
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>
 							<WrapPanel />

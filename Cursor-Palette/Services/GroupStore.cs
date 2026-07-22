@@ -87,9 +87,6 @@ public static class GroupStore
 
 		group.MemberPresetIds.Remove(presetId);
 
-		if (group.MemberPresetIds.Count == 0)
-			groups.Remove(group);
-
 		SaveAll(groups);
 	}
 

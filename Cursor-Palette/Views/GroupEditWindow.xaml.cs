@@ -9,8 +9,8 @@ namespace CursorPalette.Views;
 
 public partial class GroupEditWindow : Window
 {
-	private const double SwatchSize = 28;
-	private const double SwatchRingThickness = 3;
+	private const double SwatchSize = 24;
+	private const double SwatchRingThickness = 2.5;
 
 	private string? _selectedColorKey;
 
@@ -57,7 +57,7 @@ public partial class GroupEditWindow : Window
 					? new Thickness(SwatchRingThickness)
 					: new Thickness(0),
 				BorderBrush = (Brush)Application.Current.Resources["Brush.Text"],
-				Margin = new Thickness(4, 4, 4, 4),
+				Margin = new Thickness(3, 3, 3, 3),
 				Cursor = Cursors.Hand,
 			};
 

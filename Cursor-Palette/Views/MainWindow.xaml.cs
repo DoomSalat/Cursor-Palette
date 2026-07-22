@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -92,10 +93,10 @@ public partial class MainWindow : Window
 	private const double GroupAttachZoneMargin = 0.25;
 	private const string LocMenuRemoveFromGroup = "S.Menu.RemoveFromGroup";
 	private const string LocMenuAssignToGroup = "S.Menu.AssignToGroup";
-	private const string LocMenuRenameGroup = "S.Menu.RenameGroup";
 	private const string LocMenuEditGroup = "S.Menu.EditGroup";
 	private const string LocMenuCreateGroup = "S.Menu.CreateGroup";
 	private const string LocMenuUngroup = "S.Menu.Ungroup";
+	private const string LocMenuDeleteGroup = "S.Menu.DeleteGroup";
 	private const string LocMenuConsolidateGroup = "S.Menu.ConsolidateGroup";
 	private const string LocGroupDefaultName = "S.Group.DefaultName";
 	private const string LocGroupSelectedCount = "S.Group.SelectedCount";
@@ -104,6 +105,8 @@ public partial class MainWindow : Window
 	private const string LocGroupExpandedTooltip = "S.Group.ExpandedTooltip";
 	private const string LocGroupToastCreated = "S.Group.Toast.Created";
 	private const string LocGroupToastConsolidated = "S.Group.Toast.Consolidated";
+	private const string LocGroupToastUngrouped = "S.Group.Toast.Ungrouped";
+	private const string LocGroupToastDeleted = "S.Group.Toast.Deleted";
 	private const string BrushText = "Brush.Text";
 
 	private const string LocInfoTitle = "S.Info.Title";
@@ -966,12 +969,19 @@ public partial class MainWindow : Window
 		var ungroupItem = new MenuItem { Header = Loc.Get(LocMenuUngroup) };
 		ungroupItem.Click += (_, _) =>
 		{
-			GroupStore.Delete(group.Id);
+			foreach (var presetId in group.MemberPresetIds.ToList())
+				GroupStore.RemoveMember(group.Id, presetId);
+
 			ReloadGallery();
+			ToastService.Show(RootGrid, Loc.Format(LocGroupToastUngrouped, group.Name));
 		};
 		menu.Items.Add(editItem);
 		menu.Items.Add(consolidateItem);
 		menu.Items.Add(ungroupItem);
+		menu.Items.Add(new Separator());
+		var deleteGroupItem = new MenuItem { Header = Loc.Get(LocMenuDeleteGroup) };
+		deleteGroupItem.Click += (_, _) => DeleteGroup(group);
+		menu.Items.Add(deleteGroupItem);
 		tile.ContextMenu = menu;
 
 		tile.MouseRightButtonUp += (_, e) =>
@@ -1125,6 +1135,37 @@ public partial class MainWindow : Window
 		ReloadGallery();
 	}
 
+	private void DeleteGroup(PresetGroup group)
+	{
+		if (group.MemberPresetIds.Count > 0)
+		{
+			var answer = MessageBox.Show(
+				Loc.Format(LocConfirmDeleteText, group.Name),
+				Loc.Get(LocConfirmDeleteTitle),
+				MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+			if (answer != MessageBoxResult.Yes)
+				return;
+		}
+
+		var memberIds = group.MemberPresetIds.ToList();
+
+		foreach (var presetId in memberIds)
+		{
+			PresetStore.Delete(presetId);
+
+			if (_activePresetId == presetId)
+			{
+				_activePresetId = null;
+				AppState.SetActivePresetId(null);
+			}
+		}
+
+		GroupStore.Delete(group.Id);
+		ReloadGallery();
+		ToastService.Show(RootGrid, Loc.Format(LocGroupToastDeleted, group.Name));
+	}
+
 	private void CreateEmptyGroup()
 	{
 		var dialog = new GroupEditWindow() { Owner = this };
@@ -1264,36 +1305,15 @@ public partial class MainWindow : Window
 
 	private void OnGalleryRightClick(object sender, MouseButtonEventArgs e)
 	{
-		if (e.OriginalSource is not DependencyObject source)
-			return;
-
-		if (source is FrameworkElement fe && fe.DataContext != null)
-			return;
-
-		var hit = Gallery.InputHitTest(e.GetPosition(Gallery)) as DependencyObject;
-		if (hit != null && FindAncestor<Border>(hit) is { } border && border.Parent == Gallery)
-			return;
-
 		var menu = new ContextMenu();
 		var createGroupItem = new MenuItem { Header = Loc.Get(LocMenuCreateGroup) };
 		createGroupItem.Click += (_, _) => CreateEmptyGroup();
 		menu.Items.Add(createGroupItem);
 
+		menu.PlacementTarget = GalleryScroll;
+		menu.Placement = PlacementMode.MousePoint;
 		menu.IsOpen = true;
 		e.Handled = true;
-	}
-
-	private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
-	{
-		while (current != null)
-		{
-			if (current is T target)
-				return target;
-
-			current = VisualTreeHelper.GetParent(current);
-		}
-
-		return null;
 	}
 
 	private FrameworkElement CreateAddCell()
