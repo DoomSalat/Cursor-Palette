@@ -19,6 +19,9 @@ public partial class MainWindow : Window
 	private const string AddCellPlusText = "+";
 	private const string EmptyValue = "";
 	private const string FileSearchPattern = "*.*";
+	private const string PresetDragFormatName = "CursorPalette.PresetId";
+	private const double ReorderIndicatorWidth = 4;
+	private const double ReorderRowGroupingTolerance = 1;
 
 	private const string BrushTextDim = "Brush.TextDim";
 	private const string BrushBg = "Brush.Bg";
@@ -76,6 +79,10 @@ public partial class MainWindow : Window
 	private double _uiScale = AppState.UiScaleDefault;
 	private bool _cellScaleReady;
 	private int _baselineSizePx;
+	private Point? _presetDragStartPoint;
+	private bool _justDraggedPreset;
+	private int? _pendingInsertIndex;
+	private string? _draggedPresetId;
 
 	public MainWindow()
 	{
@@ -452,7 +459,35 @@ public partial class MainWindow : Window
 			if (preset.Id != _activePresetId) cell.Background = Brush(BrushSurfaceHover);
 		};
 		cell.MouseLeave += (_, _) => cell.Background = Brush(BrushSurface);
-		cell.MouseLeftButtonUp += (_, _) => ApplyPreset(preset);
+		cell.MouseLeftButtonDown += (_, e) => _presetDragStartPoint = e.GetPosition(cell);
+		cell.MouseMove += (_, e) =>
+		{
+			if (_presetDragStartPoint is not { } start || e.LeftButton != MouseButtonState.Pressed)
+				return;
+
+			var position = e.GetPosition(cell);
+			if (Math.Abs(position.X - start.X) < SystemParameters.MinimumHorizontalDragDistance &&
+				Math.Abs(position.Y - start.Y) < SystemParameters.MinimumVerticalDragDistance)
+				return;
+
+			_presetDragStartPoint = null;
+			_justDraggedPreset = true;
+			BeginDragGhost(preset, previewPath);
+			DragDrop.DoDragDrop(cell, new DataObject(PresetDragFormatName, preset.Id), DragDropEffects.Move);
+			EndDragGhost();
+		};
+		cell.MouseLeftButtonUp += (_, _) =>
+		{
+			_presetDragStartPoint = null;
+
+			if (_justDraggedPreset)
+			{
+				_justDraggedPreset = false;
+				return;
+			}
+
+			ApplyPreset(preset);
+		};
 		cell.MouseRightButtonUp += (_, e) =>
 		{
 			cell.ContextMenu!.IsOpen = true;
@@ -467,7 +502,6 @@ public partial class MainWindow : Window
 		menu.Items.Add(editItem);
 		menu.Items.Add(deleteItem);
 		cell.ContextMenu = menu;
-		cell.MouseLeftButtonDown += (_, _) => { };
 
 		var hintPanel = new StackPanel();
 		hintPanel.Children.Add(new TextBlock { Text = preset.Name, FontWeight = FontWeights.SemiBold });
@@ -708,6 +742,127 @@ public partial class MainWindow : Window
 		ReloadGallery();
 	}
 
+	private void ReorderPreset(string draggedPresetId, int insertBeforeIndex)
+	{
+		var draggedIndex = _presets.FindIndex(preset => preset.Id == draggedPresetId);
+		if (draggedIndex < 0)
+			return;
+
+		var dragged = _presets[draggedIndex];
+		_presets.RemoveAt(draggedIndex);
+
+		if (draggedIndex < insertBeforeIndex)
+			insertBeforeIndex--;
+
+		insertBeforeIndex = Math.Clamp(insertBeforeIndex, 0, _presets.Count);
+		_presets.Insert(insertBeforeIndex, dragged);
+
+		PersistPresetOrder();
+	}
+
+	private void PersistPresetOrder()
+	{
+		PresetStore.Reorder(_presets.Select(preset => preset.Id).ToList());
+		ReloadGallery();
+	}
+
+	private void BeginDragGhost(Preset preset, string? previewPath)
+	{
+		var size = CellSize * _cellScale;
+		DragGhost.Width = size;
+		DragGhost.Height = size;
+
+		DragGhostImage.Width = CellPreviewSize * _cellScale;
+		DragGhostImage.Height = CellPreviewSize * _cellScale;
+		RenderOptions.SetBitmapScalingMode(DragGhostImage, BitmapScalingMode.NearestNeighbor);
+		CursorPreviewService.ApplyPreview(DragGhostImage, previewPath);
+
+		DragGhostText.Text = preset.Name;
+		DragGhostText.FontSize = CellNameFontSize * CellFontScale;
+
+		DragGhost.Visibility = Visibility.Visible;
+		_draggedPresetId = preset.Id;
+	}
+
+	private void EndDragGhost()
+	{
+		DragGhost.Visibility = Visibility.Collapsed;
+		ReorderInsertionLine.Visibility = Visibility.Collapsed;
+		_pendingInsertIndex = null;
+		_draggedPresetId = null;
+	}
+
+	private void UpdateDragGhostPosition(Point positionInRoot)
+	{
+		DragGhostTransform.X = positionInRoot.X - DragGhost.Width / 2;
+		DragGhostTransform.Y = positionInRoot.Y - DragGhost.Height / 2;
+	}
+
+	private void UpdateReorderIndicator(Point positionInRoot)
+	{
+		var cells = new List<(int presetIndex, Rect bounds)>();
+
+		for (var presetIndex = 0; presetIndex < _presets.Count; presetIndex++)
+		{
+			if (Gallery.ItemContainerGenerator.ContainerFromIndex(presetIndex + 1) is not FrameworkElement container)
+				continue;
+
+			var topLeft = container.TransformToAncestor(RootGrid).Transform(new Point(0, 0));
+			cells.Add((presetIndex, new Rect(topLeft, container.RenderSize)));
+		}
+
+		if (cells.Count == 0)
+		{
+			_pendingInsertIndex = 0;
+			ReorderInsertionLine.Visibility = Visibility.Collapsed;
+			return;
+		}
+
+		var rowTop = cells
+			.Select(cell => cell.bounds)
+			.OrderBy(bounds => Math.Abs(bounds.Top + bounds.Height / 2 - positionInRoot.Y))
+			.First()
+			.Top;
+
+		var rowCells = cells
+			.Where(cell => Math.Abs(cell.bounds.Top - rowTop) < ReorderRowGroupingTolerance)
+			.OrderBy(cell => cell.bounds.Left)
+			.ToList();
+
+		foreach (var (presetIndex, bounds) in rowCells)
+		{
+			if (positionInRoot.X >= bounds.Left + bounds.Width / 2)
+				continue;
+
+			SetInsertionIndicator(presetIndex, bounds.Left - CellMargin, bounds.Top, bounds.Height);
+			return;
+		}
+
+		var lastCellBounds = rowCells[^1].bounds;
+		SetInsertionIndicator(rowCells[^1].presetIndex + 1, lastCellBounds.Right + CellMargin, lastCellBounds.Top, lastCellBounds.Height);
+		return;
+
+		void SetInsertionIndicator(int insertBeforeIndex, double centerX, double top, double height)
+		{
+			var draggedIndex = _draggedPresetId != null
+				? _presets.FindIndex(preset => preset.Id == _draggedPresetId)
+				: -1;
+
+			if (draggedIndex >= 0 && (insertBeforeIndex == draggedIndex || insertBeforeIndex == draggedIndex + 1))
+			{
+				_pendingInsertIndex = null;
+				ReorderInsertionLine.Visibility = Visibility.Collapsed;
+				return;
+			}
+
+			_pendingInsertIndex = insertBeforeIndex;
+			ReorderInsertionLineTransform.X = centerX - ReorderIndicatorWidth / 2;
+			ReorderInsertionLineTransform.Y = top;
+			ReorderInsertionLine.Height = height;
+			ReorderInsertionLine.Visibility = Visibility.Visible;
+		}
+	}
+
 	private void EditPreset(Preset preset) => OpenEditor(preset, Array.Empty<string>());
 
 	private void OpenEditor(Preset? preset, IReadOnlyList<string> droppedFiles, string? suggestedName = null)
@@ -806,22 +961,57 @@ public partial class MainWindow : Window
 
 	private void OnWindowDragOver(object sender, DragEventArgs e)
 	{
+		if (e.Data.GetDataPresent(PresetDragFormatName))
+		{
+			var positionInRoot = e.GetPosition(RootGrid);
+			UpdateDragGhostPosition(positionInRoot);
+			UpdateReorderIndicator(positionInRoot);
+
+			e.Effects = DragDropEffects.Move;
+			e.Handled = true;
+			return;
+		}
+
 		e.Effects = HasDroppableCursorSource(e) ? DragDropEffects.Copy : DragDropEffects.None;
 		e.Handled = true;
 	}
 
 	private void OnWindowDragEnter(object sender, DragEventArgs e)
 	{
+		if (e.Data.GetDataPresent(PresetDragFormatName))
+		{
+			DragGhost.Visibility = Visibility.Visible;
+			return;
+		}
+
 		if (HasDroppableCursorSource(e))
 			WindowDropIndicator.Visibility = Visibility.Visible;
 	}
 
-	private void OnWindowDragLeave(object sender, DragEventArgs e) =>
+	private void OnWindowDragLeave(object sender, DragEventArgs e)
+	{
 		WindowDropIndicator.Visibility = Visibility.Collapsed;
+
+		if (e.Data.GetDataPresent(PresetDragFormatName))
+		{
+			DragGhost.Visibility = Visibility.Collapsed;
+			ReorderInsertionLine.Visibility = Visibility.Collapsed;
+		}
+	}
 
 	private void OnWindowDrop(object sender, DragEventArgs e)
 	{
 		WindowDropIndicator.Visibility = Visibility.Collapsed;
+
+		if (e.Data.GetData(PresetDragFormatName) is string draggedPresetId)
+		{
+			e.Handled = true;
+
+			if (_pendingInsertIndex is { } insertIndex)
+				ReorderPreset(draggedPresetId, insertIndex);
+
+			return;
+		}
 
 		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
 			return;

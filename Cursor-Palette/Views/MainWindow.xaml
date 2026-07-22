@@ -304,6 +304,43 @@
 			   Visibility="Collapsed"
 			   Panel.ZIndex="900" />
 
+	<Rectangle x:Name="ReorderInsertionLine"
+			   Fill="{StaticResource Brush.Accent}"
+			   Width="4"
+			   RadiusX="2" RadiusY="2"
+			   IsHitTestVisible="False"
+			   Visibility="Collapsed"
+			   Panel.ZIndex="950"
+			   HorizontalAlignment="Left"
+			   VerticalAlignment="Top">
+		<Rectangle.RenderTransform>
+			<TranslateTransform x:Name="ReorderInsertionLineTransform" />
+		</Rectangle.RenderTransform>
+	</Rectangle>
+
+	<Border x:Name="DragGhost"
+			IsHitTestVisible="False"
+			Visibility="Collapsed"
+			Opacity="0.85"
+			Panel.ZIndex="960"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top"
+			CornerRadius="10"
+			BorderThickness="2"
+			Background="{StaticResource Brush.Surface}"
+			BorderBrush="{StaticResource Brush.Accent}">
+		<Border.RenderTransform>
+			<TranslateTransform x:Name="DragGhostTransform" />
+		</Border.RenderTransform>
+		<StackPanel VerticalAlignment="Center">
+			<Image x:Name="DragGhostImage" SnapsToDevicePixels="True" />
+			<TextBlock x:Name="DragGhostText"
+					   TextTrimming="CharacterEllipsis"
+					   TextAlignment="Center"
+					   Margin="4,8,4,0" />
+		</StackPanel>
+	</Border>
+
 	<Border x:Name="LoadingOverlay"
 			Background="#B3000000"
 			Visibility="Collapsed"

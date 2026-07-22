@@ -59,7 +59,7 @@ public static class PresetStore
 			}
 		}
 
-		return result.OrderBy(preset => preset.CreatedAt).ToList();
+		return result.OrderBy(preset => preset.SortOrder).ThenBy(preset => preset.CreatedAt).ToList();
 	}
 
 	public static Preset Save(PresetDraft draft)
@@ -124,11 +124,14 @@ public static class PresetStore
 				TryDelete(file);
 		}
 
+		var sortOrder = existing?.SortOrder ?? (allPresets.Count == 0 ? 0 : allPresets.Max(preset => preset.SortOrder) + 1);
+
 		var preset = new Preset
 		{
 			Id = id,
 			Name = string.IsNullOrWhiteSpace(draft.Name) ? UntitledPresetName : draft.Name.Trim(),
 			CreatedAt = existing?.CreatedAt ?? DateTime.Now,
+			SortOrder = sortOrder,
 			BaseSize = draft.BaseSize,
 			Roles = roles,
 			RoleRefs = roleRefs,
@@ -160,6 +163,31 @@ public static class PresetStore
 		}
 		catch
 		{
+		}
+	}
+
+	public static void Reorder(IReadOnlyList<string> orderedPresetIds)
+	{
+		for (var i = 0; i < orderedPresetIds.Count; i++)
+		{
+			var manifestPath = Path.Combine(GetPresetDir(orderedPresetIds[i]), ManifestFileName);
+
+			if (!File.Exists(manifestPath))
+				continue;
+
+			try
+			{
+				var preset = JsonSerializer.Deserialize<Preset>(File.ReadAllText(manifestPath));
+
+				if (preset == null)
+					continue;
+
+				preset.SortOrder = i;
+				File.WriteAllText(manifestPath, JsonSerializer.Serialize(preset, JsonOptions));
+			}
+			catch
+			{
+			}
 		}
 	}
 
