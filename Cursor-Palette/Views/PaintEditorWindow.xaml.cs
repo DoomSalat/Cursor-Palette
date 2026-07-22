@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -7,7 +9,7 @@ using CursorPalette.Services;
 
 namespace CursorPalette.Views;
 
-public partial class PositionEditorWindow : Window
+public partial class PaintEditorWindow : Window
 {
 	private const double MaxDisplaySize = 320;
 	private const double MaxScaleFactor = 10;
@@ -37,14 +39,14 @@ public partial class PositionEditorWindow : Window
 
 	public CursorCanvasImage? Result { get; private set; }
 
-	public PositionEditorWindow(CursorCanvasImage source)
+	public PaintEditorWindow(CursorCanvasImage source)
 	{
 		InitializeComponent();
 
-		Width = AppState.GetPositionEditorWidth();
-		Height = AppState.GetPositionEditorHeight();
+		Width = AppState.GetPaintEditorWidth();
+		Height = AppState.GetPaintEditorHeight();
 
-		var uiScale = AppState.GetUiScale();
+		var uiScale = AppState.GetEditorUiScale();
 		UiScaleTransform.ScaleX = uiScale;
 		UiScaleTransform.ScaleY = uiScale;
 		UiZoomText.Text = $"{(int)Math.Round(uiScale * 100)}%";
@@ -345,16 +347,40 @@ public partial class PositionEditorWindow : Window
 
 	private void AdjustUiZoom(double delta)
 	{
-		var scale = Math.Clamp(Math.Round(AppState.GetUiScale() + delta, 2), AppState.UiScaleMin, AppState.UiScaleMax);
+		var scale = Math.Clamp(Math.Round(AppState.GetEditorUiScale() + delta, 2), AppState.EditorUiScaleMin, AppState.EditorUiScaleMax);
 		UiScaleTransform.ScaleX = scale;
 		UiScaleTransform.ScaleY = scale;
 		UiZoomText.Text = $"{(int)Math.Round(scale * 100)}%";
-		AppState.SetUiScale(scale);
+		AppState.SetEditorUiScale(scale);
+	}
+
+	private void OnExportPngClick(object sender, RoutedEventArgs e)
+	{
+		var pixels = Compose();
+		var bitmap = new WriteableBitmap(_canvasWidth, _canvasHeight, 96, 96, PixelFormats.Bgra32, null);
+		bitmap.WritePixels(new Int32Rect(0, 0, _canvasWidth, _canvasHeight), pixels, _canvasWidth * BytesPerPixel, 0);
+
+		Directory.CreateDirectory(AppPaths.DownloadsDir);
+
+		var fileName = $"cursor_{_canvasWidth}x{_canvasHeight}.png";
+		var destPath = Path.Combine(AppPaths.DownloadsDir, fileName);
+		var attempt = 1;
+
+		while (File.Exists(destPath))
+			destPath = Path.Combine(AppPaths.DownloadsDir, $"cursor_{_canvasWidth}x{_canvasHeight} ({attempt++}).png");
+
+		var encoder = new PngBitmapEncoder();
+		encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+		using var stream = File.Create(destPath);
+		encoder.Save(stream);
+
+		Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{destPath}\"") { UseShellExecute = true });
 	}
 
 	protected override void OnClosed(EventArgs e)
 	{
-		AppState.SetPositionEditorSize(Width, Height);
+		AppState.SetPaintEditorSize(Width, Height);
 		base.OnClosed(e);
 	}
 }

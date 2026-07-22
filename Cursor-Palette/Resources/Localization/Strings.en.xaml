@@ -48,6 +48,7 @@
 	<sys:String x:Key="S.Editor.PresetName">Preset name</sys:String>
 	<sys:String x:Key="S.Editor.Save">Save</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">Cancel</sys:String>
+	<sys:String x:Key="S.Editor.ExportPng">Export as PNG to Downloads</sys:String>
 	<sys:String x:Key="S.Editor.Browse">Browse…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Remove</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">Set pivot point</sys:String>
@@ -76,11 +77,11 @@
 	<sys:String x:Key="S.RolePicker.OnlyCurrentRole">Show only the current role</sys:String>
 	<sys:String x:Key="S.RolePicker.RoleNotAssigned">This role isn't assigned in that preset</sys:String>
 
-	<sys:String x:Key="S.Hotspot.Title">Pivot point</sys:String>
+	<sys:String x:Key="S.HotspotEditor.Title">Hotspot editor</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">Drag the marker to where the click should register</sys:String>
 	<sys:String x:Key="S.Hotspot.Presets">Quick set</sys:String>
 
-	<sys:String x:Key="S.Position.Title">Sprite position</sys:String>
+	<sys:String x:Key="S.Paint.Title">Paint editor</sys:String>
 	<sys:String x:Key="S.Position.Hint">Move the image within the canvas, or resize the canvas</sys:String>
 	<sys:String x:Key="S.Position.CanvasWidth">Canvas width</sys:String>
 	<sys:String x:Key="S.Position.CanvasHeight">Canvas height</sys:String>
@@ -129,9 +130,9 @@
 
 	<sys:String x:Key="S.Info.PresetPicker">📂 Choose preset&#x0a;&#x0a;Select a preset to borrow a cursor role from.&#x0a;&#x0a;Left-click a cell — select preset and proceed to role selection.&#x0a;Number at bottom — how many roles are filled in the preset.</sys:String>
 
-	<sys:String x:Key="S.Info.Hotspot">🎯 Pivot point&#x0a;&#x0a;The pivot point is where the cursor's click registers.&#x0a;&#x0a;🖱️ Drag the marker (circle) on the cursor image.&#x0a;   • Or click the desired spot on the preview.&#x0a;&#x0a;⚡ Quick set — 9 buttons with typical positions:&#x0a;   ↖ ↑ ↗   — top row&#x0a;   ← ✛ →   — middle row (✛ = center)&#x0a;   ↙ ↓ ↘   — bottom row&#x0a;&#x0a;Coordinates shown at bottom-left.&#x0a;💾 "Save" — apply the pivot point.</sys:String>
+	<sys:String x:Key="S.Info.Hotspot">🎯 Hotspot editor&#x0a;&#x0a;The hotspot is where the cursor's click registers.&#x0a;&#x0a;🖱️ Drag the marker (circle) on the cursor image.&#x0a;   • Or click the desired spot on the preview.&#x0a;&#x0a;⚡ Quick set — 9 buttons with typical positions:&#x0a;   ↖ ↑ ↗   — top row&#x0a;   ← ✛ →   — middle row (✛ = center)&#x0a;   ↙ ↓ ↘   — bottom row&#x0a;&#x0a;Coordinates shown at bottom-left.&#x0a;💾 "Save" — apply the hotspot.</sys:String>
 
-	<sys:String x:Key="S.Info.Position">🖌️ Sprite position&#x0a;&#x0a;Move the cursor image within its canvas, or resize the canvas to make room.&#x0a;&#x0a;🕹️ Arrows — nudge the image by 1 pixel. A direction is disabled once the image reaches that edge.&#x0a;⚡ Snap grid — 9 buttons to instantly press the image against an edge/corner, or center it.&#x0a;📐 Canvas width/height — change the canvas size, then "Apply".&#x0a;&#x0a;Coordinates shown at bottom-left.&#x0a;💾 "Save" — apply the changes.</sys:String>
+	<sys:String x:Key="S.Info.Position">🖌️ Paint editor&#x0a;&#x0a;Move the cursor image within its canvas, or resize the canvas to make room.&#x0a;&#x0a;🕹️ Arrows — nudge the image by 1 pixel. A direction is disabled once the image reaches that edge.&#x0a;⚡ Snap grid — 9 buttons to instantly press the image against an edge/corner, or center it.&#x0a;📐 Canvas width/height — change the canvas size, then "Apply".&#x0a;&#x0a;Coordinates shown at bottom-left.&#x0a;💾 "Save" — apply the changes.</sys:String>
 
 	<sys:String x:Key="S.Info.Export">📤 Export presets&#x0a;&#x0a;🖼️ Tiles — click a preset to select/deselect it (blue border = selected).&#x0a;   • "Select all" / "Select none" — buttons at the top.&#x0a;&#x0a;📝 File name — optional; type a name for the exported file, or leave it empty to use the default name.&#x0a;&#x0a;🗂️ Bundle vs. ZIP archive — the two export buttons produce different files:&#x0a;   • Bundle (.cursorpalette) — full-fidelity: every role, locked roles and cursor size are preserved, and roles borrowed from other presets are copied in so the file is self-contained. Meant to be re-imported into this app later with everything intact.&#x0a;   • ZIP archive — one folder per preset with the raw .cur/.ani files, for use outside this app or with other tools. Locked roles and custom cursor size aren't stored — re-importing it only restores the cursor files themselves.&#x0a;&#x0a;⬇ Both are saved to the Downloads folder, and File Explorer opens with the new file selected.</sys:String>
 

@@ -48,6 +48,7 @@
 	<sys:String x:Key="S.Editor.PresetName">Nombre del preajuste</sys:String>
 	<sys:String x:Key="S.Editor.Save">Guardar</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">Cancelar</sys:String>
+	<sys:String x:Key="S.Editor.ExportPng">Exportar como PNG a Descargas</sys:String>
 	<sys:String x:Key="S.Editor.Browse">Examinar…</sys:String>
 	<sys:String x:Key="S.Editor.ClearSlot">Quitar</sys:String>
 	<sys:String x:Key="S.Editor.Pivot.Tooltip">Configurar el punto de referencia</sys:String>
@@ -76,11 +77,11 @@
 	<sys:String x:Key="S.RolePicker.OnlyCurrentRole">Mostrar solo el rol actual</sys:String>
 	<sys:String x:Key="S.RolePicker.RoleNotAssigned">Este rol no está asignado en ese preset</sys:String>
 
-	<sys:String x:Key="S.Hotspot.Title">Punto de referencia</sys:String>
+	<sys:String x:Key="S.HotspotEditor.Title">Editor de punto de referencia</sys:String>
 	<sys:String x:Key="S.Hotspot.Hint">Arrastra el marcador al punto donde debe registrarse el clic</sys:String>
 	<sys:String x:Key="S.Hotspot.Presets">Ajuste rápido</sys:String>
 
-	<sys:String x:Key="S.Position.Title">Posición del sprite</sys:String>
+	<sys:String x:Key="S.Paint.Title">Editor de pintura</sys:String>
 	<sys:String x:Key="S.Position.Hint">Mueva la imagen dentro del lienzo o cambie el tamaño del lienzo</sys:String>
 	<sys:String x:Key="S.Position.CanvasWidth">Ancho del lienzo</sys:String>
 	<sys:String x:Key="S.Position.CanvasHeight">Alto del lienzo</sys:String>
@@ -129,9 +130,9 @@
 
 	<sys:String x:Key="S.Info.PresetPicker">📂 Elegir preset&#x0a;&#x0a;Selecciona un preajuste del cual tomar un rol de cursor.&#x0a;&#x0a;Clic izquierdo en una celda — seleccionar preajuste y pasar a la selección de rol.&#x0a;Número abajo — cuántos roles están llenos en el preajuste.</sys:String>
 
-	<sys:String x:Key="S.Info.Hotspot">🎯 Punto de referencia&#x0a;&#x0a;El punto de referencia es donde se registra el clic del cursor.&#x0a;&#x0a;🖱️ Arrastra el marcador (círculo) sobre la imagen del cursor.&#x0a;   • O haz clic en el punto deseado de la vista previa.&#x0a;&#x0a;⚡ Ajuste rápido — 9 botones con posiciones típicas:&#x0a;   ↖ ↑ ↗   — fila superior&#x0a;   ← ✛ →   — fila media (✛ = centro)&#x0a;   ↙ ↓ ↘   — fila inferior&#x0a;&#x0a;Coordenadas mostradas abajo a la izquierda.&#x0a;💾 "Guardar" — aplicar el punto de referencia.</sys:String>
+	<sys:String x:Key="S.Info.Hotspot">🎯 Editor de punto de referencia&#x0a;&#x0a;El punto de referencia es donde se registra el clic del cursor.&#x0a;&#x0a;🖱️ Arrastra el marcador (círculo) sobre la imagen del cursor.&#x0a;   • O haz clic en el punto deseado de la vista previa.&#x0a;&#x0a;⚡ Ajuste rápido — 9 botones con posiciones típicas:&#x0a;   ↖ ↑ ↗   — fila superior&#x0a;   ← ✛ →   — fila media (✛ = centro)&#x0a;   ↙ ↓ ↘   — fila inferior&#x0a;&#x0a;Coordenadas mostradas abajo a la izquierda.&#x0a;💾 "Guardar" — aplicar el punto de referencia.</sys:String>
 
-	<sys:String x:Key="S.Info.Position">🖌️ Posición del sprite&#x0a;&#x0a;Mueve la imagen del cursor dentro de su lienzo, o cambia el tamaño del lienzo.&#x0a;&#x0a;🕹️ Flechas — desplazan la imagen 1 píxel. Se desactivan cuando la imagen llega a ese borde.&#x0a;⚡ Cuadrícula de ajuste — 9 botones para pegar la imagen instantáneamente a un borde/esquina o centrarla.&#x0a;📐 Ancho/alto del lienzo — cambia el tamaño y pulsa "Aplicar".&#x0a;&#x0a;Coordenadas mostradas abajo a la izquierda.&#x0a;💾 "Guardar" — aplicar los cambios.</sys:String>
+	<sys:String x:Key="S.Info.Position">🖌️ Editor de pintura&#x0a;&#x0a;Mueve la imagen del cursor dentro de su lienzo, o cambia el tamaño del lienzo.&#x0a;&#x0a;🕹️ Flechas — desplazan la imagen 1 píxel. Se desactivan cuando la imagen llega a ese borde.&#x0a;⚡ Cuadrícula de ajuste — 9 botones para pegar la imagen instantáneamente a un borde/esquina o centrarla.&#x0a;📐 Ancho/alto del lienzo — cambia el tamaño y pulsa "Aplicar".&#x0a;&#x0a;Coordenadas mostradas abajo a la izquierda.&#x0a;💾 "Guardar" — aplicar los cambios.</sys:String>
 
 	<sys:String x:Key="S.Info.Export">📤 Exportar preajustes&#x0a;&#x0a;🖼️ Miniaturas — haz clic en un preajuste para seleccionarlo/deseleccionarlo (borde azul = seleccionado).&#x0a;   • "Seleccionar todo" / "No seleccionar nada" — botones arriba.&#x0a;&#x0a;📝 Nombre del archivo — opcional; escribe un nombre para el archivo exportado, o déjalo vacío para usar el nombre predeterminado.&#x0a;&#x0a;🗂️ Paquete vs. archivo ZIP — los dos botones de exportación generan archivos distintos:&#x0a;   • Paquete (.cursorpalette) — copia completa: se conservan todos los roles, los roles bloqueados y el tamaño del cursor, y los roles tomados de otros preajustes se copian dentro, así que el archivo es autónomo. Pensado para volver a importarse por completo en esta app más adelante.&#x0a;   • Archivo ZIP — una carpeta por preajuste con los archivos .cur/.ani originales, para usar fuera de esta app o con otras herramientas. Los roles bloqueados y el tamaño de cursor personalizado no se guardan — al reimportarlo solo se restauran los propios archivos de cursor.&#x0a;&#x0a;⬇ Ambos se guardan en la carpeta Descargas, y el Explorador se abre con el nuevo archivo seleccionado.</sys:String>
 

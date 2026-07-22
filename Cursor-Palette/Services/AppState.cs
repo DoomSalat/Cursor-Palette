@@ -8,6 +8,10 @@ public static class AppState
 	public const double UiScaleMax = 1.5;
 	public const double UiScaleDefault = 1.0;
 
+	public const double EditorUiScaleMin = 0.8;
+	public const double EditorUiScaleMax = 2.0;
+	public const double EditorUiScaleDefault = 1.0;
+
 	public const double GalleryCellScaleMin = 0.5;
 	public const double GalleryCellScaleMax = 3.5;
 	public const double GalleryCellScaleDefault = 1.0;
@@ -30,8 +34,9 @@ public static class AppState
 		public string? ThemeMode { get; set; }
 		public string? Language { get; set; }
 		public bool ShowSpriteBounds { get; set; }
-		public double PositionEditorWidth { get; set; } = 680;
-		public double PositionEditorHeight { get; set; } = 600;
+		public double PaintEditorWidth { get; set; } = 680;
+		public double PaintEditorHeight { get; set; } = 600;
+		public double EditorUiScale { get; set; } = EditorUiScaleDefault;
 		public double HotspotEditorWidth { get; set; } = 680;
 		public double HotspotEditorHeight { get; set; } = 600;
 		public double MainWindowWidth { get; set; } = 860;
@@ -120,6 +125,16 @@ public static class AppState
 		SaveSettings(settings);
 	}
 
+	public static double GetEditorUiScale() => LoadSettings().EditorUiScale;
+
+	public static void SetEditorUiScale(double scale)
+	{
+		var settings = LoadSettings();
+		settings.EditorUiScale = Math.Clamp(scale, EditorUiScaleMin, EditorUiScaleMax);
+
+		SaveSettings(settings);
+	}
+
 	public static string? GetThemeMode() => LoadSettings().ThemeMode;
 
 	public static void SetThemeMode(string mode)
@@ -150,14 +165,14 @@ public static class AppState
 		SaveSettings(settings);
 	}
 
-	public static double GetPositionEditorWidth() => LoadSettings().PositionEditorWidth;
-	public static double GetPositionEditorHeight() => LoadSettings().PositionEditorHeight;
+	public static double GetPaintEditorWidth() => LoadSettings().PaintEditorWidth;
+	public static double GetPaintEditorHeight() => LoadSettings().PaintEditorHeight;
 
-	public static void SetPositionEditorSize(double width, double height)
+	public static void SetPaintEditorSize(double width, double height)
 	{
 		var settings = LoadSettings();
-		settings.PositionEditorWidth = width;
-		settings.PositionEditorHeight = height;
+		settings.PaintEditorWidth = width;
+		settings.PaintEditorHeight = height;
 
 		SaveSettings(settings);
 	}

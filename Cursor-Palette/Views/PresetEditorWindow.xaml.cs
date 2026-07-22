@@ -138,13 +138,10 @@ public partial class PresetEditorWindow : Window
 		_appliedPreviewSizePx = RegistryCursorService.GetBaseSize();
 		_baseSize = existing?.BaseSize ?? _appliedPreviewSizePx;
 
-		var uiScale = AppState.GetUiScale();
-		UiScaleTransform.ScaleX = uiScale;
-		UiScaleTransform.ScaleY = uiScale;
-
 		EditorSizeSlider.Value = (_baseSize - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
 		EditorSizeValueText.Text = $"{_baseSize} {PixelSuffix}";
 		_sizeSliderReady = true;
+
 		UpdateApplySizeButtonHighlight();
 
 		var systemDefaults = RegistryCursorService.GetWindowsDefaultValues();
@@ -184,6 +181,7 @@ public partial class PresetEditorWindow : Window
 				continue;
 
 			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
+
 			SetSlotSource(slot, file);
 		}
 	}
@@ -496,7 +494,7 @@ public partial class PresetEditorWindow : Window
 		browseButton.Click += (_, _) => BrowseForSlot(slot);
 		pickExistingButton.Click += (_, _) => PickExistingForSlot(slot);
 		pivotButton.Click += (_, _) => OpenHotspotEditor(slot);
-		positionButton.Click += (_, _) => OpenPositionEditor(slot);
+		positionButton.Click += (_, _) => OpenPaintEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 		lockButton.Click += (_, _) => SetSlotLocked(slot, !slot.IsLocked);
 		downloadButton.MouseLeftButtonUp += (_, e) =>
@@ -517,6 +515,7 @@ public partial class PresetEditorWindow : Window
 			if (slot.IsLocked)
 			{
 				e.Handled = true;
+
 				return;
 			}
 
@@ -542,6 +541,7 @@ public partial class PresetEditorWindow : Window
 		{
 			Filter = Loc.Get(LocEditorFileFilter),
 			CheckFileExists = true,
+			InitialDirectory = AppPaths.DownloadsDir,
 		};
 		if (dialog.ShowDialog(this) == true)
 			SetSlotSource(slot, dialog.FileName);
@@ -763,7 +763,7 @@ public partial class PresetEditorWindow : Window
 		SetSlotSource(slot, tempPath);
 	}
 
-	private void OpenPositionEditor(Slot slot)
+	private void OpenPaintEditor(Slot slot)
 	{
 		var resolvedPath = GetSlotResolvedPath(slot);
 
@@ -775,7 +775,7 @@ public partial class PresetEditorWindow : Window
 		if (image == null)
 			return;
 
-		var editor = new PositionEditorWindow(image) { Owner = this };
+		var editor = new PaintEditorWindow(image) { Owner = this };
 
 		if (editor.ShowDialog() != true || editor.Result == null)
 			return;

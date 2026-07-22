@@ -1,8 +1,11 @@
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using CursorPalette.Services;
 
 namespace CursorPalette.Views;
@@ -22,6 +25,7 @@ public partial class HotspotEditorWindow : Window
 	private readonly int _nativeWidth;
 	private readonly int _nativeHeight;
 	private readonly double _scale;
+	private readonly string _filePath;
 	private int _x;
 	private int _y;
 	private bool _dragging;
@@ -33,10 +37,12 @@ public partial class HotspotEditorWindow : Window
 	{
 		InitializeComponent();
 
+		_filePath = filePath;
+
 		Width = AppState.GetHotspotEditorWidth();
 		Height = AppState.GetHotspotEditorHeight();
 
-		var uiScale = AppState.GetUiScale();
+		var uiScale = AppState.GetEditorUiScale();
 		UiScaleTransform.ScaleX = uiScale;
 		UiScaleTransform.ScaleY = uiScale;
 		UiZoomText.Text = $"{(int)Math.Round(uiScale * 100)}%";
@@ -169,11 +175,40 @@ public partial class HotspotEditorWindow : Window
 
 	private void AdjustUiZoom(double delta)
 	{
-		var scale = Math.Clamp(Math.Round(AppState.GetUiScale() + delta, 2), AppState.UiScaleMin, AppState.UiScaleMax);
+		var scale = Math.Clamp(Math.Round(AppState.GetEditorUiScale() + delta, 2), AppState.EditorUiScaleMin, AppState.EditorUiScaleMax);
 		UiScaleTransform.ScaleX = scale;
 		UiScaleTransform.ScaleY = scale;
 		UiZoomText.Text = $"{(int)Math.Round(scale * 100)}%";
-		AppState.SetUiScale(scale);
+		AppState.SetEditorUiScale(scale);
+	}
+
+	private void OnExportPngClick(object sender, RoutedEventArgs e)
+	{
+		var image = CursorCanvasService.TryRead(_filePath);
+
+		if (image == null)
+			return;
+
+		var bitmap = new WriteableBitmap(image.Width, image.Height, 96, 96, PixelFormats.Bgra32, null);
+		bitmap.WritePixels(new Int32Rect(0, 0, image.Width, image.Height), image.Bgra, image.Width * 4, 0);
+
+		Directory.CreateDirectory(AppPaths.DownloadsDir);
+
+		var baseName = Path.GetFileNameWithoutExtension(_filePath);
+		var fileName = $"{baseName}.png";
+		var destPath = Path.Combine(AppPaths.DownloadsDir, fileName);
+		var attempt = 1;
+
+		while (File.Exists(destPath))
+			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}).png");
+
+		var encoder = new PngBitmapEncoder();
+		encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+		using var stream = File.Create(destPath);
+		encoder.Save(stream);
+
+		Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{destPath}\"") { UseShellExecute = true });
 	}
 
 	protected override void OnClosed(EventArgs e)
