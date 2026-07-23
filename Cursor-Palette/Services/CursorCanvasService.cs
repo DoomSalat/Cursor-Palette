@@ -12,6 +12,7 @@ public static class CursorCanvasService
 {
 	private const string User32Dll = "user32.dll";
 	private const string CurExtension = ".cur";
+	private const string AniExtension = ".ani";
 	private const int BytesPerPixel = 4;
 	private const int IconDirSize = 6;
 	private const int IconDirEntrySize = 16;
@@ -28,9 +29,16 @@ public static class CursorCanvasService
 	[DllImport(User32Dll, SetLastError = true)]
 	private static extern bool DestroyCursor(IntPtr cursorHandle);
 
-	public static bool IsSupportedFile(string? filePath) =>
-		!string.IsNullOrWhiteSpace(filePath) &&
-		string.Equals(Path.GetExtension(filePath), CurExtension, StringComparison.OrdinalIgnoreCase);
+	public static bool IsSupportedFile(string? filePath)
+	{
+		if (string.IsNullOrWhiteSpace(filePath))
+			return false;
+
+		var extension = Path.GetExtension(filePath);
+
+		return string.Equals(extension, CurExtension, StringComparison.OrdinalIgnoreCase) ||
+			string.Equals(extension, AniExtension, StringComparison.OrdinalIgnoreCase);
+	}
 
 	public static CursorCanvasImage? TryRead(string filePath)
 	{
@@ -193,6 +201,20 @@ public static class CursorCanvasService
 
 	public static void Write(string destinationPath, CursorCanvasImage image)
 	{
+		using var stream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write);
+		WriteToStream(stream, image);
+	}
+
+	public static byte[] BuildBytes(CursorCanvasImage image)
+	{
+		using var stream = new MemoryStream();
+		WriteToStream(stream, image);
+
+		return stream.ToArray();
+	}
+
+	private static void WriteToStream(Stream stream, CursorCanvasImage image)
+	{
 		var width = Math.Clamp(image.Width, 1, MaxClassicDimension);
 		var height = Math.Clamp(image.Height, 1, MaxClassicDimension);
 		var hotspotX = Math.Clamp(image.HotspotX, 0, width - 1);
@@ -205,8 +227,7 @@ public static class CursorCanvasService
 		var imageDataSize = BitmapInfoHeaderSize + colorDataSize + maskDataSize;
 		var imageOffset = IconDirSize + IconDirEntrySize;
 
-		using var stream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write);
-		using var writer = new BinaryWriter(stream);
+		using var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true);
 
 		// ICONDIR
 		writer.Write((ushort)0);

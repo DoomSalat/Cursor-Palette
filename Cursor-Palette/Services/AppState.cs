@@ -24,6 +24,10 @@ public static class AppState
 	public const double PaintEditorZoomMax = 32.0;
 	public const double PaintEditorZoomDefault = 8.0;
 
+	public const double PaintEditorToolPanelWidthMin = 176;
+	public const double PaintEditorToolPanelWidthMax = 400;
+	public const double PaintEditorToolPanelWidthDefault = 176;
+
 	public const string PaintEditorToolMove = "Move";
 	public const string PaintEditorToolHand = "Hand";
 	public const string PaintEditorToolBrush = "Brush";
@@ -75,6 +79,7 @@ public static class AppState
 		public int BgRefOffsetY { get; set; }
 		public string? BgRefCustomPath { get; set; }
 		public bool BgRefBilinear { get; set; }
+		public double PaintEditorToolPanelWidth { get; set; } = PaintEditorToolPanelWidthDefault;
 	}
 
 	public static string? GetActivePresetId()
@@ -252,6 +257,17 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.PaintEditorZoom = Math.Clamp(zoom, PaintEditorZoomMin, PaintEditorZoomMax);
+
+		SaveSettings(settings);
+	}
+
+	public static double GetPaintEditorToolPanelWidth() =>
+		Math.Clamp(LoadSettings().PaintEditorToolPanelWidth, PaintEditorToolPanelWidthMin, PaintEditorToolPanelWidthMax);
+
+	public static void SetPaintEditorToolPanelWidth(double width)
+	{
+		var settings = LoadSettings();
+		settings.PaintEditorToolPanelWidth = Math.Clamp(width, PaintEditorToolPanelWidthMin, PaintEditorToolPanelWidthMax);
 
 		SaveSettings(settings);
 	}

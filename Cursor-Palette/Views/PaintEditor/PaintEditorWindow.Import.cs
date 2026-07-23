@@ -57,6 +57,9 @@ public partial class PaintEditorWindow
 		if (dialog.ShowDialog() != true)
 			return;
 
+		if (TryImportAnimatedGif(dialog.FileName))
+			return;
+
 		ShowImportDialog(LoadBitmapFromFile(dialog.FileName));
 	}
 
@@ -322,6 +325,12 @@ public partial class PaintEditorWindow
 
 		if (path == null)
 			return;
+
+		if (TryImportAnimatedGif(path))
+		{
+			e.Handled = true;
+			return;
+		}
 
 		ShowImportDialog(LoadBitmapFromFile(path));
 		e.Handled = true;

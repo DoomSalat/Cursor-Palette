@@ -66,9 +66,26 @@ apply.
   - **Import an image onto the canvas** — load a `.png`/`.jpg`/`.bmp`/`.gif`
     (or `.cur`/`.ani`) via a button or drag-and-drop, either composited
     over the current sprite (canvas grows to fit) or replacing it
-    entirely.
+    entirely. Dropping a multi-frame GIF turns it straight into an
+    animated cursor: every GIF frame becomes a timeline frame, with
+    disposal and per-frame delay handled automatically.
   - The last tool, zoom, pan position, color, and picker mode are all
-    remembered between sessions.
+    remembered between sessions. The width of the right-hand tool panel
+    is resizable by dragging the splitter and is remembered too.
+  - **Animation timeline** — draw a `.cur` into an animated `.ani` cursor
+    right inside the editor: add/remove frames, scrub between them, set a
+    per-frame duration, and play/stop a live preview (up to 60 frames,
+    17 ms minimum per frame — the `.ani` format's own limit). Saving with
+    more than one frame writes a real `.ani` file; a single frame still
+    saves as a plain `.cur`, unchanged. The background reference panel
+    gains matching controls: a "hide main image" toggle to see the
+    reference on its own, and — for an animated reference — its frame
+    follows the timeline automatically, or can be browsed independently
+    via a "manual reference control" switch. The finished animation can
+    also be exported straight to `.gif`, next to the existing `.png`
+    export.
+
+    ![Animated cursor timeline](docs/screenshots/paint-editor-animation.png)
 - **Animated `.ani` preview** — animated cursors (busy, working, etc.) play
   their full frame sequence with original timing in the gallery and preset
   editor, instead of a static first frame.

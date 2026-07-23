@@ -24,8 +24,12 @@ public partial class PaintEditorWindow
 	private const int DefaultBgRefMargin = 0;
 	private const int DefaultBgRefOffsetX = 0;
 	private const int DefaultBgRefOffsetY = 0;
+	private const string FrameIndexFormat = "{0} / {1}";
 
-	private BitmapSource? _bgRefBitmap;
+	private List<BitmapSource> _bgRefFrames = new();
+	private int _bgRefFrameIndex;
+	private BitmapSource? _bgRefBitmap =>
+		_bgRefFrames.Count > 0 ? _bgRefFrames[Math.Clamp(_bgRefFrameIndex, 0, _bgRefFrames.Count - 1)] : null;
 	private double _bgRefOpacity = 50;
 	private int _bgRefMargin;
 	private int _bgRefOffsetX;
@@ -33,6 +37,7 @@ public partial class PaintEditorWindow
 	private bool _bgRefReady;
 	private string? _bgRefCustomPath;
 	private bool _bgRefBilinear;
+	private bool _hideMainImage;
 
 	private void InitBgRef()
 	{
@@ -88,12 +93,20 @@ public partial class PaintEditorWindow
 		return path.Replace(SystemRootVar, systemRoot, StringComparison.OrdinalIgnoreCase);
 	}
 
+	private void SetBgRefFrames(IReadOnlyList<BitmapSource> frames)
+	{
+		_bgRefFrames = new List<BitmapSource>(frames);
+		_bgRefFrameIndex = 0;
+		BgRefThumbnail.Source = _bgRefBitmap;
+
+		UpdateBgRefFrameNav();
+	}
+
 	private void LoadDefaultRefImage()
 	{
 		if (string.IsNullOrEmpty(_roleName))
 		{
-			_bgRefBitmap = null;
-			BgRefThumbnail.Source = null;
+			SetBgRefFrames(Array.Empty<BitmapSource>());
 			_bgRefCustomPath = null;
 
 			UpdateBgRefRender();
@@ -109,8 +122,7 @@ public partial class PaintEditorWindow
 
 		if (string.IsNullOrWhiteSpace(defaultPath))
 		{
-			_bgRefBitmap = null;
-			BgRefThumbnail.Source = null;
+			SetBgRefFrames(Array.Empty<BitmapSource>());
 			_bgRefCustomPath = null;
 
 			UpdateBgRefRender();
@@ -122,8 +134,7 @@ public partial class PaintEditorWindow
 
 		if (!File.Exists(defaultPath))
 		{
-			_bgRefBitmap = null;
-			BgRefThumbnail.Source = null;
+			SetBgRefFrames(Array.Empty<BitmapSource>());
 			_bgRefCustomPath = null;
 
 			UpdateBgRefRender();
@@ -131,14 +142,13 @@ public partial class PaintEditorWindow
 			return;
 		}
 
-		_bgRefBitmap = LoadCursorAsBitmap(defaultPath);
-		BgRefThumbnail.Source = _bgRefBitmap;
+		SetBgRefFrames(LoadCursorAsBitmapFrames(defaultPath));
 		_bgRefCustomPath = null;
 
 		UpdateBgRefRender();
 	}
 
-	private static BitmapSource? LoadCursorAsBitmap(string filePath)
+	private static List<BitmapSource> LoadCursorAsBitmapFrames(string filePath)
 	{
 		var ext = Path.GetExtension(filePath);
 
@@ -146,7 +156,7 @@ public partial class PaintEditorWindow
 		{
 			var frames = AniCursorReader.Read(filePath);
 
-			return frames?.Frames.Count > 0 ? frames.Frames[0] : null;
+			return frames != null ? new List<BitmapSource>(frames.Frames) : new List<BitmapSource>();
 		}
 
 		var image = CursorCanvasService.TryRead(filePath);
@@ -158,10 +168,12 @@ public partial class PaintEditorWindow
 			bitmap.WritePixels(new Int32Rect(0, 0, image.Width, image.Height), image.Bgra, image.Width * 4, 0);
 			bitmap.Freeze();
 
-			return bitmap;
+			return new List<BitmapSource> { bitmap };
 		}
 
-		return CursorCanvasService.TryReadAsBitmap(filePath);
+		var fallback = CursorCanvasService.TryReadAsBitmap(filePath);
+
+		return fallback != null ? new List<BitmapSource> { fallback } : new List<BitmapSource>();
 	}
 
 	private void LoadCustomRefImage(string path)
@@ -169,12 +181,12 @@ public partial class PaintEditorWindow
 		try
 		{
 			var ext = Path.GetExtension(path);
-			BitmapSource? bitmap;
+			List<BitmapSource> frames;
 
 			if (string.Equals(ext, CurExtension, StringComparison.OrdinalIgnoreCase) ||
 				string.Equals(ext, AniExtension, StringComparison.OrdinalIgnoreCase))
 			{
-				bitmap = LoadCursorAsBitmap(path);
+				frames = LoadCursorAsBitmapFrames(path);
 			}
 			else
 			{
@@ -184,14 +196,13 @@ public partial class PaintEditorWindow
 				bmp.UriSource = new Uri(path);
 				bmp.EndInit();
 				bmp.Freeze();
-				bitmap = bmp;
+				frames = new List<BitmapSource> { bmp };
 			}
 
-			if (bitmap == null)
+			if (frames.Count == 0)
 				return;
 
-			_bgRefBitmap = bitmap;
-			BgRefThumbnail.Source = bitmap;
+			SetBgRefFrames(frames);
 			_bgRefCustomPath = path;
 
 			UpdateBgRefRender();
@@ -356,6 +367,78 @@ public partial class PaintEditorWindow
 
 	private void OnToolBgRefClick(object sender, RoutedEventArgs e) =>
 		SetTool(AppState.PaintEditorToolBgRef);
+
+	private void OnHideMainImageClick(object sender, RoutedEventArgs e)
+	{
+		_hideMainImage = HideMainImageCheck.IsChecked == true;
+		PreviewImage.Visibility = _hideMainImage ? Visibility.Hidden : Visibility.Visible;
+	}
+
+	private void UpdateBgRefManualControlsVisibility() =>
+		BgRefFrameNavPanel.Visibility = _refManualMode && _bgRefFrames.Count > 1
+			? Visibility.Visible
+			: Visibility.Collapsed;
+
+	private void UpdateBgRefFrameNav()
+	{
+		UpdateBgRefManualControlsVisibility();
+
+		BgRefFrameIndexText.Text = string.Format(
+			CultureInfo.InvariantCulture, FrameIndexFormat, _bgRefFrameIndex + 1, Math.Max(_bgRefFrames.Count, 1));
+
+		BgRefFramePrevButton.IsEnabled = _bgRefFrameIndex > 0;
+		BgRefFrameNextButton.IsEnabled = _bgRefFrameIndex < _bgRefFrames.Count - 1;
+	}
+
+	private void OnBgRefFramePrevClick(object sender, RoutedEventArgs e)
+	{
+		if (_bgRefFrameIndex <= 0)
+			return;
+
+		_bgRefFrameIndex--;
+		BgRefThumbnail.Source = _bgRefBitmap;
+		UpdateBgRefFrameNav();
+		UpdateBgRefRender();
+	}
+
+	private void OnBgRefFrameNextClick(object sender, RoutedEventArgs e)
+	{
+		if (_bgRefFrameIndex >= _bgRefFrames.Count - 1)
+			return;
+
+		_bgRefFrameIndex++;
+		BgRefThumbnail.Source = _bgRefBitmap;
+		UpdateBgRefFrameNav();
+		UpdateBgRefRender();
+	}
+
+	private void OnBgRefFrameResetClick(object sender, RoutedEventArgs e)
+	{
+		_bgRefFrameIndex = 0;
+		BgRefThumbnail.Source = _bgRefBitmap;
+		UpdateBgRefFrameNav();
+		UpdateBgRefRender();
+	}
+
+	private void SyncRefFrameToTimeline()
+	{
+		if (_refManualMode || _bgRefFrames.Count <= 1 || _timelineFrames.Count <= 1)
+			return;
+
+		var ratio = _timelineFrames.Count > 1
+			? (double)_activeFrameIndex / (_timelineFrames.Count - 1)
+			: 0;
+
+		var targetIndex = (int)Math.Round(ratio * (_bgRefFrames.Count - 1));
+
+		if (targetIndex == _bgRefFrameIndex)
+			return;
+
+		_bgRefFrameIndex = Math.Clamp(targetIndex, 0, _bgRefFrames.Count - 1);
+		BgRefThumbnail.Source = _bgRefBitmap;
+		UpdateBgRefFrameNav();
+		UpdateBgRefRender();
+	}
 
 	private static bool IsImageFile(string path)
 	{

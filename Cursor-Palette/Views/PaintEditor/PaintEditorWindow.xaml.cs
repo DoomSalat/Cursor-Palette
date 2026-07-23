@@ -30,7 +30,7 @@ public partial class PaintEditorWindow : Window
 
 	private int _spriteWidth;
 	private int _spriteHeight;
-	private byte[] _spriteBgra;
+	private byte[] _spriteBgra = Array.Empty<byte>();
 	private int _hotspotOffsetX;
 	private int _hotspotOffsetY;
 
@@ -81,6 +81,8 @@ public partial class PaintEditorWindow : Window
 	private readonly string? _roleName;
 
 	public CursorCanvasImage? Result { get; private set; }
+	public IReadOnlyList<CursorCanvasImage>? ResultFrames { get; private set; }
+	public IReadOnlyList<int>? ResultFrameDelaysMs { get; private set; }
 
 	public PaintEditorWindow(CursorCanvasImage source, string? presetName = null, string? roleName = null)
 	{
@@ -89,6 +91,25 @@ public partial class PaintEditorWindow : Window
 		_presetName = presetName;
 		_roleName = roleName;
 
+		InitializeWindowState();
+		SetSourceFrame(source);
+		FinishConstruction(InitTimeline);
+	}
+
+	public PaintEditorWindow(IReadOnlyList<CursorCanvasImage> frames, IReadOnlyList<int> frameDelaysMs, string? presetName = null, string? roleName = null)
+	{
+		InitializeComponent();
+
+		_presetName = presetName;
+		_roleName = roleName;
+
+		InitializeWindowState();
+		SetSourceFrame(frames[0]);
+		FinishConstruction(() => InitTimelineFromFrames(frames, frameDelaysMs));
+	}
+
+	private void InitializeWindowState()
+	{
 		Width = AppState.GetPaintEditorWidth();
 		Height = AppState.GetPaintEditorHeight();
 
@@ -97,18 +118,7 @@ public partial class PaintEditorWindow : Window
 		UiScaleTransform.ScaleY = uiScale;
 		UiZoomText.Text = $"{(int)Math.Round(uiScale * 100)}%";
 
-		var bounds = FindOpaqueBounds(source);
-
-		_spriteWidth = bounds.Width;
-		_spriteHeight = bounds.Height;
-		_spriteBgra = ExtractRegion(source.Bgra, source.Width, bounds);
-		_hotspotOffsetX = Math.Clamp(source.HotspotX - bounds.X, 0, _spriteWidth - 1);
-		_hotspotOffsetY = Math.Clamp(source.HotspotY - bounds.Y, 0, _spriteHeight - 1);
-
-		_canvasWidth = source.Width;
-		_canvasHeight = source.Height;
-		_offsetX = bounds.X;
-		_offsetY = bounds.Y;
+		ToolPanelColumn.Width = new GridLength(AppState.GetPaintEditorToolPanelWidth());
 
 		_zoom = AppState.GetPaintEditorZoom();
 		_currentTool = AppState.GetPaintEditorTool();
@@ -124,13 +134,33 @@ public partial class PaintEditorWindow : Window
 		var (hue, saturation, value, alpha) = AppState.GetPaintEditorColor();
 		ColorWheel.SetColor(hue, saturation, value, alpha);
 		ColorWheel.SetColorMode(AppState.GetPaintEditorColorMode());
+	}
 
+	private void SetSourceFrame(CursorCanvasImage source)
+	{
+		var bounds = FindOpaqueBounds(source);
+
+		_spriteWidth = bounds.Width;
+		_spriteHeight = bounds.Height;
+		_spriteBgra = ExtractRegion(source.Bgra, source.Width, bounds);
+		_hotspotOffsetX = Math.Clamp(source.HotspotX - bounds.X, 0, _spriteWidth - 1);
+		_hotspotOffsetY = Math.Clamp(source.HotspotY - bounds.Y, 0, _spriteHeight - 1);
+
+		_canvasWidth = source.Width;
+		_canvasHeight = source.Height;
+		_offsetX = bounds.X;
+		_offsetY = bounds.Y;
+	}
+
+	private void FinishConstruction(Action initTimeline)
+	{
 		UpdateToolButtons();
 
 		_ready = true;
 
 		RenderAll();
 		InitBgRef();
+		initTimeline();
 		InitWindowWideDragDrop();
 
 		UpdateUndoRedoButtons();
@@ -138,9 +168,12 @@ public partial class PaintEditorWindow : Window
 
 	protected override void OnClosed(EventArgs e)
 	{
+		StopTimelinePlayback();
+
 		AppState.SetPaintEditorSize(Width, Height);
 		AppState.SetPaintEditorZoom(_zoom);
 		AppState.SetPaintEditorTool(_currentTool);
+		AppState.SetPaintEditorToolPanelWidth(ToolPanelColumn.Width.Value);
 
 		var (hue, saturation, value, alpha) = ColorWheel.GetHsv();
 		AppState.SetPaintEditorColor(hue, saturation, value, alpha);

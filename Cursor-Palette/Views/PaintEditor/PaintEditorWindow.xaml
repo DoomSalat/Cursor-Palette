@@ -93,6 +93,32 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+
+		<Style x:Key="Style.PlayStopButton.Playing" TargetType="Button" BasedOn="{StaticResource Style.Button}">
+			<Setter Property="Background" Value="#FFDC2626" />
+			<Setter Property="BorderBrush" Value="#FFDC2626" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="Bd"
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								CornerRadius="6"
+								Padding="{TemplateBinding Padding}">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Bd" Property="Background" Value="#FFB91C1C" />
+								<Setter TargetName="Bd" Property="BorderBrush" Value="#FFB91C1C" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 	</Window.Resources>
 
 	<DockPanel x:Name="RootPanel">
@@ -353,6 +379,29 @@
 									   Margin="6,0,0,0" />
 						</StackPanel>
 					</Button>
+					<Button x:Name="ExportGifButton"
+							Style="{StaticResource Style.Button}"
+							Padding="10,4"
+							Margin="8,0,0,0"
+							Visibility="Collapsed"
+							ToolTip="{DynamicResource S.Editor.ExportGif}"
+							Click="OnExportGifClick">
+						<StackPanel Orientation="Horizontal">
+							<Rectangle Width="18" Height="18"
+									   Fill="{StaticResource Brush.TextDim}"
+									   RenderTransformOrigin="0.5,0.5"
+									   VerticalAlignment="Center">
+								<Rectangle.OpacityMask>
+									<ImageBrush ImageSource="pack://application:,,,/Resources/DownloadIcon32.png" Stretch="Uniform" />
+								</Rectangle.OpacityMask>
+							</Rectangle>
+							<TextBlock Text=".gif"
+									   Foreground="{StaticResource Brush.TextDim}"
+									   FontSize="12"
+									   VerticalAlignment="Center"
+									   Margin="6,0,0,0" />
+						</StackPanel>
+					</Button>
 				</StackPanel>
 
 				<TextBlock x:Name="CoordsText" Grid.Column="2"
@@ -383,8 +432,86 @@
 			</Grid>
 		</Border>
 
+		<Border DockPanel.Dock="Bottom"
+				Background="{StaticResource Brush.SurfaceHover}"
+				BorderBrush="{StaticResource Brush.Border}"
+				BorderThickness="0,1,0,0"
+				Padding="18,8">
+			<StackPanel>
+				<DockPanel>
+					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+						<Button x:Name="PlayStopButton"
+								Style="{StaticResource Style.Button}"
+								Content="▶"
+								FontSize="14"
+								Width="40"
+								Padding="0,4"
+								Margin="32,0,0,0"
+								ToolTip="{DynamicResource S.Editor.Timeline.Play}"
+								Click="OnPlayStopClick" />
+						<Button x:Name="AddFrameButton"
+								Style="{StaticResource Style.Button}"
+								Content="+"
+								Padding="12,4"
+								Margin="12,0,0,0"
+								ToolTip="{DynamicResource S.Editor.Timeline.AddFrame}"
+								Click="OnAddFrameClick" />
+						<Button x:Name="RemoveFrameButton"
+								Style="{StaticResource Style.Button}"
+								Content="−"
+								Padding="12,4"
+								Margin="4,0,0,0"
+								ToolTip="{DynamicResource S.Editor.Timeline.RemoveFrame}"
+								Click="OnRemoveFrameClick" />
+
+						<TextBlock Text="{DynamicResource S.Editor.Timeline.Duration}"
+								   Foreground="{StaticResource Brush.TextDim}"
+								   FontSize="11"
+								   VerticalAlignment="Center"
+								   Margin="16,0,6,0" />
+						<TextBox x:Name="FrameDurationBox"
+								 Style="{StaticResource Style.TextBox}"
+								 Width="52"
+								 Padding="4,2"
+								 HorizontalContentAlignment="Center"
+								 Text="100"
+								 TextChanged="OnFrameDurationChanged" />
+
+						<CheckBox x:Name="ManualRefCheck"
+								  Style="{StaticResource Style.ToggleCheckBox}"
+								  Content="{DynamicResource S.Editor.Timeline.ManualRef}"
+								  VerticalAlignment="Center"
+								  Margin="16,0,0,0"
+								  Checked="OnManualRefChanged"
+								  Unchecked="OnManualRefChanged" />
+					</StackPanel>
+
+					<TextBlock DockPanel.Dock="Right"
+							   Text="{DynamicResource S.Editor.Timeline.LimitNote}"
+							   Foreground="{StaticResource Brush.TextDim}"
+							   FontSize="10"
+							   VerticalAlignment="Center"
+							   HorizontalAlignment="Right" />
+					<Grid />
+				</DockPanel>
+
+				<ScrollViewer HorizontalScrollBarVisibility="Auto"
+							  VerticalScrollBarVisibility="Disabled"
+							  Margin="0,8,0,0">
+					<StackPanel x:Name="TimelineFramesPanel" Orientation="Horizontal" />
+				</ScrollViewer>
+			</StackPanel>
+		</Border>
+
 		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="6" />
+				<ColumnDefinition x:Name="ToolPanelColumn" Width="176" MinWidth="176" MaxWidth="400" />
+			</Grid.ColumnDefinitions>
+
 			<Grid x:Name="ViewportHost"
+				  Grid.Column="0"
 				  Background="{StaticResource Brush.Bg}"
 				  ClipToBounds="True"
 				  PreviewMouseWheel="OnViewportMouseWheel"
@@ -421,7 +548,16 @@
 					</Canvas>
 				</Canvas>
 			</Grid>
-			<Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="{StaticResource Brush.Surface}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1,0,0,0" Width="176" Padding="14">
+			<GridSplitter Grid.Column="1"
+						  Width="6"
+						  HorizontalAlignment="Stretch"
+						  VerticalAlignment="Stretch"
+						  Background="Transparent"
+						  Cursor="SizeWE"
+						  ResizeBehavior="PreviousAndNext" />
+
+			<Border Grid.Column="2" Background="{StaticResource Brush.Surface}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1,0,0,0">
+				<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14">
 				<DockPanel>
 					<StackPanel x:Name="MoveToolPanel" DockPanel.Dock="Top">
 						<TextBlock Text="{DynamicResource S.Position.Move}" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,8" />
@@ -553,6 +689,27 @@
 							  IsChecked="False"
 							  Margin="0,0,0,12"
 							  Click="OnBgRefBilinearClick" />
+					<CheckBox x:Name="HideMainImageCheck"
+							  Style="{StaticResource Style.ToggleCheckBox}"
+							  Content="{DynamicResource S.Editor.BgRef.HideMain}"
+							  IsChecked="False"
+							  Margin="0,0,0,12"
+							  Click="OnHideMainImageClick" />
+					<StackPanel x:Name="BgRefFrameNavPanel" Visibility="Collapsed" Margin="0,0,0,12">
+						<TextBlock Text="{DynamicResource S.Editor.BgRef.FrameNav}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4" />
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<Button x:Name="BgRefFramePrevButton" Grid.Column="0" Style="{StaticResource Style.Button}" Content="◀" Padding="8,4" ToolTip="{DynamicResource S.Editor.BgRef.FramePrev}" Click="OnBgRefFramePrevClick" />
+							<TextBlock x:Name="BgRefFrameIndexText" Grid.Column="1" Text="1 / 1" Foreground="{StaticResource Brush.TextDim}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+							<Button x:Name="BgRefFrameNextButton" Grid.Column="2" Style="{StaticResource Style.Button}" Content="▶" Padding="8,4" Margin="4,0,0,0" ToolTip="{DynamicResource S.Editor.BgRef.FrameNext}" Click="OnBgRefFrameNextClick" />
+							<Button Grid.Column="3" Style="{StaticResource Style.Button}" Content="⟲" Padding="8,4" Margin="4,0,0,0" ToolTip="{DynamicResource S.Editor.BgRef.FrameReset}" Click="OnBgRefFrameResetClick" />
+						</Grid>
+					</StackPanel>
 					<Border x:Name="BgRefDropBorder" Background="{StaticResource Brush.SurfaceHover}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,12" Padding="4"
 							AllowDrop="True">
 						<Grid>
@@ -631,6 +788,7 @@
 						</UniformGrid>
 					</StackPanel>
 				</DockPanel>
+				</ScrollViewer>
 			</Border>
 		</Grid>
 	</DockPanel>

@@ -78,6 +78,30 @@ public partial class PaintEditorWindow
 		var hotspotY = Math.Clamp(_offsetY + _hotspotOffsetY, 0, _canvasHeight - 1);
 
 		Result = new CursorCanvasImage(_canvasWidth, _canvasHeight, hotspotX, hotspotY, pixels);
+
+		if (IsAnimated)
+		{
+			_timelineFrames[_activeFrameIndex] = CaptureCurrentAsFrame();
+
+			var resultFrames = new List<CursorCanvasImage>(_timelineFrames.Count);
+			var resultDelays = new List<int>(_timelineFrames.Count);
+
+			foreach (var frame in _timelineFrames)
+			{
+				var buffer = new byte[_canvasWidth * _canvasHeight * BytesPerPixel];
+				Blit(buffer, _canvasWidth, _canvasHeight, frame.SpriteBgra, frame.SpriteWidth, frame.SpriteHeight, frame.OffsetX, frame.OffsetY);
+
+				var frameHotspotX = Math.Clamp(frame.OffsetX + _hotspotOffsetX, 0, _canvasWidth - 1);
+				var frameHotspotY = Math.Clamp(frame.OffsetY + _hotspotOffsetY, 0, _canvasHeight - 1);
+
+				resultFrames.Add(new CursorCanvasImage(_canvasWidth, _canvasHeight, frameHotspotX, frameHotspotY, buffer));
+				resultDelays.Add(frame.DurationMs);
+			}
+
+			ResultFrames = resultFrames;
+			ResultFrameDelaysMs = resultDelays;
+		}
+
 		DialogResult = true;
 	}
 
@@ -101,6 +125,44 @@ public partial class PaintEditorWindow
 
 		using var stream = File.Create(destPath);
 		encoder.Save(stream);
+
+		if (AppState.GetOpenFolderAfterDownload())
+			ExplorerService.RevealFile(destPath);
+	}
+
+	private void OnExportGifClick(object sender, RoutedEventArgs e)
+	{
+		if (!IsAnimated)
+			return;
+
+		_timelineFrames[_activeFrameIndex] = CaptureCurrentAsFrame();
+
+		var frameBitmaps = new List<BitmapSource>(_timelineFrames.Count);
+		var frameDelays = new List<int>(_timelineFrames.Count);
+
+		foreach (var frame in _timelineFrames)
+		{
+			var buffer = new byte[_canvasWidth * _canvasHeight * BytesPerPixel];
+			Blit(buffer, _canvasWidth, _canvasHeight, frame.SpriteBgra, frame.SpriteWidth, frame.SpriteHeight, frame.OffsetX, frame.OffsetY);
+
+			var bitmap = new WriteableBitmap(_canvasWidth, _canvasHeight, 96, 96, PixelFormats.Bgra32, null);
+			bitmap.WritePixels(new Int32Rect(0, 0, _canvasWidth, _canvasHeight), buffer, _canvasWidth * BytesPerPixel, 0);
+			bitmap.Freeze();
+
+			frameBitmaps.Add(bitmap);
+			frameDelays.Add(frame.DurationMs);
+		}
+
+		Directory.CreateDirectory(AppPaths.DownloadsDir);
+
+		var baseName = ExportFileNaming.Build(_presetName, _roleName, "cursor", _canvasWidth, _canvasHeight);
+		var destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName}.gif");
+		var attempt = 1;
+
+		while (File.Exists(destPath))
+			destPath = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++}).gif");
+
+		AnimatedGifWriter.Save(destPath, frameBitmaps, frameDelays);
 
 		if (AppState.GetOpenFolderAfterDownload())
 			ExplorerService.RevealFile(destPath);
