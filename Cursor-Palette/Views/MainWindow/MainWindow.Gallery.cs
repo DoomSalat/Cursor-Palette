@@ -162,6 +162,22 @@ public partial class MainWindow
 		cell.MouseLeave += (_, _) => cell.Background = Brush(BrushBg);
 		cell.MouseLeftButtonUp += (_, _) => ApplyDefault();
 		cell.MouseLeftButtonDown += (_, _) => { };
+		cell.MouseRightButtonUp += (_, e) =>
+		{
+			cell.ContextMenu!.IsOpen = true;
+			e.Handled = true;
+		};
+
+		var menu = new ContextMenu();
+		var downloadSystemItem = new MenuItem { Header = Loc.Get(LocMenuDownloadSystemCursors) };
+		var pngGifItem = new MenuItem { Header = Loc.Get(LocMenuDownloadSystemPngGif) };
+		pngGifItem.Click += (_, _) => DownloadSystemCursors(asImages: true);
+		var curAniItem = new MenuItem { Header = Loc.Get(LocMenuDownloadSystemCurAni) };
+		curAniItem.Click += (_, _) => DownloadSystemCursors(asImages: false);
+		downloadSystemItem.Items.Add(pngGifItem);
+		downloadSystemItem.Items.Add(curAniItem);
+		menu.Items.Add(downloadSystemItem);
+		cell.ContextMenu = menu;
 
 		cell.ToolTip = new ToolTip { Content = Loc.Get(LocWindowsDefault) };
 

@@ -57,6 +57,10 @@ public partial class MainWindow : Window
 	private const string LocImportFileFilter = "S.Import.FileFilter";
 	private const string LocErrorImportUnrecognized = "S.Error.ImportUnrecognized";
 	private const string LocErrorImportVersionUnsupported = "S.Error.ImportVersionUnsupported";
+	private const string LocMenuDownloadSystemCursors = "S.Menu.DownloadSystemCursors";
+	private const string LocMenuDownloadSystemPngGif = "S.Menu.DownloadSystemPngGif";
+	private const string LocMenuDownloadSystemCurAni = "S.Menu.DownloadSystemCurAni";
+	private const string LocToastSystemCursorsDownloaded = "S.Toast.SystemCursorsDownloaded";
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
 	private const string UpdateSpinnerStoryboardKey = "UpdateSpinnerStoryboard";

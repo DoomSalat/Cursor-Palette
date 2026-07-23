@@ -323,6 +323,99 @@ public partial class MainWindow
 		textBox.SelectAll();
 	}
 
+	private void DownloadSystemCursors(bool asImages)
+	{
+		var defaults = RegistryCursorService.GetWindowsDefaultValues();
+		var folderName = Loc.Get(LocWindowsDefault);
+		var destDir = Path.Combine(AppPaths.DownloadsDir, folderName);
+		var attempt = 1;
+
+		while (Directory.Exists(destDir))
+			destDir = Path.Combine(AppPaths.DownloadsDir, $"{folderName} ({attempt++})");
+
+		Directory.CreateDirectory(destDir);
+		var count = 0;
+
+		foreach (var role in CursorRoles.All)
+		{
+			if (!defaults.TryGetValue(role.RegistryName, out var rawPath) || string.IsNullOrWhiteSpace(rawPath))
+				rawPath = PlaceholderCursorDefaults.GetPath(role.RegistryName);
+
+			if (string.IsNullOrWhiteSpace(rawPath))
+				continue;
+
+			var expanded = Environment.ExpandEnvironmentVariables(rawPath);
+			if (!File.Exists(expanded))
+				continue;
+
+			string destPath;
+
+			if (asImages)
+			{
+				var ext = Path.GetExtension(expanded).ToLowerInvariant();
+
+				if (ext == AniExtension)
+				{
+					var frames = AniCursorReader.Read(expanded);
+					if (frames == null || frames.Frames.Count == 0)
+						continue;
+
+					var bitmaps = new List<System.Windows.Media.Imaging.BitmapSource>(frames.Frames.Count);
+					var delays = new List<int>(frames.Frames.Count);
+
+					for (var i = 0; i < frames.StepFrameIndices.Count; i++)
+					{
+						bitmaps.Add(frames.Frames[frames.StepFrameIndices[i]]);
+						delays.Add((int)frames.StepDurations[i].TotalMilliseconds);
+					}
+
+					destPath = Path.Combine(destDir, $"{role.RegistryName}.gif");
+					AnimatedGifWriter.Save(destPath, bitmaps, delays);
+				}
+				else
+				{
+					var image = CursorCanvasService.TryRead(expanded);
+					if (image == null)
+						continue;
+
+					var bitmap = new System.Windows.Media.Imaging.WriteableBitmap(
+						image.Width, image.Height, 96, 96,
+						System.Windows.Media.PixelFormats.Bgra32, null);
+					bitmap.WritePixels(
+						new System.Windows.Int32Rect(0, 0, image.Width, image.Height),
+						image.Bgra, image.Width * 4, 0);
+					bitmap.Freeze();
+
+					destPath = Path.Combine(destDir, $"{role.RegistryName}.png");
+					var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+					encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+
+					using var stream = File.Create(destPath);
+					encoder.Save(stream);
+				}
+			}
+			else
+			{
+				var extension = Path.GetExtension(expanded);
+				destPath = Path.Combine(destDir, $"{role.RegistryName}{extension}");
+				File.Copy(expanded, destPath);
+			}
+
+			var now = DateTime.Now;
+			File.SetCreationTime(destPath, now);
+			File.SetLastWriteTime(destPath, now);
+			count++;
+		}
+
+		if (count == 0)
+		{
+			Directory.Delete(destDir);
+			return;
+		}
+
+		ToastService.Show(RootGrid, Loc.Format(LocToastSystemCursorsDownloaded, count));
+	}
+
 	private void EditPreset(Preset preset) => OpenEditor(preset, Array.Empty<string>());
 
 	private void OpenEditor(Preset? preset, IReadOnlyList<string> droppedFiles, string? suggestedName = null)
