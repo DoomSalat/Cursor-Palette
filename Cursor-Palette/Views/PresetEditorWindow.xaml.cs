@@ -99,6 +99,8 @@ public partial class PresetEditorWindow : Window
 	private const string LocEditorNoCursorInFolder = "S.Editor.NoCursorInFolder";
 	private const string LocEditorNoMatchInFolder = "S.Editor.NoMatchInFolder";
 	private const string LocEditorNoFiles = "S.Editor.NoFiles";
+	private const string LocEditorEmptyCursorWarning = "S.Editor.EmptyCursorWarning";
+	private const string LocEditorEmptySkipped = "S.Editor.EmptySkipped";
 	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
 	private const string LocToastDownloaded = "S.Toast.Downloaded";
 	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
@@ -157,6 +159,8 @@ public partial class PresetEditorWindow : Window
 			}
 		}
 
+		var emptySkipped = 0;
+
 		foreach (var file in droppedFiles)
 		{
 			var role = CursorRoles.MatchByFileName(file);
@@ -164,9 +168,23 @@ public partial class PresetEditorWindow : Window
 			if (role == null)
 				continue;
 
+			if (IsCursorFullyTransparent(file))
+			{
+				emptySkipped++;
+				continue;
+			}
+
 			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
 
 			SetSlotSource(slot, file);
+		}
+
+		if (emptySkipped > 0)
+		{
+			Dispatcher.BeginInvoke(new Action(() =>
+				MessageBox.Show(Loc.Format(LocEditorEmptySkipped, emptySkipped), Title,
+					MessageBoxButton.OK, MessageBoxImage.Information)),
+				DispatcherPriority.Loaded);
 		}
 	}
 
@@ -506,6 +524,15 @@ public partial class PresetEditorWindow : Window
 
 			if (file != null)
 			{
+				if (IsCursorFullyTransparent(file))
+				{
+					MessageBox.Show(Loc.Get(LocEditorEmptyCursorWarning), Title,
+						MessageBoxButton.OK, MessageBoxImage.Warning);
+					e.Handled = true;
+
+					return;
+				}
+
 				SetSlotSource(slot, file);
 				e.Handled = true;
 			}
@@ -527,7 +554,16 @@ public partial class PresetEditorWindow : Window
 			InitialDirectory = AppPaths.DownloadsDir,
 		};
 		if (dialog.ShowDialog(this) == true)
+		{
+			if (IsCursorFullyTransparent(dialog.FileName))
+			{
+				MessageBox.Show(Loc.Get(LocEditorEmptyCursorWarning), Title,
+					MessageBoxButton.OK, MessageBoxImage.Warning);
+				return;
+			}
+
 			SetSlotSource(slot, dialog.FileName);
+		}
 	}
 
 	private void SetSlotSource(Slot slot, string path)
@@ -929,6 +965,7 @@ public partial class PresetEditorWindow : Window
 		}
 
 		var matched = 0;
+		var emptySkipped = 0;
 
 		foreach (var file in cursorFiles)
 		{
@@ -942,7 +979,19 @@ public partial class PresetEditorWindow : Window
 			if (slot.IsLocked)
 				continue;
 
+			if (IsCursorFullyTransparent(file))
+			{
+				emptySkipped++;
+				continue;
+			}
+
 			SetSlotSource(slot, file);
+		}
+
+		if (emptySkipped > 0)
+		{
+			MessageBox.Show(Loc.Format(LocEditorEmptySkipped, emptySkipped), Title,
+				MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 
 		if (matched == 0)
@@ -957,6 +1006,78 @@ public partial class PresetEditorWindow : Window
 		var extension = Path.GetExtension(path).ToLowerInvariant();
 
 		return extension is CurExtension or AniExtension;
+	}
+
+	private static bool IsCursorFullyTransparent(string path)
+	{
+		var extension = Path.GetExtension(path).ToLowerInvariant();
+
+		if (extension == CurExtension)
+		{
+			var image = CursorCanvasService.TryRead(path);
+			if (image == null)
+				return false;
+
+			for (var i = 3; i < image.Bgra.Length; i += 4)
+			{
+				if (image.Bgra[i] != 0)
+					return false;
+			}
+
+			return true;
+		}
+
+		if (extension == AniExtension)
+		{
+			var frames = AniCursorReader.Read(path);
+			if (frames == null || frames.Frames.Count == 0)
+				return false;
+
+			foreach (var frame in frames.Frames)
+			{
+				if (IsBitmapSourceVisible(frame))
+					return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private static bool IsBitmapSourceVisible(BitmapSource bitmap)
+	{
+		var width = bitmap.PixelWidth;
+		var height = bitmap.PixelHeight;
+
+		if (width == 0 || height == 0)
+			return false;
+
+		var stride = width * 4;
+		var pixels = new byte[stride * height];
+
+		if (bitmap.Format == PixelFormats.Bgra32)
+		{
+			bitmap.CopyPixels(pixels, stride, 0);
+		}
+		else
+		{
+			var converted = new FormatConvertedBitmap();
+			converted.BeginInit();
+			converted.Source = bitmap;
+			converted.DestinationFormat = PixelFormats.Bgra32;
+			converted.EndInit();
+			converted.Freeze();
+			converted.CopyPixels(pixels, stride, 0);
+		}
+
+		for (var i = 3; i < pixels.Length; i += 4)
+		{
+			if (pixels[i] != 0)
+				return true;
+		}
+
+		return false;
 	}
 
 	private void OnSaveButtonClick(object sender, RoutedEventArgs e)

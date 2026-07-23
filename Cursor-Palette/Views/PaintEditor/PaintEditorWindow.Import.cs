@@ -134,6 +134,14 @@ public partial class PaintEditorWindow
 
 		var imageBgra = BitmapToBgra(bitmap, imageWidth, imageHeight);
 
+		if (IsFullyTransparent(imageBgra))
+		{
+			MessageBox.Show(Loc.Get(LocPaintEmptyWarning), Loc.Get(LocPaintTitle),
+				MessageBoxButton.OK, MessageBoxImage.Warning);
+
+			return;
+		}
+
 		PushHistory();
 
 		if (mode == ImportImageDialog.ImportMode.Replace)

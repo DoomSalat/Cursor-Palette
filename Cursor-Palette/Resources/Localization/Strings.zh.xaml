@@ -77,6 +77,8 @@
 	<sys:String x:Key="S.Editor.PlaceholderBadge">默认</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">将文件拖到某个槽位以替换该角色</sys:String>
 	<sys:String x:Key="S.Editor.NoFiles">预设中没有任何文件 — 请至少填充一个槽位。</sys:String>
+	<sys:String x:Key="S.Editor.EmptyCursorWarning">此光标为空或完全透明。应用它可能导致鼠标光标完全消失。</sys:String>
+	<sys:String x:Key="S.Editor.EmptySkipped">{0} 个空或透明的光标已被跳过，以防止鼠标光标消失。</sys:String>
 	<sys:String x:Key="S.Editor.FileFilter">光标文件 (*.cur;*.ani)|*.cur;*.ani</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">选择文件夹…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">所选文件夹中没有光标文件（.cur/.ani）。</sys:String>
@@ -96,6 +98,7 @@
 	<sys:String x:Key="S.Hotspot.Presets">快速设置</sys:String>
 
 	<sys:String x:Key="S.Paint.Title">绘图编辑器</sys:String>
+	<sys:String x:Key="S.Paint.EmptyWarning">图像为空或完全透明。这可能导致鼠标光标在视觉上完全消失。</sys:String>
 	<sys:String x:Key="S.Position.Hint">在画布内移动图像，或调整画布大小</sys:String>
 	<sys:String x:Key="S.Position.CanvasWidth">画布宽度</sys:String>
 	<sys:String x:Key="S.Position.CanvasHeight">画布高度</sys:String>

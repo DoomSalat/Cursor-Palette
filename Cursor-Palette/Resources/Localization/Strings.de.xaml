@@ -77,6 +77,8 @@
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Datei auf einen Platz ziehen, um diese Rolle zu ersetzen</sys:String>
 	<sys:String x:Key="S.Editor.NoFiles">Das Preset enthält keine Dateien — mindestens einen Platz belegen.</sys:String>
+	<sys:String x:Key="S.Editor.EmptyCursorWarning">Dieser Cursor ist leer oder vollständig transparent. Das Anwenden kann dazu führen, dass der Mauszeiger vollständig verschwindet.</sys:String>
+	<sys:String x:Key="S.Editor.EmptySkipped">{0} leere oder transparente Cursor wurden übersprungen, um das Verschwinden des Mauszeigers zu verhindern.</sys:String>
 	<sys:String x:Key="S.Editor.FileFilter">Cursor (*.cur;*.ani)|*.cur;*.ani</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">Ordner wählen…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">Der ausgewählte Ordner enthält keine Cursordateien (.cur/.ani).</sys:String>
@@ -96,6 +98,7 @@
 	<sys:String x:Key="S.Hotspot.Presets">Schnellauswahl</sys:String>
 
 	<sys:String x:Key="S.Paint.Title">Mal-Editor</sys:String>
+	<sys:String x:Key="S.Paint.EmptyWarning">Das Bild ist leer oder vollständig transparent. Dies kann dazu führen, dass der Mauszeiger visuell vollständig verschwindet.</sys:String>
 	<sys:String x:Key="S.Position.Hint">Verschieben Sie das Bild auf der Leinwand oder ändern Sie die Leinwandgröße</sys:String>
 	<sys:String x:Key="S.Position.CanvasWidth">Leinwandbreite</sys:String>
 	<sys:String x:Key="S.Position.CanvasHeight">Leinwandhöhe</sys:String>

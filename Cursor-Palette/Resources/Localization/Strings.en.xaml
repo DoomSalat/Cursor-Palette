@@ -82,6 +82,8 @@
 	<sys:String x:Key="S.Editor.PlaceholderBadge">auto</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Drop a file onto a slot to replace that role</sys:String>
 	<sys:String x:Key="S.Editor.NoFiles">The preset has no files — fill in at least one slot.</sys:String>
+	<sys:String x:Key="S.Editor.EmptyCursorWarning">This cursor is empty or fully transparent. Applying it may cause the mouse cursor to completely disappear.</sys:String>
+	<sys:String x:Key="S.Editor.EmptySkipped">{0} empty or transparent cursor(s) were skipped to prevent the mouse cursor from disappearing.</sys:String>
 	<sys:String x:Key="S.Editor.FileFilter">Cursors (*.cur;*.ani)|*.cur;*.ani</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">Choose folder…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">The selected folder has no cursor files (.cur/.ani).</sys:String>
@@ -105,6 +107,7 @@
 	<sys:String x:Key="S.Hotspot.Presets">Quick set</sys:String>
 
 	<sys:String x:Key="S.Paint.Title">Paint editor</sys:String>
+	<sys:String x:Key="S.Paint.EmptyWarning">The image is empty or fully transparent. This can cause the mouse cursor to completely disappear visually.</sys:String>
 	<sys:String x:Key="S.Position.Hint">Move the image within the canvas, or resize the canvas</sys:String>
 	<sys:String x:Key="S.Position.CanvasWidth">Canvas width</sys:String>
 	<sys:String x:Key="S.Position.CanvasHeight">Canvas height</sys:String>

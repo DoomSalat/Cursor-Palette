@@ -65,6 +65,15 @@ public partial class PaintEditorWindow
 	private void OnSaveClick(object sender, RoutedEventArgs e)
 	{
 		var pixels = Compose();
+
+		if (IsFullyTransparent(pixels))
+		{
+			MessageBox.Show(Loc.Get(LocPaintEmptyWarning), Loc.Get(LocPaintTitle),
+				MessageBoxButton.OK, MessageBoxImage.Warning);
+
+			return;
+		}
+
 		var hotspotX = Math.Clamp(_offsetX + _hotspotOffsetX, 0, _canvasWidth - 1);
 		var hotspotY = Math.Clamp(_offsetY + _hotspotOffsetY, 0, _canvasHeight - 1);
 

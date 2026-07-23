@@ -77,6 +77,8 @@
 	<sys:String x:Key="S.Editor.PlaceholderBadge">既定</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">ファイルをスロットにドロップするとそのロールが置き換わります</sys:String>
 	<sys:String x:Key="S.Editor.NoFiles">プリセットにファイルがありません — 少なくとも1つのスロットを設定してください。</sys:String>
+	<sys:String x:Key="S.Editor.EmptyCursorWarning">このカーソルは空か完全に透明です。適用するとマウスカーソルが完全に消える可能性があります。</sys:String>
+	<sys:String x:Key="S.Editor.EmptySkipped">{0} 個の空または透明なカーソルが、マウスカーソルの消失を防ぐためスキップされました。</sys:String>
 	<sys:String x:Key="S.Editor.FileFilter">カーソル (*.cur;*.ani)|*.cur;*.ani</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">フォルダを選択…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">選択したフォルダにカーソルファイル（.cur/.ani）がありません。</sys:String>
@@ -96,6 +98,7 @@
 	<sys:String x:Key="S.Hotspot.Presets">クイック設定</sys:String>
 
 	<sys:String x:Key="S.Paint.Title">ペイントエディタ</sys:String>
+	<sys:String x:Key="S.Paint.EmptyWarning">画像が空か完全に透明です。これによりマウスカーソルが視覚的に完全に消える可能性があります。</sys:String>
 	<sys:String x:Key="S.Position.Hint">画像をキャンバス内で移動するか、キャンバスのサイズを変更します</sys:String>
 	<sys:String x:Key="S.Position.CanvasWidth">キャンバスの幅</sys:String>
 	<sys:String x:Key="S.Position.CanvasHeight">キャンバスの高さ</sys:String>

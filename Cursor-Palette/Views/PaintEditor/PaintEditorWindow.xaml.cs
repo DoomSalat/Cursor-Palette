@@ -25,6 +25,8 @@ public partial class PaintEditorWindow : Window
 
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocInfoPaint = "S.Info.Paint";
+	private const string LocPaintTitle = "S.Paint.Title";
+	private const string LocPaintEmptyWarning = "S.Paint.EmptyWarning";
 
 	private int _spriteWidth;
 	private int _spriteHeight;

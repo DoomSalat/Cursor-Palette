@@ -93,4 +93,15 @@ public partial class PaintEditorWindow
 		_offsetX = Math.Clamp(_offsetX, minX, maxX);
 		_offsetY = Math.Clamp(_offsetY, minY, maxY);
 	}
+
+	private static bool IsFullyTransparent(byte[] bgra)
+	{
+		for (var i = 3; i < bgra.Length; i += BytesPerPixel)
+		{
+			if (bgra[i] != 0)
+				return false;
+		}
+
+		return true;
+	}
 }

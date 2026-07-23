@@ -82,6 +82,8 @@
 	<sys:String x:Key="S.Editor.PlaceholderBadge">авто</sys:String>
 	<sys:String x:Key="S.Editor.SlotHint">Перетащите файл на слот, чтобы заменить роль</sys:String>
 	<sys:String x:Key="S.Editor.NoFiles">В пресете нет ни одного файла — заполните хотя бы один слот.</sys:String>
+	<sys:String x:Key="S.Editor.EmptyCursorWarning">Этот курсор пустой или полностью прозрачный. Его применение может привести к полному визуальному исчезновению мыши.</sys:String>
+	<sys:String x:Key="S.Editor.EmptySkipped">{0} пустых или прозрачных курсоров было пропущено во избежание исчезновения курсора мыши.</sys:String>
 	<sys:String x:Key="S.Editor.FileFilter">Курсоры (*.cur;*.ani)|*.cur;*.ani</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">Выбрать папку…</sys:String>
 	<sys:String x:Key="S.Editor.NoCursorInFolder">В выбранной папке нет файлов курсоров (.cur/.ani).</sys:String>
@@ -105,6 +107,7 @@
 	<sys:String x:Key="S.Hotspot.Presets">Быстрая установка</sys:String>
 
 	<sys:String x:Key="S.Paint.Title">Графический редактор</sys:String>
+	<sys:String x:Key="S.Paint.EmptyWarning">Изображение пустое или полностью прозрачное. Это может привести к полному визуальному исчезновению курсора мыши.</sys:String>
 	<sys:String x:Key="S.Position.Hint">Переместите изображение по холсту или измените размер холста</sys:String>
 	<sys:String x:Key="S.Position.CanvasWidth">Ширина холста</sys:String>
 	<sys:String x:Key="S.Position.CanvasHeight">Высота холста</sys:String>
