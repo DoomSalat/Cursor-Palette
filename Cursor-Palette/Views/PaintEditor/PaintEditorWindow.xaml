@@ -402,7 +402,7 @@
 					<Rectangle x:Name="ShadowRect" Stroke="{StaticResource Brush.TextDim}" StrokeThickness="1" StrokeDashArray="4,2" Fill="#40000000" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Rectangle x:Name="CanvasBgRect" Fill="{DynamicResource Brush.Checkerboard}" />
 					<Image x:Name="BgRefImage" IsHitTestVisible="False" Visibility="Collapsed" />
-					<Image x:Name="PreviewImage" SnapsToDevicePixels="True" MouseLeftButtonDown="OnSpriteMouseLeftButtonDown" MouseMove="OnSpriteMouseMove" MouseLeftButtonUp="OnSpriteMouseLeftButtonUp" Cursor="SizeAll" />
+					<Image x:Name="PreviewImage" SnapsToDevicePixels="True" IsHitTestVisible="False" />
 					<Rectangle x:Name="SpriteBoundsRect" Stroke="#FFFF8800" StrokeThickness="2" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Rectangle x:Name="PaintCursorRect" Width="1" Height="1" Stroke="#FFFFFFFF" StrokeThickness="0.05" IsHitTestVisible="False" Visibility="Collapsed" />
 					<Ellipse x:Name="HotspotMarkerGlow" Width="2" Height="2" Fill="{StaticResource Brush.Accent}" Opacity="0.3" IsHitTestVisible="False" Visibility="Collapsed" />

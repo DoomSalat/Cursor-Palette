@@ -34,7 +34,6 @@ public partial class PaintEditorWindow
 		HotspotToolPanel.Visibility = isHotspot ? Visibility.Visible : Visibility.Collapsed;
 		BgRefToolPanel.Visibility = isBgRef ? Visibility.Visible : Visibility.Collapsed;
 
-		PreviewImage.IsHitTestVisible = isMove;
 		ResizeOverlay.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
 		UpdateViewportCursor();
 		PaintCursorRect.Visibility = Visibility.Collapsed;

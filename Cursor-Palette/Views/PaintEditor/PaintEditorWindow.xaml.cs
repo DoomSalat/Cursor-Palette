@@ -52,6 +52,11 @@ public partial class PaintEditorWindow : Window
 	private int _dragStartOffsetX;
 	private int _dragStartOffsetY;
 
+	private bool _isDraggingBgRef;
+	private Point _bgRefDragStart;
+	private int _bgRefDragStartOffsetX;
+	private int _bgRefDragStartOffsetY;
+
 	private int _resizeOriginalWidth;
 	private int _resizeOriginalHeight;
 	private int _resizeOriginalOffsetX;

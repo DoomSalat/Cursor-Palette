@@ -49,6 +49,41 @@ public partial class PaintEditorWindow
 
 	private void OnViewportPreviewMouseDown(object sender, MouseButtonEventArgs e)
 	{
+		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolMove)
+		{
+			var pos = GetCanvasPosition(e);
+
+			if (pos.X < 0 || pos.X >= _canvasWidth || pos.Y < 0 || pos.Y >= _canvasHeight)
+				return;
+
+			PushHistory();
+			_isDraggingSprite = true;
+			_spriteDragStart = pos;
+			_dragStartOffsetX = _offsetX;
+			_dragStartOffsetY = _offsetY;
+			ViewportHost.CaptureMouse();
+			e.Handled = true;
+
+			return;
+		}
+
+		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolBgRef && _bgRefBitmap != null)
+		{
+			var pos = GetCanvasPosition(e);
+
+			if (pos.X < 0 || pos.X >= _canvasWidth || pos.Y < 0 || pos.Y >= _canvasHeight)
+				return;
+
+			_isDraggingBgRef = true;
+			_bgRefDragStart = pos;
+			_bgRefDragStartOffsetX = _bgRefOffsetX;
+			_bgRefDragStartOffsetY = _bgRefOffsetY;
+			ViewportHost.CaptureMouse();
+			e.Handled = true;
+
+			return;
+		}
+
 		if (e.ChangedButton == MouseButton.Left && IsEyedropperActive())
 		{
 			PickColorUnderCursor();
@@ -125,6 +160,24 @@ public partial class PaintEditorWindow
 			return;
 		}
 
+		if (_isDraggingSprite)
+		{
+			_isDraggingSprite = false;
+			ViewportHost.ReleaseMouseCapture();
+			e.Handled = true;
+
+			return;
+		}
+
+		if (_isDraggingBgRef)
+		{
+			_isDraggingBgRef = false;
+			ViewportHost.ReleaseMouseCapture();
+			e.Handled = true;
+
+			return;
+		}
+
 		var isHandDrag = e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolHand;
 
 		if ((e.ChangedButton != MouseButton.Middle && !isHandDrag) || !_isPanning)
@@ -151,6 +204,41 @@ public partial class PaintEditorWindow
 		if (_isDraggingHotspot)
 		{
 			SetHotspotFromCanvasPosition(GetCanvasPosition(e));
+			e.Handled = true;
+
+			return;
+		}
+
+		if (_isDraggingSprite)
+		{
+			var position = e.GetPosition(ViewportContent);
+			var deltaX = (int)Math.Round(position.X - _spriteDragStart.X);
+			var deltaY = (int)Math.Round(position.Y - _spriteDragStart.Y);
+
+			var (minX, maxX) = HorizontalRange();
+			var (minY, maxY) = VerticalRange();
+			_offsetX = Math.Clamp(_dragStartOffsetX + deltaX, minX, maxX);
+			_offsetY = Math.Clamp(_dragStartOffsetY + deltaY, minY, maxY);
+
+			RenderAll();
+			e.Handled = true;
+
+			return;
+		}
+
+		if (_isDraggingBgRef)
+		{
+			var position = e.GetPosition(ViewportContent);
+			var deltaX = (int)Math.Round(position.X - _bgRefDragStart.X);
+			var deltaY = (int)Math.Round(position.Y - _bgRefDragStart.Y);
+
+			_bgRefOffsetX = _bgRefDragStartOffsetX + deltaX;
+			_bgRefOffsetY = _bgRefDragStartOffsetY + deltaY;
+
+			BgRefOffsetXBox.Text = _bgRefOffsetX.ToString(System.Globalization.CultureInfo.InvariantCulture);
+			BgRefOffsetYBox.Text = _bgRefOffsetY.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+			UpdateBgRefRender();
 			e.Handled = true;
 
 			return;
@@ -233,13 +321,16 @@ public partial class PaintEditorWindow
 			return;
 		}
 
+		var isMove = _currentTool == AppState.PaintEditorToolMove;
 		var isHand = _currentTool == AppState.PaintEditorToolHand;
 		var isBrush = _currentTool == AppState.PaintEditorToolBrush;
 		var isEraser = _currentTool == AppState.PaintEditorToolEraser;
 		var isFill = _currentTool == AppState.PaintEditorToolFill;
 		var isHotspot = _currentTool == AppState.PaintEditorToolHotspot;
+		var isBgRef = _currentTool == AppState.PaintEditorToolBgRef;
 
 		ViewportHost.Cursor = isHand ? Cursors.Hand : (isBrush || isEraser || isHotspot || isFill) ? Cursors.Cross : Cursors.Arrow;
+		CanvasBgRect.Cursor = (isMove || isBgRef) ? Cursors.SizeAll : Cursors.Arrow;
 	}
 
 	private void CenterViewport()
