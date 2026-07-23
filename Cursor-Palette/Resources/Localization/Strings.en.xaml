@@ -159,9 +159,9 @@
 <sys:String x:Key="S.Editor.Timeline.UseForAll">Use for all</sys:String>
 <sys:String x:Key="S.Editor.Timeline.ManualRef">Manual reference control</sys:String>
 <sys:String x:Key="S.Editor.Timeline.LimitNote">Up to 60 frames, minimum 17 ms per frame (.ani format limit)</sys:String>
-	<sys:String x:Key="S.ImportImage.Tooltip">Load image into canvas (drag image here)</sys:String>
-	<sys:String x:Key="S.ImportImage.Button">Load image</sys:String>
-	<sys:String x:Key="S.ImportImage.Title">Load image</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">Load file into canvas (drag file here)</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">Load file</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">Load file</sys:String>
 	<sys:String x:Key="S.ImportImage.Info">Choose how to load the image into the canvas. Canvas expands to fit the image size.</sys:String>
 	<sys:String x:Key="S.ImportImage.Mode">Import mode</sys:String>
 	<sys:String x:Key="S.ImportImage.Over">Over</sys:String>

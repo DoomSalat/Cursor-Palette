@@ -150,9 +150,9 @@
 <sys:String x:Key="S.Editor.Timeline.UseForAll">应用于全部</sys:String>
 <sys:String x:Key="S.Editor.Timeline.ManualRef">手动控制参考帧</sys:String>
 <sys:String x:Key="S.Editor.Timeline.LimitNote">最多60帧，每帧最短17毫秒(.ani格式限制)</sys:String>
-	<sys:String x:Key="S.ImportImage.Tooltip">加载图像到画布（可拖放）</sys:String>
-	<sys:String x:Key="S.ImportImage.Button">加载图像</sys:String>
-	<sys:String x:Key="S.ImportImage.Title">加载图像</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">加载文件到画布（可拖放）</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">加载文件</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">加载文件</sys:String>
 	<sys:String x:Key="S.ImportImage.Info">选择加载方式。画布将扩展到图像大小。</sys:String>
 	<sys:String x:Key="S.ImportImage.Mode">导入模式</sys:String>
 	<sys:String x:Key="S.ImportImage.Over">叠加</sys:String>

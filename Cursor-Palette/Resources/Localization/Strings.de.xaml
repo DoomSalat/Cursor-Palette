@@ -150,9 +150,9 @@
 <sys:String x:Key="S.Editor.Timeline.UseForAll">Für alle</sys:String>
 <sys:String x:Key="S.Editor.Timeline.ManualRef">Manuelle Referenzsteuerung</sys:String>
 <sys:String x:Key="S.Editor.Timeline.LimitNote">Bis zu 60 Frames, mindestens 17 ms pro Frame (.ani-Formatlimit)</sys:String>
-	<sys:String x:Key="S.ImportImage.Tooltip">Bild in Leinwand laden (hierher ziehen)</sys:String>
-	<sys:String x:Key="S.ImportImage.Button">Bild laden</sys:String>
-	<sys:String x:Key="S.ImportImage.Title">Bild laden</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">Datei in Leinwand laden (hierher ziehen)</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">Datei laden</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">Datei laden</sys:String>
 	<sys:String x:Key="S.ImportImage.Info">Wählen Sie, wie das Bild geladen wird. Die Leinwand wird auf die Bildgröße erweitert.</sys:String>
 	<sys:String x:Key="S.ImportImage.Mode">Importmodus</sys:String>
 	<sys:String x:Key="S.ImportImage.Over">Überlagern</sys:String>

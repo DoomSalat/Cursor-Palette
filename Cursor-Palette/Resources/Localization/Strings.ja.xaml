@@ -150,9 +150,9 @@
 <sys:String x:Key="S.Editor.Timeline.UseForAll">全フレーム共通</sys:String>
 <sys:String x:Key="S.Editor.Timeline.ManualRef">参照の手動操作</sys:String>
 <sys:String x:Key="S.Editor.Timeline.LimitNote">最大60フレーム、1フレームあたり最短17ms（.ani形式の制限）</sys:String>
-	<sys:String x:Key="S.ImportImage.Tooltip">画像をキャンバスに読み込む（ドラッグ可）</sys:String>
-	<sys:String x:Key="S.ImportImage.Button">画像を読み込む</sys:String>
-	<sys:String x:Key="S.ImportImage.Title">画像を読み込む</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">ファイルをキャンバスに読み込む（ドラッグ可）</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">ファイルを読み込む</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">ファイルを読み込む</sys:String>
 	<sys:String x:Key="S.ImportImage.Info">読み込み方法を選択。キャンバスは画像サイズに拡張されます。</sys:String>
 	<sys:String x:Key="S.ImportImage.Mode">インポートモード</sys:String>
 	<sys:String x:Key="S.ImportImage.Over">重ねる</sys:String>

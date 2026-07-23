@@ -24,7 +24,9 @@ public partial class PaintEditorWindow
 	{
 		_windowWideDragLeaveWatchdog ??= DropZoneService.StartLeaveWatchdog(this, HideWindowWideDropIndicators);
 
-		ImportDropIndicator.Visibility = HasImportImageDrop(e) ? Visibility.Visible : Visibility.Collapsed;
+		var hasImport = HasImportImageDrop(e);
+		ImportDropIndicator.Visibility = hasImport ? Visibility.Visible : Visibility.Collapsed;
+		CanvasDropIndicator.Visibility = hasImport ? Visibility.Visible : Visibility.Collapsed;
 		BgRefDropIndicator.Visibility = DropZoneService.GetFirstFile(e, IsImageFile) != null ? Visibility.Visible : Visibility.Collapsed;
 	}
 
@@ -37,6 +39,7 @@ public partial class PaintEditorWindow
 	private void HideWindowWideDropIndicators()
 	{
 		ImportDropIndicator.Visibility = Visibility.Collapsed;
+		CanvasDropIndicator.Visibility = Visibility.Collapsed;
 		BgRefDropIndicator.Visibility = Visibility.Collapsed;
 
 		_windowWideDragLeaveWatchdog?.Dispose();
@@ -317,7 +320,55 @@ public partial class PaintEditorWindow
 	private void OnImportButtonDrop(object sender, DragEventArgs e)
 	{
 		HideImportDropIndicator();
+		HandleImportDrop(e);
+	}
 
+	private IDisposable? _canvasDragLeaveWatchdog;
+
+	private void OnCanvasDragEnter(object sender, DragEventArgs e)
+	{
+		_canvasDragLeaveWatchdog ??= DropZoneService.StartLeaveWatchdog(this, HideCanvasDropIndicator);
+
+		if (HasImportImageDrop(e))
+		{
+			e.Effects = DragDropEffects.Copy;
+			CanvasDropIndicator.Visibility = Visibility.Visible;
+		}
+		else
+		{
+			e.Effects = DragDropEffects.None;
+		}
+
+		e.Handled = true;
+	}
+
+	private void OnCanvasDragOver(object sender, DragEventArgs e)
+	{
+		e.Effects = HasImportImageDrop(e) ? DragDropEffects.Copy : DragDropEffects.None;
+		e.Handled = true;
+	}
+
+	private void OnCanvasDragLeave(object sender, DragEventArgs e)
+	{
+		DropZoneService.HandleWindowDragLeave(this, HideCanvasDropIndicator);
+		e.Handled = true;
+	}
+
+	private void HideCanvasDropIndicator()
+	{
+		CanvasDropIndicator.Visibility = Visibility.Collapsed;
+		_canvasDragLeaveWatchdog?.Dispose();
+		_canvasDragLeaveWatchdog = null;
+	}
+
+	private void OnCanvasDrop(object sender, DragEventArgs e)
+	{
+		HideCanvasDropIndicator();
+		HandleImportDrop(e);
+	}
+
+	private void HandleImportDrop(DragEventArgs e)
+	{
 		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
 			return;
 

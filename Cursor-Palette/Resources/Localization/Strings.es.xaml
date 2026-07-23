@@ -159,9 +159,9 @@
 <sys:String x:Key="S.Editor.Timeline.UseForAll">Para todos</sys:String>
 <sys:String x:Key="S.Editor.Timeline.ManualRef">Control manual de referencia</sys:String>
 <sys:String x:Key="S.Editor.Timeline.LimitNote">Hasta 60 fotogramas, mínimo 17 ms por fotograma (límite del formato .ani)</sys:String>
-	<sys:String x:Key="S.ImportImage.Tooltip">Cargar imagen en el lienzo (arrastrar aquí)</sys:String>
-	<sys:String x:Key="S.ImportImage.Button">Cargar imagen</sys:String>
-	<sys:String x:Key="S.ImportImage.Title">Cargar imagen</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">Cargar archivo en el lienzo (arrastrar aquí)</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">Cargar archivo</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">Cargar archivo</sys:String>
 	<sys:String x:Key="S.ImportImage.Info">Elija cómo cargar la imagen. El lienzo se expande al tamaño de la imagen.</sys:String>
 	<sys:String x:Key="S.ImportImage.Mode">Modo de importación</sys:String>
 	<sys:String x:Key="S.ImportImage.Over">Superponer</sys:String>

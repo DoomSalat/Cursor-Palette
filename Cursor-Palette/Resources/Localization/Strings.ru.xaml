@@ -159,9 +159,9 @@
 <sys:String x:Key="S.Editor.Timeline.UseForAll">Для всех</sys:String>
 <sys:String x:Key="S.Editor.Timeline.ManualRef">Ручное управление рефом</sys:String>
 <sys:String x:Key="S.Editor.Timeline.LimitNote">До 60 кадров, минимум 17 мс на кадр (ограничение формата .ani)</sys:String>
-	<sys:String x:Key="S.ImportImage.Tooltip">Загрузить изображение в холст (можно перетащить)</sys:String>
-	<sys:String x:Key="S.ImportImage.Button">Загрузить</sys:String>
-	<sys:String x:Key="S.ImportImage.Title">Загрузка изображения</sys:String>
+	<sys:String x:Key="S.ImportImage.Tooltip">Загрузить файл в холст (можно перетащить)</sys:String>
+	<sys:String x:Key="S.ImportImage.Button">Загрузить файл</sys:String>
+	<sys:String x:Key="S.ImportImage.Title">Загрузка файла</sys:String>
 	<sys:String x:Key="S.ImportImage.Info">Выберите способ загрузки. Холст расширяется до размера изображения.</sys:String>
 	<sys:String x:Key="S.ImportImage.Mode">Режим импорта</sys:String>
 	<sys:String x:Key="S.ImportImage.Over">Наложить</sys:String>

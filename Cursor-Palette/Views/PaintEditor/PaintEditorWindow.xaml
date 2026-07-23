@@ -521,6 +521,11 @@
 				  Grid.Column="0"
 				  Background="{StaticResource Brush.Bg}"
 				  ClipToBounds="True"
+				  AllowDrop="True"
+				  DragEnter="OnCanvasDragEnter"
+				  DragOver="OnCanvasDragOver"
+				  DragLeave="OnCanvasDragLeave"
+				  Drop="OnCanvasDrop"
 				  PreviewMouseWheel="OnViewportMouseWheel"
 				  PreviewMouseDown="OnViewportPreviewMouseDown"
 				  PreviewMouseMove="OnViewportPreviewMouseMove"
@@ -554,6 +559,13 @@
 						<TextBlock x:Name="ResizeSizeLabel" Foreground="{StaticResource Brush.Text}" FontSize="10" IsHitTestVisible="False" Visibility="Collapsed" />
 					</Canvas>
 				</Canvas>
+				<Rectangle x:Name="CanvasDropIndicator"
+						   Stroke="{StaticResource Brush.Accent}"
+						   StrokeThickness="3"
+						   StrokeDashArray="4 2"
+						   RadiusX="6" RadiusY="6"
+						   IsHitTestVisible="False"
+						   Visibility="Collapsed" />
 			</Grid>
 			<GridSplitter Grid.Column="1"
 						  Width="6"
