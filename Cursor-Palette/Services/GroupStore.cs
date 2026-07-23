@@ -36,6 +36,7 @@ public static class GroupStore
 			groups.Add(group);
 
 		SaveAll(groups);
+
 		return group;
 	}
 

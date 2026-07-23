@@ -7,12 +7,8 @@ public static class HelpTextService
 {
 	private static readonly Dictionary<string, string> Cache = new();
 
-	private static readonly string[] FallbackOrder =
-	{
-		LocalizationManager.Current,
-		"en",
-		"ru",
-	};
+	private static string[] GetFallbackOrder() =>
+		new[] { LocalizationManager.Current, "en", "ru" };
 
 	public static string Get(string topic)
 	{
@@ -20,7 +16,7 @@ public static class HelpTextService
 		if (Cache.TryGetValue(cacheKey, out var cached))
 			return cached;
 
-		foreach (var lang in FallbackOrder)
+		foreach (var lang in GetFallbackOrder())
 		{
 			var text = TryLoad(lang, topic);
 			if (text != null)
@@ -41,10 +37,12 @@ public static class HelpTextService
 		try
 		{
 			using var stream = Application.GetResourceStream(uri)?.Stream;
+
 			if (stream == null)
 				return null;
 
 			using var reader = new StreamReader(stream);
+
 			return reader.ReadToEnd().Replace("\r\n", "\n").TrimEnd('\n');
 		}
 		catch

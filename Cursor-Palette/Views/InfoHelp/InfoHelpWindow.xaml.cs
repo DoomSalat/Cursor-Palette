@@ -108,11 +108,18 @@ public partial class InfoHelpWindow : Window
 			var hasSectionHeader = para[0].StartsWith("## ");
 
 			if (hasSectionHeader || hasBullets || hasArrows)
+			{
 				RenderSectionCard(para);
-			else if (para.Count == 1)
+				continue;
+			}
+
+			if (i == 1 && para.Count == 1)
+			{
 				RenderStandalone(para[0]);
-			else
-				RenderTipsCard(para);
+				continue;
+			}
+
+			RenderTipsCard(para);
 		}
 	}
 
