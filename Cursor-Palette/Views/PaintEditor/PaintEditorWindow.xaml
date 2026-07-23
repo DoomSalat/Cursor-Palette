@@ -547,6 +547,12 @@
 						<TextBlock Text="Y:" Grid.Column="3" Foreground="{StaticResource Brush.TextDim}" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0" />
 						<TextBox x:Name="BgRefOffsetYBox" Grid.Column="4" Style="{StaticResource Style.TextBox}" Padding="4,2" HorizontalContentAlignment="Center" Text="0" TextChanged="OnBgRefOffsetYChanged" />
 					</Grid>
+					<CheckBox x:Name="BgRefBilinearCheck"
+							  Style="{StaticResource Style.ToggleCheckBox}"
+							  Content="{DynamicResource S.Editor.BgRef.Bilinear}"
+							  IsChecked="False"
+							  Margin="0,0,0,12"
+							  Click="OnBgRefBilinearClick" />
 					<Border x:Name="BgRefDropBorder" Background="{StaticResource Brush.SurfaceHover}" BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,12" Padding="4"
 							AllowDrop="True">
 						<Grid>

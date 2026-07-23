@@ -32,6 +32,7 @@ public partial class PaintEditorWindow
 	private int _bgRefOffsetY;
 	private bool _bgRefReady;
 	private string? _bgRefCustomPath;
+	private bool _bgRefBilinear;
 
 	private void InitBgRef()
 	{
@@ -45,6 +46,9 @@ public partial class PaintEditorWindow
 		BgRefMarginSlider.Value = _bgRefMargin;
 		BgRefOffsetXBox.Text = _bgRefOffsetX.ToString(CultureInfo.InvariantCulture);
 		BgRefOffsetYBox.Text = _bgRefOffsetY.ToString(CultureInfo.InvariantCulture);
+
+		_bgRefBilinear = AppState.GetBgRefBilinear();
+		BgRefBilinearCheck.IsChecked = _bgRefBilinear;
 
 		LoadDefaultRefImage();
 		_bgRefReady = true;
@@ -71,6 +75,7 @@ public partial class PaintEditorWindow
 		AppState.SetBgRefMargin(_bgRefMargin);
 		AppState.SetBgRefOffset(_bgRefOffsetX, _bgRefOffsetY);
 		AppState.SetBgRefCustomPath(_bgRefCustomPath);
+		AppState.SetBgRefBilinear(_bgRefBilinear);
 	}
 
 	private static string ExpandSystemPath(string path)
@@ -207,7 +212,7 @@ public partial class PaintEditorWindow
 		BgRefImage.Visibility = Visibility.Visible;
 
 		BgRefImage.Source = _bgRefBitmap;
-		RenderOptions.SetBitmapScalingMode(BgRefImage, BitmapScalingMode.HighQuality);
+		RenderOptions.SetBitmapScalingMode(BgRefImage, _bgRefBilinear ? BitmapScalingMode.HighQuality : BitmapScalingMode.NearestNeighbor);
 
 		var refW = (double)_bgRefBitmap.PixelWidth;
 		var refH = (double)_bgRefBitmap.PixelHeight;
@@ -332,6 +337,19 @@ public partial class PaintEditorWindow
 		BgRefMarginSlider.Value = _bgRefMargin;
 		BgRefOffsetXBox.Text = _bgRefOffsetX.ToString(CultureInfo.InvariantCulture);
 		BgRefOffsetYBox.Text = _bgRefOffsetY.ToString(CultureInfo.InvariantCulture);
+
+		_bgRefBilinear = false;
+		BgRefBilinearCheck.IsChecked = _bgRefBilinear;
+
+		UpdateBgRefRender();
+	}
+
+	private void OnBgRefBilinearClick(object sender, RoutedEventArgs e)
+	{
+		if (!_bgRefReady)
+			return;
+
+		_bgRefBilinear = BgRefBilinearCheck.IsChecked == true;
 
 		UpdateBgRefRender();
 	}

@@ -74,6 +74,7 @@ public static class AppState
 		public int BgRefOffsetX { get; set; }
 		public int BgRefOffsetY { get; set; }
 		public string? BgRefCustomPath { get; set; }
+		public bool BgRefBilinear { get; set; }
 	}
 
 	public static string? GetActivePresetId()
@@ -353,6 +354,16 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.BgRefCustomPath = string.IsNullOrWhiteSpace(path) ? null : path;
+
+		SaveSettings(settings);
+	}
+
+	public static bool GetBgRefBilinear() => LoadSettings().BgRefBilinear;
+
+	public static void SetBgRefBilinear(bool enabled)
+	{
+		var settings = LoadSettings();
+		settings.BgRefBilinear = enabled;
 
 		SaveSettings(settings);
 	}
