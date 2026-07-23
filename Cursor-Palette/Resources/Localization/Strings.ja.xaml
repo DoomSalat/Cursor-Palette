@@ -80,9 +80,9 @@
 	<sys:String x:Key="S.Editor.NoFiles">プリセットにファイルがありません — 少なくとも1つのスロットを設定してください。</sys:String>
 	<sys:String x:Key="S.Editor.EmptyCursorWarning">このカーソルは空か完全に透明です。適用するとマウスカーソルが完全に消える可能性があります。</sys:String>
 	<sys:String x:Key="S.Editor.EmptySkipped">{0} 個の空または透明なカーソルが、マウスカーソルの消失を防ぐためスキップされました。</sys:String>
-	<sys:String x:Key="S.Editor.FileFilter">カーソル (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">カーソルと画像 (*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">フォルダを選択…</sys:String>
-	<sys:String x:Key="S.Editor.NoCursorInFolder">選択したフォルダにカーソルファイル（.cur/.ani）がありません。</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">選択したフォルダにカーソルまたは画像ファイル（.cur/.ani/.png/.jpg/.bmp/.gif）がありません。</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">{0} 個のカーソルファイルが見つかりましたが、ファイル名からロールを特定できませんでした。</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">既存から選択</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">リンク先: {0}</sys:String>

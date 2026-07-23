@@ -439,7 +439,7 @@ public partial class MainWindow
 
 		return paths.Any(path =>
 			Directory.Exists(path) || ArchiveImportService.IsArchiveFile(path) ||
-			PresetPackageService.IsSupportedPackageFile(path) || IsCursorFile(path));
+			PresetPackageService.IsSupportedPackageFile(path) || ImageToCursorService.IsConvertibleFile(path));
 	}
 
 	private static List<string> ResolveCursorFiles(IEnumerable<string> paths)
@@ -450,22 +450,15 @@ public partial class MainWindow
 		{
 			if (Directory.Exists(path))
 				result.AddRange(Directory.EnumerateFiles(path, FileSearchPattern, SearchOption.TopDirectoryOnly)
-					.Where(IsCursorFile));
+					.Where(ImageToCursorService.IsConvertibleFile));
 			else if (ArchiveImportService.IsArchiveFile(path))
 				result.AddRange(Directory.EnumerateFiles(
 						ArchiveImportService.ExtractToTempFolder(path), FileSearchPattern, SearchOption.AllDirectories)
-					.Where(IsCursorFile));
-			else if (IsCursorFile(path))
+					.Where(ImageToCursorService.IsConvertibleFile));
+			else if (ImageToCursorService.IsConvertibleFile(path))
 				result.Add(path);
 		}
 
 		return result;
-	}
-
-	private static bool IsCursorFile(string path)
-	{
-		var extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
-
-		return extension is CurExtension or AniExtension;
 	}
 }

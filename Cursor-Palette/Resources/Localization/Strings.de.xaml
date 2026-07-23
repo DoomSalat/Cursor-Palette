@@ -80,9 +80,9 @@
 	<sys:String x:Key="S.Editor.NoFiles">Das Preset enthält keine Dateien — mindestens einen Platz belegen.</sys:String>
 	<sys:String x:Key="S.Editor.EmptyCursorWarning">Dieser Cursor ist leer oder vollständig transparent. Das Anwenden kann dazu führen, dass der Mauszeiger vollständig verschwindet.</sys:String>
 	<sys:String x:Key="S.Editor.EmptySkipped">{0} leere oder transparente Cursor wurden übersprungen, um das Verschwinden des Mauszeigers zu verhindern.</sys:String>
-	<sys:String x:Key="S.Editor.FileFilter">Cursor (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">Cursor und Bilder (*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">Ordner wählen…</sys:String>
-	<sys:String x:Key="S.Editor.NoCursorInFolder">Der ausgewählte Ordner enthält keine Cursordateien (.cur/.ani).</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">Der ausgewählte Ordner enthält keine Cursor- oder Bilddateien (.cur/.ani/.png/.jpg/.bmp/.gif).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">{0} Cursordateien gefunden, aber keine konnte anhand des Dateinamens einer Rolle zugeordnet werden.</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">Aus vorhandenen wählen</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Verknüpft mit: {0}</sys:String>

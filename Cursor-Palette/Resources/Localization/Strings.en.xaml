@@ -85,9 +85,9 @@
 	<sys:String x:Key="S.Editor.NoFiles">The preset has no files — fill in at least one slot.</sys:String>
 	<sys:String x:Key="S.Editor.EmptyCursorWarning">This cursor is empty or fully transparent. Applying it may cause the mouse cursor to completely disappear.</sys:String>
 	<sys:String x:Key="S.Editor.EmptySkipped">{0} empty or transparent cursor(s) were skipped to prevent the mouse cursor from disappearing.</sys:String>
-	<sys:String x:Key="S.Editor.FileFilter">Cursors (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">Cursors and images (*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">Choose folder…</sys:String>
-	<sys:String x:Key="S.Editor.NoCursorInFolder">The selected folder has no cursor files (.cur/.ani).</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">The selected folder has no cursor or image files (.cur/.ani/.png/.jpg/.bmp/.gif).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Found {0} cursor files, but none could be matched to a role by file name.</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">Pick from existing</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Linked to: {0}</sys:String>

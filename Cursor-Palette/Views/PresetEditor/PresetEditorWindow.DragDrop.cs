@@ -18,7 +18,7 @@ public partial class PresetEditorWindow
 			FolderDropIndicator.Visibility = Visibility.Visible;
 			SetSlotIndicatorsVisibility(Visibility.Collapsed);
 		}
-		else if (GetSingleCursorFile(e) != null)
+		else if (GetSingleDroppableFile(e) != null)
 		{
 			FolderDropIndicator.Visibility = Visibility.Collapsed;
 			SetSlotIndicatorsVisibility(Visibility.Visible);
@@ -107,18 +107,11 @@ public partial class PresetEditorWindow
 		return paths.Any(path => Directory.Exists(path) || ArchiveImportService.IsArchiveFile(path));
 	}
 
-	private static string? GetSingleCursorFile(DragEventArgs e)
+	private static string? GetSingleDroppableFile(DragEventArgs e)
 	{
 		if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
 			return null;
 
-		var file = paths.FirstOrDefault(File.Exists);
-
-		if (file == null)
-			return null;
-
-		var extension = Path.GetExtension(file).ToLowerInvariant();
-
-		return extension is CurExtension or AniExtension ? file : null;
+		return paths.FirstOrDefault(p => File.Exists(p) && ImageToCursorService.IsConvertibleFile(p));
 	}
 }

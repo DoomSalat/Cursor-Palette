@@ -288,7 +288,7 @@ public partial class PresetEditorWindow
 
 		DropZoneService.AttachManaged(
 			border,
-			e => !slot.IsLocked && GetSingleCursorFile(e) != null,
+			e => !slot.IsLocked && GetSingleDroppableFile(e) != null,
 			_ => { },
 			HideAllDropIndicators);
 
@@ -301,11 +301,19 @@ public partial class PresetEditorWindow
 				return;
 			}
 
-			var file = GetSingleCursorFile(e);
+			var file = GetSingleDroppableFile(e);
 
 			if (file != null)
 			{
-				if (IsCursorFullyTransparent(file))
+				var cursorPath = ImageToCursorService.ConvertToCursorTempFile(file);
+
+				if (cursorPath == null)
+				{
+					e.Handled = true;
+					return;
+				}
+
+				if (ImageToCursorService.IsFullyTransparent(cursorPath))
 				{
 					MessageBox.Show(Loc.Get(LocEditorEmptyCursorWarning), Title,
 						MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -314,7 +322,7 @@ public partial class PresetEditorWindow
 					return;
 				}
 
-				SetSlotSource(slot, file);
+				SetSlotSource(slot, cursorPath);
 				e.Handled = true;
 			}
 		};

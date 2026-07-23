@@ -172,7 +172,11 @@ public partial class PresetEditorWindow : Window
 			if (role == null)
 				continue;
 
-			if (IsCursorFullyTransparent(file))
+			var cursorPath = ImageToCursorService.ConvertToCursorTempFile(file);
+			if (cursorPath == null)
+				continue;
+
+			if (ImageToCursorService.IsFullyTransparent(cursorPath))
 			{
 				emptySkipped++;
 				continue;
@@ -180,7 +184,7 @@ public partial class PresetEditorWindow : Window
 
 			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
 
-			SetSlotSource(slot, file);
+			SetSlotSource(slot, cursorPath);
 		}
 
 		if (emptySkipped > 0)

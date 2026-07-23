@@ -19,14 +19,19 @@ public partial class PresetEditorWindow
 		};
 		if (dialog.ShowDialog(this) == true)
 		{
-			if (IsCursorFullyTransparent(dialog.FileName))
+			var cursorPath = ImageToCursorService.ConvertToCursorTempFile(dialog.FileName);
+
+			if (cursorPath == null)
+				return;
+
+			if (ImageToCursorService.IsFullyTransparent(cursorPath))
 			{
 				MessageBox.Show(Loc.Get(LocEditorEmptyCursorWarning), Title,
 					MessageBoxButton.OK, MessageBoxImage.Warning);
 				return;
 			}
 
-			SetSlotSource(slot, dialog.FileName);
+			SetSlotSource(slot, cursorPath);
 		}
 	}
 

@@ -85,9 +85,9 @@
 	<sys:String x:Key="S.Editor.NoFiles">В пресете нет ни одного файла — заполните хотя бы один слот.</sys:String>
 	<sys:String x:Key="S.Editor.EmptyCursorWarning">Этот курсор пустой или полностью прозрачный. Его применение может привести к полному визуальному исчезновению мыши.</sys:String>
 	<sys:String x:Key="S.Editor.EmptySkipped">{0} пустых или прозрачных курсоров было пропущено во избежание исчезновения курсора мыши.</sys:String>
-	<sys:String x:Key="S.Editor.FileFilter">Курсоры (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">Курсоры и изображения (*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">Выбрать папку…</sys:String>
-	<sys:String x:Key="S.Editor.NoCursorInFolder">В выбранной папке нет файлов курсоров (.cur/.ani).</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">В выбранной папке нет файлов курсоров или изображений (.cur/.ani/.png/.jpg/.bmp/.gif).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Найдено {0} файлов курсоров, но ни один не удалось сопоставить с ролями по имени файла.</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">Выбрать из существующих</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Связано с: {0}</sys:String>

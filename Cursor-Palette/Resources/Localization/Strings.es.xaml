@@ -85,9 +85,9 @@
 	<sys:String x:Key="S.Editor.NoFiles">El preajuste no tiene archivos — completa al menos un espacio.</sys:String>
 	<sys:String x:Key="S.Editor.EmptyCursorWarning">Este cursor está vacío o es completamente transparente. Aplicarlo puede hacer que el cursor del ratón desaparezca por completo.</sys:String>
 	<sys:String x:Key="S.Editor.EmptySkipped">{0} cursor(es) vacío(s) o transparente(s) fueron omitidos para evitar que el cursor del ratón desaparezca.</sys:String>
-	<sys:String x:Key="S.Editor.FileFilter">Cursores (*.cur;*.ani)|*.cur;*.ani</sys:String>
+	<sys:String x:Key="S.Editor.FileFilter">Cursores e imágenes (*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.cur;*.ani;*.png;*.jpg;*.jpeg;*.bmp;*.gif</sys:String>
 	<sys:String x:Key="S.Editor.BrowseFolder">Elegir carpeta…</sys:String>
-	<sys:String x:Key="S.Editor.NoCursorInFolder">La carpeta seleccionada no tiene archivos de cursor (.cur/.ani).</sys:String>
+	<sys:String x:Key="S.Editor.NoCursorInFolder">La carpeta seleccionada no tiene archivos de cursor o imagen (.cur/.ani/.png/.jpg/.bmp/.gif).</sys:String>
 	<sys:String x:Key="S.Editor.NoMatchInFolder">Se encontraron {0} archivos de cursor, pero ninguno pudo asociarse a un rol por el nombre del archivo.</sys:String>
 	<sys:String x:Key="S.Editor.PickExisting">Elegir de existentes</sys:String>
 	<sys:String x:Key="S.Editor.LinkedRole.Tooltip">Vinculado a: {0}</sys:String>

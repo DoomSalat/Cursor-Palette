@@ -1,6 +1,4 @@
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using CursorPalette.Models;
 using CursorPalette.Services;
 using Microsoft.Win32;
@@ -30,11 +28,11 @@ public partial class PresetEditorWindow
 			NameBox.Text = folderName;
 
 		var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-		var cursorFiles = Directory.EnumerateFiles(folder, "*.*", searchOption)
-			.Where(IsCursorFile)
+		var convertibleFiles = Directory.EnumerateFiles(folder, "*.*", searchOption)
+			.Where(ImageToCursorService.IsConvertibleFile)
 			.ToList();
 
-		if (cursorFiles.Count == 0)
+		if (convertibleFiles.Count == 0)
 		{
 			MessageBox.Show(Loc.Get(LocEditorNoCursorInFolder), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
@@ -44,7 +42,7 @@ public partial class PresetEditorWindow
 		var matched = 0;
 		var emptySkipped = 0;
 
-		foreach (var file in cursorFiles)
+		foreach (var file in convertibleFiles)
 		{
 			var role = CursorRoles.MatchByFileName(file);
 			if (role == null)
@@ -56,13 +54,17 @@ public partial class PresetEditorWindow
 			if (slot.IsLocked)
 				continue;
 
-			if (IsCursorFullyTransparent(file))
+			var cursorPath = ImageToCursorService.ConvertToCursorTempFile(file);
+			if (cursorPath == null)
+				continue;
+
+			if (ImageToCursorService.IsFullyTransparent(cursorPath))
 			{
 				emptySkipped++;
 				continue;
 			}
 
-			SetSlotSource(slot, file);
+			SetSlotSource(slot, cursorPath);
 		}
 
 		if (emptySkipped > 0)
@@ -73,87 +75,8 @@ public partial class PresetEditorWindow
 
 		if (matched == 0)
 		{
-			MessageBox.Show(Loc.Format(LocEditorNoMatchInFolder, cursorFiles.Count), Title,
+			MessageBox.Show(Loc.Format(LocEditorNoMatchInFolder, convertibleFiles.Count), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 		}
-	}
-
-	private static bool IsCursorFile(string path)
-	{
-		var extension = Path.GetExtension(path).ToLowerInvariant();
-
-		return extension is CurExtension or AniExtension;
-	}
-
-	private static bool IsCursorFullyTransparent(string path)
-	{
-		var extension = Path.GetExtension(path).ToLowerInvariant();
-
-		if (extension == CurExtension)
-		{
-			var image = CursorCanvasService.TryRead(path);
-			if (image == null)
-				return false;
-
-			for (var i = 3; i < image.Bgra.Length; i += 4)
-			{
-				if (image.Bgra[i] != 0)
-					return false;
-			}
-
-			return true;
-		}
-
-		if (extension == AniExtension)
-		{
-			var frames = AniCursorReader.Read(path);
-			if (frames == null || frames.Frames.Count == 0)
-				return false;
-
-			foreach (var frame in frames.Frames)
-			{
-				if (IsBitmapSourceVisible(frame))
-					return false;
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private static bool IsBitmapSourceVisible(BitmapSource bitmap)
-	{
-		var width = bitmap.PixelWidth;
-		var height = bitmap.PixelHeight;
-
-		if (width == 0 || height == 0)
-			return false;
-
-		var stride = width * 4;
-		var pixels = new byte[stride * height];
-
-		if (bitmap.Format == PixelFormats.Bgra32)
-		{
-			bitmap.CopyPixels(pixels, stride, 0);
-		}
-		else
-		{
-			var converted = new FormatConvertedBitmap();
-			converted.BeginInit();
-			converted.Source = bitmap;
-			converted.DestinationFormat = PixelFormats.Bgra32;
-			converted.EndInit();
-			converted.Freeze();
-			converted.CopyPixels(pixels, stride, 0);
-		}
-
-		for (var i = 3; i < pixels.Length; i += 4)
-		{
-			if (pixels[i] != 0)
-				return true;
-		}
-
-		return false;
 	}
 }
