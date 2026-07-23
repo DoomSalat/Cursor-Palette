@@ -16,7 +16,6 @@ public partial class RolePickerWindow : Window
 	private const double TileFontSize = 11;
 
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoRolePicker = "S.Info.RolePicker";
 	private const string BrushAccent = "Brush.Accent";
 	private const string BrushBorder = "Brush.Border";
 	private const string BrushSurface = "Brush.Surface";
@@ -52,7 +51,7 @@ public partial class RolePickerWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoRolePicker)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("RolePicker")) { Owner = this }.ShowDialog();
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];

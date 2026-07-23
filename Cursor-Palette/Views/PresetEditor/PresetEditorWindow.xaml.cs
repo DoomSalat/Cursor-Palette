@@ -76,7 +76,6 @@ public partial class PresetEditorWindow : Window
 	private const string StyleDangerButton = "Style.DangerButton";
 
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoEditor = "S.Info.Editor";
 	private const string LocEditorTitleNew = "S.Editor.TitleNew";
 	private const string LocEditorTitleEdit = "S.Editor.TitleEdit";
 	private const string LocDefaultPresetName = "S.DefaultPresetName";
@@ -198,6 +197,6 @@ public partial class PresetEditorWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoEditor)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Editor")) { Owner = this }.ShowDialog();
 	}
 }

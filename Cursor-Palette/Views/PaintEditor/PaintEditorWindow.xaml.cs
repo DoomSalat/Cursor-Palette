@@ -24,7 +24,6 @@ public partial class PaintEditorWindow : Window
 	private const string StyleButton = "Style.Button";
 
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoPaint = "S.Info.Paint";
 	private const string LocPaintTitle = "S.Paint.Title";
 	private const string LocPaintEmptyWarning = "S.Paint.EmptyWarning";
 

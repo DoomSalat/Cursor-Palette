@@ -29,7 +29,6 @@ public partial class ExportWindow : Window
 	private const string LocErrorTitle = "S.Error.Title";
 	private const string LocErrorExportFailed = "S.Error.ExportFailed";
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoExport = "S.Info.Export";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
@@ -56,7 +55,7 @@ public partial class ExportWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoExport)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Export")) { Owner = this }.ShowDialog();
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];

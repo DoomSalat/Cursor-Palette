@@ -14,7 +14,6 @@ public partial class HotspotEditorWindow : Window
 	private const string CoordsFormat = "X: {0}   Y: {1}";
 
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoHotspot = "S.Info.Hotspot";
 	private const string StyleAccentButton = "Style.AccentButton";
 	private const string StyleButton = "Style.Button";
 
@@ -67,7 +66,7 @@ public partial class HotspotEditorWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoHotspot)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Hotspot")) { Owner = this }.ShowDialog();
 	}
 
 	private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)

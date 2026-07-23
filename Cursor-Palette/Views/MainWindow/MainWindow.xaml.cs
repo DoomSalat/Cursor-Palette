@@ -114,7 +114,6 @@ public partial class MainWindow : Window
 	private const string BrushText = "Brush.Text";
 
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoMain = "S.Info.Main";
 	private const string LocErrorArchiveExtractFailed = "S.Error.ArchiveExtractFailed";
 
 	private const double UiZoomStep = 0.1;

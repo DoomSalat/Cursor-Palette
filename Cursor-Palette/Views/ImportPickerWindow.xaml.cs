@@ -144,7 +144,7 @@ public partial class ImportPickerWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoImport)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Import")) { Owner = this }.ShowDialog();
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];

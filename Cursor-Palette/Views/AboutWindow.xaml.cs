@@ -15,6 +15,6 @@ public partial class AboutWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get("S.Info.Title"), Loc.Get("S.Info.About")) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get("S.Info.Title"), Services.HelpTextService.Get("About")) { Owner = this }.ShowDialog();
 	}
 }

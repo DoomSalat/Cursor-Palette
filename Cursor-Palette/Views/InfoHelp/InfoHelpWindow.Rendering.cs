@@ -24,6 +24,10 @@ public partial class InfoHelpWindow : Window
 		var stackPanel = new StackPanel();
 
 		var header = para[0];
+
+		if (header.StartsWith("## "))
+			header = header[3..];
+
 		if (!string.IsNullOrEmpty(header))
 		{
 			stackPanel.Children.Add(new TextBlock
@@ -53,7 +57,7 @@ public partial class InfoHelpWindow : Window
 				arrowBlock.Clear();
 			}
 
-			if (line.StartsWith("•"))
+			if (line.StartsWith("- "))
 			{
 				stackPanel.Children.Add(BuildBulletItem(line));
 			}
@@ -288,7 +292,7 @@ public partial class InfoHelpWindow : Window
 		};
 		Grid.SetColumn(bullet, 0);
 
-		var bulletText = line.TrimStart('•', ' ');
+		var bulletText = line.StartsWith("- ") ? line[2..] : line.TrimStart('•', ' ');
 		var text = BuildTextWithInlineImages(bulletText, BrushTextDim, 0.5);
 		text.FontSize = 13;
 		text.VerticalAlignment = VerticalAlignment.Top;

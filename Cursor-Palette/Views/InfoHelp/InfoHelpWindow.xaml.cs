@@ -93,14 +93,21 @@ public partial class InfoHelpWindow : Window
 
 			if (i == 0)
 			{
-				RenderTitle(para[0]);
+				var titleText = para[0];
+
+				if (titleText.StartsWith("# "))
+					titleText = titleText[2..];
+
+				RenderTitle(titleText);
+
 				continue;
 			}
 
-			var hasBullets = para.Any(l => l.StartsWith("•"));
+			var hasBullets = para.Any(l => l.StartsWith("- "));
 			var hasArrows = para.Any(l => IsArrowLine(l));
+			var hasSectionHeader = para[0].StartsWith("## ");
 
-			if (hasBullets || hasArrows)
+			if (hasSectionHeader || hasBullets || hasArrows)
 				RenderSectionCard(para);
 			else if (para.Count == 1)
 				RenderStandalone(para[0]);

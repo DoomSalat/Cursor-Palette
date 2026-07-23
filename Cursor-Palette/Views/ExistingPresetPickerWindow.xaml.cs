@@ -20,7 +20,6 @@ public partial class ExistingPresetPickerWindow : Window
 	private const double MixedBadgeFontSize = 13;
 
 	private const string LocInfoTitle = "S.Info.Title";
-	private const string LocInfoPresetPicker = "S.Info.PresetPicker";
 	private const string BrushAccent = "Brush.Accent";
 	private const string BrushBorder = "Brush.Border";
 	private const string BrushSurface = "Brush.Surface";
@@ -44,7 +43,7 @@ public partial class ExistingPresetPickerWindow : Window
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoPresetPicker)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("PresetPicker")) { Owner = this }.ShowDialog();
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];

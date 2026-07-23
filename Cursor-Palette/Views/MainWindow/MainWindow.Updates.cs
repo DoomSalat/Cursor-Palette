@@ -73,7 +73,7 @@ public partial class MainWindow
 
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), Loc.Get(LocInfoMain)) { Owner = this }.ShowDialog();
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Main")) { Owner = this }.ShowDialog();
 	}
 
 	private void OnOpenFolderToggleClick(object sender, RoutedEventArgs e)
