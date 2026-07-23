@@ -8,7 +8,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>CursorPalette</RootNamespace>
 		<AssemblyName>Cursor-Palette</AssemblyName>
-		<Version>2.1.1</Version>
+		<Version>2.2.0</Version>
 		<InvariantGlobalization>false</InvariantGlobalization>
 		<ApplicationIcon>app.ico</ApplicationIcon>
 	</PropertyGroup>

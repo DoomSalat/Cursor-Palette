@@ -49,6 +49,8 @@ public partial class PaintEditorWindow
 
 		BgRefOpacitySlider.Value = _bgRefOpacity;
 		BgRefMarginSlider.Value = _bgRefMargin;
+		BgRefOpacityValue.Text = $"{_bgRefOpacity:0}%";
+		BgRefMarginValue.Text = _bgRefMargin.ToString("+0;-0;0", CultureInfo.InvariantCulture);
 		BgRefOffsetXBox.Text = _bgRefOffsetX.ToString(CultureInfo.InvariantCulture);
 		BgRefOffsetYBox.Text = _bgRefOffsetY.ToString(CultureInfo.InvariantCulture);
 
@@ -280,6 +282,7 @@ public partial class PaintEditorWindow
 			return;
 
 		_bgRefOpacity = e.NewValue;
+		BgRefOpacityValue.Text = $"{_bgRefOpacity:0}%";
 
 		UpdateBgRefRender();
 	}
@@ -290,6 +293,7 @@ public partial class PaintEditorWindow
 			return;
 
 		_bgRefMargin = (int)Math.Round(e.NewValue);
+		BgRefMarginValue.Text = _bgRefMargin.ToString("+0;-0;0", CultureInfo.InvariantCulture);
 
 		UpdateBgRefRender();
 	}
@@ -346,6 +350,8 @@ public partial class PaintEditorWindow
 
 		BgRefOpacitySlider.Value = _bgRefOpacity;
 		BgRefMarginSlider.Value = _bgRefMargin;
+		BgRefOpacityValue.Text = $"{_bgRefOpacity:0}%";
+		BgRefMarginValue.Text = _bgRefMargin.ToString("+0;-0;0", CultureInfo.InvariantCulture);
 		BgRefOffsetXBox.Text = _bgRefOffsetX.ToString(CultureInfo.InvariantCulture);
 		BgRefOffsetYBox.Text = _bgRefOffsetY.ToString(CultureInfo.InvariantCulture);
 

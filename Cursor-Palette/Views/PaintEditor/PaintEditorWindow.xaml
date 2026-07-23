@@ -476,6 +476,13 @@
 								 HorizontalContentAlignment="Center"
 								 Text="100"
 								 TextChanged="OnFrameDurationChanged" />
+						<CheckBox x:Name="UseDurationForAllCheck"
+								  Style="{StaticResource Style.ToggleCheckBox}"
+								  Content="{DynamicResource S.Editor.Timeline.UseForAll}"
+								  VerticalAlignment="Center"
+								  Margin="8,0,0,0"
+								  Checked="OnUseDurationForAllChanged"
+								  Unchecked="OnUseDurationForAllChanged" />
 
 						<CheckBox x:Name="ManualRefCheck"
 								  Style="{StaticResource Style.ToggleCheckBox}"
@@ -665,10 +672,16 @@
 					<StackPanel x:Name="FillToolPanel" DockPanel.Dock="Top" Visibility="Collapsed" />
 					<StackPanel x:Name="BgRefToolPanel" DockPanel.Dock="Top" Visibility="Collapsed">
 					<TextBlock Text="{DynamicResource S.Editor.Tool.BgRefHint}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,10" />
-					<TextBlock Text="{DynamicResource S.Editor.BgRef.Opacity}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4" />
+					<DockPanel Margin="0,0,0,4">
+						<TextBlock Text="{DynamicResource S.Editor.BgRef.Opacity}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" VerticalAlignment="Center" />
+						<TextBlock x:Name="BgRefOpacityValue" Text="50%" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
+					</DockPanel>
 					<Slider x:Name="BgRefOpacitySlider" Style="{StaticResource Style.Slider}" Minimum="0" Maximum="100" Value="50" Margin="0,0,0,12" ValueChanged="OnBgRefOpacityChanged" />
-					<TextBlock Text="{DynamicResource S.Editor.BgRef.Margin}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4" />
-					<Slider x:Name="BgRefMarginSlider" Style="{StaticResource Style.Slider}" Minimum="0" Maximum="128" Value="0" Margin="0,0,0,12" ValueChanged="OnBgRefMarginChanged" />
+					<DockPanel Margin="0,0,0,4">
+						<TextBlock Text="{DynamicResource S.Editor.BgRef.Margin}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" VerticalAlignment="Center" />
+						<TextBlock x:Name="BgRefMarginValue" Text="0" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
+					</DockPanel>
+					<Slider x:Name="BgRefMarginSlider" Style="{StaticResource Style.Slider}" Minimum="-128" Maximum="128" Value="0" Margin="0,0,0,12" ValueChanged="OnBgRefMarginChanged" />
 					<TextBlock Text="{DynamicResource S.Editor.BgRef.Offset}" Foreground="{StaticResource Brush.TextDim}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,4" />
 					<Grid Margin="0,0,0,12">
 						<Grid.ColumnDefinitions>

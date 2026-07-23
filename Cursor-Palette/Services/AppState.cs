@@ -343,7 +343,7 @@ public static class AppState
 	public static void SetBgRefMargin(int margin)
 	{
 		var settings = LoadSettings();
-		settings.BgRefMargin = Math.Max(0, margin);
+		settings.BgRefMargin = margin;
 
 		SaveSettings(settings);
 	}

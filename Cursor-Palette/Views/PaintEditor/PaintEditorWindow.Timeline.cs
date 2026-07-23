@@ -22,6 +22,8 @@ public partial class PaintEditorWindow
 	private int _activeFrameDurationMs = DefaultFrameDurationMs;
 	private bool _isPlayingTimeline;
 	private bool _refManualMode;
+	private bool _useDurationForAll;
+	private List<int>? _savedFrameDurations;
 	private DispatcherTimer? _playbackTimer;
 
 	private bool IsAnimated => _timelineFrames.Count > 1;
@@ -153,6 +155,7 @@ public partial class PaintEditorWindow
 		RemoveFrameButton.IsEnabled = !_isPlayingTimeline && _timelineFrames.Count > 1;
 		PlayStopButton.IsEnabled = _timelineFrames.Count > 1;
 		FrameDurationBox.IsEnabled = !_isPlayingTimeline;
+		UseDurationForAllCheck.IsEnabled = !_isPlayingTimeline;
 		ManualRefCheck.IsEnabled = !_isPlayingTimeline;
 		ExportGifButton.Visibility = IsAnimated ? Visibility.Visible : Visibility.Collapsed;
 	}
@@ -169,7 +172,43 @@ public partial class PaintEditorWindow
 			return;
 
 		_activeFrameDurationMs = Math.Clamp(value, MinFrameDurationMs, MaxFrameDurationMs);
-		_timelineFrames[_activeFrameIndex] = _timelineFrames[_activeFrameIndex] with { DurationMs = _activeFrameDurationMs };
+
+		if (_useDurationForAll)
+		{
+			for (var i = 0; i < _timelineFrames.Count; i++)
+				_timelineFrames[i] = _timelineFrames[i] with { DurationMs = _activeFrameDurationMs };
+		}
+		else
+		{
+			_timelineFrames[_activeFrameIndex] = _timelineFrames[_activeFrameIndex] with { DurationMs = _activeFrameDurationMs };
+		}
+	}
+
+	private void OnUseDurationForAllChanged(object sender, RoutedEventArgs e)
+	{
+		if (!_ready)
+			return;
+
+		_useDurationForAll = UseDurationForAllCheck.IsChecked == true;
+
+		if (_useDurationForAll)
+		{
+			_savedFrameDurations = _timelineFrames.Select(f => f.DurationMs).ToList();
+
+			_timelineFrames[_activeFrameIndex] = CaptureCurrentAsFrame();
+			var unified = _activeFrameDurationMs;
+			for (var i = 0; i < _timelineFrames.Count; i++)
+				_timelineFrames[i] = _timelineFrames[i] with { DurationMs = unified };
+		}
+		else if (_savedFrameDurations != null)
+		{
+			for (var i = 0; i < _timelineFrames.Count && i < _savedFrameDurations.Count; i++)
+				_timelineFrames[i] = _timelineFrames[i] with { DurationMs = _savedFrameDurations[i] };
+
+			_savedFrameDurations = null;
+			_activeFrameDurationMs = _timelineFrames[_activeFrameIndex].DurationMs;
+			UpdateFrameDurationBox();
+		}
 	}
 
 	private void OnPlayStopClick(object sender, RoutedEventArgs e)
