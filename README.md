@@ -34,17 +34,41 @@ apply.
   every frame of a `.ani`.
 
   ![Pivot point editor](docs/screenshots/hotspot-editor.png)
-- **Paint editor** — reposition a cursor's artwork within its canvas or
-  resize the canvas itself, right from a slot in the preset editor.
-  Move the sprite by dragging it or with the arrow/snap-to-edge pad, pan
-  around with the Hand tool or by holding the middle mouse button, and
-  zoom in for pixel-level precision on small cursors. The Canvas tool
-  shows resize handles on the canvas edges/corners and only applies the
-  new size once you confirm — switching tools without confirming
-  reverts it. Export the result as a `.png` (named after the preset and
-  cursor role) or save it back into the slot.
+- **Paint editor** — edit a cursor's artwork pixel by pixel, right from a
+  slot in the preset editor (including empty slots, to draw one from
+  scratch). Move the sprite by dragging it or with the arrow/snap-to-edge
+  pad, pan around with the Hand tool or by holding the middle mouse
+  button, and zoom in for pixel-level precision on small cursors. The
+  Canvas tool shows resize handles on the canvas edges/corners and only
+  applies the new size once you confirm — switching tools without
+  confirming reverts it. Export the result as a `.png` (named after the
+  preset and cursor role) or save it back into the slot.
 
   ![Paint editor](docs/screenshots/paint-editor.png)
+
+  - **Brush, Eraser, and Fill** — paint or erase pixels by dragging, with a
+    Shift+click straight-line mode (Ctrl snaps to 45°); Fill floods a
+    same-colored area with the selected color.
+  - **Color picker** — toggle between a color wheel and a Photoshop-style
+    square, adjust hue/brightness/alpha, or type/paste a hex code
+    directly.
+  - **Eyedropper** — sample a color from anywhere on screen, not just the
+    canvas, via a dedicated button or Alt+click while painting/filling.
+  - **Undo/redo** (Ctrl+Z / Ctrl+Y) covering painting, erasing, filling,
+    moving, resizing the canvas, and importing an image.
+  - **Hotspot tool** built into the Paint editor — drag the marker or click
+    the desired spot, with the same 9-button quick-set pad as the
+    standalone pivot editor.
+  - **Background reference** — overlay a semi-transparent tracing image
+    behind the sprite (opacity, margin, and offset adjustable, or load
+    your own PNG/drag one onto the canvas); it's a guide only and isn't
+    saved into the cursor.
+  - **Import an image onto the canvas** — load a `.png`/`.jpg`/`.bmp`/`.gif`
+    (or `.cur`/`.ani`) via a button or drag-and-drop, either composited
+    over the current sprite (canvas grows to fit) or replacing it
+    entirely.
+  - The last tool, zoom, pan position, color, and picker mode are all
+    remembered between sessions.
 - **Animated `.ani` preview** — animated cursors (busy, working, etc.) play
   their full frame sequence with original timing in the gallery and preset
   editor, instead of a static first frame.
