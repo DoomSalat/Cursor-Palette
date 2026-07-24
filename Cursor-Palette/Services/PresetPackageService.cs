@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+using System.Windows;
 using CursorPalette.Models;
 
 namespace CursorPalette.Services;
@@ -14,6 +15,7 @@ public static class PresetPackageService
 
 	private const string BundleMarkerFileName = "bundle.json";
 	private const string ArchiveMarkerFileName = "cursor-palette-archive.json";
+	private const string PackageManifestFileName = "cursor-palette.json";
 	private const string GroupsFileName = "groups.json";
 	private const string PresetsFolderName = "presets";
 	private const string FilesFolderName = "files";
@@ -25,6 +27,8 @@ public static class PresetPackageService
 
 	private const string CurExtension = ".cur";
 	private const string AniExtension = ".ani";
+	private const string ReadmeFileName = "README.txt";
+	private const string ReadmeResourceName = "ArchiveReadme.md";
 
 	private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
@@ -40,7 +44,8 @@ public static class PresetPackageService
 			var presetsRoot = Path.Combine(stagingDir, PresetsFolderName);
 			Directory.CreateDirectory(presetsRoot);
 
-			var exported = 0;
+			var manifestPresets = new List<ArchiveManifestPreset>();
+
 			foreach (var preset in presets)
 			{
 				var presetDir = Path.Combine(presetsRoot, preset.Id);
@@ -67,33 +72,35 @@ public static class PresetPackageService
 					continue;
 				}
 
-				var flattened = new Preset
+				manifestPresets.Add(new ArchiveManifestPreset
 				{
 					Id = preset.Id,
 					Name = preset.Name,
+					Folder = preset.Id,
 					CreatedAt = preset.CreatedAt,
 					SortOrder = preset.SortOrder,
 					BaseSize = preset.BaseSize,
 					Roles = roles,
 					LockedRoles = new HashSet<string>(preset.LockedRoles),
-				};
-
-				File.WriteAllText(Path.Combine(presetDir, ManifestFileName),
-					JsonSerializer.Serialize(flattened, JsonOptions));
-
-				exported++;
+				});
 			}
 
-			File.WriteAllText(Path.Combine(stagingDir, BundleMarkerFileName),
-				JsonSerializer.Serialize(new PackageMarker { Format = BundleFormatId, Version = FormatVersion }, JsonOptions));
+			var manifest = new ArchiveManifest
+			{
+				Format = BundleFormatId,
+				Version = FormatVersion,
+				Presets = manifestPresets,
+				Groups = BuildExportedGroups(presets),
+			};
 
-			WriteExportedGroups(stagingDir, presets);
+			File.WriteAllText(Path.Combine(stagingDir, PackageManifestFileName),
+				JsonSerializer.Serialize(manifest, JsonOptions));
 
 			var destPath = GetUniqueDownloadPath(ResolveExportName(customName, DefaultBundleName), BundleExtension);
 
 			CreateZipFromDirectory(stagingDir, destPath);
 
-			return (destPath, exported);
+			return (destPath, manifestPresets.Count);
 		}
 		finally
 		{
@@ -107,15 +114,19 @@ public static class PresetPackageService
 
 		try
 		{
-			var markerEntries = new List<ArchiveMarkerEntry>();
+			var manifestPresets = new List<ArchiveManifestPreset>();
 			var usedFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			var presetsRoot = Path.Combine(stagingDir, PresetsFolderName);
+			Directory.CreateDirectory(presetsRoot);
 
 			foreach (var preset in presets)
 			{
 				var folderName = MakeUniqueFolderName(SanitizeName(preset.Name), usedFolderNames);
 				var folderPath = Path.Combine(stagingDir, folderName);
 
+				var roles = new Dictionary<string, string>();
 				var count = 0;
+
 				foreach (var role in CursorRoles.All)
 				{
 					var sourcePath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
@@ -126,25 +137,51 @@ public static class PresetPackageService
 					Directory.CreateDirectory(folderPath);
 					var fileName = $"{role.RegistryName}{Path.GetExtension(sourcePath)}";
 					File.Copy(sourcePath, Path.Combine(folderPath, fileName), overwrite: true);
+					roles[role.RegistryName] = fileName;
 					count++;
 				}
 
 				if (count == 0)
 					continue;
 
-				markerEntries.Add(new ArchiveMarkerEntry { Folder = folderName, Name = preset.Name });
+				var presetDir = Path.Combine(presetsRoot, preset.Id);
+				var filesDir = Path.Combine(presetDir, FilesFolderName);
+				Directory.CreateDirectory(filesDir);
+
+				foreach (var (role, fileName) in roles)
+					File.Copy(Path.Combine(folderPath, fileName), Path.Combine(filesDir, fileName), overwrite: true);
+
+				manifestPresets.Add(new ArchiveManifestPreset
+				{
+					Id = preset.Id,
+					Name = preset.Name,
+					Folder = folderName,
+					CreatedAt = preset.CreatedAt,
+					SortOrder = preset.SortOrder,
+					BaseSize = preset.BaseSize,
+					Roles = roles,
+					LockedRoles = new HashSet<string>(preset.LockedRoles),
+				});
 			}
 
-			File.WriteAllText(Path.Combine(stagingDir, ArchiveMarkerFileName),
-				JsonSerializer.Serialize(
-					new ArchiveMarker { Format = ArchiveFormatId, Version = FormatVersion, Presets = markerEntries },
-					JsonOptions));
+			var manifest = new ArchiveManifest
+			{
+				Format = BundleFormatId,
+				Version = FormatVersion,
+				Presets = manifestPresets,
+				Groups = BuildExportedGroups(presets),
+			};
+
+			File.WriteAllText(Path.Combine(stagingDir, PackageManifestFileName),
+				JsonSerializer.Serialize(manifest, JsonOptions));
+
+			WriteArchiveReadme(stagingDir);
 
 			var destPath = GetUniqueDownloadPath(ResolveExportName(customName, DefaultArchiveName), ".zip");
 
 			CreateZipFromDirectory(stagingDir, destPath);
 
-			return (destPath, markerEntries.Count);
+			return (destPath, manifestPresets.Count);
 		}
 		finally
 		{
@@ -167,6 +204,61 @@ public static class PresetPackageService
 			return null;
 		}
 
+		var manifestPath = Path.Combine(extractedDir, PackageManifestFileName);
+		var manifest = File.Exists(manifestPath) ? TryReadJson<ArchiveManifest>(manifestPath) : null;
+
+		if (manifest?.Format == BundleFormatId)
+		{
+			if (manifest.Version > FormatVersion)
+			{
+				TryDeleteDir(extractedDir);
+
+				throw new PackageVersionUnsupportedException(manifest.Version, FormatVersion);
+			}
+
+			var entries = new List<PackageEntry>();
+			var presetsRoot = Path.Combine(extractedDir, PresetsFolderName);
+
+			foreach (var preset in manifest.Presets)
+			{
+				var presetDir = Path.Combine(presetsRoot, preset.Id);
+				var filesDir = Path.Combine(presetDir, FilesFolderName);
+
+				if (!Directory.Exists(filesDir))
+					continue;
+
+				var previewFileName = preset.Roles.TryGetValue(CursorRoles.ArrowRoleName, out var arrowFile)
+					? arrowFile
+					: preset.Roles.Values.FirstOrDefault();
+
+				entries.Add(new PackageEntry
+				{
+					Key = preset.Id,
+					DisplayName = preset.Name,
+					RoleCount = preset.Roles.Count,
+					BaseSize = preset.BaseSize,
+					PreviewPath = previewFileName != null
+						? Path.Combine(filesDir, previewFileName)
+						: null,
+				});
+			}
+
+			if (entries.Count == 0)
+			{
+				TryDeleteDir(extractedDir);
+
+				return null;
+			}
+
+			return new DetectedPackage
+			{
+				Kind = PackageKind.Manifest,
+				ExtractedDir = extractedDir,
+				Entries = entries,
+				Groups = manifest.Groups,
+			};
+		}
+
 		var bundleMarkerPath = Path.Combine(extractedDir, BundleMarkerFileName);
 		var bundleMarker = File.Exists(bundleMarkerPath) ? TryReadJson<PackageMarker>(bundleMarkerPath) : null;
 
@@ -186,8 +278,8 @@ public static class PresetPackageService
 			{
 				foreach (var presetDir in Directory.GetDirectories(presetsRoot))
 				{
-					var manifestPath = Path.Combine(presetDir, ManifestFileName);
-					var preset = File.Exists(manifestPath) ? TryReadJson<Preset>(manifestPath) : null;
+					var perPresetManifestPath = Path.Combine(presetDir, ManifestFileName);
+					var preset = File.Exists(perPresetManifestPath) ? TryReadJson<Preset>(perPresetManifestPath) : null;
 
 					if (preset == null)
 						continue;
@@ -285,9 +377,12 @@ public static class PresetPackageService
 
 		foreach (var entry in selectedEntries)
 		{
-			var draft = package.Kind == PackageKind.Bundle
-				? BuildBundleDraft(package.ExtractedDir, entry)
-				: BuildArchiveDraft(package.ExtractedDir, entry);
+			var draft = package.Kind switch
+			{
+				PackageKind.Manifest => BuildManifestDraft(package.ExtractedDir, entry),
+				PackageKind.Bundle => BuildBundleDraft(package.ExtractedDir, entry),
+				_ => BuildArchiveDraft(package.ExtractedDir, entry),
+			};
 
 			if (draft == null || draft.RoleSources.Count == 0)
 				continue;
@@ -325,11 +420,29 @@ public static class PresetPackageService
 
 	public static void CleanupPackage(DetectedPackage package) => TryDeleteDir(package.ExtractedDir);
 
-	private static void WriteExportedGroups(string stagingDir, IReadOnlyList<Preset> exportedPresets)
+	private static void WriteArchiveReadme(string stagingDir)
+	{
+		var uri = new Uri($"pack://application:,,,/Resources/{ReadmeResourceName}", UriKind.Absolute);
+
+		using var stream = Application.GetResourceStream(uri)?.Stream;
+
+		if (stream == null)
+			return;
+
+		using var reader = new StreamReader(stream);
+		var content = reader.ReadToEnd()
+			.Replace("{{AppName}}", AppInfo.Name)
+			.Replace("{{AppUrl}}", AppInfo.GitHubUrl)
+			.Replace("{{AppCopyright}}", AppInfo.CopyrightLine);
+
+		File.WriteAllText(Path.Combine(stagingDir, ReadmeFileName), content);
+	}
+
+	private static List<PackageGroupEntry> BuildExportedGroups(IReadOnlyList<Preset> exportedPresets)
 	{
 		var exportedIds = exportedPresets.Select(preset => preset.Id).ToHashSet();
 
-		var fullyIncludedGroups = GroupStore.LoadAll()
+		return GroupStore.LoadAll()
 			.Where(group => group.MemberPresetIds.Count > 0 && group.MemberPresetIds.All(exportedIds.Contains))
 			.Select(group => new PackageGroupEntry
 			{
@@ -340,6 +453,11 @@ public static class PresetPackageService
 				MemberKeys = group.MemberPresetIds.ToList(),
 			})
 			.ToList();
+	}
+
+	private static void WriteExportedGroups(string stagingDir, IReadOnlyList<Preset> exportedPresets)
+	{
+		var fullyIncludedGroups = BuildExportedGroups(exportedPresets);
 
 		if (fullyIncludedGroups.Count == 0)
 			return;
@@ -356,6 +474,34 @@ public static class PresetPackageService
 			return new();
 
 		return TryReadJson<List<PackageGroupEntry>>(groupsPath) ?? new();
+	}
+
+	private static PresetDraft? BuildManifestDraft(string extractedDir, PackageEntry entry)
+	{
+		var manifestPath = Path.Combine(extractedDir, PackageManifestFileName);
+		var manifest = File.Exists(manifestPath) ? TryReadJson<ArchiveManifest>(manifestPath) : null;
+
+		if (manifest == null)
+			return null;
+
+		var preset = manifest.Presets.FirstOrDefault(p => p.Id == entry.Key);
+		if (preset == null)
+			return null;
+
+		var filesDir = Path.Combine(extractedDir, PresetsFolderName, preset.Id, FilesFolderName);
+		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize };
+
+		foreach (var (role, fileName) in preset.Roles)
+		{
+			var filePath = Path.Combine(filesDir, fileName);
+			if (File.Exists(filePath))
+				draft.RoleSources[role] = new RoleSourceDraft { OwnFilePath = filePath };
+		}
+
+		foreach (var role in preset.LockedRoles)
+			draft.LockedRoles.Add(role);
+
+		return draft;
 	}
 
 	private static PresetDraft? BuildBundleDraft(string extractedDir, PackageEntry entry)

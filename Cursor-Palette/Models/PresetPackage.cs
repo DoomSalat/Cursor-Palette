@@ -4,6 +4,7 @@ public enum PackageKind
 {
 	Bundle,
 	Archive,
+	Manifest,
 }
 
 public sealed class PackageEntry
@@ -49,6 +50,26 @@ public sealed class ArchiveMarkerEntry
 {
 	public required string Folder { get; set; }
 	public required string Name { get; set; }
+}
+
+public sealed class ArchiveManifest
+{
+	public string Format { get; set; } = "";
+	public int Version { get; set; }
+	public List<ArchiveManifestPreset> Presets { get; set; } = new();
+	public List<PackageGroupEntry> Groups { get; init; } = new();
+}
+
+public sealed class ArchiveManifestPreset
+{
+	public required string Id { get; set; }
+	public required string Name { get; set; }
+	public required string Folder { get; set; }
+	public DateTimeOffset CreatedAt { get; set; }
+	public int SortOrder { get; set; }
+	public int BaseSize { get; set; }
+	public Dictionary<string, string> Roles { get; set; } = new();
+	public HashSet<string> LockedRoles { get; set; } = new();
 }
 
 public sealed class PackageVersionUnsupportedException : Exception

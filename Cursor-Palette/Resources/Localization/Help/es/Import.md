@@ -11,4 +11,4 @@ Esta ventana se abre después de elegir un paquete de Cursor Palette (.cursorpal
 
 🎨 Miniaturas de grupo en color — seleccionar la miniatura de un grupo selecciona automáticamente todos sus preajustes; deseleccionar un miembro deselecciona también el grupo. El grupo solo se recreará si su propia miniatura está seleccionada.
 
-ℹ️ Los paquetes restauran todo (roles, roles bloqueados, tamaño del cursor, grupos); los archivos ZIP solo restauran los propios archivos de cursor, emparejados con los roles por nombre de archivo.
+ℹ️ Los paquetes y los archivos ZIP restauran todo (roles, roles bloqueados, tamaño del cursor, grupos). Los archivos ZIP también incluyen un README.txt con instrucciones de instalación y carpetas con los archivos de cursor originales.

@@ -11,4 +11,4 @@ This window opens after picking a Cursor Palette bundle (.cursorpalette) or ZIP 
 
 🎨 Colored group tiles — selecting one auto-selects all its presets; deselecting a member auto-deselects the group. Only import a group's own tile to recreate the group itself.
 
-ℹ️ Bundles restore everything (roles, locked roles, cursor size, groups); ZIP archives only restore the cursor files themselves, matched to roles by file name.
+ℹ️ Both bundles and ZIP archives restore everything (roles, locked roles, cursor size, groups). ZIP archives also include a README.txt with install instructions and human-readable folders with raw cursor files.

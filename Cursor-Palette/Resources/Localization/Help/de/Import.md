@@ -11,4 +11,4 @@ Dieses Fenster öffnet sich, nachdem ein Cursor-Palette-Bundle (.cursorpalette) 
 
 🎨 Farbige Gruppenkacheln — die Auswahl einer Gruppenkachel wählt automatisch alle ihre Presets aus; das Abwählen eines Mitglieds wählt auch die Gruppe ab. Nur wenn die Gruppenkachel selbst ausgewählt ist, wird die Gruppe wiederhergestellt.
 
-ℹ️ Bundles stellen alles wieder her (Rollen, gesperrte Rollen, Cursorgröße, Gruppen); ZIP-Archive stellen nur die Cursordateien selbst wieder her, per Dateiname den Rollen zugeordnet.
+ℹ️ Bundles und ZIP-Archive stellen alles wieder her (Rollen, gesperrte Rollen, Cursorgröße, Gruppen). ZIP-Archive enthalten zusätzlich eine README.txt mit Installationsanleitung und Ordner mit rohen Cursordateien.

@@ -38,6 +38,7 @@
 		<Resource Include="Resources\ImageRefIcon32.png" />
 		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
 		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
+		<Resource Include="Resources\ArchiveReadme.md" />
 	</ItemGroup>
 
 	<ItemGroup>
