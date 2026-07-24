@@ -245,6 +245,7 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Сохранить выбранные пресеты в ZIP-архив с папками курсоров без служебных файлов — можно позже перетащить обратно в это приложение</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Тема Xcursor (Linux)</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Сконвертировать выбранные пресеты в готовые к установке темы Xcursor (index.theme + папка cursors) для Linux</sys:String>
+	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt — информация о приложении и инструкция по установке</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">Другие варианты экспорта</sys:String>
 	<sys:String x:Key="S.Export.Name">Имя файла</sys:String>
 	<sys:String x:Key="S.Export.Name.Tooltip">Необязательно — оставьте пустым, чтобы использовать имя по умолчанию</sys:String>
@@ -263,6 +264,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">Экспортировано пресетов: {0} — архив {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">Экспортировано пресетов для Linux: {0} — архив {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">Экспортировано тем Xcursor: {0} — архив {1}</sys:String>
+	<sys:String x:Key="S.Toast.ReadmeDownloaded">Скачано в «Загрузки»: {0}</sys:String>
 	<sys:String x:Key="S.Toast.Imported">Импортировано пресетов: {0}</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">Не удалось экспортировать пресеты: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Этот файл не распознан как пакет пресетов Cursor Palette.</sys:String>

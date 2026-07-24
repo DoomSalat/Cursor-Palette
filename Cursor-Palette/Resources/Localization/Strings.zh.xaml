@@ -236,6 +236,7 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">将所选预设保存为仅含光标文件夹的 ZIP 压缩包（不含额外文件）——之后也可以拖回本应用重新导入</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursor 主题（Linux）</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">将所选预设转换为可直接安装的 Xcursor 主题（index.theme + cursors 文件夹），供 Linux 使用</sys:String>
+	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt（应用信息和安装说明）</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">更多导出选项</sys:String>
 	<sys:String x:Key="S.Export.Name">文件名</sys:String>
 	<sys:String x:Key="S.Export.Name.Tooltip">可选 — 留空则使用默认名称</sys:String>
@@ -254,6 +255,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">已将 {0} 个预设导出为压缩包 {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">已将 {0} 个预设导出为 Linux 压缩包 {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">已导出 {0} 个 Xcursor 主题到 {1}</sys:String>
+	<sys:String x:Key="S.Toast.ReadmeDownloaded">已将 {0} 下载到"下载"文件夹</sys:String>
 	<sys:String x:Key="S.Toast.Imported">已导入 {0} 个预设</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">导出预设失败：{0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">此文件不是可识别的 Cursor Palette 预设包。</sys:String>

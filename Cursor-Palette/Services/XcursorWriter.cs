@@ -5,10 +5,6 @@ namespace CursorPalette.Services;
 
 public sealed record XcursorFrame(int Width, int Height, int HotspotX, int HotspotY, byte[] Bgra, int DelayMs);
 
-// Writes the Xcursor binary format (see freedesktop libXcursor Xcursor.h / Xcursorint.h):
-// a small TOC of image chunks, each chunk holding one animation frame as
-// premultiplied ARGB32 in the host's native byte order (little-endian on every
-// desktop Linux target), which is exactly the WPF Bgra32 memory layout.
 public static class XcursorWriter
 {
 	private const uint Magic = 0x72756358; // "Xcur" read as a little-endian uint32
@@ -21,10 +17,6 @@ public static class XcursorWriter
 	private const int BytesPerPixel = 4;
 	private const string AniExtension = ".ani";
 
-	// Best-effort mapping from this app's Windows cursor roles to the Xcursor/CSS
-	// names other desktop environments and apps look up. Each alias gets a copy
-	// of the same cursor file, since a Windows-authored zip can't portably carry
-	// the symlinks real Xcursor themes normally use for synonyms.
 	public static readonly IReadOnlyDictionary<string, string[]> RoleAliases = new Dictionary<string, string[]>
 	{
 		["Arrow"] = new[] { "left_ptr", "default", "arrow", "top_left_arrow" },
@@ -46,8 +38,6 @@ public static class XcursorWriter
 		["Pin"] = new[] { "pin" },
 	};
 
-	// Reverse of RoleAliases: alias file name (lowercase) -> Windows role name. Built once,
-	// used to recognize which role a file inside an Xcursor theme's "cursors" folder belongs to.
 	public static readonly IReadOnlyDictionary<string, string> AliasToRole = RoleAliases
 		.SelectMany(pair => pair.Value.Select(alias => (Alias: alias, Role: pair.Key)))
 		.GroupBy(entry => entry.Alias, StringComparer.OrdinalIgnoreCase)
@@ -83,8 +73,6 @@ public static class XcursorWriter
 			if (imageEntries.Count == 0)
 				return null;
 
-			// A theme may bundle several nominal sizes; prefer the size with the most
-			// chunks (an animation sequence), falling back to the largest single size.
 			var chosenSubtype = imageEntries
 				.GroupBy(entry => entry.Subtype)
 				.OrderByDescending(group => group.Count())

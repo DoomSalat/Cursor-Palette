@@ -58,6 +58,9 @@ public partial class PresetEditorWindow
 		File.SetCreationTime(destPath, now);
 		File.SetLastWriteTime(destPath, now);
 		ToastService.Show(EditorRootGrid, Loc.Format(LocToastDownloaded, Path.GetFileName(destPath)));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			ExplorerService.RevealFile(destPath);
 	}
 
 	private void OpenHotspotEditor(Slot slot)

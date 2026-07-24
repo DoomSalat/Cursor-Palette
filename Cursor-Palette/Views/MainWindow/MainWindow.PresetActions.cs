@@ -206,42 +206,25 @@ public partial class MainWindow
 
 	private void DownloadPreset(Preset preset)
 	{
-		var invalid = Path.GetInvalidPathChars();
-		var presetName = string.Join(EmptyValue, preset.Name.Where(character => !invalid.Contains(character))).Trim();
-		if (string.IsNullOrWhiteSpace(presetName))
-			presetName = Loc.Get(LocDefaultPresetName);
+		var roleFiles = new Dictionary<string, string>();
 
-		var destDir = Path.Combine(AppPaths.DownloadsDir, presetName);
-
-		var attempt = 1;
-		while (Directory.Exists(destDir))
-			destDir = Path.Combine(AppPaths.DownloadsDir, $"{presetName} ({attempt++})");
-
-		Directory.CreateDirectory(destDir);
-
-		var count = 0;
 		foreach (var role in CursorRoles.All)
 		{
 			var resolvedPath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
-			if (resolvedPath == null || !File.Exists(resolvedPath))
-				continue;
 
-			var extension = Path.GetExtension(resolvedPath);
-			var destPath = Path.Combine(destDir, $"{role.RegistryName}{extension}");
-			File.Copy(resolvedPath, destPath);
-			var now = DateTime.Now;
-			File.SetCreationTime(destPath, now);
-			File.SetLastWriteTime(destPath, now);
-			count++;
+			if (resolvedPath != null && File.Exists(resolvedPath))
+				roleFiles[role.RegistryName] = resolvedPath;
 		}
 
-		if (count == 0)
-		{
-			Directory.Delete(destDir);
+		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.LockedRoles);
+
+		if (path == null)
 			return;
-		}
 
-		ToastService.Show(RootGrid, Loc.Format(LocToastPresetDownloaded, presetName, count));
+		ToastService.Show(RootGrid, Loc.Format(LocToastPresetDownloaded, preset.Name, roleFiles.Count));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			ExplorerService.RevealFile(path);
 	}
 
 	private void StartInlineRename(Preset preset, TextBlock nameText, StackPanel panel)

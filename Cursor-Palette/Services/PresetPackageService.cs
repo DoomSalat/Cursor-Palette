@@ -11,6 +11,8 @@ public static class PresetPackageService
 
 	private const string BundleFormatId = "CursorPalette.Bundle";
 	private const string ArchiveFormatId = "CursorPalette.Archive";
+	private const string SinglePresetFormatId = "CursorPalette.SinglePreset";
+	private const string SinglePresetMarkerFileName = "cursor-palette-preset.json";
 	private const int FormatVersion = 1;
 
 	private const string BundleMarkerFileName = "bundle.json";
@@ -259,8 +261,62 @@ public static class PresetPackageService
 		}
 	}
 
-	// Single-preset variants for the preset editor, where the preset may not be saved yet —
-	// roles are resolved from the editor's own slot paths rather than PresetStore.
+	public static string? DownloadPresetAsFolder(string presetName, IReadOnlyDictionary<string, string> roleFiles,
+		int baseSize, IReadOnlySet<string>? lockedRoles = null)
+	{
+		var destDir = GetUniqueDownloadFolderPath(SanitizeName(presetName));
+		Directory.CreateDirectory(destDir);
+
+		var count = 0;
+
+		foreach (var role in CursorRoles.All)
+		{
+			if (!roleFiles.TryGetValue(role.RegistryName, out var sourcePath) || !File.Exists(sourcePath))
+				continue;
+
+			var fileName = $"{role.RegistryName}{Path.GetExtension(sourcePath)}";
+			var destPath = Path.Combine(destDir, fileName);
+			File.Copy(sourcePath, destPath, overwrite: true);
+			var now = DateTime.Now;
+			File.SetCreationTime(destPath, now);
+			File.SetLastWriteTime(destPath, now);
+			count++;
+		}
+
+		if (count == 0)
+		{
+			Directory.Delete(destDir);
+			return null;
+		}
+
+		var marker = new SinglePresetMarker
+		{
+			Format = SinglePresetFormatId,
+			Version = FormatVersion,
+			Name = presetName,
+			BaseSize = baseSize,
+			LockedRoles = lockedRoles != null ? new HashSet<string>(lockedRoles) : new HashSet<string>(),
+		};
+
+		File.WriteAllText(Path.Combine(destDir, SinglePresetMarkerFileName),
+			JsonSerializer.Serialize(marker, JsonOptions));
+
+		WriteArchiveReadme(destDir);
+
+		return destDir;
+	}
+
+	private static string GetUniqueDownloadFolderPath(string baseName)
+	{
+		var path = Path.Combine(AppPaths.DownloadsDir, baseName);
+		var attempt = 1;
+
+		while (Directory.Exists(path))
+			path = Path.Combine(AppPaths.DownloadsDir, $"{baseName} ({attempt++})");
+
+		return path;
+	}
+
 	public static string? ExportLinuxArchiveForFiles(string presetName, IReadOnlyDictionary<string, string> roleFiles)
 	{
 		var stagingDir = CreateTempDir();
@@ -384,11 +440,6 @@ public static class PresetPackageService
 		return DetectFromExtractedDir(extractedDir);
 	}
 
-	// Lets a plain, unzipped folder be recognized the same way as an archive: the folder
-	// is expected to have the same layout our own exports produce (a folder of preset
-	// subfolders, an Xcursor theme layout, or one of the JSON-marked formats). The folder
-	// is copied into a disposable temp dir first, so detection/cleanup can treat it exactly
-	// like an extracted archive without ever touching the user's original folder.
 	public static DetectedPackage? TryDetectPackageFromFolder(string folderPath)
 	{
 		if (!Directory.Exists(folderPath))
@@ -428,6 +479,11 @@ public static class PresetPackageService
 
 	private static DetectedPackage? DetectFromExtractedDir(string extractedDir)
 	{
+		var singlePresetEntries = BuildSinglePresetEntries(extractedDir);
+
+		if (singlePresetEntries.Count > 0)
+			return new DetectedPackage { Kind = PackageKind.SinglePreset, ExtractedDir = extractedDir, Entries = singlePresetEntries };
+
 		var manifestPath = Path.Combine(extractedDir, PackageManifestFileName);
 		var manifest = File.Exists(manifestPath) ? TryReadJson<ArchiveManifest>(manifestPath) : null;
 
@@ -723,10 +779,6 @@ public static class PresetPackageService
 		return draft;
 	}
 
-	// Given a folder that looks like an Xcursor theme (has a "cursors" subfolder), decodes
-	// each recognizable cursor file back into a .cur/.ani written under reconstructedDir and
-	// returns a role name -> file path map. Used both when importing an Xcursor theme package
-	// and when the preset editor is handed one directly (e.g. via drag-and-drop).
 	public static Dictionary<string, string> ReconstructXcursorThemeRoles(string themeDir, string reconstructedDir)
 	{
 		var result = new Dictionary<string, string>();
@@ -756,6 +808,64 @@ public static class PresetPackageService
 
 	public static bool LooksLikeXcursorTheme(string folderPath) =>
 		Directory.Exists(Path.Combine(folderPath, XcursorCursorsFolderName));
+
+	private static List<PackageEntry> BuildSinglePresetEntries(string extractedDir)
+	{
+		var markerPath = Path.Combine(extractedDir, SinglePresetMarkerFileName);
+		var marker = File.Exists(markerPath) ? TryReadJson<SinglePresetMarker>(markerPath) : null;
+
+		if (marker?.Format != SinglePresetFormatId)
+			return new List<PackageEntry>();
+
+		var cursorFiles = Directory.EnumerateFiles(extractedDir).Where(IsCursorFile).ToList();
+
+		if (cursorFiles.Count == 0)
+			return new List<PackageEntry>();
+
+		var previewPath = cursorFiles.FirstOrDefault(file =>
+			string.Equals(Path.GetFileNameWithoutExtension(file), CursorRoles.ArrowRoleName,
+				StringComparison.OrdinalIgnoreCase)) ?? cursorFiles.FirstOrDefault();
+
+		return new List<PackageEntry>
+		{
+			new()
+			{
+				Key = string.Empty,
+				DisplayName = marker.Name,
+				RoleCount = cursorFiles.Count,
+				BaseSize = marker.BaseSize > 0 ? marker.BaseSize : RegistryCursorService.DefaultBaseSize,
+				PreviewPath = previewPath,
+			},
+		};
+	}
+
+	private static PresetDraft? BuildSinglePresetDraft(string extractedDir, PackageEntry entry)
+	{
+		var markerPath = Path.Combine(extractedDir, SinglePresetMarkerFileName);
+		var marker = File.Exists(markerPath) ? TryReadJson<SinglePresetMarker>(markerPath) : null;
+
+		if (marker == null)
+			return null;
+
+		var draft = new PresetDraft
+		{
+			Name = marker.Name,
+			BaseSize = marker.BaseSize > 0 ? marker.BaseSize : RegistryCursorService.DefaultBaseSize,
+		};
+
+		foreach (var file in Directory.EnumerateFiles(extractedDir).Where(IsCursorFile))
+		{
+			var role = CursorRoles.MatchByFileName(file);
+
+			if (role != null)
+				draft.RoleSources[role.RegistryName] = new RoleSourceDraft { OwnFilePath = file };
+		}
+
+		foreach (var role in marker.LockedRoles)
+			draft.LockedRoles.Add(role);
+
+		return draft.RoleSources.Count > 0 ? draft : null;
+	}
 
 	private static List<PackageEntry> BuildPlainFolderEntries(string extractedDir)
 	{
@@ -799,6 +909,7 @@ public static class PresetPackageService
 				PackageKind.Manifest => BuildManifestDraft(package.ExtractedDir, entry),
 				PackageKind.Bundle => BuildBundleDraft(package.ExtractedDir, entry),
 				PackageKind.XcursorTheme => BuildXcursorThemeDraft(package.ExtractedDir, entry),
+				PackageKind.SinglePreset => BuildSinglePresetDraft(package.ExtractedDir, entry),
 				_ => BuildArchiveDraft(package.ExtractedDir, entry),
 			};
 
@@ -838,22 +949,33 @@ public static class PresetPackageService
 
 	public static void CleanupPackage(DetectedPackage package) => TryDeleteDir(package.ExtractedDir);
 
-	private static void WriteArchiveReadme(string stagingDir)
+	public static string DownloadReadme()
+	{
+		var destPath = GetUniqueDownloadPath(Path.GetFileNameWithoutExtension(ReadmeFileName), Path.GetExtension(ReadmeFileName));
+
+		File.WriteAllText(destPath, BuildReadmeContent());
+
+		return destPath;
+	}
+
+	private static void WriteArchiveReadme(string stagingDir) =>
+		File.WriteAllText(Path.Combine(stagingDir, ReadmeFileName), BuildReadmeContent());
+
+	private static string BuildReadmeContent()
 	{
 		var uri = new Uri($"pack://application:,,,/Resources/{ReadmeResourceName}", UriKind.Absolute);
 
 		using var stream = Application.GetResourceStream(uri)?.Stream;
 
 		if (stream == null)
-			return;
+			return string.Empty;
 
 		using var reader = new StreamReader(stream);
-		var content = reader.ReadToEnd()
+
+		return reader.ReadToEnd()
 			.Replace("{{AppName}}", AppInfo.Name)
 			.Replace("{{AppUrl}}", AppInfo.GitHubUrl)
 			.Replace("{{AppCopyright}}", AppInfo.CopyrightLine);
-
-		File.WriteAllText(Path.Combine(stagingDir, ReadmeFileName), content);
 	}
 
 	private static List<PackageGroupEntry> BuildExportedGroups(IReadOnlyList<Preset> exportedPresets)

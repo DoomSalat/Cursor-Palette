@@ -6,6 +6,7 @@ public enum PackageKind
 	Archive,
 	Manifest,
 	XcursorTheme,
+	SinglePreset,
 }
 
 public sealed class PackageEntry
@@ -70,6 +71,15 @@ public sealed class ArchiveManifestPreset
 	public int SortOrder { get; set; }
 	public int BaseSize { get; set; }
 	public Dictionary<string, string> Roles { get; set; } = new();
+	public HashSet<string> LockedRoles { get; set; } = new();
+}
+
+public sealed class SinglePresetMarker
+{
+	public string Format { get; set; } = "";
+	public int Version { get; set; }
+	public string Name { get; set; } = "";
+	public int BaseSize { get; set; }
 	public HashSet<string> LockedRoles { get; set; } = new();
 }
 

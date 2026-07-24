@@ -36,6 +36,7 @@
 		<Resource Include="Resources\FillIcon32.png" />
 		<Resource Include="Resources\EyedropperIcon48.png" />
 		<Resource Include="Resources\ImageRefIcon32.png" />
+		<Resource Include="Resources\ReadmeIcon32.png" />
 		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
 		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
 		<Resource Include="Resources\ArchiveReadme.md" />

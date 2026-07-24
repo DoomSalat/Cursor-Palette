@@ -84,11 +84,26 @@
 							<ColumnDefinition Width="Auto" />
 						</Grid.ColumnDefinitions>
 
-						<Button Style="{StaticResource Style.Button}"
-								Content="{DynamicResource S.Editor.Cancel}"
-								MinWidth="90"
-								HorizontalAlignment="Left"
-								IsCancel="True" />
+						<StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+							<Button Style="{StaticResource Style.Button}"
+									Content="{DynamicResource S.Editor.Cancel}"
+									MinWidth="90"
+									IsCancel="True" />
+							<Button Style="{StaticResource Style.Button}"
+									Padding="8,6"
+									Margin="8,0,0,0"
+									ToolTip="{DynamicResource S.Export.DownloadReadme.Tooltip}"
+									Click="OnDownloadReadmeClick">
+								<Rectangle Width="16" Height="16"
+										   SnapsToDevicePixels="True"
+										   Fill="{StaticResource Brush.TextDim}">
+									<Rectangle.OpacityMask>
+										<ImageBrush ImageSource="pack://application:,,,/Resources/ReadmeIcon32.png"
+													Stretch="Uniform" />
+									</Rectangle.OpacityMask>
+								</Rectangle>
+							</Button>
+						</StackPanel>
 
 						<StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,8,0">
 							<Button x:Name="ExportArchiveButton"

@@ -245,6 +245,7 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Save the selected presets as a ZIP archive with plain cursor folders and no extra files — can also be dropped back into this app later</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursor theme (Linux)</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Convert the selected presets into ready-to-install Xcursor themes (index.theme + cursors folder) for Linux desktops</sys:String>
+	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt with app info and install instructions</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">More export options</sys:String>
 	<sys:String x:Key="S.Export.Name">File name</sys:String>
 	<sys:String x:Key="S.Export.Name.Tooltip">Optional — leave empty to use the default name</sys:String>
@@ -263,6 +264,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">Exported {0} preset(s) as archive to {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">Exported {0} preset(s) for Linux to {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">Exported {0} preset(s) as Xcursor theme(s) to {1}</sys:String>
+	<sys:String x:Key="S.Toast.ReadmeDownloaded">Downloaded {0} to Downloads</sys:String>
 	<sys:String x:Key="S.Toast.Imported">Imported {0} preset(s)</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">Failed to export presets: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">This file isn't a recognized Cursor Palette preset package.</sys:String>

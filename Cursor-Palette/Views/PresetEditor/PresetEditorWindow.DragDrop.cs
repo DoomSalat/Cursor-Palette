@@ -104,11 +104,6 @@ public partial class PresetEditorWindow
 		}
 	}
 
-	// An Xcursor theme (index.theme + a "cursors" folder of extensionless, binary-encoded
-	// cursor files) can't be picked up by the plain file scan in ImportFolder, since those
-	// files have no recognizable extension. This decodes them back into real .cur/.ani
-	// files first and fills slots by role directly, either from the dropped folder itself
-	// or — when a whole exported ZIP was dropped — its single top-level theme subfolder.
 	private bool TryImportXcursorTheme(string folder, string? displayName)
 	{
 		var themeDir = PresetPackageService.LooksLikeXcursorTheme(folder)

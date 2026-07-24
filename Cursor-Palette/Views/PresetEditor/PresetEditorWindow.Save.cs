@@ -15,39 +15,32 @@ public partial class PresetEditorWindow
 		if (string.IsNullOrWhiteSpace(presetName))
 			presetName = Loc.Get(LocDefaultPresetName);
 
-		var destDir = Path.Combine(AppPaths.DownloadsDir, presetName);
-
-		var attempt = 1;
-
-		while (Directory.Exists(destDir))
-			destDir = Path.Combine(AppPaths.DownloadsDir, $"{presetName} ({attempt++})");
-
-		Directory.CreateDirectory(destDir);
-
-		var count = 0;
+		var roleFiles = new Dictionary<string, string>();
 
 		foreach (var slot in _slots)
 		{
 			var resolvedPath = GetSlotResolvedPath(slot);
-			if (resolvedPath == null || !File.Exists(resolvedPath))
-				continue;
 
-			var extension = Path.GetExtension(resolvedPath);
-			var destPath = Path.Combine(destDir, $"{slot.Role.RegistryName}{extension}");
-			File.Copy(resolvedPath, destPath);
-			var now = DateTime.Now;
-			File.SetCreationTime(destPath, now);
-			File.SetLastWriteTime(destPath, now);
-			count++;
+			if (resolvedPath != null && File.Exists(resolvedPath))
+				roleFiles[slot.Role.RegistryName] = resolvedPath;
 		}
 
-		if (count == 0)
-		{
-			Directory.Delete(destDir);
+		if (roleFiles.Count == 0)
 			return;
-		}
 
-		ToastService.Show(EditorRootGrid, Loc.Format(LocToastPresetDownloaded, presetName, count));
+		var lockedRoles = _slots.Where(slot => slot.IsLocked)
+			.Select(slot => slot.Role.RegistryName)
+			.ToHashSet();
+
+		var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, lockedRoles);
+
+		if (path == null)
+			return;
+
+		ToastService.Show(EditorRootGrid, Loc.Format(LocToastPresetDownloaded, presetName, roleFiles.Count));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			ExplorerService.RevealFile(path);
 	}
 
 	private void OnDownloadPresetMoreClick(object sender, RoutedEventArgs e)

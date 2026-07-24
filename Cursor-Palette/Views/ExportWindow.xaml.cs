@@ -34,6 +34,7 @@ public partial class ExportWindow : Window
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
 	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
 	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
+	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
 	private readonly List<(PresetGroup Group, Border Cell)> _groupTiles = new();
@@ -60,6 +61,15 @@ public partial class ExportWindow : Window
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
 		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Export")) { Owner = this }.ShowDialog();
+	}
+
+	private void OnDownloadReadmeClick(object sender, RoutedEventArgs e)
+	{
+		var path = PresetPackageService.DownloadReadme();
+		ToastService.Show(RootGrid, Loc.Format(LocToastReadmeDownloaded, System.IO.Path.GetFileName(path)));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			RevealInExplorer(path);
 	}
 
 	private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
