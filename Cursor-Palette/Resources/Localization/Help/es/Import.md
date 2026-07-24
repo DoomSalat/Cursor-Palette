@@ -1,6 +1,6 @@
 # 📥 Importar preajustes
 
-Esta ventana se abre después de elegir un paquete de Cursor Palette (.cursorpalette) o un archivo ZIP — mediante el botón Importar o arrastrando el archivo a la ventana principal.
+Esta ventana se abre después de elegir un paquete de Cursor Palette (.cursorpalette) o un archivo ZIP — mediante el botón Importar o arrastrando el archivo a la ventana principal. La flecha "▾" junto al botón Importar también puede abrir una carpeta en lugar de un archivo, y arrastrar una carpeta funciona igual — ambos se reconocen tanto comprimidos como ya extraídos, incluida una exportación para Linux (un tema Xcursor o una carpeta simple con archivos de cursor originales); un tema Xcursor se convierte automáticamente de nuevo en cursores .cur/.ani normales.
 
 ## 🖼️ Miniaturas — una por cada preajuste encontrado en el archivo; haz clic para seleccionar/deseleccionar (borde azul = seleccionado).
 - "Seleccionar todo" / "No seleccionar nada" — botones arriba.
