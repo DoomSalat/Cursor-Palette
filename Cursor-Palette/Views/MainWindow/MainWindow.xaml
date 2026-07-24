@@ -250,13 +250,6 @@
 								</Rectangle.OpacityMask>
 							</Rectangle>
 						</Button>
-						<Button x:Name="ImportMoreButton"
-								Style="{StaticResource Style.Button}"
-								Content="▾"
-								Padding="6,6"
-								Margin="1,0,0,0"
-								ToolTip="{DynamicResource S.Export.MoreOptions.Tooltip}"
-								Click="OnImportMoreClick" />
 					</StackPanel>
 
 

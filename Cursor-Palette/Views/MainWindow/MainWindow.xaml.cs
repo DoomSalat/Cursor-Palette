@@ -57,7 +57,6 @@ public partial class MainWindow : Window
 	private const string LocImportFileFilter = "S.Import.FileFilter";
 	private const string LocErrorImportUnrecognized = "S.Error.ImportUnrecognized";
 	private const string LocErrorImportVersionUnsupported = "S.Error.ImportVersionUnsupported";
-	private const string LocImportFolder = "S.Import.Folder";
 	private const string LocMenuDownloadSystemCursors = "S.Menu.DownloadSystemCursors";
 	private const string LocMenuDownloadSystemPngGif = "S.Menu.DownloadSystemPngGif";
 	private const string LocMenuDownloadSystemCurAni = "S.Menu.DownloadSystemCurAni";

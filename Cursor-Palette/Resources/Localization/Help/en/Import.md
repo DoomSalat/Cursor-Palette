@@ -1,6 +1,6 @@
 # 📥 Import presets
 
-This window opens after picking a Cursor Palette bundle (.cursorpalette) or ZIP archive — either via the Import button or by dropping the file onto the main window. The "▾" next to the Import button can also open a folder instead of a file, and dropping a folder works the same way; either one is recognized whether it's still zipped or already extracted, including a Linux export (an Xcursor theme or a plain folder of raw cursor files) — an Xcursor theme is converted back into regular .cur/.ani cursors automatically.
+This window opens after picking a Cursor Palette bundle (.cursorpalette) or ZIP archive — either via the Import button or by dropping the file onto the main window. Dropping a folder works the same way; either one is recognized whether it's still zipped or already extracted, including a Linux export (an Xcursor theme or a plain folder of raw cursor files) — an Xcursor theme is converted back into regular .cur/.ani cursors automatically.
 
 ## 🖼️ Tiles — one per preset found in the file; click to select/deselect (blue border = selected).
 - "Select all" / "Select none" — buttons at the top.

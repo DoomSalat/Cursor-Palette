@@ -1,6 +1,6 @@
 # 📥 Presets importieren
 
-Dieses Fenster öffnet sich, nachdem ein Cursor-Palette-Bundle (.cursorpalette) oder ZIP-Archiv ausgewählt wurde — über die Import-Schaltfläche oder durch Ziehen der Datei auf das Hauptfenster. Der Pfeil "▾" neben der Import-Schaltfläche kann auch einen Ordner statt einer Datei öffnen, und das Ziehen eines Ordners funktioniert genauso — beides wird erkannt, egal ob noch gezippt oder bereits entpackt, auch ein Linux-Export (ein Xcursor-Theme oder ein reiner Ordner mit rohen Cursordateien) — ein Xcursor-Theme wird automatisch zurück in gewöhnliche .cur/.ani-Cursor umgewandelt.
+Dieses Fenster öffnet sich, nachdem ein Cursor-Palette-Bundle (.cursorpalette) oder ZIP-Archiv ausgewählt wurde — über die Import-Schaltfläche oder durch Ziehen der Datei auf das Hauptfenster. Das Ziehen eines Ordners funktioniert genauso — beides wird erkannt, egal ob noch gezippt oder bereits entpackt, auch ein Linux-Export (ein Xcursor-Theme oder ein reiner Ordner mit rohen Cursordateien) — ein Xcursor-Theme wird automatisch zurück in gewöhnliche .cur/.ani-Cursor umgewandelt.
 
 ## 🖼️ Kacheln — eine pro in der Datei gefundenem Preset; klicken zum Aus-/Abwählen (blauer Rahmen = ausgewählt).
 - "Alle auswählen" / "Auswahl aufheben" — Schaltflächen oben.
