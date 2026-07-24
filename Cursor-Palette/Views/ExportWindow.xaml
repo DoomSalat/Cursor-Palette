@@ -110,6 +110,7 @@
 								Content="{DynamicResource S.Export.AsBundle}"
 								ToolTip="{DynamicResource S.Export.AsBundle.Tooltip}"
 								Padding="12,7"
+								IsDefault="True"
 								Click="OnExportBundleClick" />
 					</Grid>
 				</StackPanel>

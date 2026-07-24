@@ -35,6 +35,7 @@
 						Style="{StaticResource Style.AccentButton}"
 						Content="{DynamicResource S.Group.Edit.Save}"
 						MinWidth="100"
+						IsDefault="True"
 						Click="OnSaveClick" />
 			</Grid>
 		</Border>
