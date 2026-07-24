@@ -2,8 +2,11 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using CursorPalette.Linux.Services;
 using CursorPalette.Linux.ViewModels;
 using CursorPalette.Models;
 using CursorPalette.Services;
@@ -38,6 +41,11 @@ public partial class MainWindow : Window
 	private const string LocRenameTitle = "S.Menu.Rename";
 	private const string LocEditorSave = "S.Editor.Save";
 	private const string LocEmptyGallery = "S.EmptyGallery";
+	private const string LocToastSaved = "S.Toast.Saved";
+	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
+	private const string LocAboutTitle = "S.About.Title";
+	private const string LocAboutClose = "S.About.Close";
+	private const string LocAboutLicenseHint = "S.About.LicenseHint";
 
 	private const double DialogMargin = 16;
 	private const double DialogSpacing = 12;
@@ -160,6 +168,7 @@ public partial class MainWindow : Window
 
 		var size = (int)Math.Round(_sizeSlider.Value);
 		await _viewModel.ApplySizeAsync(size);
+		ShowToast(Loc.Get(LocToastSizeApplied));
 	}
 
 	public async void OnPresetClick(object? sender, PointerPressedEventArgs e)
@@ -180,7 +189,10 @@ public partial class MainWindow : Window
 		}
 
 		if (item.IsPreset && item.Preset != null)
+		{
 			await _viewModel.ApplyPresetAsync(item.Preset);
+			ShowToast(Loc.Get(LocToastSaved));
+		}
 	}
 
 	private async void ApplyDefault()
@@ -251,6 +263,59 @@ public partial class MainWindow : Window
 		catch
 		{
 		}
+	}
+
+	private void ShowToast(string message)
+	{
+		var root = this.FindControl<Panel>("RootGrid");
+		if (root != null)
+			ToastService.Show(root, message);
+	}
+
+	public async void OnFooterClick(object? sender, PointerPressedEventArgs e)
+	{
+		var dialog = new Window
+		{
+			Title = Loc.Get(LocAboutTitle),
+			Width = 360,
+			Height = 220,
+			WindowStartupLocation = WindowStartupLocation.CenterOwner,
+			CanResize = false,
+			ShowInTaskbar = false,
+		};
+
+		var panel = new StackPanel
+		{
+			Margin = new Avalonia.Thickness(24),
+			Spacing = 12,
+		};
+
+		panel.Children.Add(new TextBlock
+		{
+			Text = "Cursor Palette",
+			FontSize = 18,
+			FontWeight = FontWeight.Bold,
+		});
+
+		panel.Children.Add(new TextBlock
+		{
+			Text = Loc.Get(LocAboutLicenseHint),
+			FontSize = 12,
+			Foreground = Brushes.Gray,
+			TextWrapping = TextWrapping.Wrap,
+		});
+
+		var closeButton = new Button
+		{
+			Content = Loc.Get(LocAboutClose),
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Avalonia.Thickness(0, 8, 0, 0),
+		};
+		closeButton.Click += (_, _) => dialog.Close();
+		panel.Children.Add(closeButton);
+
+		dialog.Content = panel;
+		await dialog.ShowDialog(this);
 	}
 
 	private void OnDragOver(object? sender, DragEventArgs e)

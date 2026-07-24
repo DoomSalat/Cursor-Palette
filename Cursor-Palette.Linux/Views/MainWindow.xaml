@@ -5,7 +5,7 @@
 		Width="860"
 		Height="640"
 		Background="{DynamicResource SystemRegionBrush}">
-	<Grid RowDefinitions="Auto,*,Auto">
+	<Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto">
 		<!-- Toolbar -->
 		<Border Grid.Row="0"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
@@ -152,7 +152,8 @@
 				Padding="12,6">
 			<TextBlock Text="{Binding FooterText}"
 					   FontSize="11"
-					   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+					   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+					   PointerPressed="OnFooterClick" />
 		</Border>
 	</Grid>
 </Window>
