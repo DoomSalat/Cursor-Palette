@@ -16,6 +16,7 @@ public partial class ImportPickerWindow : Window
 	private const double CellBorderThickness = 2;
 	private const double CellNameFontSize = 12;
 	private const double CellCountFontSize = 10;
+	private const double GroupIndicatorSize = 10;
 
 	private const string BrushAccent = "Brush.Accent";
 	private const string BrushBorder = "Brush.Border";
@@ -31,6 +32,7 @@ public partial class ImportPickerWindow : Window
 
 	private readonly List<(PackageEntry Entry, Border Cell, TextBlock SizeText)> _tiles = new();
 	private readonly List<(PackageGroupEntry Group, Border Cell)> _groupTiles = new();
+	private readonly Dictionary<string, string> _entryToColorKey = new();
 
 	public IReadOnlyList<PackageEntry> SelectedEntries { get; private set; } = Array.Empty<PackageEntry>();
 
@@ -49,7 +51,12 @@ public partial class ImportPickerWindow : Window
 		UiScaleTransform.ScaleY = uiScale;
 
 		foreach (var group in groups ?? Array.Empty<PackageGroupEntry>())
+		{
 			_groupTiles.Add((group, CreateGroupTile(group)));
+
+			foreach (var memberKey in group.MemberKeys)
+				_entryToColorKey[memberKey] = group.ColorKey;
+		}
 
 		foreach (var entry in entries)
 		{
@@ -196,6 +203,23 @@ public partial class ImportPickerWindow : Window
 		panel.Children.Add(countText);
 		panel.Children.Add(sizeText);
 
+		var content = new Grid();
+		content.Children.Add(panel);
+
+		if (_entryToColorKey.TryGetValue(entry.Key, out var colorKey))
+		{
+			content.Children.Add(new Border
+			{
+				Width = GroupIndicatorSize,
+				Height = GroupIndicatorSize,
+				CornerRadius = new CornerRadius(GroupIndicatorSize),
+				Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(GroupColors.ResolveHex(colorKey))!),
+				HorizontalAlignment = HorizontalAlignment.Left,
+				VerticalAlignment = VerticalAlignment.Top,
+				Margin = new Thickness(6),
+			});
+		}
+
 		var cell = new Border
 		{
 			Width = CellSize,
@@ -204,7 +228,7 @@ public partial class ImportPickerWindow : Window
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			Background = Brush(BrushSurface),
 			BorderThickness = new Thickness(CellBorderThickness),
-			Child = panel,
+			Child = content,
 			Cursor = Cursors.Hand,
 		};
 
