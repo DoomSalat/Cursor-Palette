@@ -1,0 +1,138 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:svc="clr-namespace:CursorPalette.Services;assembly=Cursor-Palette.Core"
+		x:Class="CursorPalette.Linux.Views.MainWindow"
+		Width="860"
+		Height="640"
+		Background="{DynamicResource SystemRegionBrush}">
+	<Grid RowDefinitions="Auto,*,Auto">
+		<!-- Toolbar -->
+		<Border Grid.Row="0"
+				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+				Padding="12,8">
+			<StackPanel Orientation="Horizontal"
+						Spacing="8"
+						VerticalAlignment="Center">
+				<TextBlock Text="Cursor Palette"
+						   FontSize="16"
+						   FontWeight="SemiBold"
+						   VerticalAlignment="Center" />
+				<Separator Margin="8,0" />
+				<TextBlock x:Name="DefaultLabel"
+					   Text="Default"
+						   VerticalAlignment="Center"
+						   Margin="4,0" />
+				<Slider x:Name="SizeSlider"
+						Minimum="16"
+						Maximum="128"
+						Value="32"
+						Width="160"
+						VerticalAlignment="Center" />
+				<TextBlock x:Name="SizeValueText"
+						   Text="32 px"
+						   VerticalAlignment="Center"
+						   Margin="4,0" />
+				<Button x:Name="ApplySizeButton"
+						Content="Apply"
+						VerticalAlignment="Center" />
+				<Separator Margin="8,0" />
+				<Button x:Name="UndoButton"
+						Content="Undo"
+						VerticalAlignment="Center"
+						IsEnabled="{Binding CanUndo}"
+						Click="OnUndoClick" />
+				<Separator Margin="8,0" />
+				<Button x:Name="ThemeToggleButton"
+						Content="Theme"
+						VerticalAlignment="Center"
+						Click="OnThemeToggle" />
+				<Button x:Name="LanguageButton"
+						Content="EN"
+						VerticalAlignment="Center"
+						Click="OnLanguageClick" />
+			</StackPanel>
+		</Border>
+
+		<!-- Gallery -->
+		<ScrollViewer Grid.Row="1"
+					  HorizontalScrollBarVisibility="Auto"
+					  VerticalScrollBarVisibility="Disabled">
+			<ItemsControl x:Name="Gallery"
+						  Items="{Binding Board}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Border Width="148"
+								Height="148"
+								Margin="6"
+								CornerRadius="10"
+								BorderThickness="2"
+								BorderBrush="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+								Background="{DynamicResource SystemRegionBrush}"
+								Classes.active="{Binding IsActive}"
+								PointerPressed="OnPresetClick">
+							<Border.ContextMenu>
+								<ContextMenu>
+									<MenuItem Header="Edit"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuEdit" />
+									<MenuItem Header="Rename"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuRename" />
+									<MenuItem Header="Move left"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuMoveLeft" />
+									<MenuItem Header="Move right"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuMoveRight" />
+									<MenuItem Header="Download"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuDownload" />
+									<MenuItem Header="Delete"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuDelete" />
+								</ContextMenu>
+							</Border.ContextMenu>
+							<StackPanel VerticalAlignment="Center"
+										HorizontalAlignment="Center"
+										Spacing="4">
+								<Image Source="{Binding Preview}"
+									   Width="48"
+									   Height="48"
+									   IsVisible="{Binding Preview, Converter={x:Static ObjectConverters.IsNotNull}}" />
+								<TextBlock Text="{Binding DisplayName}"
+										   FontSize="13"
+										   HorizontalAlignment="Center"
+										   TextTrimming="CharacterEllipsis"
+										   MaxWidth="130" />
+								<TextBlock Text="{Binding RoleCount}"
+										   FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding IsPreset}" />
+								<TextBlock FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding !IsAddCell}"
+										   Text="{Binding BaseSize, StringFormat='{}{0} px'}" />
+							</StackPanel>
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<!-- Footer -->
+		<Border Grid.Row="2"
+				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+				Padding="12,6">
+			<TextBlock Text="{Binding FooterText}"
+					   FontSize="11"
+					   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+		</Border>
+	</Grid>
+</Window>
