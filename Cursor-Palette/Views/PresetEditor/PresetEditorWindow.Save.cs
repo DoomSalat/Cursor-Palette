@@ -54,6 +54,23 @@ public partial class PresetEditorWindow
 		var linuxItem = new MenuItem { Header = Loc.Get(LocExportAsLinuxArchive) };
 		linuxItem.Click += (_, _) => ExportPresetForLinux(asXcursorTheme: false);
 		menu.Items.Add(linuxItem);
+
+		var readmeItem = new MenuItem
+		{
+			Header = Loc.Get(LocDownloadReadme),
+			ToolTip = Loc.Get(LocDownloadReadmeTooltip),
+		};
+		readmeItem.Click += (_, _) => DownloadReadme();
+		menu.Items.Add(readmeItem);
+	}
+
+	private void DownloadReadme()
+	{
+		var path = PresetPackageService.DownloadReadme();
+		ToastService.Show(EditorRootGrid, Loc.Format(LocToastReadmeDownloaded, Path.GetFileName(path)));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			ExplorerService.RevealFile(path);
 	}
 
 	private void ExportPresetForLinux(bool asXcursorTheme)

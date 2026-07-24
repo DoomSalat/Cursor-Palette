@@ -13,6 +13,6 @@
 
 🐧 Linux — the small "▾" next to the ZIP archive button offers two more formats: an Xcursor theme (index.theme + a cursors folder, ready to drop into ~/.icons) or the same raw .cur/.ani files with no extra metadata. Both can be dragged back into this app later, zipped or already extracted — the preset editor's own download button has the same "▾" for exporting just the preset you're currently editing.
 
-{img:ReadmeIcon32} README — downloads just the README.txt on its own (app link and install instructions), without exporting any preset.
+📄 That same "▾" also has a "Download README" entry, which saves just the README.txt on its own (app link and install instructions) without exporting any preset.
 
 {img:DownloadIcon32} All of these are saved to the Downloads folder, and File Explorer opens with the new file selected.

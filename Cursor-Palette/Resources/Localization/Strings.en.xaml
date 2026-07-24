@@ -245,6 +245,7 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Save the selected presets as a ZIP archive with plain cursor folders and no extra files — can also be dropped back into this app later</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursor theme (Linux)</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Convert the selected presets into ready-to-install Xcursor themes (index.theme + cursors folder) for Linux desktops</sys:String>
+	<sys:String x:Key="S.Export.DownloadReadme">Download README</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt with app info and install instructions</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">More export options</sys:String>
 	<sys:String x:Key="S.Export.Name">File name</sys:String>

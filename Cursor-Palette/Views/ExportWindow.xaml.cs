@@ -35,6 +35,8 @@ public partial class ExportWindow : Window
 	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
 	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
 	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
+	private const string LocDownloadReadme = "S.Export.DownloadReadme";
+	private const string LocDownloadReadmeTooltip = "S.Export.DownloadReadme.Tooltip";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
 	private readonly List<(PresetGroup Group, Border Cell)> _groupTiles = new();
@@ -63,7 +65,7 @@ public partial class ExportWindow : Window
 		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Export")) { Owner = this }.ShowDialog();
 	}
 
-	private void OnDownloadReadmeClick(object sender, RoutedEventArgs e)
+	private void DownloadReadme()
 	{
 		var path = PresetPackageService.DownloadReadme();
 		ToastService.Show(RootGrid, Loc.Format(LocToastReadmeDownloaded, System.IO.Path.GetFileName(path)));
@@ -278,6 +280,14 @@ public partial class ExportWindow : Window
 		var linuxItem = new MenuItem { Header = Loc.Get(LocExportAsLinuxArchive) };
 		linuxItem.Click += (_, _) => ExportLinuxArchive();
 		menu.Items.Add(linuxItem);
+
+		var readmeItem = new MenuItem
+		{
+			Header = Loc.Get(LocDownloadReadme),
+			ToolTip = Loc.Get(LocDownloadReadmeTooltip),
+		};
+		readmeItem.Click += (_, _) => DownloadReadme();
+		menu.Items.Add(readmeItem);
 	}
 
 	private void ExportLinuxArchive()

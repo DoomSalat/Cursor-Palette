@@ -236,6 +236,7 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">将所选预设保存为仅含光标文件夹的 ZIP 压缩包（不含额外文件）——之后也可以拖回本应用重新导入</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursor 主题（Linux）</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">将所选预设转换为可直接安装的 Xcursor 主题（index.theme + cursors 文件夹），供 Linux 使用</sys:String>
+	<sys:String x:Key="S.Export.DownloadReadme">下载 README</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt（应用信息和安装说明）</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">更多导出选项</sys:String>
 	<sys:String x:Key="S.Export.Name">文件名</sys:String>
