@@ -21,6 +21,9 @@
 	</Application.Resources>
 	<Application.Styles>
 		<FluentTheme />
+		<Style Selector=":is(TemplatedControl)">
+			<Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter, Noto Sans CJK, Noto Sans, DejaVu Sans" />
+		</Style>
 		<Style Selector="Border.active">
 			<Setter Property="BorderBrush"
 					Value="{DynamicResource SystemAccentColor}" />

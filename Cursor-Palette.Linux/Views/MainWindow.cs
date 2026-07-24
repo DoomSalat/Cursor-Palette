@@ -29,6 +29,15 @@ public partial class MainWindow : Window
 	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
 	private const string LocConfirmDeleteText = "S.ConfirmDelete.Text";
 	private const string LocEditorCancel = "S.Editor.Cancel";
+	private const string LocMenuEdit = "S.Menu.Edit";
+	private const string LocMenuRename = "S.Menu.Rename";
+	private const string LocMenuMoveLeft = "S.Menu.MoveLeft";
+	private const string LocMenuMoveRight = "S.Menu.MoveRight";
+	private const string LocMenuDownload = "S.Menu.Download";
+	private const string LocMenuDelete = "S.Menu.Delete";
+	private const string LocRenameTitle = "S.Menu.Rename";
+	private const string LocEditorSave = "S.Editor.Save";
+	private const string LocEmptyGallery = "S.EmptyGallery";
 
 	private const double DialogMargin = 16;
 	private const double DialogSpacing = 12;
@@ -90,6 +99,38 @@ public partial class MainWindow : Window
 		var defaultLabel = this.FindControl<TextBlock>("DefaultLabel");
 		if (defaultLabel != null)
 			defaultLabel.Text = Loc.Get(LocResetDefault);
+
+		var emptyHint = this.FindControl<TextBlock>("EmptyGalleryHint");
+		if (emptyHint != null)
+			emptyHint.Text = Loc.Get(LocEmptyGallery);
+	}
+
+	private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
+	{
+		if (sender is not ContextMenu menu)
+			return;
+
+		var items = menu.Items;
+		if (items == null)
+			return;
+
+		var labels = new[]
+		{
+			Loc.Get(LocMenuEdit),
+			Loc.Get(LocMenuRename),
+			Loc.Get(LocMenuMoveLeft),
+			Loc.Get(LocMenuMoveRight),
+			Loc.Get(LocMenuDownload),
+			Loc.Get(LocMenuDelete),
+		};
+
+		var index = 0;
+		foreach (var item in items)
+		{
+			if (item is MenuItem menuItem && index < labels.Length)
+				menuItem.Header = labels[index];
+			index++;
+		}
 	}
 
 	private void InitializeComponent()
@@ -128,7 +169,7 @@ public partial class MainWindow : Window
 
 		if (item.IsAddCell)
 		{
-			await OpenFilePickerForCursors();
+			await OpenPresetEditorForNew();
 			return;
 		}
 
@@ -173,6 +214,45 @@ public partial class MainWindow : Window
 		await _viewModel.ImportCursorsAsync(paths);
 	}
 
+	private async Task OpenPresetEditorForNew()
+	{
+		var topLevel = TopLevel.GetTopLevel(this);
+		if (topLevel == null)
+			return;
+
+		var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+		{
+			Title = Loc.Get(LocResetDefault),
+			AllowMultiple = true,
+			FileTypeFilter = new[]
+			{
+				new FilePickerFileType(CursorFileFilterName)
+				{
+					Patterns = CursorFilePatterns
+				}
+			}
+		});
+
+		var paths = files.Count > 0
+			? files.Select(f => f.Path.LocalPath).ToArray()
+			: Array.Empty<string>();
+
+		var editor = new PresetEditorWindow(null, paths);
+		await editor.ShowDialog(this);
+
+		if (editor.Result == null)
+			return;
+
+		try
+		{
+			PresetStore.Save(editor.Result);
+			_viewModel.ReloadGallery();
+		}
+		catch
+		{
+		}
+	}
+
 	private void OnDragOver(object? sender, DragEventArgs e)
 	{
 		if (e.Data.Contains(DataFormats.Files))
@@ -205,17 +285,89 @@ public partial class MainWindow : Window
 		return null;
 	}
 
-	public void OnMenuEdit(object? sender, RoutedEventArgs e)
-	{
-		// TODO: Open preset editor
-	}
-
-	public void OnMenuRename(object? sender, RoutedEventArgs e)
+	public async void OnMenuEdit(object? sender, RoutedEventArgs e)
 	{
 		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
 			return;
 
-		// TODO: Implement proper rename dialog with TextBox
+		var editor = new PresetEditorWindow(preset, Array.Empty<string>());
+		await editor.ShowDialog(this);
+
+		if (editor.Result == null)
+			return;
+
+		try
+		{
+			PresetStore.Save(editor.Result);
+			_viewModel.ReloadGallery();
+		}
+		catch
+		{
+		}
+	}
+
+	public async void OnMenuRename(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var dialog = new Window
+		{
+			Title = Loc.Get(LocRenameTitle),
+			Width = DeleteDialogWidth,
+			Height = DeleteDialogHeight,
+			WindowStartupLocation = WindowStartupLocation.CenterOwner,
+		};
+
+		var panel = new StackPanel
+		{
+			Margin = new Avalonia.Thickness(DialogMargin),
+			Spacing = DialogSpacing,
+			VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+		};
+
+		var textBox = new TextBox
+		{
+			Text = preset.Name,
+			SelectionStart = 0,
+			SelectionEnd = preset.Name.Length,
+		};
+
+		panel.Children.Add(textBox);
+
+		var buttonPanel = new StackPanel
+		{
+			Orientation = Avalonia.Layout.Orientation.Horizontal,
+			HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+			Spacing = ButtonSpacing,
+		};
+
+		var saveButton = new Button { Content = Loc.Get(LocEditorSave) };
+		var cancelButton = new Button { Content = Loc.Get(LocEditorCancel) };
+
+		buttonPanel.Children.Add(cancelButton);
+		buttonPanel.Children.Add(saveButton);
+		panel.Children.Add(buttonPanel);
+		dialog.Content = panel;
+
+		cancelButton.Click += (_, _) => dialog.Close();
+		saveButton.Click += (_, _) =>
+		{
+			_viewModel.RenamePreset(preset, textBox.Text ?? EmptyValue);
+			dialog.Close();
+		};
+
+		textBox.KeyDown += (_, keyArgs) =>
+		{
+			if (keyArgs.Key == Key.Enter)
+			{
+				_viewModel.RenamePreset(preset, textBox.Text ?? EmptyValue);
+				dialog.Close();
+			}
+		};
+
+		await dialog.ShowDialog(this);
+		textBox.Focus();
 	}
 
 	public void OnMenuMoveLeft(object? sender, RoutedEventArgs e)

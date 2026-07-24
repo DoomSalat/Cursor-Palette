@@ -76,23 +76,29 @@
 								Classes.active="{Binding IsActive}"
 								PointerPressed="OnPresetClick">
 							<Border.ContextMenu>
-								<ContextMenu>
-									<MenuItem Header="Edit"
+								<ContextMenu Opening="OnContextMenuOpening">
+									<MenuItem x:Name="MenuEditItem"
+											  Header="Edit"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuEdit" />
-									<MenuItem Header="Rename"
+									<MenuItem x:Name="MenuRenameItem"
+											  Header="Rename"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuRename" />
-									<MenuItem Header="Move left"
+									<MenuItem x:Name="MenuMoveLeftItem"
+											  Header="Move left"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuMoveLeft" />
-									<MenuItem Header="Move right"
+									<MenuItem x:Name="MenuMoveRightItem"
+											  Header="Move right"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuMoveRight" />
-									<MenuItem Header="Download"
+									<MenuItem x:Name="MenuDownloadItem"
+											  Header="Download"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuDownload" />
-									<MenuItem Header="Delete"
+									<MenuItem x:Name="MenuDeleteItem"
+											  Header="Delete"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuDelete" />
 								</ContextMenu>
@@ -129,6 +135,16 @@
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 		</ScrollViewer>
+
+		<TextBlock Grid.Row="1"
+				   x:Name="EmptyGalleryHint"
+				   Text="No presets yet. Drop cursor files (.cur/.ani) onto the window or click Add preset."
+				   FontSize="14"
+				   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+				   HorizontalAlignment="Center"
+				   VerticalAlignment="Center"
+				   IsVisible="{Binding Board.Count, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=2}"
+				   IsHitTestVisible="False" />
 
 		<!-- Footer -->
 		<Border Grid.Row="2"
