@@ -502,6 +502,11 @@
 					<Grid />
 				</DockPanel>
 
+				<Separator Height="1"
+						   Background="{StaticResource Brush.Border}"
+						   Margin="0,8,0,0"
+						   SnapsToDevicePixels="True" />
+
 				<ScrollViewer HorizontalScrollBarVisibility="Auto"
 							  VerticalScrollBarVisibility="Disabled"
 							  Margin="0,8,0,0">

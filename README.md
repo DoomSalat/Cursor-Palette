@@ -127,6 +127,8 @@ apply.
   so the file is self-contained and safe to share) or as a plain ZIP
   archive with the raw `.cur`/`.ani` files for use outside the app. Both are
   saved to the Downloads folder.
+
+  ![Export panel](docs/screenshots/export-screen.png)
 - **Export for Linux** — a dropdown next to the ZIP archive button (in both
   the Export window and the preset editor's own download button) offers two
   Linux-oriented formats:
