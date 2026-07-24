@@ -402,6 +402,17 @@ public partial class MainWindow
 			}
 		}
 
+		foreach (var folderPath in paths.Where(Directory.Exists))
+		{
+			var detectedFolder = PresetPackageService.TryDetectPackageFromFolder(folderPath);
+
+			if (detectedFolder == null)
+				continue;
+
+			ImportPackage(detectedFolder);
+			return;
+		}
+
 		List<string> files;
 		try
 		{

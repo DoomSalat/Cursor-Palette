@@ -232,9 +232,15 @@
 	<sys:String x:Key="S.Export.AsBundle.Tooltip">Ausgewählte Presets als eine Datei speichern, die später vollständig in diese App zurückimportiert werden kann</sys:String>
 	<sys:String x:Key="S.Export.AsArchive">Als ZIP-Archiv exportieren</sys:String>
 	<sys:String x:Key="S.Export.AsArchive.Tooltip">Ausgewählte Presets als ZIP-Archiv mit den rohen Cursordateien speichern — zur Verwendung außerhalb dieser App</sys:String>
+	<sys:String x:Key="S.Export.AsLinuxArchive">Rohe Cursordateien (.cur/.ani)</sys:String>
+	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Ausgewählte Presets als ZIP-Archiv mit reinen Cursorordnern ohne Zusatzdateien speichern — kann später auch wieder in diese App gezogen werden</sys:String>
+	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursor-Theme (Linux)</sys:String>
+	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Ausgewählte Presets in installationsfertige Xcursor-Themes (index.theme + cursors-Ordner) für Linux umwandeln</sys:String>
+	<sys:String x:Key="S.Export.MoreOptions.Tooltip">Weitere Exportoptionen</sys:String>
 	<sys:String x:Key="S.Export.Name">Dateiname</sys:String>
 	<sys:String x:Key="S.Export.Name.Tooltip">Optional — leer lassen, um den Standardnamen zu verwenden</sys:String>
 
+	<sys:String x:Key="S.Import.Folder">Ordner importieren…</sys:String>
 	<sys:String x:Key="S.Import.Title">Presets importieren</sys:String>
 	<sys:String x:Key="S.Import.Confirm">Importieren</sys:String>
 	<sys:String x:Key="S.Import.Empty">Diese Datei enthält keine importierbaren Presets.</sys:String>
@@ -246,6 +252,8 @@
 
 	<sys:String x:Key="S.Toast.ExportedBundle">{0} Preset(s) exportiert nach {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedArchive">{0} Preset(s) als Archiv exportiert nach {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedLinuxArchive">{0} Preset(s) für Linux exportiert nach {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedXcursorTheme">{0} Xcursor-Theme(s) exportiert nach {1}</sys:String>
 	<sys:String x:Key="S.Toast.Imported">{0} Preset(s) importiert</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">Presets konnten nicht exportiert werden: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Diese Datei ist kein erkanntes Cursor-Palette-Preset-Paket.</sys:String>

@@ -5,6 +5,7 @@ public enum PackageKind
 	Bundle,
 	Archive,
 	Manifest,
+	XcursorTheme,
 }
 
 public sealed class PackageEntry

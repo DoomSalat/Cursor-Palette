@@ -241,9 +241,15 @@
 	<sys:String x:Key="S.Export.AsBundle.Tooltip">Guardar los presets seleccionados en un solo archivo que luego se puede volver a importar por completo en esta app</sys:String>
 	<sys:String x:Key="S.Export.AsArchive">Exportar como archivo ZIP</sys:String>
 	<sys:String x:Key="S.Export.AsArchive.Tooltip">Guardar los presets seleccionados como un archivo ZIP con los cursores originales, para usar fuera de esta app</sys:String>
+	<sys:String x:Key="S.Export.AsLinuxArchive">Archivos de cursor sin procesar (.cur/.ani)</sys:String>
+	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Guardar los presets seleccionados como un archivo ZIP con carpetas de cursores sin archivos adicionales — también se puede arrastrar de nuevo a esta app más tarde</sys:String>
+	<sys:String x:Key="S.Export.AsXcursorTheme">Tema Xcursor (Linux)</sys:String>
+	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Convertir los presets seleccionados en temas Xcursor listos para instalar (index.theme + carpeta cursors) para Linux</sys:String>
+	<sys:String x:Key="S.Export.MoreOptions.Tooltip">Más opciones de exportación</sys:String>
 	<sys:String x:Key="S.Export.Name">Nombre del archivo</sys:String>
 	<sys:String x:Key="S.Export.Name.Tooltip">Opcional — déjalo vacío para usar el nombre predeterminado</sys:String>
 
+	<sys:String x:Key="S.Import.Folder">Importar carpeta…</sys:String>
 	<sys:String x:Key="S.Import.Title">Importar presets</sys:String>
 	<sys:String x:Key="S.Import.Confirm">Importar</sys:String>
 	<sys:String x:Key="S.Import.Empty">Este archivo no contiene presets que se puedan importar.</sys:String>
@@ -255,6 +261,8 @@
 
 	<sys:String x:Key="S.Toast.ExportedBundle">Se exportaron {0} preset(s) a {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedArchive">Se exportaron {0} preset(s) como archivo a {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedLinuxArchive">Se exportaron {0} preset(s) para Linux a {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedXcursorTheme">Se exportaron {0} tema(s) Xcursor a {1}</sys:String>
 	<sys:String x:Key="S.Toast.Imported">Se importaron {0} preset(s)</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">No se pudieron exportar los presets: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Este archivo no es un paquete de presets de Cursor Palette reconocido.</sys:String>

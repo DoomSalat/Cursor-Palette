@@ -79,7 +79,9 @@ public partial class PresetEditorWindow
 		var folder = paths.FirstOrDefault(Directory.Exists);
 		if (folder != null)
 		{
-			ImportFolder(folder);
+			if (!TryImportXcursorTheme(folder, Path.GetFileName(folder)))
+				ImportFolder(folder);
+
 			return;
 		}
 
@@ -89,14 +91,78 @@ public partial class PresetEditorWindow
 
 		try
 		{
-			ImportFolder(ArchiveImportService.ExtractToTempFolder(archive), recursive: true,
-				displayName: Path.GetFileNameWithoutExtension(archive));
+			var extractedDir = ArchiveImportService.ExtractToTempFolder(archive);
+			var displayName = Path.GetFileNameWithoutExtension(archive);
+
+			if (!TryImportXcursorTheme(extractedDir, displayName))
+				ImportFolder(extractedDir, recursive: true, displayName: displayName);
 		}
 		catch (Exception ex)
 		{
 			MessageBox.Show(Loc.Format(LocErrorArchiveExtractFailed, ex.Message), Title,
 				MessageBoxButton.OK, MessageBoxImage.Error);
 		}
+	}
+
+	// An Xcursor theme (index.theme + a "cursors" folder of extensionless, binary-encoded
+	// cursor files) can't be picked up by the plain file scan in ImportFolder, since those
+	// files have no recognizable extension. This decodes them back into real .cur/.ani
+	// files first and fills slots by role directly, either from the dropped folder itself
+	// or — when a whole exported ZIP was dropped — its single top-level theme subfolder.
+	private bool TryImportXcursorTheme(string folder, string? displayName)
+	{
+		var themeDir = PresetPackageService.LooksLikeXcursorTheme(folder)
+			? folder
+			: Directory.GetDirectories(folder).FirstOrDefault(PresetPackageService.LooksLikeXcursorTheme);
+
+		if (themeDir == null)
+			return false;
+
+		var reconstructedDir = Path.Combine(Path.GetTempPath(), $"cursor-palette-editor-xcursor-{Guid.NewGuid():N}");
+		var roleFiles = PresetPackageService.ReconstructXcursorThemeRoles(themeDir, reconstructedDir);
+
+		if (roleFiles.Count == 0)
+			return false;
+
+		var nameHint = PresetPackageService.ReadXcursorThemeName(themeDir) ?? displayName;
+		if (!string.IsNullOrWhiteSpace(nameHint) && string.IsNullOrWhiteSpace(_draftId))
+			NameBox.Text = nameHint;
+
+		var matched = 0;
+		var emptySkipped = 0;
+
+		foreach (var slot in _slots)
+		{
+			if (!roleFiles.TryGetValue(slot.Role.RegistryName, out var cursorPath))
+				continue;
+
+			matched++;
+
+			if (slot.IsLocked)
+				continue;
+
+			if (ImageToCursorService.IsFullyTransparent(cursorPath))
+			{
+				emptySkipped++;
+				continue;
+			}
+
+			SetSlotSource(slot, cursorPath);
+		}
+
+		if (emptySkipped > 0)
+		{
+			MessageBox.Show(Loc.Format(LocEditorEmptySkipped, emptySkipped), Title,
+				MessageBoxButton.OK, MessageBoxImage.Information);
+		}
+
+		if (matched == 0)
+		{
+			MessageBox.Show(Loc.Format(LocEditorNoMatchInFolder, roleFiles.Count), Title,
+				MessageBoxButton.OK, MessageBoxImage.Information);
+		}
+
+		return true;
 	}
 
 	private static bool HasDroppableFolderSource(DragEventArgs e)

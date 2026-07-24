@@ -26,10 +26,14 @@ public partial class ExportWindow : Window
 	private const string LocSelectionCount = "S.Import.SelectionCount";
 	private const string LocToastExportedBundle = "S.Toast.ExportedBundle";
 	private const string LocToastExportedArchive = "S.Toast.ExportedArchive";
+	private const string LocToastExportedLinuxArchive = "S.Toast.ExportedLinuxArchive";
+	private const string LocToastExportedXcursorTheme = "S.Toast.ExportedXcursorTheme";
 	private const string LocErrorTitle = "S.Error.Title";
 	private const string LocErrorExportFailed = "S.Error.ExportFailed";
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
+	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
+	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
 	private readonly List<(PresetGroup Group, Border Cell)> _groupTiles = new();
@@ -243,6 +247,59 @@ public partial class ExportWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportBundle(selected, ExportNameBox.Text);
 			ToastService.Show(RootGrid, Loc.Format(LocToastExportedBundle, count, System.IO.Path.GetFileName(path)));
+			if (AppState.GetOpenFolderAfterDownload())
+				RevealInExplorer(path);
+		}
+		catch (Exception exception)
+		{
+			MessageBox.Show(Loc.Format(LocErrorExportFailed, exception.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	private void OnExportArchiveMoreClick(object sender, RoutedEventArgs e)
+	{
+		var menu = new ContextMenu { PlacementTarget = ExportArchiveMoreButton, IsOpen = true };
+
+		var xcursorItem = new MenuItem { Header = Loc.Get(LocExportAsXcursorTheme) };
+		xcursorItem.Click += (_, _) => ExportXcursorTheme();
+		menu.Items.Add(xcursorItem);
+
+		var linuxItem = new MenuItem { Header = Loc.Get(LocExportAsLinuxArchive) };
+		linuxItem.Click += (_, _) => ExportLinuxArchive();
+		menu.Items.Add(linuxItem);
+	}
+
+	private void ExportLinuxArchive()
+	{
+		var selected = GetSelectedPresets();
+		if (selected.Count == 0)
+			return;
+
+		try
+		{
+			var (path, count) = PresetPackageService.ExportLinuxArchive(selected, ExportNameBox.Text);
+			ToastService.Show(RootGrid, Loc.Format(LocToastExportedLinuxArchive, count, System.IO.Path.GetFileName(path)));
+			if (AppState.GetOpenFolderAfterDownload())
+				RevealInExplorer(path);
+		}
+		catch (Exception exception)
+		{
+			MessageBox.Show(Loc.Format(LocErrorExportFailed, exception.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	private void ExportXcursorTheme()
+	{
+		var selected = GetSelectedPresets();
+		if (selected.Count == 0)
+			return;
+
+		try
+		{
+			var (path, count) = PresetPackageService.ExportXcursorTheme(selected, ExportNameBox.Text);
+			ToastService.Show(RootGrid, Loc.Format(LocToastExportedXcursorTheme, count, System.IO.Path.GetFileName(path)));
 			if (AppState.GetOpenFolderAfterDownload())
 				RevealInExplorer(path);
 		}

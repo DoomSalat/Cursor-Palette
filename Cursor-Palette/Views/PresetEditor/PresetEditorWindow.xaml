@@ -84,18 +84,26 @@
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
-				<Button x:Name="DownloadPresetButton" Grid.Column="0"
-						Style="{StaticResource Style.Button}"
-						ToolTip="{DynamicResource S.Editor.DownloadPreset.Tooltip}"
-						Width="32" Height="32" Padding="0"
-						Margin="0,0,8,0"
-						Click="OnDownloadPresetClick">
-					<Rectangle Width="16" Height="16" Fill="{StaticResource Brush.Text}">
-						<Rectangle.OpacityMask>
-							<ImageBrush ImageSource="pack://application:,,,/Resources/DownloadIcon32.png" />
-						</Rectangle.OpacityMask>
-					</Rectangle>
-				</Button>
+				<StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
+					<Button x:Name="DownloadPresetButton"
+							Style="{StaticResource Style.Button}"
+							ToolTip="{DynamicResource S.Editor.DownloadPreset.Tooltip}"
+							Width="32" Height="32" Padding="0"
+							Click="OnDownloadPresetClick">
+						<Rectangle Width="16" Height="16" Fill="{StaticResource Brush.Text}">
+							<Rectangle.OpacityMask>
+								<ImageBrush ImageSource="pack://application:,,,/Resources/DownloadIcon32.png" />
+							</Rectangle.OpacityMask>
+						</Rectangle>
+					</Button>
+					<Button x:Name="DownloadPresetMoreButton"
+							Style="{StaticResource Style.Button}"
+							Content="▾"
+							Width="20" Height="32" Padding="0"
+							Margin="1,0,0,0"
+							ToolTip="{DynamicResource S.Export.MoreOptions.Tooltip}"
+							Click="OnDownloadPresetMoreClick" />
+				</StackPanel>
 				<TextBlock Grid.Column="1"
 							 Text="{DynamicResource S.Editor.PresetName}"
 							 Foreground="{StaticResource Brush.TextDim}"

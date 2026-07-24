@@ -103,6 +103,10 @@ public partial class PresetEditorWindow : Window
 	private const string LocToastDownloaded = "S.Toast.Downloaded";
 	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
 	private const string LocErrorArchiveExtractFailed = "S.Error.ArchiveExtractFailed";
+	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
+	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
+	private const string LocToastExportedLinuxArchive = "S.Toast.ExportedLinuxArchive";
+	private const string LocToastExportedXcursorTheme = "S.Toast.ExportedXcursorTheme";
 
 	private readonly List<Slot> _slots = new();
 

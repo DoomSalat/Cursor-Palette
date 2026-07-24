@@ -127,12 +127,28 @@ apply.
   so the file is self-contained and safe to share) or as a plain ZIP
   archive with the raw `.cur`/`.ani` files for use outside the app. Both are
   saved to the Downloads folder.
+- **Export for Linux** — a dropdown next to the ZIP archive button (in both
+  the Export window and the preset editor's own download button) offers two
+  Linux-oriented formats:
+  - **Xcursor theme** — converts the preset into a real Xcursor theme
+    (`index.theme` + a `cursors` folder), with each Windows cursor role
+    mapped to the matching Xcursor/CSS names (`left_ptr`, `text`,
+    `ns-resize`, `pointer`, etc.) so it's ready to drop into `~/.icons` and
+    select in any desktop environment.
+  - **Raw cursor files** — the plain `.cur`/`.ani` files in folders, with no
+    extra metadata; can also be dragged back into this app later.
 - **Import presets** — pick a `.cursorpalette` bundle or a `.zip`/`.rar`/
   `.7z` archive (via the Import button or by dropping the file onto the
   main window), choose which presets to bring in, and they're added to
   the gallery as new presets. Importing a bundle created by a newer,
   incompatible version of the app is detected and blocked with a clear
   message.
+- **Import folders, and Linux exports, too** — the Import button's dropdown
+  can also open a folder picker, and dropping a folder works the same as
+  dropping a file. Both recognize any of this app's own export layouts,
+  including an unzipped Xcursor theme or a raw cursor-files folder — so a
+  Linux export can be brought straight back in, whether it's still zipped
+  or already extracted.
 - **Update checker** — the footer shows whether the app is up to date and
   lets you download and install a new version in one click, or check again
   on demand.

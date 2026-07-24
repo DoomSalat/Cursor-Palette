@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using CursorPalette.Models;
 using CursorPalette.Services;
 using Microsoft.Win32;
@@ -35,6 +36,37 @@ public partial class MainWindow
 				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
 			return;
 		}
+
+		if (detected == null)
+		{
+			MessageBox.Show(Loc.Get(LocErrorImportUnrecognized),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
+			return;
+		}
+
+		ImportPackage(detected);
+	}
+
+	private void OnImportMoreClick(object sender, RoutedEventArgs e)
+	{
+		var menu = new ContextMenu { PlacementTarget = ImportMoreButton, IsOpen = true };
+
+		var folderItem = new MenuItem { Header = Loc.Get(LocImportFolder) };
+		folderItem.Click += (_, _) => ImportFromFolder();
+		menu.Items.Add(folderItem);
+	}
+
+	private void ImportFromFolder()
+	{
+		var dialog = new OpenFolderDialog
+		{
+			InitialDirectory = AppPaths.DownloadsDir,
+		};
+
+		if (dialog.ShowDialog(this) != true)
+			return;
+
+		var detected = PresetPackageService.TryDetectPackageFromFolder(dialog.FolderName);
 
 		if (detected == null)
 		{

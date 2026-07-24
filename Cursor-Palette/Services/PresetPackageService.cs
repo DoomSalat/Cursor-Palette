@@ -23,7 +23,16 @@ public static class PresetPackageService
 
 	private const string DefaultBundleName = "Cursor Palette Presets";
 	private const string DefaultArchiveName = "Cursor Palette Presets";
+	private const string DefaultLinuxArchiveName = "Cursor Palette Presets (Linux)";
+	private const string DefaultXcursorThemeName = "Cursor Palette Presets";
+	private const string XcursorArchiveNameSuffix = " (Xcursor)";
 	private const string TempFolderPrefix = "cursor-palette-package-";
+
+	private const string XcursorCursorsFolderName = "cursors";
+	private const string XcursorIndexThemeFileName = "index.theme";
+	private const string XcursorInheritsTheme = "default";
+	private const string XcursorReconstructedFolderName = "_reconstructed";
+	private const string XcursorPreviewBaseName = "preview";
 
 	private const string CurExtension = ".cur";
 	private const string AniExtension = ".ani";
@@ -189,6 +198,174 @@ public static class PresetPackageService
 		}
 	}
 
+	public static (string Path, int Count) ExportLinuxArchive(IReadOnlyList<Preset> presets, string? customName = null)
+	{
+		var stagingDir = CreateTempDir();
+
+		try
+		{
+			var usedFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			var exportedCount = 0;
+
+			foreach (var preset in presets)
+			{
+				var folderName = MakeUniqueFolderName(SanitizeName(preset.Name), usedFolderNames);
+				var folderPath = Path.Combine(stagingDir, folderName);
+
+				if (WriteLinuxArchiveFolder(folderPath, role => PresetStore.GetRoleFilePath(preset, role)))
+					exportedCount++;
+			}
+
+			var destPath = GetUniqueDownloadPath(ResolveExportName(customName, DefaultLinuxArchiveName), ".zip");
+
+			CreateZipFromDirectory(stagingDir, destPath);
+
+			return (destPath, exportedCount);
+		}
+		finally
+		{
+			TryDeleteDir(stagingDir);
+		}
+	}
+
+	public static (string Path, int Count) ExportXcursorTheme(IReadOnlyList<Preset> presets, string? customName = null)
+	{
+		var stagingDir = CreateTempDir();
+
+		try
+		{
+			var usedFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			var exportedCount = 0;
+
+			foreach (var preset in presets)
+			{
+				var folderName = MakeUniqueFolderName(SanitizeName(preset.Name), usedFolderNames);
+				var themeDir = Path.Combine(stagingDir, folderName);
+
+				if (WriteXcursorThemeFolder(themeDir, preset.Name, role => PresetStore.GetRoleFilePath(preset, role)))
+					exportedCount++;
+			}
+
+			var destPath = GetUniqueDownloadPath(
+				ResolveExportName(customName, DefaultXcursorThemeName) + XcursorArchiveNameSuffix, ".zip");
+
+			CreateZipFromDirectory(stagingDir, destPath);
+
+			return (destPath, exportedCount);
+		}
+		finally
+		{
+			TryDeleteDir(stagingDir);
+		}
+	}
+
+	// Single-preset variants for the preset editor, where the preset may not be saved yet —
+	// roles are resolved from the editor's own slot paths rather than PresetStore.
+	public static string? ExportLinuxArchiveForFiles(string presetName, IReadOnlyDictionary<string, string> roleFiles)
+	{
+		var stagingDir = CreateTempDir();
+
+		try
+		{
+			var folderName = SanitizeName(presetName);
+			var folderPath = Path.Combine(stagingDir, folderName);
+
+			if (!WriteLinuxArchiveFolder(folderPath, role => roleFiles.GetValueOrDefault(role)))
+				return null;
+
+			var destPath = GetUniqueDownloadPath(folderName, ".zip");
+			CreateZipFromDirectory(stagingDir, destPath);
+
+			return destPath;
+		}
+		finally
+		{
+			TryDeleteDir(stagingDir);
+		}
+	}
+
+	public static string? ExportXcursorThemeForFiles(string presetName, IReadOnlyDictionary<string, string> roleFiles)
+	{
+		var stagingDir = CreateTempDir();
+
+		try
+		{
+			var folderName = SanitizeName(presetName);
+			var themeDir = Path.Combine(stagingDir, folderName);
+
+			if (!WriteXcursorThemeFolder(themeDir, presetName, role => roleFiles.GetValueOrDefault(role)))
+				return null;
+
+			var destPath = GetUniqueDownloadPath(folderName + XcursorArchiveNameSuffix, ".zip");
+			CreateZipFromDirectory(stagingDir, destPath);
+
+			return destPath;
+		}
+		finally
+		{
+			TryDeleteDir(stagingDir);
+		}
+	}
+
+	private static bool WriteLinuxArchiveFolder(string folderPath, Func<string, string?> resolveRolePath)
+	{
+		var written = false;
+
+		foreach (var role in CursorRoles.All)
+		{
+			var sourcePath = resolveRolePath(role.RegistryName);
+
+			if (sourcePath == null || !File.Exists(sourcePath))
+				continue;
+
+			Directory.CreateDirectory(folderPath);
+			var fileName = $"{role.RegistryName}{Path.GetExtension(sourcePath)}";
+			File.Copy(sourcePath, Path.Combine(folderPath, fileName), overwrite: true);
+			written = true;
+		}
+
+		return written;
+	}
+
+	private static bool WriteXcursorThemeFolder(string themeDir, string presetName, Func<string, string?> resolveRolePath)
+	{
+		var cursorsDir = Path.Combine(themeDir, XcursorCursorsFolderName);
+		var writtenAny = false;
+
+		foreach (var role in CursorRoles.All)
+		{
+			var sourcePath = resolveRolePath(role.RegistryName);
+
+			if (sourcePath == null || !File.Exists(sourcePath))
+				continue;
+
+			var frames = XcursorWriter.LoadFrames(sourcePath);
+
+			if (frames == null || frames.Count == 0)
+				continue;
+
+			Directory.CreateDirectory(cursorsDir);
+			var bytes = XcursorWriter.Build(frames);
+
+			var aliases = XcursorWriter.RoleAliases.TryGetValue(role.RegistryName, out var names)
+				? names
+				: new[] { role.RegistryName.ToLowerInvariant() };
+
+			foreach (var alias in aliases)
+				File.WriteAllBytes(Path.Combine(cursorsDir, alias), bytes);
+
+			writtenAny = true;
+		}
+
+		if (writtenAny)
+		{
+			File.WriteAllText(Path.Combine(themeDir, XcursorIndexThemeFileName),
+				$"[Icon Theme]\nName={SanitizeName(presetName)}\nInherits={XcursorInheritsTheme}\n");
+		}
+
+		return writtenAny;
+	}
+
 	public static DetectedPackage? TryDetectPackage(string filePath)
 	{
 		if (!IsSupportedPackageFile(filePath))
@@ -204,6 +381,53 @@ public static class PresetPackageService
 			return null;
 		}
 
+		return DetectFromExtractedDir(extractedDir);
+	}
+
+	// Lets a plain, unzipped folder be recognized the same way as an archive: the folder
+	// is expected to have the same layout our own exports produce (a folder of preset
+	// subfolders, an Xcursor theme layout, or one of the JSON-marked formats). The folder
+	// is copied into a disposable temp dir first, so detection/cleanup can treat it exactly
+	// like an extracted archive without ever touching the user's original folder.
+	public static DetectedPackage? TryDetectPackageFromFolder(string folderPath)
+	{
+		if (!Directory.Exists(folderPath))
+			return null;
+
+		string extractedDir;
+		try
+		{
+			extractedDir = CopyDirectoryToTempDir(folderPath);
+		}
+		catch
+		{
+			return null;
+		}
+
+		return DetectFromExtractedDir(extractedDir);
+	}
+
+	private static string CopyDirectoryToTempDir(string sourceDir)
+	{
+		var destDir = CreateTempDir();
+		CopyDirectoryContents(sourceDir, destDir);
+
+		return destDir;
+	}
+
+	private static void CopyDirectoryContents(string sourceDir, string destDir)
+	{
+		Directory.CreateDirectory(destDir);
+
+		foreach (var file in Directory.GetFiles(sourceDir))
+			File.Copy(file, Path.Combine(destDir, Path.GetFileName(file)), overwrite: true);
+
+		foreach (var subDir in Directory.GetDirectories(sourceDir))
+			CopyDirectoryContents(subDir, Path.Combine(destDir, Path.GetFileName(subDir)));
+	}
+
+	private static DetectedPackage? DetectFromExtractedDir(string extractedDir)
+	{
 		var manifestPath = Path.Combine(extractedDir, PackageManifestFileName);
 		var manifest = File.Exists(manifestPath) ? TryReadJson<ArchiveManifest>(manifestPath) : null;
 
@@ -363,9 +587,202 @@ public static class PresetPackageService
 			return new DetectedPackage { Kind = PackageKind.Archive, ExtractedDir = extractedDir, Entries = entries };
 		}
 
+		var xcursorThemeEntries = BuildXcursorThemeEntries(extractedDir);
+
+		if (xcursorThemeEntries.Count > 0)
+			return new DetectedPackage { Kind = PackageKind.XcursorTheme, ExtractedDir = extractedDir, Entries = xcursorThemeEntries };
+
+		var plainFolderEntries = BuildPlainFolderEntries(extractedDir);
+
+		if (plainFolderEntries.Count > 0)
+			return new DetectedPackage { Kind = PackageKind.Archive, ExtractedDir = extractedDir, Entries = plainFolderEntries };
+
 		TryDeleteDir(extractedDir);
 
 		return null;
+	}
+
+	private static List<PackageEntry> BuildXcursorThemeEntries(string extractedDir)
+	{
+		var entries = new List<PackageEntry>();
+
+		foreach (var themeDir in Directory.GetDirectories(extractedDir))
+		{
+			var cursorsDir = Path.Combine(themeDir, XcursorCursorsFolderName);
+
+			if (!Directory.Exists(cursorsDir))
+				continue;
+
+			var cursorFiles = Directory.GetFiles(cursorsDir);
+			var roleCount = cursorFiles
+				.Select(file => XcursorWriter.AliasToRole.TryGetValue(Path.GetFileName(file), out var role) ? role : null)
+				.Where(role => role != null)
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.Count();
+
+			if (roleCount == 0)
+				continue;
+
+			var previewSourceFile = cursorFiles.FirstOrDefault(file =>
+					XcursorWriter.AliasToRole.TryGetValue(Path.GetFileName(file), out var role) &&
+					string.Equals(role, CursorRoles.ArrowRoleName, StringComparison.OrdinalIgnoreCase)) ??
+				cursorFiles.FirstOrDefault(file => XcursorWriter.AliasToRole.ContainsKey(Path.GetFileName(file)));
+
+			var previewPath = previewSourceFile != null
+				? TryReconstructCursorFile(previewSourceFile,
+					Path.Combine(themeDir, XcursorReconstructedFolderName), XcursorPreviewBaseName)
+				: null;
+
+			entries.Add(new PackageEntry
+			{
+				Key = Path.GetFileName(themeDir),
+				DisplayName = ReadXcursorThemeName(themeDir) ?? Path.GetFileName(themeDir),
+				RoleCount = roleCount,
+				BaseSize = RegistryCursorService.DefaultBaseSize,
+				PreviewPath = previewPath,
+			});
+		}
+
+		return entries;
+	}
+
+	public static string? ReadXcursorThemeName(string themeDir)
+	{
+		var indexPath = Path.Combine(themeDir, XcursorIndexThemeFileName);
+
+		if (!File.Exists(indexPath))
+			return null;
+
+		try
+		{
+			foreach (var line in File.ReadLines(indexPath))
+			{
+				if (line.StartsWith("Name=", StringComparison.OrdinalIgnoreCase))
+					return line["Name=".Length..].Trim();
+			}
+		}
+		catch
+		{
+		}
+
+		return null;
+	}
+
+	private static string? TryReconstructCursorFile(string xcursorFilePath, string destDir, string destBaseName)
+	{
+		byte[] bytes;
+
+		try
+		{
+			bytes = File.ReadAllBytes(xcursorFilePath);
+		}
+		catch
+		{
+			return null;
+		}
+
+		var frames = XcursorWriter.TryParse(bytes);
+
+		if (frames == null || frames.Count == 0)
+			return null;
+
+		Directory.CreateDirectory(destDir);
+
+		var images = frames
+			.Select(frame => new CursorCanvasImage(frame.Width, frame.Height, frame.HotspotX, frame.HotspotY, frame.Bgra))
+			.ToList();
+
+		if (images.Count == 1)
+		{
+			var curPath = Path.Combine(destDir, destBaseName + CurExtension);
+			CursorCanvasService.Write(curPath, images[0]);
+
+			return curPath;
+		}
+
+		var aniPath = Path.Combine(destDir, destBaseName + AniExtension);
+		AniCursorWriter.Save(aniPath, images, frames.Select(frame => frame.DelayMs).ToList());
+
+		return aniPath;
+	}
+
+	private static PresetDraft? BuildXcursorThemeDraft(string extractedDir, PackageEntry entry)
+	{
+		var themeDir = Path.Combine(extractedDir, entry.Key);
+		var reconstructedDir = Path.Combine(themeDir, XcursorReconstructedFolderName);
+		var roleFiles = ReconstructXcursorThemeRoles(themeDir, reconstructedDir);
+
+		if (roleFiles.Count == 0)
+			return null;
+
+		var draft = new PresetDraft { Name = entry.DisplayName };
+
+		foreach (var (roleName, filePath) in roleFiles)
+			draft.RoleSources[roleName] = new RoleSourceDraft { OwnFilePath = filePath };
+
+		return draft;
+	}
+
+	// Given a folder that looks like an Xcursor theme (has a "cursors" subfolder), decodes
+	// each recognizable cursor file back into a .cur/.ani written under reconstructedDir and
+	// returns a role name -> file path map. Used both when importing an Xcursor theme package
+	// and when the preset editor is handed one directly (e.g. via drag-and-drop).
+	public static Dictionary<string, string> ReconstructXcursorThemeRoles(string themeDir, string reconstructedDir)
+	{
+		var result = new Dictionary<string, string>();
+		var cursorsDir = Path.Combine(themeDir, XcursorCursorsFolderName);
+
+		if (!Directory.Exists(cursorsDir))
+			return result;
+
+		var assignedRoles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+		foreach (var file in Directory.GetFiles(cursorsDir))
+		{
+			if (!XcursorWriter.AliasToRole.TryGetValue(Path.GetFileName(file), out var roleName))
+				continue;
+
+			if (!assignedRoles.Add(roleName))
+				continue;
+
+			var destPath = TryReconstructCursorFile(file, reconstructedDir, roleName);
+
+			if (destPath != null)
+				result[roleName] = destPath;
+		}
+
+		return result;
+	}
+
+	public static bool LooksLikeXcursorTheme(string folderPath) =>
+		Directory.Exists(Path.Combine(folderPath, XcursorCursorsFolderName));
+
+	private static List<PackageEntry> BuildPlainFolderEntries(string extractedDir)
+	{
+		var entries = new List<PackageEntry>();
+
+		foreach (var folderPath in Directory.GetDirectories(extractedDir))
+		{
+			var cursorFiles = Directory.EnumerateFiles(folderPath).Where(IsCursorFile).ToList();
+
+			if (cursorFiles.Count == 0)
+				continue;
+
+			var previewPath = cursorFiles.FirstOrDefault(file =>
+				string.Equals(Path.GetFileNameWithoutExtension(file), CursorRoles.ArrowRoleName,
+					StringComparison.OrdinalIgnoreCase)) ?? cursorFiles.FirstOrDefault();
+
+			entries.Add(new PackageEntry
+			{
+				Key = Path.GetFileName(folderPath),
+				DisplayName = Path.GetFileName(folderPath),
+				RoleCount = cursorFiles.Count,
+				BaseSize = RegistryCursorService.DefaultBaseSize,
+				PreviewPath = previewPath,
+			});
+		}
+
+		return entries;
 	}
 
 	public static int ImportSelected(DetectedPackage package, IReadOnlyList<PackageEntry> selectedEntries,
@@ -381,6 +798,7 @@ public static class PresetPackageService
 			{
 				PackageKind.Manifest => BuildManifestDraft(package.ExtractedDir, entry),
 				PackageKind.Bundle => BuildBundleDraft(package.ExtractedDir, entry),
+				PackageKind.XcursorTheme => BuildXcursorThemeDraft(package.ExtractedDir, entry),
 				_ => BuildArchiveDraft(package.ExtractedDir, entry),
 			};
 

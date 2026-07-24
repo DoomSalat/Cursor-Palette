@@ -235,21 +235,30 @@
 						</Rectangle>
 					</Button>
 
-					<Button x:Name="ImportButton"
-							Style="{StaticResource Style.Button}"
-							Padding="8,6"
-							Margin="0,0,8,0"
-							ToolTip="{DynamicResource S.Import.Tooltip}"
-							Click="OnImportButtonClick">
-						<Rectangle Width="16" Height="16"
-								   SnapsToDevicePixels="True"
-								   Fill="{StaticResource Brush.TextDim}">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="pack://application:,,,/Resources/ImportIcon26.png"
-											Stretch="Uniform" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Button>
+					<StackPanel Orientation="Horizontal" Margin="0,0,8,0">
+						<Button x:Name="ImportButton"
+								Style="{StaticResource Style.Button}"
+								Padding="8,6"
+								ToolTip="{DynamicResource S.Import.Tooltip}"
+								Click="OnImportButtonClick">
+							<Rectangle Width="16" Height="16"
+									   SnapsToDevicePixels="True"
+									   Fill="{StaticResource Brush.TextDim}">
+								<Rectangle.OpacityMask>
+									<ImageBrush ImageSource="pack://application:,,,/Resources/ImportIcon26.png"
+												Stretch="Uniform" />
+								</Rectangle.OpacityMask>
+							</Rectangle>
+						</Button>
+						<Button x:Name="ImportMoreButton"
+								Style="{StaticResource Style.Button}"
+								Content="▾"
+								Padding="6,6"
+								Margin="1,0,0,0"
+								ToolTip="{DynamicResource S.Export.MoreOptions.Tooltip}"
+								Click="OnImportMoreClick" />
+					</StackPanel>
+
 
 					<Ellipse x:Name="UpdateSpinner"
 							 Width="12" Height="12"

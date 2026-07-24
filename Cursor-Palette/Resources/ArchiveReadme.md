@@ -3,6 +3,8 @@
 
 This archive contains custom cursor presets exported from {{AppName}}.
 
+Note: Program for Windows only.
+
 How to install:
 1. Download and run {{AppName}} from:
    {{AppUrl}}
