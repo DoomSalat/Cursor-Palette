@@ -8,6 +8,7 @@
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<RootNamespace>CursorPalette.Linux</RootNamespace>
 		<AssemblyName>Cursor-Palette-Linux</AssemblyName>
+		<UseAppHost>false</UseAppHost>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 
@@ -21,6 +22,11 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Cursor-Palette.Core\Cursor-Palette.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AvaloniaResource Include="App.xaml" />
+		<AvaloniaResource Include="Views\**\*.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,6 +1,24 @@
 <Application xmlns="https://github.com/avaloniaui"
 			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			x:Class="CursorPalette.Linux.App">
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Dark">
+					<Color x:Key="SystemAccentColor">#FF4F8CFF</Color>
+					<SolidColorBrush x:Key="SystemRegionBrush" Color="#FF1E1F24" />
+					<SolidColorBrush x:Key="SystemControlDefaultChromeMediumBrush" Color="#FF26272E" />
+					<SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush" Color="#FF9A9CA6" />
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Light">
+					<Color x:Key="SystemAccentColor">#FF3D7DFF</Color>
+					<SolidColorBrush x:Key="SystemRegionBrush" Color="#FFF4F5F7" />
+					<SolidColorBrush x:Key="SystemControlDefaultChromeMediumBrush" Color="#FFFFFFFF" />
+					<SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush" Color="#FF6B6E76" />
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
 	<Application.Styles>
 		<FluentTheme />
 		<Style Selector="Border.active">

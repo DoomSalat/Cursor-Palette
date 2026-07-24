@@ -43,7 +43,7 @@
 						Click="OnUndoClick" />
 				<Separator Margin="8,0" />
 				<Button x:Name="ThemeToggleButton"
-						Content="Theme"
+						Content="☀"
 						VerticalAlignment="Center"
 						Click="OnThemeToggle" />
 				<Button x:Name="LanguageButton"
@@ -58,7 +58,7 @@
 					  HorizontalScrollBarVisibility="Auto"
 					  VerticalScrollBarVisibility="Disabled">
 			<ItemsControl x:Name="Gallery"
-						  Items="{Binding Board}">
+						  ItemsSource="{Binding Board}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<WrapPanel />
@@ -100,7 +100,11 @@
 							<StackPanel VerticalAlignment="Center"
 										HorizontalAlignment="Center"
 										Spacing="4">
-								<Image Source="{Binding Preview}"
+								<TextBlock Text="+"
+									   FontSize="34"
+									   HorizontalAlignment="Center"
+									   IsVisible="{Binding IsAddCell}" />
+							<Image Source="{Binding Preview}"
 									   Width="48"
 									   Height="48"
 									   IsVisible="{Binding Preview, Converter={x:Static ObjectConverters.IsNotNull}}" />

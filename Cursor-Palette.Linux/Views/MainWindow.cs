@@ -18,10 +18,13 @@ public partial class MainWindow : Window
 	private const string CursorFileFilterName = "Cursors";
 	private const string DeleteButtonText = "Delete";
 	private const string CancelButtonText = "Cancel";
+	private const string AddCellPlusText = "+";
+	private const string ThemeIconDark = "🌙";
+	private const string ThemeIconLight = "☀";
+	private const string MixedBadgeText = "🧩";
 
 	private const string LocApplySize = "S.ApplySize";
 	private const string LocUndo = "S.Undo";
-	private const string LocThemeToggle = "S.Theme.ToggleTooltip";
 	private const string LocResetDefault = "S.ResetDefault";
 	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
 	private const string LocConfirmDeleteText = "S.ConfirmDelete.Text";
@@ -33,7 +36,7 @@ public partial class MainWindow : Window
 	private const double DeleteDialogWidth = 360;
 	private const double DeleteDialogHeight = 160;
 
-	private static readonly string[] SupportedLanguages = { "en", "ru" };
+	private static readonly string[] SupportedLanguages = { "en", "ru", "de", "es", "ja", "zh" };
 	private static readonly string[] CursorFilePatterns = { "*.cur", "*.ani", "*.png", "*.jpg", "*.bmp", "*.gif" };
 
 	private readonly MainWindowViewModel _viewModel = new();
@@ -64,6 +67,7 @@ public partial class MainWindow : Window
 
 		UpdateSizeText(_viewModel.BaselineSizePx);
 		ApplyLocalization();
+		UpdateThemeToggleIcon();
 
 		var currentLang = LocalizationManager.Current;
 		_languageIndex = Math.Max(0, Array.IndexOf(SupportedLanguages, currentLang));
@@ -82,10 +86,6 @@ public partial class MainWindow : Window
 		var undoButton = this.FindControl<Button>("UndoButton");
 		if (undoButton != null)
 			undoButton.Content = Loc.Get(LocUndo);
-
-		var themeButton = this.FindControl<Button>("ThemeToggleButton");
-		if (themeButton != null)
-			themeButton.Content = Loc.Get(LocThemeToggle);
 
 		var defaultLabel = this.FindControl<TextBlock>("DefaultLabel");
 		if (defaultLabel != null)
@@ -210,7 +210,7 @@ public partial class MainWindow : Window
 		// TODO: Open preset editor
 	}
 
-	public async void OnMenuRename(object? sender, RoutedEventArgs e)
+	public void OnMenuRename(object? sender, RoutedEventArgs e)
 	{
 		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
 			return;
@@ -301,6 +301,14 @@ public partial class MainWindow : Window
 	{
 		_isDarkTheme = !_isDarkTheme;
 		RequestedThemeVariant = _isDarkTheme ? Avalonia.Styling.ThemeVariant.Dark : Avalonia.Styling.ThemeVariant.Light;
+		UpdateThemeToggleIcon();
+	}
+
+	private void UpdateThemeToggleIcon()
+	{
+		var themeButton = this.FindControl<Button>("ThemeToggleButton");
+		if (themeButton != null)
+			themeButton.Content = _isDarkTheme ? ThemeIconDark : ThemeIconLight;
 	}
 
 	private int _languageIndex;
