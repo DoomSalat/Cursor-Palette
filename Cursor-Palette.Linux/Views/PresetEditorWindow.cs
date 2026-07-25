@@ -119,30 +119,31 @@ public class PresetEditorWindow : Window
 		saveButton.Click += OnSaveClick;
 		cancelButton.Click += (_, _) => Close();
 
-		var bottomBar = new StackPanel
+		var bottomBar = new Grid
 		{
-			Orientation = Orientation.Horizontal,
-			HorizontalAlignment = HorizontalAlignment.Right,
-			Spacing = ButtonSpacing,
+			ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,Auto,Auto"),
 			Margin = new Avalonia.Thickness(DialogMargin),
 		};
-		bottomBar.Children.Add(new TextBlock
+		var nameLabel = new TextBlock
 		{
 			Text = Loc.Get(LocEditorPresetName),
 			Foreground = Brushes.Gray,
 			VerticalAlignment = VerticalAlignment.Center,
 			Margin = new Avalonia.Thickness(0, 0, 8, 0),
-		});
+		};
+		Grid.SetColumn(nameLabel, 1);
+		bottomBar.Children.Add(nameLabel);
+		Grid.SetColumn(_nameBox, 2);
 		bottomBar.Children.Add(_nameBox);
+		Grid.SetColumn(cancelButton, 3);
 		bottomBar.Children.Add(cancelButton);
+		Grid.SetColumn(saveButton, 4);
 		bottomBar.Children.Add(saveButton);
 
-		var sizeBar = new StackPanel
+		var sizeBar = new Grid
 		{
-			Orientation = Orientation.Horizontal,
-			HorizontalAlignment = HorizontalAlignment.Left,
+			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,Auto"),
 			Margin = new Avalonia.Thickness(DialogMargin),
-			Spacing = DialogSpacing,
 		};
 		sizeBar.Children.Add(new TextBlock
 		{
@@ -150,7 +151,9 @@ public class PresetEditorWindow : Window
 			Foreground = Brushes.Gray,
 			VerticalAlignment = VerticalAlignment.Center,
 		});
+		Grid.SetColumn(_sizeSlider, 1);
 		sizeBar.Children.Add(_sizeSlider);
+		Grid.SetColumn(_sizeValueText, 2);
 		sizeBar.Children.Add(_sizeValueText);
 
 		var scrollViewer = new ScrollViewer

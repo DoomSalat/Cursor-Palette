@@ -59,6 +59,14 @@ public partial class MainWindow : Window
 	private const double DeleteDialogWidth = 360;
 	private const double DeleteDialogHeight = 160;
 	private const double UiZoomStep = 0.1;
+	private const double AboutDialogWidth = 520;
+	private const double AboutDialogHeight = 460;
+	private const double AboutMinWidth = 400;
+	private const double AboutMinHeight = 320;
+	private const double AboutPadding = 20;
+	private const double AboutCloseButtonMinWidth = 90;
+
+	private const string AboutLicenseText = "Copyright (c) 2026 Capitan Salat\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.";
 
 	private static readonly string[] SupportedLanguages = { "en", "ru", "de", "es", "ja", "zh" };
 	private static readonly string[] CursorFilePatterns = { "*.cur", "*.ani", "*.png", "*.jpg", "*.bmp", "*.gif" };
@@ -527,44 +535,91 @@ public partial class MainWindow : Window
 		var dialog = new Window
 		{
 			Title = Loc.Get(LocAboutTitle),
-			Width = 360,
-			Height = 220,
+			Width = AboutDialogWidth,
+			Height = AboutDialogHeight,
+			MinWidth = AboutMinWidth,
+			MinHeight = AboutMinHeight,
 			WindowStartupLocation = WindowStartupLocation.CenterOwner,
-			CanResize = false,
+			CanResize = true,
 			ShowInTaskbar = false,
 		};
 
-		var panel = new StackPanel
+		var contentPanel = new StackPanel
 		{
-			Margin = new Avalonia.Thickness(24),
 			Spacing = 12,
 		};
 
-		panel.Children.Add(new TextBlock
+		var titlePanel = new StackPanel
 		{
-			Text = "Cursor Palette",
+			Orientation = Orientation.Horizontal,
+			Margin = new Avalonia.Thickness(0, 0, 0, 4),
+		};
+		titlePanel.Children.Add(new TextBlock
+		{
+			Text = "Cursor ",
 			FontSize = 18,
-			FontWeight = FontWeight.Bold,
+			FontWeight = FontWeight.SemiBold,
+			VerticalAlignment = VerticalAlignment.Center,
 		});
-
-		panel.Children.Add(new TextBlock
+		titlePanel.Children.Add(new TextBlock
 		{
-			Text = Loc.Get(LocAboutLicenseHint),
+			Text = "Palette",
+			FontSize = 18,
+			FontWeight = FontWeight.SemiBold,
+			Foreground = (IBrush?)Application.Current?.FindResource("SystemAccentColor"),
+			VerticalAlignment = VerticalAlignment.Center,
+		});
+		contentPanel.Children.Add(titlePanel);
+
+		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+		contentPanel.Children.Add(new TextBlock
+		{
+			Text = $"v{version}",
 			FontSize = 12,
 			Foreground = Brushes.Gray,
+		});
+
+		contentPanel.Children.Add(new TextBlock
+		{
+			Text = AppInfo.LicenseName,
+			FontSize = 13,
+			FontWeight = FontWeight.SemiBold,
+		});
+
+		contentPanel.Children.Add(new TextBlock
+		{
+			Text = AboutLicenseText,
+			FontSize = 12,
 			TextWrapping = TextWrapping.Wrap,
 		});
+
+		var scrollViewer = new ScrollViewer
+		{
+			Content = contentPanel,
+			Padding = new Avalonia.Thickness(AboutPadding),
+			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+		};
 
 		var closeButton = new Button
 		{
 			Content = Loc.Get(LocAboutClose),
-			HorizontalAlignment = HorizontalAlignment.Center,
-			Margin = new Avalonia.Thickness(0, 8, 0, 0),
+			HorizontalAlignment = HorizontalAlignment.Right,
+			MinWidth = AboutCloseButtonMinWidth,
+			Margin = new Avalonia.Thickness(DialogMargin, 10, DialogMargin, 10),
 		};
 		closeButton.Click += (_, _) => dialog.Close();
-		panel.Children.Add(closeButton);
 
-		dialog.Content = panel;
+		var root = new Grid
+		{
+			RowDefinitions = new RowDefinitions("*,Auto"),
+		};
+		Grid.SetRow(scrollViewer, 0);
+		Grid.SetRow(closeButton, 1);
+		root.Children.Add(scrollViewer);
+		root.Children.Add(closeButton);
+
+		dialog.Content = root;
 		await dialog.ShowDialog(this);
 	}
 
