@@ -925,6 +925,21 @@ public partial class MainWindow : Window
 		_viewModel.ToggleGroupCollapse(group.Id);
 	}
 
+	public async void OnMenuEditGroup(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsGroup: true, Group: { } group })
+			return;
+
+		var dialog = new GroupEditWindow(group);
+		var result = await dialog.ShowDialog<bool?>(this);
+
+		if (result == true)
+		{
+			_viewModel.EditGroup(group.Id, dialog.GroupName, dialog.ColorKey);
+			ShowToast(Loc.Get(LocToastSaved));
+		}
+	}
+
 	private async void OnUndoClick(object? sender, RoutedEventArgs e)
 	{
 		await _viewModel.UndoAsync();

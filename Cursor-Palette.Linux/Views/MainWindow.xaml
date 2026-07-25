@@ -160,6 +160,10 @@
 											  Header="Collapse/Expand"
 											  IsVisible="{Binding IsGroup}"
 											  Click="OnMenuToggleCollapse" />
+									<MenuItem x:Name="MenuEditGroupItem"
+											  Header="Edit group"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuEditGroup" />
 									<MenuItem x:Name="MenuDeleteItem"
 											  Header="Delete"
 											  Click="OnMenuDelete" />

@@ -544,6 +544,34 @@ public sealed class MainWindowViewModel : ViewModelBase
 		ReloadGallery();
 	}
 
+	public void CreateGroup(string name, string colorKey)
+	{
+		var group = new PresetGroup
+		{
+			Id = Guid.NewGuid().ToString("N"),
+			Name = name,
+			ColorKey = colorKey,
+			MemberPresetIds = new(),
+			Collapsed = false,
+		};
+
+		GroupStore.Save(group);
+		ReloadGallery();
+	}
+
+	public void EditGroup(string groupId, string name, string colorKey)
+	{
+		var groups = GroupStore.LoadAll();
+		var group = groups.FirstOrDefault(group => group.Id == groupId);
+		if (group == null)
+			return;
+
+		group.Name = name;
+		group.ColorKey = colorKey;
+		GroupStore.Save(group);
+		ReloadGallery();
+	}
+
 	public async Task ApplySizeAsync(int sizeInPixels)
 	{
 		var cursorService = CursorServiceProvider.Current;
