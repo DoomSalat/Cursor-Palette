@@ -2,8 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using CursorPalette.Linux.Services;
 using CursorPalette.Models;
@@ -22,6 +25,12 @@ public class PresetEditorWindow : Window
 	private const double DialogMargin = 16;
 	private const double DialogSpacing = 12;
 	private const double ButtonSpacing = 8;
+	private const double WindowMinWidth = 480;
+	private const double WindowMinHeight = 480;
+	private const double DropZoneCornerRadius = 10;
+	private const double DropZoneBorderThickness = 2;
+	private const double DropZoneMargin = 16;
+	private const double SlotHintMargin = 16;
 
 	private const string LocEditorTitleNew = "S.Editor.TitleNew";
 	private const string LocEditorTitleEdit = "S.Editor.TitleEdit";
@@ -33,9 +42,14 @@ public class PresetEditorWindow : Window
 	private const string LocEditorPlaceholderBadge = "S.Editor.PlaceholderBadge";
 	private const string LocEditorPresetName = "S.Editor.PresetName";
 	private const string LocEditorNoFiles = "S.Editor.NoFiles";
+	private const string LocEditorSlotHint = "S.Editor.SlotHint";
+	private const string LocEditorNoCursorInFolder = "S.Editor.NoCursorInFolder";
+	private const string LocEditorNoMatchInFolder = "S.Editor.NoMatchInFolder";
+	private const string LocEditorEmptySkipped = "S.Editor.EmptySkipped";
 	private const string LocDefaultPresetName = "S.DefaultPresetName";
 	private const string LocCursorSize = "S.CursorSize";
 	private const string LocApplySize = "S.ApplySize";
+	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
 
 	private const string CursorFileFilterName = "Cursors";
 	private const string EmptyValue = "";
@@ -43,6 +57,13 @@ public class PresetEditorWindow : Window
 	private const string PaintTempDirName = "cursor-palette-paint";
 	private const string CurExtension = ".cur";
 	private const string PaintFileNameFormat = "{0}_{1:yyyyMMddHHmmss}.cur";
+	private const string ConvertTempFilePrefix = "cursor-palette-convert-";
+	private const string AllFilesPattern = "*.*";
+
+	private static readonly HashSet<string> ConvertibleExtensions = new(StringComparer.OrdinalIgnoreCase)
+	{
+		".cur", ".ani", ".png", ".jpg", ".jpeg", ".bmp", ".gif"
+	};
 
 	private readonly List<Slot> _slots = new();
 	private readonly string? _draftId;
@@ -60,6 +81,8 @@ public class PresetEditorWindow : Window
 		Title = Loc.Get(existing == null ? LocEditorTitleNew : LocEditorTitleEdit);
 		Width = 760;
 		Height = 640;
+		MinWidth = WindowMinWidth;
+		MinHeight = WindowMinHeight;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
 		_nameBox = new TextBox
@@ -140,6 +163,13 @@ public class PresetEditorWindow : Window
 		Grid.SetColumn(saveButton, 4);
 		bottomBar.Children.Add(saveButton);
 
+		var applySizeButton = new Button
+		{
+			Content = Loc.Get(LocApplySize),
+			Margin = new Avalonia.Thickness(8, 0, 0, 0),
+		};
+		applySizeButton.Click += OnApplySizeClick;
+
 		var sizeBar = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,Auto"),
@@ -155,6 +185,8 @@ public class PresetEditorWindow : Window
 		sizeBar.Children.Add(_sizeSlider);
 		Grid.SetColumn(_sizeValueText, 2);
 		sizeBar.Children.Add(_sizeValueText);
+		Grid.SetColumn(applySizeButton, 3);
+		sizeBar.Children.Add(applySizeButton);
 
 		var scrollViewer = new ScrollViewer
 		{
@@ -164,16 +196,50 @@ public class PresetEditorWindow : Window
 			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
 		};
 
+		var slotHint = new TextBlock
+		{
+			Text = Loc.Get(LocEditorSlotHint),
+			Foreground = Brushes.Gray,
+			FontSize = 12,
+			Margin = new Avalonia.Thickness(SlotHintMargin, 12, SlotHintMargin, 4),
+		};
+
+		var browseFolderButton = new Button
+		{
+			Content = Loc.Get(LocEditorBrowseFolder),
+			Padding = new Avalonia.Thickness(16, 10),
+			HorizontalContentAlignment = HorizontalAlignment.Center,
+		};
+		browseFolderButton.Click += async (_, _) => await BrowseFolder();
+
+		var dropZone = new Border
+		{
+			BorderBrush = Brushes.Gray,
+			BorderThickness = new Avalonia.Thickness(DropZoneBorderThickness),
+			CornerRadius = new Avalonia.CornerRadius(DropZoneCornerRadius),
+			Margin = new Avalonia.Thickness(DropZoneMargin, 4, DropZoneMargin, 8),
+			Padding = new Avalonia.Thickness(16),
+			Child = browseFolderButton,
+		};
+		DragDrop.SetAllowDrop(dropZone, true);
+		dropZone.AddHandler(DragDrop.DragOverEvent, OnDropZoneDragOver);
+		dropZone.AddHandler(DragDrop.DropEvent, OnDropZoneDrop);
+
 		var rootPanel = new Grid();
+		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
+		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 		rootPanel.RowDefinitions.Add(new RowDefinition(1, GridUnitType.Star));
 		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
-		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 
 		Grid.SetRow(sizeBar, 0);
-		Grid.SetRow(scrollViewer, 1);
-		Grid.SetRow(bottomBar, 3);
+		Grid.SetRow(slotHint, 1);
+		Grid.SetRow(dropZone, 2);
+		Grid.SetRow(scrollViewer, 3);
+		Grid.SetRow(bottomBar, 4);
 		rootPanel.Children.Add(sizeBar);
+		rootPanel.Children.Add(slotHint);
+		rootPanel.Children.Add(dropZone);
 		rootPanel.Children.Add(scrollViewer);
 		rootPanel.Children.Add(bottomBar);
 
@@ -422,5 +488,130 @@ public class PresetEditorWindow : Window
 
 		Result = draft;
 		Close();
+	}
+
+	private void OnApplySizeClick(object? sender, RoutedEventArgs e)
+	{
+		if (Owner is not MainWindow mainWindow)
+			return;
+
+		mainWindow.ApplyPresetSize(_baseSize);
+	}
+
+	private async Task BrowseFolder()
+	{
+		var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+		{
+			Title = Loc.Get(LocEditorBrowseFolder),
+			AllowMultiple = false,
+		});
+
+		if (folders.Count == 0)
+			return;
+
+		var path = folders[0].Path.LocalPath;
+		ImportFolder(path);
+	}
+
+	private void OnDropZoneDragOver(object? sender, DragEventArgs e)
+	{
+		if (e.Data.Contains(DataFormats.Files))
+			e.DragEffects = DragDropEffects.Copy;
+		else
+			e.DragEffects = DragDropEffects.None;
+	}
+
+	private void OnDropZoneDrop(object? sender, DragEventArgs e)
+	{
+		if (!e.Data.Contains(DataFormats.Files))
+			return;
+
+		var files = e.Data.GetFiles()?.Select(f => f.Path.LocalPath).ToArray();
+		if (files == null || files.Length == 0)
+			return;
+
+		var folder = files[0];
+		if (Directory.Exists(folder))
+			ImportFolder(folder);
+		else if (File.Exists(folder))
+			ImportFolder(Path.GetDirectoryName(folder)!);
+	}
+
+	private void ImportFolder(string folder)
+	{
+		if (!Directory.Exists(folder))
+			return;
+
+		var folderName = Path.GetFileName(folder);
+		if (!string.IsNullOrWhiteSpace(folderName) && string.IsNullOrWhiteSpace(_draftId))
+			_nameBox.Text = folderName;
+
+		var convertibleFiles = Directory.EnumerateFiles(folder, AllFilesPattern, SearchOption.TopDirectoryOnly)
+			.Where(f => ConvertibleExtensions.Contains(Path.GetExtension(f)))
+			.ToList();
+
+		if (convertibleFiles.Count == 0)
+			return;
+
+		var matched = 0;
+
+		foreach (var file in convertibleFiles)
+		{
+			var role = CursorRoles.MatchByFileName(file);
+			if (role == null)
+				continue;
+
+			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
+			matched++;
+
+			var cursorPath = ConvertToCursorTempFile(file);
+			if (cursorPath == null)
+				continue;
+
+			SetSlotSource(slot, cursorPath);
+		}
+	}
+
+	private static string? ConvertToCursorTempFile(string path)
+	{
+		var ext = Path.GetExtension(path).ToLowerInvariant();
+
+		if (ext == CurExtension || ext == ".ani")
+			return path;
+
+		try
+		{
+			using var bmp = new Bitmap(path);
+			var w = Math.Min(bmp.PixelSize.Width, 256);
+			var h = Math.Min(bmp.PixelSize.Height, 256);
+
+			var tempBmp = new WriteableBitmap(
+				new PixelSize(w, h),
+				new Vector(96, 96),
+				Avalonia.Platform.PixelFormat.Bgra8888,
+				Avalonia.Platform.AlphaFormat.Unpremul);
+
+			var bgra = new byte[w * h * 4];
+
+			using (var fb = tempBmp.Lock())
+			{
+				bmp.CopyPixels(
+					new PixelRect(0, 0, w, h),
+					fb.Address,
+					w * h * 4,
+					w * 4);
+
+				System.Runtime.InteropServices.Marshal.Copy(fb.Address, bgra, 0, bgra.Length);
+			}
+
+			var image = new CursorCanvasImage(w, h, 0, 0, bgra);
+			var tempPath = Path.Combine(Path.GetTempPath(), ConvertTempFilePrefix + Guid.NewGuid() + CurExtension);
+			CursorCanvasService.Write(tempPath, image);
+			return tempPath;
+		}
+		catch
+		{
+			return null;
+		}
 	}
 }

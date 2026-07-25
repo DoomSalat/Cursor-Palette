@@ -331,10 +331,20 @@ public partial class MainWindow : Window
 			return;
 
 		var size = (int)Math.Round(_sizeSlider.Value);
+		await ApplySizeInternal(size);
+	}
+
+	public async void ApplyPresetSize(int sizePx)
+	{
+		await ApplySizeInternal(sizePx);
+	}
+
+	private async Task ApplySizeInternal(int sizePx)
+	{
 		ShowLoadingOverlay();
 		try
 		{
-			await _viewModel.ApplySizeAsync(size);
+			await _viewModel.ApplySizeAsync(sizePx);
 			ShowToast(Loc.Get(LocToastSizeApplied));
 		}
 		finally
