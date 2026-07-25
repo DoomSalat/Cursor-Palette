@@ -33,6 +33,8 @@
   в `.cursorpalette`, drag-drop импортирует пакеты через `PresetPackageService`
 - **Затемнение + спиннер** — overlay с вращающимся Ellipse во время применения
   пресета/размера
+- **Кастомный скроллбар** — тонкий (10px), закруглённый thumb, hover-эффект,
+  цвета для dark/light тем
 - **Константы** — магические строки и числа вынесены в `private const` по стилю
   WPF-оригинала
 
@@ -68,5 +70,4 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 - Paint editor (рисование, hotspot, canvas, импорт изображений)
 - Drag-and-drop reorder плиток пресетов
 - Группы пресетов (Ctrl+клик, цветовые метки, свернуть/развернуть)
-- Кастомный скроллбар
 - Проверка обновлений
