@@ -285,7 +285,7 @@ public class PresetEditorWindow : Window
 			if (role == null)
 				continue;
 
-			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
+			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
 			SetSlotSource(slot, file);
 		}
 	}
@@ -470,7 +470,7 @@ public class PresetEditorWindow : Window
 
 	private void OnSaveClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
-		if (_slots.All(s => s.SourcePath == null))
+		if (_slots.All(slot => slot.SourcePath == null))
 		{
 			// No files selected
 			return;
@@ -483,7 +483,7 @@ public class PresetEditorWindow : Window
 			BaseSize = _baseSize,
 		};
 
-		foreach (var slot in _slots.Where(s => s.SourcePath != null))
+		foreach (var slot in _slots.Where(slot => slot.SourcePath != null))
 			draft.RoleSources[slot.Role.RegistryName] = new RoleSourceDraft { OwnFilePath = slot.SourcePath };
 
 		Result = draft;
@@ -547,7 +547,7 @@ public class PresetEditorWindow : Window
 			_nameBox.Text = folderName;
 
 		var convertibleFiles = Directory.EnumerateFiles(folder, AllFilesPattern, SearchOption.TopDirectoryOnly)
-			.Where(f => ConvertibleExtensions.Contains(Path.GetExtension(f)))
+			.Where(file => ConvertibleExtensions.Contains(Path.GetExtension(file)))
 			.ToList();
 
 		if (convertibleFiles.Count == 0)
@@ -561,7 +561,7 @@ public class PresetEditorWindow : Window
 			if (role == null)
 				continue;
 
-			var slot = _slots.First(s => s.Role.RegistryName == role.RegistryName);
+			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
 			matched++;
 
 			var cursorPath = ConvertToCursorTempFile(file);
@@ -574,39 +574,40 @@ public class PresetEditorWindow : Window
 
 	private static string? ConvertToCursorTempFile(string path)
 	{
-		var ext = Path.GetExtension(path).ToLowerInvariant();
+		var extension = Path.GetExtension(path).ToLowerInvariant();
 
-		if (ext == CurExtension || ext == ".ani")
+		if (extension == CurExtension || extension == ".ani")
 			return path;
 
 		try
 		{
-			using var bmp = new Bitmap(path);
-			var w = Math.Min(bmp.PixelSize.Width, 256);
-			var h = Math.Min(bmp.PixelSize.Height, 256);
+			using var bitmap = new Bitmap(path);
+			var width = Math.Min(bitmap.PixelSize.Width, 256);
+			var height = Math.Min(bitmap.PixelSize.Height, 256);
 
-			var tempBmp = new WriteableBitmap(
-				new PixelSize(w, h),
+			var tempBitmap = new WriteableBitmap(
+				new PixelSize(width, height),
 				new Vector(96, 96),
 				Avalonia.Platform.PixelFormat.Bgra8888,
 				Avalonia.Platform.AlphaFormat.Unpremul);
 
-			var bgra = new byte[w * h * 4];
+			var bgra = new byte[width * height * 4];
 
-			using (var fb = tempBmp.Lock())
+			using (var framebuffer = tempBitmap.Lock())
 			{
-				bmp.CopyPixels(
-					new PixelRect(0, 0, w, h),
-					fb.Address,
-					w * h * 4,
-					w * 4);
+				bitmap.CopyPixels(
+					new PixelRect(0, 0, width, height),
+					framebuffer.Address,
+					width * height * 4,
+					width * 4);
 
-				System.Runtime.InteropServices.Marshal.Copy(fb.Address, bgra, 0, bgra.Length);
+				System.Runtime.InteropServices.Marshal.Copy(framebuffer.Address, bgra, 0, bgra.Length);
 			}
 
-			var image = new CursorCanvasImage(w, h, 0, 0, bgra);
+			var image = new CursorCanvasImage(width, height, 0, 0, bgra);
 			var tempPath = Path.Combine(Path.GetTempPath(), ConvertTempFilePrefix + Guid.NewGuid() + CurExtension);
 			CursorCanvasService.Write(tempPath, image);
+
 			return tempPath;
 		}
 		catch

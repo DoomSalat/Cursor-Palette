@@ -514,7 +514,7 @@ public partial class MainWindow : Window
 		});
 
 		var paths = files.Count > 0
-			? files.Select(f => f.Path.LocalPath).ToArray()
+			? files.Select(file => file.Path.LocalPath).ToArray()
 			: Array.Empty<string>();
 
 		var editor = new PresetEditorWindow(null, paths);
@@ -649,7 +649,7 @@ public partial class MainWindow : Window
 			if (files == null)
 				return;
 
-			var paths = files.Select(f => f.Path.LocalPath).ToArray();
+			var paths = files.Select(file => file.Path.LocalPath).ToArray();
 			await _viewModel.HandleDroppedPathsAsync(paths);
 		}
 	}
@@ -659,8 +659,8 @@ public partial class MainWindow : Window
 		if (sender is MenuItem menuItem && menuItem.DataContext is BoardItem item)
 			return item;
 
-		if (sender is Control control && control.DataContext is BoardItem ctrlItem)
-			return ctrlItem;
+		if (sender is Control control && control.DataContext is BoardItem controlItem)
+			return controlItem;
 
 		return null;
 	}
@@ -737,9 +737,9 @@ public partial class MainWindow : Window
 			dialog.Close();
 		};
 
-		textBox.KeyDown += (_, keyArgs) =>
+		textBox.KeyDown += (_, keyEventArgs) =>
 		{
-			if (keyArgs.Key == Key.Enter)
+			if (keyEventArgs.Key == Key.Enter)
 			{
 				_viewModel.RenamePreset(preset, textBox.Text ?? EmptyValue);
 				dialog.Close();
@@ -898,12 +898,12 @@ public partial class MainWindow : Window
 	private void OnLanguageClick(object? sender, RoutedEventArgs e)
 	{
 		_languageIndex = (_languageIndex + 1) % SupportedLanguages.Length;
-		var lang = SupportedLanguages[_languageIndex];
+		var language = SupportedLanguages[_languageIndex];
 
 		if (_languageButton != null)
-			_languageButton.Content = lang.ToUpperInvariant();
+			_languageButton.Content = language.ToUpperInvariant();
 
-		LocalizationManager.SetLanguage(lang);
+		LocalizationManager.SetLanguage(language);
 		ApplyLocalization();
 		_viewModel.ReloadGallery();
 	}

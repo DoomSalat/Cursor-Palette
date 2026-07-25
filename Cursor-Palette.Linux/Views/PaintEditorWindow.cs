@@ -211,9 +211,9 @@ public class PaintEditorWindow : Window
 
 	private static Button CreateToolbarButton(string text, EventHandler<RoutedEventArgs> handler)
 	{
-		var btn = new Button { Content = text };
-		btn.Click += handler;
-		return btn;
+		var button = new Button { Content = text };
+		button.Click += handler;
+		return button;
 	}
 
 	private void RenderCanvas()
@@ -225,8 +225,8 @@ public class PaintEditorWindow : Window
 			Avalonia.Platform.PixelFormat.Bgra8888,
 			Avalonia.Platform.AlphaFormat.Unpremul);
 
-		using var fb = _bitmap.Lock();
-		Marshal.Copy(_pixels, 0, fb.Address, _pixels.Length);
+		using var framebuffer = _bitmap.Lock();
+		Marshal.Copy(_pixels, 0, framebuffer.Address, _pixels.Length);
 
 		_canvasImage.Source = _bitmap;
 		_canvasImage.Width = _canvasWidth * _zoom;
@@ -238,8 +238,8 @@ public class PaintEditorWindow : Window
 		if (_bitmap == null)
 			return;
 
-		using var fb = _bitmap.Lock();
-		Marshal.Copy(_pixels, 0, fb.Address, _pixels.Length);
+		using var framebuffer = _bitmap.Lock();
+		Marshal.Copy(_pixels, 0, framebuffer.Address, _pixels.Length);
 		_canvasImage.InvalidateVisual();
 	}
 
@@ -279,27 +279,27 @@ public class PaintEditorWindow : Window
 
 	private (int x, int y) GetPixelPosition(PointerEventArgs e)
 	{
-		var pos = e.GetPosition(_canvasImage);
-		var px = (int)(pos.X / _zoom);
-		var py = (int)(pos.Y / _zoom);
+		var position = e.GetPosition(_canvasImage);
+		var pixelX = (int)(position.X / _zoom);
+		var pixelY = (int)(position.Y / _zoom);
 
-		px = Math.Clamp(px, 0, _canvasWidth - 1);
-		py = Math.Clamp(py, 0, _canvasHeight - 1);
+		pixelX = Math.Clamp(pixelX, 0, _canvasWidth - 1);
+		pixelY = Math.Clamp(pixelY, 0, _canvasHeight - 1);
 
-		return (px, py);
+		return (pixelX, pixelY);
 	}
 
-	private void SetPixel(int x, int y, byte r, byte g, byte b, byte a)
+	private void SetPixel(int x, int y, byte red, byte green, byte blue, byte alpha)
 	{
 		if (x < 0 || x >= _canvasWidth || y < 0 || y >= _canvasHeight)
 			return;
 
-		var idx = (y * _canvasWidth + x) * BytesPerPixel;
+		var pixelIndex = (y * _canvasWidth + x) * BytesPerPixel;
 
-		_pixels[idx + 0] = b;
-		_pixels[idx + 1] = g;
-		_pixels[idx + 2] = r;
-		_pixels[idx + 3] = a;
+		_pixels[pixelIndex + 0] = blue;
+		_pixels[pixelIndex + 1] = green;
+		_pixels[pixelIndex + 2] = red;
+		_pixels[pixelIndex + 3] = alpha;
 	}
 
 	private void DrawAt(int x, int y)
@@ -324,9 +324,9 @@ public class PaintEditorWindow : Window
 		}
 
 		_isDrawing = true;
-		var (px, py) = GetPixelPosition(e);
+		var (pixelX, pixelY) = GetPixelPosition(e);
 
-		DrawAt(px, py);
+		DrawAt(pixelX, pixelY);
 		RenderCanvasFromPixels();
 	}
 
@@ -335,9 +335,9 @@ public class PaintEditorWindow : Window
 		if (!_isDrawing)
 			return;
 
-		var (px, py) = GetPixelPosition(e);
+		var (pixelX, pixelY) = GetPixelPosition(e);
 
-		DrawAt(px, py);
+		DrawAt(pixelX, pixelY);
 		RenderCanvasFromPixels();
 	}
 
@@ -369,9 +369,9 @@ public class PaintEditorWindow : Window
 			return;
 
 		var path = files[0].Path.LocalPath;
-		var ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
+		var extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
 
-		if (ext == CurExtension || ext == AniExtension)
+		if (extension == CurExtension || extension == AniExtension)
 		{
 			var image = CursorCanvasService.TryRead(path);
 			if (image != null)
@@ -392,31 +392,31 @@ public class PaintEditorWindow : Window
 		{
 			try
 			{
-				using var bmp = new Bitmap(path);
-				var w = Math.Min(bmp.PixelSize.Width, MaxCanvasDimension);
-				var h = Math.Min(bmp.PixelSize.Height, MaxCanvasDimension);
+				using var bitmap = new Bitmap(path);
+				var width = Math.Min(bitmap.PixelSize.Width, MaxCanvasDimension);
+				var height = Math.Min(bitmap.PixelSize.Height, MaxCanvasDimension);
 
-				_canvasWidth = w;
-				_canvasHeight = h;
-				_pixels = new byte[w * h * BytesPerPixel];
+				_canvasWidth = width;
+				_canvasHeight = height;
+				_pixels = new byte[width * height * BytesPerPixel];
 
-				var tempBmp = new WriteableBitmap(
-					new PixelSize(w, h),
+				var tempBitmap = new WriteableBitmap(
+					new PixelSize(width, height),
 					new Vector(Dpi, Dpi),
 					Avalonia.Platform.PixelFormat.Bgra8888,
 					Avalonia.Platform.AlphaFormat.Unpremul);
 
-				using (var fb = tempBmp.Lock())
+				using (var framebuffer = tempBitmap.Lock())
 				{
-					bmp.CopyPixels(
-						new PixelRect(0, 0, w, h),
-						fb.Address,
-						w * h * BytesPerPixel,
-						w * BytesPerPixel);
-					Marshal.Copy(fb.Address, _pixels, 0, _pixels.Length);
+					bitmap.CopyPixels(
+						new PixelRect(0, 0, width, height),
+						framebuffer.Address,
+						width * height * BytesPerPixel,
+						width * BytesPerPixel);
+					Marshal.Copy(framebuffer.Address, _pixels, 0, _pixels.Length);
 				}
 
-				tempBmp.Dispose();
+				tempBitmap.Dispose();
 
 				RenderCanvas();
 				UpdateCoordsText();

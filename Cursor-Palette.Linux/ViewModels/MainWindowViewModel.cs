@@ -82,9 +82,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 		var presets = PresetStore.LoadAll();
 		var groups = GroupStore.LoadAll();
 		var presetToGroup = groups
-			.SelectMany(g => g.MemberPresetIds.Select(id => (id, g)))
-			.GroupBy(e => e.id)
-			.ToDictionary(e => e.Key, e => e.First().g);
+			.SelectMany(group => group.MemberPresetIds.Select(presetId => (presetId, group)))
+			.GroupBy(entry => entry.presetId)
+			.ToDictionary(entry => entry.Key, entry => entry.First().group);
 
 		var boardOrderIds = ReconcileBoardOrder(BoardOrderStore.Load(), presets, groups, presetToGroup);
 		BoardOrderStore.Save(boardOrderIds);
@@ -93,7 +93,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 		Board.Clear();
 
-		if (_activePresetId != null && presets.All(p => p.Id != _activePresetId))
+		if (_activePresetId != null && presets.All(preset => preset.Id != _activePresetId))
 		{
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
@@ -101,8 +101,8 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 		Board.Add(CreateDefaultCell());
 
-		var presetsById = presets.ToDictionary(p => p.Id);
-		var groupsById = groups.ToDictionary(g => g.Id);
+		var presetsById = presets.ToDictionary(preset => preset.Id);
+		var groupsById = groups.ToDictionary(group => group.Id);
 
 		foreach (var id in boardOrderIds)
 		{
@@ -127,8 +127,8 @@ public sealed class MainWindowViewModel : ViewModelBase
 	private static List<string> ReconcileBoardOrder(List<string> persisted, List<Preset> presets,
 		List<PresetGroup> groups, Dictionary<string, PresetGroup> presetToGroup)
 	{
-		var validIds = new HashSet<string>(presets.Select(p => p.Id));
-		validIds.UnionWith(groups.Select(g => g.Id));
+		var validIds = new HashSet<string>(presets.Select(preset => preset.Id));
+		validIds.UnionWith(groups.Select(group => group.Id));
 
 		var result = persisted.Where(validIds.Contains).ToList();
 		var known = new HashSet<string>(result);
@@ -310,7 +310,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 	{
 		await Task.Run(() =>
 		{
-			var packagePath = paths.FirstOrDefault(p => File.Exists(p) && PresetPackageService.IsSupportedPackageFile(p));
+			var packagePath = paths.FirstOrDefault(path => File.Exists(path) && PresetPackageService.IsSupportedPackageFile(path));
 			if (packagePath != null)
 			{
 				try
@@ -464,9 +464,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 	public void DeletePreset(Preset preset)
 	{
 		var presetToGroup = GroupStore.LoadAll()
-			.SelectMany(g => g.MemberPresetIds.Select(id => (id, g)))
-			.GroupBy(e => e.id)
-			.ToDictionary(e => e.Key, e => e.First().g);
+			.SelectMany(group => group.MemberPresetIds.Select(presetId => (presetId, group)))
+			.GroupBy(entry => entry.presetId)
+			.ToDictionary(entry => entry.Key, entry => entry.First().group);
 
 		if (presetToGroup.TryGetValue(preset.Id, out var owningGroup))
 			GroupStore.RemoveMember(owningGroup.Id, preset.Id);
@@ -530,7 +530,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 	public void ToggleGroupCollapse(string groupId)
 	{
 		var groups = GroupStore.LoadAll();
-		var group = groups.FirstOrDefault(g => g.Id == groupId);
+		var group = groups.FirstOrDefault(group => group.Id == groupId);
 		if (group == null)
 			return;
 

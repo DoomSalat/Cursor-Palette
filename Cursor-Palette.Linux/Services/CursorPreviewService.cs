@@ -77,18 +77,18 @@ public static class CursorPreviewService
 			if (animated != null && animated.Frames.Count > 0)
 			{
 				var hotspot = CursorHotspotService.Read(expanded);
-				var hx = hotspot?.X ?? 0;
-				var hy = hotspot?.Y ?? 0;
+				var hotspotX = hotspot?.X ?? 0;
+				var hotspotY = hotspot?.Y ?? 0;
 
 				result = new List<CursorCanvasImage>();
-				for (var i = 0; i < animated.StepFrameIndices.Count; i++)
+				for (var index = 0; index < animated.StepFrameIndices.Count; index++)
 				{
-					var frameIdx = animated.StepFrameIndices[i];
-					if (frameIdx < 0 || frameIdx >= animated.Frames.Count)
+					var frameIndex = animated.StepFrameIndices[index];
+					if (frameIndex < 0 || frameIndex >= animated.Frames.Count)
 						continue;
 
-					var frame = animated.Frames[frameIdx];
-					result.Add(new CursorCanvasImage(frame.Width, frame.Height, hx, hy, frame.Bgra));
+					var frame = animated.Frames[frameIndex];
+					result.Add(new CursorCanvasImage(frame.Width, frame.Height, hotspotX, hotspotY, frame.Bgra));
 				}
 			}
 		}
@@ -131,9 +131,9 @@ public static class CursorPreviewService
 		writer.Write(0);
 
 		// Pixel data (BMP is bottom-up, our data is top-down)
-		for (var y = image.Height - 1; y >= 0; y--)
+		for (var row = image.Height - 1; row >= 0; row--)
 		{
-			var offset = y * stride;
+			var offset = row * stride;
 			writer.Write(image.Bgra, offset, stride);
 		}
 
