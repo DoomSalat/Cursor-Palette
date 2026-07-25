@@ -41,6 +41,8 @@
   контекстное меню (rename, delete, collapse), цветовые метки через `GroupColors`
 - **Проверка обновлений** — фоновая проверка через GitHub API при запуске,
   toast-уведомление при наличии новой версии
+- **Paint editor** — окно с pixel canvas (brush/eraser/hotspot), импорт
+  PNG/BMP/cursor файлов, zoom, интеграция с PresetEditor слотами
 - **Константы** — магические строки и числа вынесены в `private const` по стилю
   WPF-оригинала
 
@@ -73,4 +75,4 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 
 ## Не портировано (TODO)
 
-- Paint editor (рисование, hotspot, canvas, импорт изображений)
+— (всё портировано)

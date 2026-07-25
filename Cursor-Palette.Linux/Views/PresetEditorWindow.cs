@@ -184,6 +184,7 @@ public class PresetEditorWindow : Window
 		public required Image PreviewImage { get; init; }
 		public required TextBlock FileText { get; init; }
 		public required Button BrowseButton { get; init; }
+		public required Button PaintButton { get; init; }
 		public required Button ClearButton { get; init; }
 		public required Border Container { get; init; }
 	}
@@ -254,6 +255,15 @@ public class PresetEditorWindow : Window
 			HorizontalAlignment = HorizontalAlignment.Center,
 		};
 
+		var paintButton = new Button
+		{
+			Content = "Paint",
+			FontSize = 11,
+			Padding = new Avalonia.Thickness(6, 3),
+			Margin = new Avalonia.Thickness(0, 4, 0, 0),
+			HorizontalAlignment = HorizontalAlignment.Center,
+		};
+
 		var clearButton = new Button
 		{
 			Content = "✕",
@@ -276,6 +286,7 @@ public class PresetEditorWindow : Window
 		panel.Children.Add(roleName);
 		panel.Children.Add(fileText);
 		panel.Children.Add(browseButton);
+		panel.Children.Add(paintButton);
 
 		var slotContent = new Grid();
 		slotContent.Children.Add(panel);
@@ -299,14 +310,42 @@ public class PresetEditorWindow : Window
 			PreviewImage = preview,
 			FileText = fileText,
 			BrowseButton = browseButton,
+			PaintButton = paintButton,
 			ClearButton = clearButton,
 			Container = border,
 		};
 
 		browseButton.Click += async (_, _) => await BrowseForSlot(slot);
+		paintButton.Click += (_, _) => OpenPaintEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 
 		return slot;
+	}
+
+	private void OpenPaintEditor(Slot slot)
+	{
+		var source = slot.SourcePath != null ? CursorCanvasService.TryRead(slot.SourcePath) : null;
+		var editor = new PaintEditorWindow(source);
+		editor.ShowDialog(this);
+		editor.Closed += (_, _) =>
+		{
+			if (editor.Result == null)
+				return;
+
+			var tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "cursor-palette-paint");
+			System.IO.Directory.CreateDirectory(tempDir);
+			var fileName = $"{slot.Role.RegistryName}_{DateTime.Now:yyyyMMddHHmmss}.cur";
+			var tempPath = System.IO.Path.Combine(tempDir, fileName);
+
+			try
+			{
+				CursorCanvasService.Write(tempPath, editor.Result);
+				SetSlotSource(slot, tempPath);
+			}
+			catch
+			{
+			}
+		};
 	}
 
 	private async Task BrowseForSlot(Slot slot)
