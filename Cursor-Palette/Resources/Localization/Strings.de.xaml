@@ -4,7 +4,6 @@
 					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
-	<sys:String x:Key="S.AppLogo.RandomTooltip">Zufälliger Cursor vom gesamten Board</sys:String>
 
 	<sys:String x:Key="S.About.Title">Über</sys:String>
 	<sys:String x:Key="S.About.Close">Schließen</sys:String>
@@ -44,7 +43,6 @@
 	<sys:String x:Key="S.Menu.Ungroup">Gruppierung aufheben</sys:String>
 	<sys:String x:Key="S.Menu.DeleteGroup">Gruppe löschen</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Zellen zusammenlegen</sys:String>
-	<sys:String x:Key="S.Menu.RandomPreset">Zufällige Auswahl</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Gruppe</sys:String>
 	<sys:String x:Key="S.Group.SelectedCount">{0} ausgewählt</sys:String>
 	<sys:String x:Key="S.Group.MembersCount">{0} Preset(s)</sys:String>

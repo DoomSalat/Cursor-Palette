@@ -4,7 +4,6 @@
 					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
-	<sys:String x:Key="S.AppLogo.RandomTooltip">ボード全体からランダム選択</sys:String>
 
 	<sys:String x:Key="S.About.Title">このアプリについて</sys:String>
 	<sys:String x:Key="S.About.Close">閉じる</sys:String>
@@ -44,7 +43,6 @@
 	<sys:String x:Key="S.Menu.Ungroup">グループ解除</sys:String>
 	<sys:String x:Key="S.Menu.DeleteGroup">グループを削除</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">セルをまとめる</sys:String>
-	<sys:String x:Key="S.Menu.RandomPreset">ランダム選択</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">グループ</sys:String>
 	<sys:String x:Key="S.Group.SelectedCount">{0} 件選択中</sys:String>
 	<sys:String x:Key="S.Group.MembersCount">プリセット {0} 件</sys:String>

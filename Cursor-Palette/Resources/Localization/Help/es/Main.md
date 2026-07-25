@@ -5,7 +5,7 @@
 - Clic derecho — menú (editar, renombrar, mover a la izquierda/derecha, descargar, eliminar, añadir a grupo).
 - Insignia 🧩 — algunos roles provienen de otros preajustes.
 - Arrastra una miniatura sobre otra — reordenar preajustes.
-- Ctrl+clic en varias miniaturas — selecciónalas y elige color y nombre abajo para crear un grupo. Clic en la miniatura del grupo para plegarla/desplegarla como mazo; clic derecho para selección aleatoria, editar, consolidar, desagrupar o eliminar.
+- Ctrl+clic en varias miniaturas — selecciónalas y elige color y nombre abajo para crear un grupo. Clic en la miniatura del grupo para plegarla/desplegarla como mazo; clic derecho para editar, consolidar, desagrupar o eliminar.
 - Clic derecho en espacio vacío del tablero — "Crear grupo" abre un diálogo para crear un grupo vacío.
 
 ## ➕ "Añadir preajuste" — crear nuevo preajuste.
@@ -26,4 +26,3 @@
 - Texto "Actualizado" — sin actualizaciones.
 🖱️ Clic derecho en la ficha «Predeterminado» — descargar cursores del sistema a Descargas (PNG+GIF o .cur/.ani).
 ⓘ Botón arriba a la derecha — ayuda de ventana.
-🖱️ Clic en el icono azul del cursor en el nombre de la app — aplicar un cursor aleatorio de todo el tablero.

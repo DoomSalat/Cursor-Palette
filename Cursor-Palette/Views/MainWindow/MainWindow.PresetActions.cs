@@ -110,35 +110,6 @@ public partial class MainWindow
 		}
 	}
 
-	private static readonly Random RandomPicker = new();
-
-	private void ApplyRandomFromGroup(PresetGroup group)
-	{
-		var presetsById = _presets.ToDictionary(p => p.Id);
-		var members = group.MemberPresetIds
-			.Where(id => presetsById.ContainsKey(id))
-			.Select(id => presetsById[id])
-			.Where(p => p.Id != _activePresetId)
-			.ToList();
-
-		if (members.Count == 0)
-			return;
-
-		var picked = members[RandomPicker.Next(members.Count)];
-		ApplyPreset(picked, force: true);
-	}
-
-	private void ApplyRandomFromBoard()
-	{
-		var candidates = _presets.Where(p => p.Id != _activePresetId).ToList();
-
-		if (candidates.Count == 0)
-			return;
-
-		var picked = candidates[RandomPicker.Next(candidates.Count)];
-		ApplyPreset(picked, force: true);
-	}
-
 	private async void OnUndoButtonClick(object sender, RoutedEventArgs e)
 	{
 		var snapshot = RegistryCursorService.LoadSnapshotFromDisk();

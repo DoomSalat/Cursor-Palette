@@ -564,8 +564,6 @@ public partial class MainWindow
 		};
 
 		var menu = new ContextMenu();
-		var randomItem = new MenuItem { Header = Loc.Get(LocMenuRandomPreset) };
-		randomItem.Click += (_, _) => ApplyRandomFromGroup(group);
 		var editItem = new MenuItem { Header = Loc.Get(LocMenuEditGroup) };
 		editItem.Click += (_, _) => EditGroup(group);
 		var consolidateItem = new MenuItem { Header = Loc.Get(LocMenuConsolidateGroup) };
@@ -579,8 +577,6 @@ public partial class MainWindow
 			ReloadGallery();
 			ToastService.Show(RootGrid, Loc.Format(LocGroupToastUngrouped, group.Name));
 		};
-		menu.Items.Add(randomItem);
-		menu.Items.Add(new Separator());
 		menu.Items.Add(editItem);
 		menu.Items.Add(consolidateItem);
 		menu.Items.Add(ungroupItem);

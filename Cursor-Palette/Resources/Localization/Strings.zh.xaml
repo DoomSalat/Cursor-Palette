@@ -4,7 +4,6 @@
 					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
-	<sys:String x:Key="S.AppLogo.RandomTooltip">从整个面板随机选择光标</sys:String>
 
 	<sys:String x:Key="S.About.Title">关于</sys:String>
 	<sys:String x:Key="S.About.Close">关闭</sys:String>
@@ -44,7 +43,6 @@
 	<sys:String x:Key="S.Menu.Ungroup">取消分组</sys:String>
 	<sys:String x:Key="S.Menu.DeleteGroup">删除分组</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">整理分组卡片</sys:String>
-	<sys:String x:Key="S.Menu.RandomPreset">随机选择</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">分组</sys:String>
 	<sys:String x:Key="S.Group.SelectedCount">已选择 {0} 项</sys:String>
 	<sys:String x:Key="S.Group.MembersCount">{0} 个预设</sys:String>
