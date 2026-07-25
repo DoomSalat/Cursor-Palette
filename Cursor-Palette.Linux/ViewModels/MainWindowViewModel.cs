@@ -521,6 +521,23 @@ public sealed class MainWindowViewModel : ViewModelBase
 		ReloadGallery();
 	}
 
+	public void ToggleGroupCollapse(string groupId)
+	{
+		var groups = GroupStore.LoadAll();
+		var group = groups.FirstOrDefault(g => g.Id == groupId);
+		if (group == null)
+			return;
+
+		GroupStore.SetCollapsed(groupId, !group.Collapsed);
+		ReloadGallery();
+	}
+
+	public void DeleteGroup(string groupId)
+	{
+		GroupStore.Delete(groupId);
+		ReloadGallery();
+	}
+
 	public async Task ApplySizeAsync(int sizeInPixels)
 	{
 		var cursorService = CursorServiceProvider.Current;

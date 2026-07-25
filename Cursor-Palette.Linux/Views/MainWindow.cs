@@ -42,6 +42,7 @@ public partial class MainWindow : Window
 	private const string LocMenuMoveRight = "S.Menu.MoveRight";
 	private const string LocMenuDownload = "S.Menu.Download";
 	private const string LocMenuDelete = "S.Menu.Delete";
+	private const string LocMenuToggleCollapse = "S.Menu.ToggleCollapse";
 	private const string LocRenameTitle = "S.Menu.Rename";
 	private const string LocEditorSave = "S.Editor.Save";
 	private const string LocEmptyGallery = "S.EmptyGallery";
@@ -272,6 +273,7 @@ public partial class MainWindow : Window
 			Loc.Get(LocMenuMoveLeft),
 			Loc.Get(LocMenuMoveRight),
 			Loc.Get(LocMenuDownload),
+			Loc.Get(LocMenuToggleCollapse),
 			Loc.Get(LocMenuDelete),
 		};
 
@@ -336,6 +338,12 @@ public partial class MainWindow : Window
 		if (item.IsDefaultCell)
 		{
 			ApplyDefault();
+			return;
+		}
+
+		if (item.IsGroup && item.Group != null)
+		{
+			_viewModel.ToggleGroupCollapse(item.Group.Id);
 			return;
 		}
 
@@ -720,7 +728,17 @@ public partial class MainWindow : Window
 
 	public async void OnMenuDelete(object? sender, RoutedEventArgs e)
 	{
-		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+		var item = GetContextMenuItem(sender);
+		if (item == null)
+			return;
+
+		if (item.IsGroup && item.Group != null)
+		{
+			_viewModel.DeleteGroup(item.Group.Id);
+			return;
+		}
+
+		if (item is not { IsPreset: true, Preset: { } preset })
 			return;
 
 		var dialog = new Window
@@ -767,6 +785,14 @@ public partial class MainWindow : Window
 		};
 
 		await dialog.ShowDialog(this);
+	}
+
+	public void OnMenuToggleCollapse(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsGroup: true, Group: { } group })
+			return;
+
+		_viewModel.ToggleGroupCollapse(group.Id);
 	}
 
 	private async void OnUndoClick(object? sender, RoutedEventArgs e)

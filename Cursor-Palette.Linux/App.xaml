@@ -32,6 +32,10 @@
 			<Setter Property="BorderBrush"
 					Value="{DynamicResource SystemAccentColor}" />
 		</Style>
+		<Style Selector="Border.group">
+			<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+			<Setter Property="BorderThickness" Value="2,2,2,6" />
+		</Style>
 		<Style Selector="ScrollBar">
 			<Setter Property="Width" Value="10" />
 			<Setter Property="Background" Value="Transparent" />

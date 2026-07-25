@@ -104,6 +104,7 @@
 								BorderBrush="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 								Background="{DynamicResource SystemRegionBrush}"
 								Classes.active="{Binding IsActive}"
+								Classes.group="{Binding IsGroup}"
 								PointerPressed="OnPresetClick">
 							<Border.ContextMenu>
 								<ContextMenu Opening="OnContextMenuOpening">
@@ -113,7 +114,7 @@
 											  Click="OnMenuEdit" />
 									<MenuItem x:Name="MenuRenameItem"
 											  Header="Rename"
-											  IsVisible="{Binding IsPreset}"
+											  IsVisible="{Binding !IsGroup}"
 											  Click="OnMenuRename" />
 									<MenuItem x:Name="MenuMoveLeftItem"
 											  Header="Move left"
@@ -127,20 +128,43 @@
 											  Header="Download"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuDownload" />
+									<MenuItem x:Name="MenuToggleCollapseItem"
+											  Header="Collapse/Expand"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuToggleCollapse" />
 									<MenuItem x:Name="MenuDeleteItem"
 											  Header="Delete"
-											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuDelete" />
 								</ContextMenu>
 							</Border.ContextMenu>
 							<StackPanel VerticalAlignment="Center"
 										HorizontalAlignment="Center"
 										Spacing="4">
+								<!-- Add cell -->
 								<TextBlock Text="+"
 									   FontSize="34"
 									   HorizontalAlignment="Center"
 									   IsVisible="{Binding IsAddCell}" />
-							<Image Source="{Binding Preview}"
+								<!-- Group cell -->
+								<TextBlock Text="{Binding DisplayName}"
+										   FontSize="14"
+										   FontWeight="SemiBold"
+										   HorizontalAlignment="Center"
+										   TextTrimming="CharacterEllipsis"
+										   MaxWidth="130"
+										   IsVisible="{Binding IsGroup}" />
+								<TextBlock Text="{Binding RoleCount, StringFormat='{}{0} presets'}"
+										   FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding IsGroup}" />
+								<TextBlock Text="(collapsed)"
+										   FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding IsCollapsed}" />
+								<!-- Preset cell -->
+								<Image Source="{Binding Preview}"
 									   Width="48"
 									   Height="48"
 									   IsVisible="{Binding Preview, Converter={x:Static ObjectConverters.IsNotNull}}" />
@@ -148,7 +172,8 @@
 										   FontSize="13"
 										   HorizontalAlignment="Center"
 										   TextTrimming="CharacterEllipsis"
-										   MaxWidth="130" />
+										   MaxWidth="130"
+										   IsVisible="{Binding !IsGroup}" />
 								<TextBlock Text="{Binding RoleCount}"
 										   FontSize="11"
 										   HorizontalAlignment="Center"
@@ -157,7 +182,7 @@
 								<TextBlock FontSize="11"
 										   HorizontalAlignment="Center"
 										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-										   IsVisible="{Binding !IsAddCell}"
+										   IsVisible="{Binding IsPreset}"
 										   Text="{Binding BaseSize, StringFormat='{}{0} px'}" />
 							</StackPanel>
 						</Border>
