@@ -324,5 +324,53 @@
 						Click="OnGitHubLinkClick" />
 			</Grid>
 		</Border>
+
+		<!-- Drag ghost overlay -->
+		<Border x:Name="DragGhost"
+				Grid.RowSpan="4"
+				IsHitTestVisible="False"
+				IsVisible="False"
+				Opacity="0.85"
+				ZIndex="960"
+				Width="120"
+				Height="120"
+				CornerRadius="10"
+				BorderThickness="2"
+				BorderBrush="CornflowerBlue"
+				Background="{DynamicResource SystemRegionBrush}"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top">
+			<Border.RenderTransform>
+				<TranslateTransform />
+			</Border.RenderTransform>
+			<StackPanel VerticalAlignment="Center"
+						HorizontalAlignment="Center"
+						Spacing="4">
+				<Image x:Name="DragGhostImage"
+					   Width="40"
+					   Height="40" />
+				<TextBlock x:Name="DragGhostText"
+						   TextTrimming="CharacterEllipsis"
+						   TextAlignment="Center"
+						   MaxWidth="108"
+						   FontSize="12" />
+			</StackPanel>
+		</Border>
+
+		<!-- Reorder insertion indicator -->
+		<Border x:Name="ReorderInsertionLine"
+				Grid.RowSpan="4"
+				IsHitTestVisible="False"
+				IsVisible="False"
+				ZIndex="950"
+				Width="4"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top"
+				Background="CornflowerBlue"
+				CornerRadius="2">
+			<Border.RenderTransform>
+				<TranslateTransform />
+			</Border.RenderTransform>
+		</Border>
 	</Grid>
 </Window>

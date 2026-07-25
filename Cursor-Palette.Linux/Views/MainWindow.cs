@@ -85,6 +85,10 @@ public partial class MainWindow : Window
 	private DispatcherTimer? _loadingSpinnerTimer;
 	private Point? _presetDragStartPoint;
 	private string? _draggedPresetId;
+	private BoardItem? _draggedBoardItem;
+	private const double GhostSize = 120;
+	private const double GhostPreviewSize = 40;
+	private const double CellMarginForIndicator = 6;
 
 	public MainWindow()
 	{
@@ -434,6 +438,7 @@ public partial class MainWindow : Window
 
 			_presetDragStartPoint = e.GetPosition(control);
 			_draggedPresetId = item.Preset.Id;
+			_draggedBoardItem = item;
 		}
 	}
 
@@ -450,13 +455,16 @@ public partial class MainWindow : Window
 			return;
 
 		var presetId = _draggedPresetId;
+		var draggedItem = _draggedBoardItem;
 		_presetDragStartPoint = null;
 		_draggedPresetId = null;
 
 		var data = new DataObject();
 		data.Set(PresetDragFormat, presetId);
 
+		BeginDragGhost(draggedItem);
 		await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+		EndDragGhost();
 	}
 
 	public void OnPresetPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -494,7 +502,11 @@ public partial class MainWindow : Window
 	public void OnPresetDragOver(object? sender, DragEventArgs e)
 	{
 		if (e.Data.Contains(PresetDragFormat))
+		{
 			e.DragEffects = DragDropEffects.Move;
+			UpdateDragGhostPosition(e.GetPosition(this));
+			UpdateReorderIndicator(e.GetPosition(this));
+		}
 		else
 			e.DragEffects = DragDropEffects.None;
 	}
@@ -515,6 +527,136 @@ public partial class MainWindow : Window
 			return;
 
 		_viewModel.ReorderPresetTo(draggedId, item.Preset.Id);
+	}
+
+	private void BeginDragGhost(BoardItem? item)
+	{
+		if (item == null)
+			return;
+
+		var ghost = this.FindControl<Border>("DragGhost");
+		var ghostText = this.FindControl<TextBlock>("DragGhostText");
+		var ghostImage = this.FindControl<Image>("DragGhostImage");
+
+		if (ghost == null || ghostText == null)
+			return;
+
+		ghostText.Text = item.DisplayName;
+
+		if (ghostImage != null)
+			ghostImage.Source = item.Preview;
+
+		ghost.IsVisible = true;
+	}
+
+	private void EndDragGhost()
+	{
+		var ghost = this.FindControl<Border>("DragGhost");
+		var insertionLine = this.FindControl<Border>("ReorderInsertionLine");
+
+		if (ghost != null)
+			ghost.IsVisible = false;
+
+		if (insertionLine != null)
+			insertionLine.IsVisible = false;
+
+		_draggedBoardItem = null;
+	}
+
+	private void UpdateDragGhostPosition(Point positionInWindow)
+	{
+		var ghost = this.FindControl<Border>("DragGhost");
+		if (ghost == null || !ghost.IsVisible)
+			return;
+
+		var transform = ghost.RenderTransform as TranslateTransform;
+		if (transform == null)
+			return;
+
+		transform.X = positionInWindow.X - GhostSize / 2;
+		transform.Y = positionInWindow.Y - GhostSize / 2;
+	}
+
+	private void UpdateReorderIndicator(Point positionInWindow)
+	{
+		var insertionLine = this.FindControl<Border>("ReorderInsertionLine");
+		var gallery = this.FindControl<ItemsControl>("Gallery");
+
+		if (insertionLine == null || gallery == null)
+			return;
+
+		var positionInGallery = positionInWindow - gallery.TranslatePoint(new Point(0, 0), this)!.Value;
+
+		var items = _viewModel.Board;
+		if (items.Count == 0)
+		{
+			insertionLine.IsVisible = false;
+			return;
+		}
+
+		var draggedId = _draggedBoardItem?.Preset?.Id;
+		var bestIndex = -1;
+		var bestX = 0.0;
+		var bestTop = 0.0;
+		var bestHeight = 0.0;
+
+		for (var i = 0; i < items.Count; i++)
+		{
+			var container = gallery.ContainerFromIndex(i);
+			if (container is not Control control)
+				continue;
+
+			var bounds = control.Bounds;
+			if (bounds.Width == 0 || bounds.Height == 0)
+				continue;
+
+			var posInGallery = control.TranslatePoint(new Point(0, 0), gallery)!.Value;
+
+			if (positionInGallery.Y >= posInGallery.Y && positionInGallery.Y <= posInGallery.Y + bounds.Height)
+			{
+				if (positionInGallery.X < posInGallery.X + bounds.Width / 2)
+				{
+					bestIndex = i;
+					bestX = posInGallery.X - CellMarginForIndicator;
+					bestTop = posInGallery.Y;
+					bestHeight = bounds.Height;
+				}
+				else
+				{
+					bestIndex = i + 1;
+					bestX = posInGallery.X + bounds.Width + CellMarginForIndicator;
+					bestTop = posInGallery.Y;
+					bestHeight = bounds.Height;
+				}
+				break;
+			}
+		}
+
+		if (bestIndex < 0)
+		{
+			insertionLine.IsVisible = false;
+			return;
+		}
+
+		var draggedIndex = draggedId != null
+			? items.ToList().FindIndex(b => b.Preset?.Id == draggedId)
+			: -1;
+
+		if (draggedIndex >= 0 && (bestIndex == draggedIndex || bestIndex == draggedIndex + 1))
+		{
+			insertionLine.IsVisible = false;
+			return;
+		}
+
+		var galleryOffset = gallery.TranslatePoint(new Point(0, 0), this)!.Value;
+		var transform = insertionLine.RenderTransform as TranslateTransform;
+		if (transform != null)
+		{
+			transform.X = bestX + galleryOffset.X - 2;
+			transform.Y = bestTop + galleryOffset.Y;
+		}
+		insertionLine.Height = bestHeight;
+		insertionLine.IsVisible = true;
 	}
 
 	private async void ApplyDefault()
