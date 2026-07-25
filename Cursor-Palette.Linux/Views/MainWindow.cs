@@ -51,6 +51,7 @@ public partial class MainWindow : Window
 	private const string LocAboutTitle = "S.About.Title";
 	private const string LocAboutClose = "S.About.Close";
 	private const string LocAboutLicenseHint = "S.About.LicenseHint";
+	private const string LocToastUpdateAvailable = "S.Toast.UpdateAvailable";
 
 	private const double DialogMargin = 16;
 	private const double DialogSpacing = 12;
@@ -136,7 +137,7 @@ public partial class MainWindow : Window
 		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
 		var isAvailable = await UpdateChecker.IsUpdateAvailableAsync(version);
 		if (isAvailable)
-			ShowToast($"Update available — v{version}");
+			ShowToast(Loc.Format(LocToastUpdateAvailable, version));
 	}
 
 	private void ApplyUiScale(double scale)

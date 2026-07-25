@@ -22,42 +22,91 @@ public class PaintEditorWindow : Window
 	private const double ZoomStep = 1.2;
 	private const double MinZoom = 1.0;
 	private const double MaxZoom = 40.0;
+	private const double DefaultZoom = 8.0;
+	private const double Dpi = 96.0;
+	private const double HotspotMarkerSize = 8;
+	private const double HotspotMarkerOffset = 4;
+	private const double ToolbarPaddingX = 12;
+	private const double ToolbarPaddingY = 8;
+	private const double StatusBarPaddingX = 12;
+	private const double StatusBarPaddingY = 4;
+	private const double ToolbarSpacing = 8;
+	private const double StatusBarSpacing = 16;
+	private const double SeparatorMargin = 8;
+	private const double TitleFontSize = 16;
+	private const double StatusFontSize = 11;
+	private const double ZoomTextMargin = 4;
+	private const double WindowWidth = 900;
+	private const double WindowHeight = 640;
+	private const double BrushAlpha = 255;
+	private const double EraserAlpha = 0;
+
+	private const string ToolBrush = "brush";
+	private const string ToolEraser = "eraser";
+	private const string ToolHotspot = "hotspot";
+	private const string TitleText = "Paint Editor";
+	private const string BrushText = "Brush";
+	private const string EraserText = "Eraser";
+	private const string HotspotText = "Hotspot";
+	private const string ImportText = "Import";
+	private const string ZoomOutText = "−";
+	private const string ZoomInText = "+";
+	private const string SaveText = "Save";
+	private const string CancelText = "Cancel";
+	private const string ImportDialogTitle = "Import Image";
+	private const string ImageFilterName = "Images";
+	private const string ZoomPercentFormat = "{0}%";
+	private const string CoordsFormat = "{0} × {1} px";
+	private const string HotspotFormat = "X: {0}  Y: {1}";
+	private const string DefaultZoomText = "800%";
+	private const string DefaultCoordsText = "32 × 32 px";
+	private const string DefaultHotspotText = "X: 0  Y: 0";
+
+	private const string CurExtension = ".cur";
+	private const string AniExtension = ".ani";
+	private const string PngPattern = "*.png";
+	private const string BmpPattern = "*.bmp";
+	private const string JpgPattern = "*.jpg";
+	private const string JpegPattern = "*.jpeg";
+	private const string GifPattern = "*.gif";
+	private const string CurPattern = "*.cur";
+	private const string AniPattern = "*.ani";
 
 	private int _canvasWidth = DefaultCanvasSize;
 	private int _canvasHeight = DefaultCanvasSize;
 	private byte[] _pixels = new byte[DefaultCanvasSize * DefaultCanvasSize * BytesPerPixel];
 	private int _hotspotX;
 	private int _hotspotY;
-	private double _zoom = 8.0;
-	private string _currentTool = "brush";
+	private double _zoom = DefaultZoom;
+	private string _currentTool = ToolBrush;
 	private bool _isDrawing;
 	private WriteableBitmap? _bitmap;
 
 	private readonly Image _canvasImage = new() { Stretch = Stretch.None };
 	private readonly Ellipse _hotspotMarker = new()
 	{
-		Width = 8,
-		Height = 8,
+		Width = HotspotMarkerSize,
+		Height = HotspotMarkerSize,
 		Fill = Brushes.Red,
 		Stroke = Brushes.White,
 		StrokeThickness = 1,
 		IsVisible = false,
 		IsHitTestVisible = false,
 	};
-	private readonly TextBlock _zoomText = new() { Text = "800%", VerticalAlignment = VerticalAlignment.Center, Margin = new(4, 0) };
-	private readonly TextBlock _coordsText = new() { Text = "32 × 32 px", FontSize = 11 };
-	private readonly TextBlock _hotspotText = new() { Text = "X: 0  Y: 0", FontSize = 11 };
-	private readonly Button _brushButton = new() { Content = "Brush" };
-	private readonly Button _eraserButton = new() { Content = "Eraser" };
-	private readonly Button _hotspotButton = new() { Content = "Hotspot" };
+	private readonly TextBlock _zoomText = new() { Text = DefaultZoomText, VerticalAlignment = VerticalAlignment.Center, Margin = new(ZoomTextMargin, 0) };
+	private readonly TextBlock _coordsText = new() { Text = DefaultCoordsText, FontSize = StatusFontSize };
+	private readonly TextBlock _hotspotText = new() { Text = DefaultHotspotText, FontSize = StatusFontSize };
+	private readonly Button _brushButton = new() { Content = BrushText };
+	private readonly Button _eraserButton = new() { Content = EraserText };
+	private readonly Button _hotspotButton = new() { Content = HotspotText };
 
 	public CursorCanvasImage? Result { get; private set; }
 
 	public PaintEditorWindow(CursorCanvasImage? source = null)
 	{
-		Title = "Paint Editor";
-		Width = 900;
-		Height = 640;
+		Title = TitleText;
+		Width = WindowWidth;
+		Height = WindowHeight;
 		Background = Brushes.Transparent;
 
 		if (source != null)
@@ -72,9 +121,9 @@ public class PaintEditorWindow : Window
 
 		BuildUi();
 
-		_brushButton.Click += (_, _) => SelectTool("brush");
-		_eraserButton.Click += (_, _) => SelectTool("eraser");
-		_hotspotButton.Click += (_, _) => SelectTool("hotspot");
+		_brushButton.Click += (_, _) => SelectTool(ToolBrush);
+		_eraserButton.Click += (_, _) => SelectTool(ToolEraser);
+		_hotspotButton.Click += (_, _) => SelectTool(ToolHotspot);
 
 		_canvasImage.PointerPressed += OnCanvasPointerPressed;
 		_canvasImage.PointerMoved += OnCanvasPointerMoved;
@@ -92,28 +141,28 @@ public class PaintEditorWindow : Window
 		var toolbar = new Border
 		{
 			Background = Brushes.Transparent,
-			Padding = new(12, 8),
+			Padding = new(ToolbarPaddingX, ToolbarPaddingY),
 			Child = new StackPanel
 			{
 				Orientation = Orientation.Horizontal,
-				Spacing = 8,
+				Spacing = ToolbarSpacing,
 				VerticalAlignment = VerticalAlignment.Center,
 				Children =
 				{
-					new TextBlock { Text = "Paint Editor", FontSize = 16, FontWeight = FontWeight.SemiBold, VerticalAlignment = VerticalAlignment.Center },
-					new Separator { Margin = new(8, 0) },
+					new TextBlock { Text = TitleText, FontSize = TitleFontSize, FontWeight = FontWeight.SemiBold, VerticalAlignment = VerticalAlignment.Center },
+					new Separator { Margin = new(SeparatorMargin, 0) },
 					_brushButton,
 					_eraserButton,
 					_hotspotButton,
-					new Separator { Margin = new(8, 0) },
-					CreateToolbarButton("Import", OnImportClick),
-					new Separator { Margin = new(8, 0) },
-					CreateToolbarButton("−", OnZoomOut),
+					new Separator { Margin = new(SeparatorMargin, 0) },
+					CreateToolbarButton(ImportText, OnImportClick),
+					new Separator { Margin = new(SeparatorMargin, 0) },
+					CreateToolbarButton(ZoomOutText, OnZoomOut),
 					_zoomText,
-					CreateToolbarButton("+", OnZoomIn),
-					new Separator { Margin = new(8, 0) },
-					CreateToolbarButton("Save", OnSaveClick),
-					CreateToolbarButton("Cancel", OnCancelClick),
+					CreateToolbarButton(ZoomInText, OnZoomIn),
+					new Separator { Margin = new(SeparatorMargin, 0) },
+					CreateToolbarButton(SaveText, OnSaveClick),
+					CreateToolbarButton(CancelText, OnCancelClick),
 				},
 			},
 		};
@@ -135,11 +184,11 @@ public class PaintEditorWindow : Window
 		var statusBar = new Border
 		{
 			Background = Brushes.Transparent,
-			Padding = new(12, 4),
+			Padding = new(StatusBarPaddingX, StatusBarPaddingY),
 			Child = new StackPanel
 			{
 				Orientation = Orientation.Horizontal,
-				Spacing = 16,
+				Spacing = StatusBarSpacing,
 				Children = { _coordsText, _hotspotText },
 			},
 		};
@@ -172,7 +221,7 @@ public class PaintEditorWindow : Window
 		_bitmap?.Dispose();
 		_bitmap = new WriteableBitmap(
 			new PixelSize(_canvasWidth, _canvasHeight),
-			new Vector(96, 96),
+			new Vector(Dpi, Dpi),
 			Avalonia.Platform.PixelFormat.Bgra8888,
 			Avalonia.Platform.AlphaFormat.Unpremul);
 
@@ -196,30 +245,30 @@ public class PaintEditorWindow : Window
 
 	private void UpdateZoomText()
 	{
-		_zoomText.Text = $"{(int)Math.Round(_zoom * 100)}%";
+		_zoomText.Text = string.Format(ZoomPercentFormat, (int)Math.Round(_zoom * 100));
 	}
 
 	private void UpdateCoordsText()
 	{
-		_coordsText.Text = $"{_canvasWidth} × {_canvasHeight} px";
+		_coordsText.Text = string.Format(CoordsFormat, _canvasWidth, _canvasHeight);
 	}
 
 	private void UpdateHotspotMarker()
 	{
 		_hotspotMarker.IsVisible = true;
-		_hotspotText.Text = $"X: {_hotspotX}  Y: {_hotspotY}";
+		_hotspotText.Text = string.Format(HotspotFormat, _hotspotX, _hotspotY);
 
-		var x = _hotspotX * _zoom - 4;
-		var y = _hotspotY * _zoom - 4;
+		var x = _hotspotX * _zoom - HotspotMarkerOffset;
+		var y = _hotspotY * _zoom - HotspotMarkerOffset;
 		Canvas.SetLeft(_hotspotMarker, x);
 		Canvas.SetTop(_hotspotMarker, y);
 	}
 
 	private void UpdateToolButtons()
 	{
-		_brushButton.FontWeight = _currentTool == "brush" ? FontWeight.Bold : FontWeight.Normal;
-		_eraserButton.FontWeight = _currentTool == "eraser" ? FontWeight.Bold : FontWeight.Normal;
-		_hotspotButton.FontWeight = _currentTool == "hotspot" ? FontWeight.Bold : FontWeight.Normal;
+		_brushButton.FontWeight = _currentTool == ToolBrush ? FontWeight.Bold : FontWeight.Normal;
+		_eraserButton.FontWeight = _currentTool == ToolEraser ? FontWeight.Bold : FontWeight.Normal;
+		_hotspotButton.FontWeight = _currentTool == ToolHotspot ? FontWeight.Bold : FontWeight.Normal;
 	}
 
 	private void SelectTool(string tool)
@@ -233,8 +282,10 @@ public class PaintEditorWindow : Window
 		var pos = e.GetPosition(_canvasImage);
 		var px = (int)(pos.X / _zoom);
 		var py = (int)(pos.Y / _zoom);
+
 		px = Math.Clamp(px, 0, _canvasWidth - 1);
 		py = Math.Clamp(py, 0, _canvasHeight - 1);
+
 		return (px, py);
 	}
 
@@ -244,6 +295,7 @@ public class PaintEditorWindow : Window
 			return;
 
 		var idx = (y * _canvasWidth + x) * BytesPerPixel;
+
 		_pixels[idx + 0] = b;
 		_pixels[idx + 1] = g;
 		_pixels[idx + 2] = r;
@@ -252,25 +304,28 @@ public class PaintEditorWindow : Window
 
 	private void DrawAt(int x, int y)
 	{
-		if (_currentTool == "brush")
-			SetPixel(x, y, 0, 0, 0, 255);
-		else if (_currentTool == "eraser")
-			SetPixel(x, y, 0, 0, 0, 0);
+		if (_currentTool == ToolBrush)
+			SetPixel(x, y, 0, 0, 0, (byte)BrushAlpha);
+		else if (_currentTool == ToolEraser)
+			SetPixel(x, y, 0, 0, 0, (byte)EraserAlpha);
 	}
 
 	private void OnCanvasPointerPressed(object? sender, PointerPressedEventArgs e)
 	{
-		if (_currentTool == "hotspot")
+		if (_currentTool == ToolHotspot)
 		{
 			var (x, y) = GetPixelPosition(e);
 			_hotspotX = x;
 			_hotspotY = y;
+
 			UpdateHotspotMarker();
+
 			return;
 		}
 
 		_isDrawing = true;
 		var (px, py) = GetPixelPosition(e);
+
 		DrawAt(px, py);
 		RenderCanvasFromPixels();
 	}
@@ -281,6 +336,7 @@ public class PaintEditorWindow : Window
 			return;
 
 		var (px, py) = GetPixelPosition(e);
+
 		DrawAt(px, py);
 		RenderCanvasFromPixels();
 	}
@@ -298,13 +354,13 @@ public class PaintEditorWindow : Window
 
 		var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
 		{
-			Title = "Import Image",
+			Title = ImportDialogTitle,
 			AllowMultiple = false,
 			FileTypeFilter = new[]
 			{
-				new FilePickerFileType("Images")
+				new FilePickerFileType(ImageFilterName)
 				{
-					Patterns = new[] { "*.png", "*.bmp", "*.jpg", "*.jpeg", "*.gif", "*.cur", "*.ani" }
+					Patterns = new[] { PngPattern, BmpPattern, JpgPattern, JpegPattern, GifPattern, CurPattern, AniPattern }
 				}
 			}
 		});
@@ -315,7 +371,7 @@ public class PaintEditorWindow : Window
 		var path = files[0].Path.LocalPath;
 		var ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
 
-		if (ext == ".cur" || ext == ".ani")
+		if (ext == CurExtension || ext == AniExtension)
 		{
 			var image = CursorCanvasService.TryRead(path);
 			if (image != null)
@@ -326,6 +382,7 @@ public class PaintEditorWindow : Window
 				Array.Copy(image.Bgra, _pixels, image.Bgra.Length);
 				_hotspotX = image.HotspotX;
 				_hotspotY = image.HotspotY;
+
 				RenderCanvas();
 				UpdateCoordsText();
 				UpdateHotspotMarker();
@@ -345,7 +402,7 @@ public class PaintEditorWindow : Window
 
 				var tempBmp = new WriteableBitmap(
 					new PixelSize(w, h),
-					new Vector(96, 96),
+					new Vector(Dpi, Dpi),
 					Avalonia.Platform.PixelFormat.Bgra8888,
 					Avalonia.Platform.AlphaFormat.Unpremul);
 
@@ -360,6 +417,7 @@ public class PaintEditorWindow : Window
 				}
 
 				tempBmp.Dispose();
+
 				RenderCanvas();
 				UpdateCoordsText();
 				UpdateHotspotMarker();
@@ -373,6 +431,7 @@ public class PaintEditorWindow : Window
 	public void OnZoomIn(object? sender, RoutedEventArgs e)
 	{
 		_zoom = Math.Min(_zoom * ZoomStep, MaxZoom);
+
 		RenderCanvas();
 		UpdateZoomText();
 		UpdateHotspotMarker();
@@ -381,6 +440,7 @@ public class PaintEditorWindow : Window
 	public void OnZoomOut(object? sender, RoutedEventArgs e)
 	{
 		_zoom = Math.Max(_zoom / ZoomStep, MinZoom);
+
 		RenderCanvas();
 		UpdateZoomText();
 		UpdateHotspotMarker();
@@ -389,6 +449,7 @@ public class PaintEditorWindow : Window
 	public void OnSaveClick(object? sender, RoutedEventArgs e)
 	{
 		Result = new CursorCanvasImage(_canvasWidth, _canvasHeight, _hotspotX, _hotspotY, _pixels);
+
 		Close();
 	}
 

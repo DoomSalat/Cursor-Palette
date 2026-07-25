@@ -39,6 +39,10 @@ public class PresetEditorWindow : Window
 
 	private const string CursorFileFilterName = "Cursors";
 	private const string EmptyValue = "";
+	private const string PaintButtonText = "Paint";
+	private const string PaintTempDirName = "cursor-palette-paint";
+	private const string CurExtension = ".cur";
+	private const string PaintFileNameFormat = "{0}_{1:yyyyMMddHHmmss}.cur";
 
 	private readonly List<Slot> _slots = new();
 	private readonly string? _draftId;
@@ -257,7 +261,7 @@ public class PresetEditorWindow : Window
 
 		var paintButton = new Button
 		{
-			Content = "Paint",
+			Content = PaintButtonText,
 			FontSize = 11,
 			Padding = new Avalonia.Thickness(6, 3),
 			Margin = new Avalonia.Thickness(0, 4, 0, 0),
@@ -327,14 +331,15 @@ public class PresetEditorWindow : Window
 		var source = slot.SourcePath != null ? CursorCanvasService.TryRead(slot.SourcePath) : null;
 		var editor = new PaintEditorWindow(source);
 		editor.ShowDialog(this);
+
 		editor.Closed += (_, _) =>
 		{
 			if (editor.Result == null)
 				return;
 
-			var tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "cursor-palette-paint");
+			var tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), PaintTempDirName);
 			System.IO.Directory.CreateDirectory(tempDir);
-			var fileName = $"{slot.Role.RegistryName}_{DateTime.Now:yyyyMMddHHmmss}.cur";
+			var fileName = string.Format(PaintFileNameFormat, slot.Role.RegistryName, DateTime.Now);
 			var tempPath = System.IO.Path.Combine(tempDir, fileName);
 
 			try

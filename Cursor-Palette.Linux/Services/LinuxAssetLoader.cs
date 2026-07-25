@@ -5,7 +5,7 @@ namespace CursorPalette.Linux.Services;
 
 public sealed class LinuxAssetLoader : IAssetLoader
 {
-	private const string AssetsFolder = "Assets";
+	private const string AssetsFolder = "Resources";
 
 	public Stream? TryOpenAsset(string relativePath)
 	{

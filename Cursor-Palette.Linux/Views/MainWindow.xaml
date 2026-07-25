@@ -153,12 +153,12 @@
 										   TextTrimming="CharacterEllipsis"
 										   MaxWidth="130"
 										   IsVisible="{Binding IsGroup}" />
-								<TextBlock Text="{Binding RoleCount, StringFormat='{}{0} presets'}"
+								<TextBlock Text="{Binding MembersCountText}"
 										   FontSize="11"
 										   HorizontalAlignment="Center"
 										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
 										   IsVisible="{Binding IsGroup}" />
-								<TextBlock Text="(collapsed)"
+								<TextBlock Text="{Binding CollapsedText}"
 										   FontSize="11"
 										   HorizontalAlignment="Center"
 										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"

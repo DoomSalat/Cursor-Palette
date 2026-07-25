@@ -19,6 +19,8 @@ public sealed class BoardItem
 	public PresetGroup? Group { get; init; }
 	public Bitmap? Preview { get; init; }
 	public int RoleCount { get; init; }
+	public string MembersCountText { get; init; } = "";
+	public string CollapsedText { get; init; } = "";
 	public int BaseSize { get; init; }
 	public bool IsActive { get; init; }
 	public bool IsSelected { get; init; }
@@ -36,6 +38,8 @@ public sealed class MainWindowViewModel : ViewModelBase
 	private const string LocWindowsDefault = "S.WindowsDefault";
 	private const string LocAddPreset = "S.AddPreset";
 	private const string LocDefaultPresetName = "S.DefaultPresetName";
+	private const string LocGroupMembersCount = "S.Group.MembersCount";
+	private const string LocGroupCollapsed = "S.Group.Collapsed";
 
 	private static readonly HashSet<string> SupportedExtensions = new(StringComparer.OrdinalIgnoreCase)
 	{
@@ -206,6 +210,8 @@ public sealed class MainWindowViewModel : ViewModelBase
 			GroupColorHex = GroupColors.ResolveHex(group.ColorKey),
 			IsCollapsed = group.Collapsed,
 			RoleCount = group.MemberPresetIds.Count,
+			MembersCountText = Loc.Format(LocGroupMembersCount, group.MemberPresetIds.Count),
+			CollapsedText = Loc.Get(LocGroupCollapsed),
 		};
 	}
 
