@@ -30,7 +30,6 @@ public partial class MainWindow
 	{
 		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
 		var scaleEnabled = ScaleCursorsCheckBox.IsChecked == true;
-		AppState.SetScaleCursorsEnabled(scaleEnabled);
 
 		if (_activePresetId != null)
 		{
@@ -39,10 +38,16 @@ public partial class MainWindow
 			var preset = _presets.FirstOrDefault(preset => preset.Id == _activePresetId);
 			if (preset != null)
 				preset.UseScaling = scaleEnabled;
+
+			_activeUseScaling = AppState.GetScaleCursorsEnabled() && scaleEnabled;
+		}
+		else
+		{
+			AppState.SetScaleCursorsEnabled(scaleEnabled);
+			_activeUseScaling = scaleEnabled;
 		}
 
 		_baselineScaleEnabled = scaleEnabled;
-		_activeUseScaling = scaleEnabled;
 
 		ApplyAndPersistSize(sizeInPixels);
 		ReloadGallery();
