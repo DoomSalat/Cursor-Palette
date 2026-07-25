@@ -127,6 +127,16 @@ public partial class MainWindow : Window
 		}
 
 		ApplyCellScale(_cellScale);
+
+		_ = CheckForUpdatesAsync();
+	}
+
+	private async Task CheckForUpdatesAsync()
+	{
+		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+		var isAvailable = await UpdateChecker.IsUpdateAvailableAsync(version);
+		if (isAvailable)
+			ShowToast($"Update available — v{version}");
 	}
 
 	private void ApplyUiScale(double scale)
