@@ -65,6 +65,9 @@ public partial class MainWindow : Window
 	private Button? _languageButton;
 	private TextBlock? _zoomText;
 	private double _uiScale = 1.0;
+	private Slider? _cellScaleSlider;
+	private TextBlock? _cellScaleValueText;
+	private double _cellScale = 1.0;
 
 	public MainWindow()
 	{
@@ -77,6 +80,8 @@ public partial class MainWindow : Window
 		_applySizeButton = this.FindControl<Button>("ApplySizeButton");
 		_languageButton = this.FindControl<Button>("LanguageButton");
 		_zoomText = this.FindControl<TextBlock>("ZoomText");
+		_cellScaleSlider = this.FindControl<Slider>("CellScaleSlider");
+		_cellScaleValueText = this.FindControl<TextBlock>("CellScaleValueText");
 
 		if (_sizeSlider != null)
 		{
@@ -101,6 +106,15 @@ public partial class MainWindow : Window
 
 		_uiScale = AppState.GetUiScale();
 		ApplyUiScale(_uiScale);
+
+		_cellScale = AppState.GetGalleryCellScale();
+		if (_cellScaleSlider != null)
+		{
+			_cellScaleSlider.Value = _cellScale;
+			_cellScaleSlider.PropertyChanged += OnCellScaleSliderChanged;
+		}
+
+		ApplyCellScale(_cellScale);
 	}
 
 	private void ApplyUiScale(double scale)
@@ -125,6 +139,32 @@ public partial class MainWindow : Window
 
 		ApplyUiScale(_uiScale);
 		AppState.SetUiScale(_uiScale);
+	}
+
+	private void ApplyCellScale(double scale)
+	{
+		var gallery = this.FindControl<ItemsControl>("Gallery");
+		if (gallery != null)
+		{
+			gallery.RenderTransform = new ScaleTransform(scale, scale);
+			gallery.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
+		}
+
+		if (_cellScaleValueText != null)
+			_cellScaleValueText.Text = $"{(int)Math.Round(scale * 100)}%";
+	}
+
+	private void OnCellScaleSliderChanged(object? sender, Avalonia.AvaloniaPropertyChangedEventArgs e)
+	{
+		if (_cellScaleSlider == null)
+			return;
+
+		if (e.Property != Slider.ValueProperty)
+			return;
+
+		_cellScale = _cellScaleSlider.Value;
+		ApplyCellScale(_cellScale);
+		AppState.SetGalleryCellScale(_cellScale);
 	}
 
 	private void ApplyLocalization()

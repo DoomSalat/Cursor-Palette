@@ -63,6 +63,23 @@
 						Content="+"
 						VerticalAlignment="Center"
 						Click="OnZoomInClick" />
+				<Separator Margin="8,0" />
+				<TextBlock x:Name="CellScaleLabel"
+						   Text="Cells"
+						   VerticalAlignment="Center"
+						   Margin="4,0" />
+				<Slider x:Name="CellScaleSlider"
+						Minimum="0.5"
+						Maximum="3.5"
+						Value="1.0"
+						Width="100"
+						TickFrequency="0.1"
+						IsSnapToTickEnabled="True"
+						VerticalAlignment="Center" />
+				<TextBlock x:Name="CellScaleValueText"
+						   Text="100%"
+						   VerticalAlignment="Center"
+						   Margin="4,0" />
 			</StackPanel>
 		</Border>
 
