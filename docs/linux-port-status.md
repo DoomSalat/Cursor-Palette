@@ -35,6 +35,8 @@
   пресета/размера
 - **Кастомный скроллбар** — тонкий (10px), закруглённый thumb, hover-эффект,
   цвета для dark/light тем
+- **Drag-and-drop reorder** — перетаскивание плиток пресетов для изменения порядка,
+  сохраняется через `BoardOrderStore`
 - **Константы** — магические строки и числа вынесены в `private const` по стилю
   WPF-оригинала
 
@@ -68,6 +70,5 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 ## Не портировано (TODO)
 
 - Paint editor (рисование, hotspot, canvas, импорт изображений)
-- Drag-and-drop reorder плиток пресетов
 - Группы пресетов (Ctrl+клик, цветовые метки, свернуть/развернуть)
 - Проверка обновлений

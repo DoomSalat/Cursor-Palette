@@ -501,6 +501,26 @@ public sealed class MainWindowViewModel : ViewModelBase
 		ReloadGallery();
 	}
 
+	public void ReorderPresetTo(string draggedId, string targetId)
+	{
+		if (draggedId == targetId)
+			return;
+
+		var boardOrderIds = BoardOrderStore.Load();
+		var draggedIndex = boardOrderIds.IndexOf(draggedId);
+		var targetIndex = boardOrderIds.IndexOf(targetId);
+
+		if (draggedIndex < 0 || targetIndex < 0)
+			return;
+
+		boardOrderIds.RemoveAt(draggedIndex);
+		targetIndex = boardOrderIds.IndexOf(targetId);
+		boardOrderIds.Insert(targetIndex, draggedId);
+
+		BoardOrderStore.Save(boardOrderIds);
+		ReloadGallery();
+	}
+
 	public async Task ApplySizeAsync(int sizeInPixels)
 	{
 		var cursorService = CursorServiceProvider.Current;

@@ -28,6 +28,7 @@ public partial class MainWindow : Window
 	private const string ThemeIconDark = "🌙";
 	private const string ThemeIconLight = "☀";
 	private const string MixedBadgeText = "🧩";
+	private const string PresetDragFormat = "application/x-cursor-palette-preset";
 
 	private const string LocApplySize = "S.ApplySize";
 	private const string LocUndo = "S.Undo";
@@ -72,6 +73,8 @@ public partial class MainWindow : Window
 	private double _cellScale = 1.0;
 	private Border? _loadingOverlay;
 	private DispatcherTimer? _loadingSpinnerTimer;
+	private Point? _presetDragStartPoint;
+	private string? _draggedPresetId;
 
 	public MainWindow()
 	{
@@ -107,6 +110,10 @@ public partial class MainWindow : Window
 
 		AddHandler(DragDrop.DropEvent, OnDrop);
 		AddHandler(DragDrop.DragOverEvent, OnDragOver);
+		AddHandler(PointerMovedEvent, OnPresetPointerMoved, RoutingStrategies.Bubble);
+		AddHandler(PointerReleasedEvent, OnPresetPointerReleased, RoutingStrategies.Bubble);
+		AddHandler(DragDrop.DragOverEvent, OnPresetDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
+		AddHandler(DragDrop.DropEvent, OnPresetDrop, RoutingStrategies.Bubble, handledEventsToo: true);
 
 		_uiScale = AppState.GetUiScale();
 		ApplyUiScale(_uiScale);
@@ -334,17 +341,89 @@ public partial class MainWindow : Window
 
 		if (item.IsPreset && item.Preset != null)
 		{
-			ShowLoadingOverlay();
-			try
-			{
-				await _viewModel.ApplyPresetAsync(item.Preset);
-				ShowToast(Loc.Get(LocToastSaved));
-			}
-			finally
-			{
-				HideLoadingOverlay();
-			}
+			_presetDragStartPoint = e.GetPosition(control);
+			_draggedPresetId = item.Preset.Id;
 		}
+	}
+
+	public async void OnPresetPointerMoved(object? sender, PointerEventArgs e)
+	{
+		if (_presetDragStartPoint is not { } start || _draggedPresetId == null)
+			return;
+
+		if (sender is not Control control)
+			return;
+
+		var current = e.GetPosition(control);
+		if (Math.Abs(current.X - start.X) < 4 && Math.Abs(current.Y - start.Y) < 4)
+			return;
+
+		var presetId = _draggedPresetId;
+		_presetDragStartPoint = null;
+		_draggedPresetId = null;
+
+		var data = new DataObject();
+		data.Set(PresetDragFormat, presetId);
+
+		await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+	}
+
+	public void OnPresetPointerReleased(object? sender, PointerReleasedEventArgs e)
+	{
+		if (_presetDragStartPoint == null)
+			return;
+
+		_presetDragStartPoint = null;
+		_draggedPresetId = null;
+
+		if (sender is not Control control || control.DataContext is not BoardItem item)
+			return;
+
+		if (item.IsPreset && item.Preset != null)
+		{
+			_ = ApplyPresetFromClick(item.Preset);
+		}
+	}
+
+	private async Task ApplyPresetFromClick(Preset preset)
+	{
+		ShowLoadingOverlay();
+
+		try
+		{
+			await _viewModel.ApplyPresetAsync(preset);
+			ShowToast(Loc.Get(LocToastSaved));
+		}
+		finally
+		{
+			HideLoadingOverlay();
+		}
+	}
+
+	public void OnPresetDragOver(object? sender, DragEventArgs e)
+	{
+		if (e.Data.Contains(PresetDragFormat))
+			e.DragEffects = DragDropEffects.Move;
+		else
+			e.DragEffects = DragDropEffects.None;
+	}
+
+	public void OnPresetDrop(object? sender, DragEventArgs e)
+	{
+		if (!e.Data.Contains(PresetDragFormat))
+			return;
+
+		if (sender is not Control control || control.DataContext is not BoardItem item)
+			return;
+
+		if (!item.IsPreset || item.Preset == null)
+			return;
+
+		var draggedId = (string?)e.Data.Get(PresetDragFormat);
+		if (draggedId == null)
+			return;
+
+		_viewModel.ReorderPresetTo(draggedId, item.Preset.Id);
 	}
 
 	private async void ApplyDefault()
@@ -701,6 +780,7 @@ public partial class MainWindow : Window
 	{
 		_isDarkTheme = !_isDarkTheme;
 		RequestedThemeVariant = _isDarkTheme ? Avalonia.Styling.ThemeVariant.Dark : Avalonia.Styling.ThemeVariant.Light;
+
 		UpdateThemeToggleIcon();
 	}
 
