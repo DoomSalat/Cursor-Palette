@@ -53,8 +53,6 @@ public static class CursorScalerService
 			return sourcePath;
 
 		var destPath = GetScaledPath(sourcePath, targetSize, CurExtension);
-		if (File.Exists(destPath))
-			return destPath;
 
 		var scaled = ScaleImage(image, targetSize, targetSize);
 		CursorCanvasService.Write(destPath, scaled);
@@ -75,8 +73,6 @@ public static class CursorScalerService
 		var iconRanges = AniCursorReader.FindIconChunkRanges(bytes);
 
 		var destPath = GetScaledPath(sourcePath, targetSize, AniExtension);
-		if (File.Exists(destPath))
-			return destPath;
 
 		var scaledFrames = new List<CursorCanvasImage>(frames.StepFrameIndices.Count);
 		var delays = new List<int>(frames.StepFrameIndices.Count);
@@ -110,7 +106,7 @@ public static class CursorScalerService
 
 	private static CursorCanvasImage ScaleImage(CursorCanvasImage source, int targetWidth, int targetHeight)
 	{
-		var scaledBgra = ScaleBgraNearestNeighbor(
+		var scaledBgra = ScaleBgraAreaWeighted(
 			source.Bgra, source.Width, source.Height, targetWidth, targetHeight);
 
 		var scaledHotspotX = source.Width > 0
@@ -123,58 +119,88 @@ public static class CursorScalerService
 		return new CursorCanvasImage(targetWidth, targetHeight, scaledHotspotX, scaledHotspotY, scaledBgra);
 	}
 
-	private static byte[] ScaleBgraNearestNeighbor(
+	private static byte[] ScaleBgraAreaWeighted(
 		byte[] source, int srcWidth, int srcHeight, int dstWidth, int dstHeight)
 	{
 		var dest = new byte[dstWidth * dstHeight * BytesPerPixel];
 
+		var scaleX = (double)srcWidth / dstWidth;
+		var scaleY = (double)srcHeight / dstHeight;
+
 		for (var dy = 0; dy < dstHeight; dy++)
 		{
-			int srcY;
-			if (dstHeight > 1)
-			{
-				srcY = dy * (srcHeight - 1) / (dstHeight - 1);
-				if (srcY < 0) srcY = 0;
-				if (srcY >= srcHeight) srcY = srcHeight - 1;
-			}
-			else
-			{
-				srcY = 0;
-			}
+			var srcY0 = dy * scaleY;
+			var srcY1 = srcY0 + scaleY;
+			var yStart = Math.Max(0, (int)Math.Floor(srcY0));
+			var yEnd = Math.Min(srcHeight - 1, (int)Math.Ceiling(srcY1) - 1);
+			if (yEnd < yStart) yEnd = yStart;
 
 			for (var dx = 0; dx < dstWidth; dx++)
 			{
-				int srcX;
-				if (dstWidth > 1)
+				var srcX0 = dx * scaleX;
+				var srcX1 = srcX0 + scaleX;
+				var xStart = Math.Max(0, (int)Math.Floor(srcX0));
+				var xEnd = Math.Min(srcWidth - 1, (int)Math.Ceiling(srcX1) - 1);
+				if (xEnd < xStart) xEnd = xStart;
+
+				var sumB = 0.0;
+				var sumG = 0.0;
+				var sumR = 0.0;
+				var sumA = 0.0;
+				var totalWeight = 0.0;
+
+				for (var sy = yStart; sy <= yEnd; sy++)
 				{
-					srcX = dx * (srcWidth - 1) / (dstWidth - 1);
-					if (srcX < 0) srcX = 0;
-					if (srcX >= srcWidth) srcX = srcWidth - 1;
-				}
-				else
-				{
-					srcX = 0;
+					var overlapY = Math.Min(sy + 1, srcY1) - Math.Max(sy, srcY0);
+					if (overlapY <= 0)
+						continue;
+
+					for (var sx = xStart; sx <= xEnd; sx++)
+					{
+						var overlapX = Math.Min(sx + 1, srcX1) - Math.Max(sx, srcX0);
+						if (overlapX <= 0)
+							continue;
+
+						var weight = overlapX * overlapY;
+						var srcIdx = (sy * srcWidth + sx) * BytesPerPixel;
+
+						var alpha = source[srcIdx + 3] / 255.0;
+						var alphaWeight = weight * alpha;
+
+						sumB += source[srcIdx] * alphaWeight;
+						sumG += source[srcIdx + 1] * alphaWeight;
+						sumR += source[srcIdx + 2] * alphaWeight;
+						sumA += weight * alpha;
+						totalWeight += weight;
+					}
 				}
 
-				var srcIdx = (srcY * srcWidth + srcX) * BytesPerPixel;
 				var dstIdx = (dy * dstWidth + dx) * BytesPerPixel;
 
-				dest[dstIdx] = source[srcIdx];
-				dest[dstIdx + 1] = source[srcIdx + 1];
-				dest[dstIdx + 2] = source[srcIdx + 2];
-				dest[dstIdx + 3] = source[srcIdx + 3];
+				if (sumA > 0)
+				{
+					dest[dstIdx] = (byte)Math.Clamp(Math.Round(sumB / sumA), 0, 255);
+					dest[dstIdx + 1] = (byte)Math.Clamp(Math.Round(sumG / sumA), 0, 255);
+					dest[dstIdx + 2] = (byte)Math.Clamp(Math.Round(sumR / sumA), 0, 255);
+				}
+
+				dest[dstIdx + 3] = totalWeight > 0
+					? (byte)Math.Clamp(Math.Round(sumA / totalWeight * 255.0), 0, 255)
+					: (byte)0;
 			}
 		}
 
 		return dest;
 	}
 
+	private const string ScaleAlgorithmVersion = "v3";
+
 	private static string GetScaledPath(string sourcePath, int targetSize, string extension)
 	{
 		Directory.CreateDirectory(AppPaths.ScaledCursorsDir);
 
 		var hash = System.Security.Cryptography.SHA256.HashData(
-			Encoding.UTF8.GetBytes(sourcePath.ToLowerInvariant()));
+			Encoding.UTF8.GetBytes(ScaleAlgorithmVersion + sourcePath.ToLowerInvariant()));
 
 		var hashStr = Convert.ToHexString(hash)[..8];
 		var fileName = $"{Path.GetFileNameWithoutExtension(sourcePath)}-{targetSize}-{hashStr}{extension}";
