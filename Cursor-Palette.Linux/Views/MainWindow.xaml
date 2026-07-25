@@ -125,6 +125,8 @@
 								Background="{DynamicResource SystemRegionBrush}"
 								Classes.active="{Binding IsActive}"
 								Classes.group="{Binding IsGroup}"
+								Classes.has-group="{Binding GroupColorHex, Converter={x:Static ObjectConverters.IsNotNull}}"
+								ToolTip.Tip="{Binding DisplayName}"
 								PointerPressed="OnPresetClick">
 							<Border.ContextMenu>
 								<ContextMenu Opening="OnContextMenuOpening">
@@ -157,6 +159,7 @@
 											  Click="OnMenuDelete" />
 								</ContextMenu>
 							</Border.ContextMenu>
+						<Grid>
 							<StackPanel VerticalAlignment="Center"
 										HorizontalAlignment="Center"
 										Spacing="4">
@@ -205,6 +208,14 @@
 										   IsVisible="{Binding IsPreset}"
 										   Text="{Binding BaseSize, StringFormat='{}{0} px'}" />
 							</StackPanel>
+							<TextBlock Text="🧩"
+									   FontSize="15"
+									   HorizontalAlignment="Right"
+									   VerticalAlignment="Top"
+									   Margin="0,4,6,0"
+									   IsHitTestVisible="False"
+									   IsVisible="{Binding IsMixed}" />
+						</Grid>
 						</Border>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
@@ -225,7 +236,7 @@
 		<Border Grid.Row="3"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 				Padding="12,6">
-			<Grid ColumnDefinitions="Auto,*,Auto">
+			<Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
 				<StackPanel Grid.Column="0"
 							Orientation="Horizontal"
 							VerticalAlignment="Center"
@@ -244,13 +255,31 @@
 							Click="OnZoomInClick" />
 				</StackPanel>
 
-				<TextBlock Grid.Column="2"
+				<Button x:Name="OpenFolderToggle"
+						Grid.Column="1"
+						Content="📂"
+						FontSize="14"
+						Padding="8,4"
+						Margin="12,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnOpenFolderToggleClick" />
+
+				<TextBlock Grid.Column="3"
 						   Text="{Binding FooterText}"
 						   FontSize="11"
 						   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
 						   HorizontalAlignment="Right"
 						   VerticalAlignment="Center"
 						   PointerPressed="OnFooterClick" />
+
+				<Button x:Name="GitHubLink"
+						Grid.Column="4"
+						Content="⌥"
+						FontSize="14"
+						Padding="8,4"
+						Margin="8,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnGitHubLinkClick" />
 			</Grid>
 		</Border>
 	</Grid>

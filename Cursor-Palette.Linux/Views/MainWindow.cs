@@ -92,6 +92,9 @@ public partial class MainWindow : Window
 		DataContext = _viewModel;
 		_viewModel.Initialize();
 
+		Width = AppState.GetMainWindowWidth();
+		Height = AppState.GetMainWindowHeight();
+
 		_sizeSlider = this.FindControl<Slider>("SizeSlider");
 		_sizeValueText = this.FindControl<TextBlock>("SizeValueText");
 		_applySizeButton = this.FindControl<Button>("ApplySizeButton");
@@ -137,7 +140,15 @@ public partial class MainWindow : Window
 
 		ApplyCellScale(_cellScale);
 
+		UpdateOpenFolderToggleIcon();
+
 		_ = CheckForUpdatesAsync();
+	}
+
+	protected override void OnClosed(EventArgs e)
+	{
+		AppState.SetMainWindowSize(Width, Height);
+		base.OnClosed(e);
 	}
 
 	private async Task CheckForUpdatesAsync()
@@ -378,6 +389,19 @@ public partial class MainWindow : Window
 
 		if (item.IsPreset && item.Preset != null)
 		{
+			if (e.ClickCount >= 2)
+			{
+				var editor = new PresetEditorWindow(item.Preset, Array.Empty<string>());
+				await editor.ShowDialog(this);
+
+				if (editor.Result != null)
+				{
+					_viewModel.ReloadGallery();
+					ShowToast(Loc.Get(LocToastSaved));
+				}
+				return;
+			}
+
 			_presetDragStartPoint = e.GetPosition(control);
 			_draggedPresetId = item.Preset.Id;
 		}
@@ -897,14 +921,69 @@ public partial class MainWindow : Window
 
 	private void OnLanguageClick(object? sender, RoutedEventArgs e)
 	{
-		_languageIndex = (_languageIndex + 1) % SupportedLanguages.Length;
-		var language = SupportedLanguages[_languageIndex];
+		if (_languageButton == null)
+			return;
 
+		var menu = new ContextMenu
+		{
+			PlacementTarget = _languageButton,
+		};
+
+		foreach (var language in LocalizationManager.Available)
+		{
+			var code = language.Code;
+			var item = new MenuItem
+			{
+				Header = language.DisplayName,
+				IsChecked = language.Code == LocalizationManager.Current,
+			};
+			item.Click += (_, _) => SwitchLanguage(code);
+			menu.Items.Add(item);
+		}
+
+		menu.Open(_languageButton);
+	}
+
+	private void SwitchLanguage(string code)
+	{
+		if (code == LocalizationManager.Current)
+			return;
+
+		LocalizationManager.SetLanguage(code);
+
+		_languageIndex = Math.Max(0, Array.IndexOf(SupportedLanguages, code));
 		if (_languageButton != null)
-			_languageButton.Content = language.ToUpperInvariant();
+			_languageButton.Content = code.ToUpperInvariant();
 
-		LocalizationManager.SetLanguage(language);
 		ApplyLocalization();
 		_viewModel.ReloadGallery();
+	}
+
+	private void OnOpenFolderToggleClick(object? sender, RoutedEventArgs e)
+	{
+		AppState.SetOpenFolderAfterDownload(!AppState.GetOpenFolderAfterDownload());
+		UpdateOpenFolderToggleIcon();
+	}
+
+	private void UpdateOpenFolderToggleIcon()
+	{
+		var toggle = this.FindControl<Button>("OpenFolderToggle");
+		if (toggle != null)
+			toggle.Opacity = AppState.GetOpenFolderAfterDownload() ? 1.0 : 0.4;
+	}
+
+	private void OnGitHubLinkClick(object? sender, RoutedEventArgs e)
+	{
+		try
+		{
+			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+			{
+				FileName = AppInfo.GitHubUrl,
+				UseShellExecute = true,
+			});
+		}
+		catch
+		{
+		}
 	}
 }
