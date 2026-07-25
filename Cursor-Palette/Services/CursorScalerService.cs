@@ -89,7 +89,23 @@ public static class CursorScalerService
 
 			var image = CursorCanvasService.TryReadFromBytes(frameBytes);
 			if (image == null)
-				continue;
+			{
+				var tempPath = Path.Combine(Path.GetTempPath(), $"cp-scale-{Guid.NewGuid():N}.cur");
+				try
+				{
+					File.WriteAllBytes(tempPath, frameBytes);
+					image = CursorCanvasService.TryRead(tempPath);
+				}
+				catch
+				{
+				}
+				finally
+				{
+					try { File.Delete(tempPath); } catch { }
+				}
+				if (image == null)
+					continue;
+			}
 
 			var scaled = ScaleImage(image, targetSize, targetSize);
 			scaledFrames.Add(scaled);
