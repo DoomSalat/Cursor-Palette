@@ -523,9 +523,40 @@ public partial class MainWindow : Window
 		_viewModel.MovePreset(preset, 1);
 	}
 
-	public void OnMenuDownload(object? sender, RoutedEventArgs e)
+	public async void OnMenuDownload(object? sender, RoutedEventArgs e)
 	{
-		// TODO: Implement download
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var topLevel = TopLevel.GetTopLevel(this);
+		if (topLevel == null)
+			return;
+
+		var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+		{
+			Title = Loc.Get(LocMenuDownload),
+			DefaultExtension = "cursorpalette",
+			FileTypeChoices = new[]
+			{
+				new FilePickerFileType("Cursor Palette Bundle")
+				{
+					Patterns = new[] { "*.cursorpalette" }
+				}
+			}
+		});
+
+		if (file == null)
+			return;
+
+		try
+		{
+			var (path, count) = PresetPackageService.ExportBundle(new[] { preset }, preset.Name);
+			File.Move(path, file.Path.LocalPath, overwrite: true);
+			ShowToast(Loc.Get("S.Toast.PresetDownloaded"));
+		}
+		catch
+		{
+		}
 	}
 
 	public async void OnMenuDelete(object? sender, RoutedEventArgs e)

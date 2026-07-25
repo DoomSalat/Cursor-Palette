@@ -29,6 +29,8 @@
   сохраняется через `AppState.SetUiScale`
 - **Ползунок размера ячеек** — слайдер в тулбаре, `ScaleTransform` на Gallery,
   сохраняется через `AppState.SetGalleryCellScale`
+- **Экспорт/импорт пакетов** — контекстное меню Download экспортирует пресет
+  в `.cursorpalette`, drag-drop импортирует пакеты через `PresetPackageService`
 - **Константы** — магические строки и числа вынесены в `private const` по стилю
   WPF-оригинала
 
@@ -64,7 +66,6 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 - Paint editor (рисование, hotspot, canvas, импорт изображений)
 - Drag-and-drop reorder плиток пресетов
 - Группы пресетов (Ctrl+клик, цветовые метки, свернуть/развернуть)
-- Экспорт/импорт пакетов (.cursorpalette)
 - Кастомный скроллбар
 - Проверка обновлений
 - Затемнение экрана + спиннер при применении
