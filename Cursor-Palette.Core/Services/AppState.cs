@@ -80,6 +80,7 @@ public static class AppState
 		public string? BgRefCustomPath { get; set; }
 		public bool BgRefBilinear { get; set; }
 		public double PaintEditorToolPanelWidth { get; set; } = PaintEditorToolPanelWidthDefault;
+		public bool ScaleCursorsEnabled { get; set; }
 	}
 
 	public static string? GetActivePresetId()
@@ -380,6 +381,16 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.BgRefBilinear = enabled;
+
+		SaveSettings(settings);
+	}
+
+	public static bool GetScaleCursorsEnabled() => LoadSettings().ScaleCursorsEnabled;
+
+	public static void SetScaleCursorsEnabled(bool enabled)
+	{
+		var settings = LoadSettings();
+		settings.ScaleCursorsEnabled = enabled;
 
 		SaveSettings(settings);
 	}

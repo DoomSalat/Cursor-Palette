@@ -22,6 +22,7 @@ public sealed class BoardItem
 	public string MembersCountText { get; init; } = "";
 	public string CollapsedText { get; init; } = "";
 	public int BaseSize { get; init; }
+	public bool UseScaling { get; init; }
 	public bool IsActive { get; init; }
 	public bool IsSelected { get; init; }
 	public bool IsMixed => Preset?.RoleRefs.Count > 0;
@@ -50,6 +51,8 @@ public sealed class MainWindowViewModel : ViewModelBase
 	private int _baselineSizePx;
 	private double _cellScale = AppState.GalleryCellScaleDefault;
 	private string _footerText = EmptyValue;
+	private Dictionary<string, string>? _activeSourceValues;
+	private bool _activeUseScaling;
 
 	public ObservableCollection<BoardItem> Board { get; } = new();
 
@@ -194,6 +197,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 			Preview = CursorPreviewService.GetPreview(previewPath),
 			RoleCount = preset.Roles.Count + preset.RoleRefs.Count,
 			BaseSize = preset.BaseSize,
+			UseScaling = preset.UseScaling,
 			IsActive = isActive,
 			GroupColorHex = group != null ? GroupColors.ResolveHex(group.ColorKey) : null,
 		};
@@ -244,6 +248,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 		try
 		{
 			var cursorService = CursorServiceProvider.Current;
+			var useScaling = AppState.GetScaleCursorsEnabled() && preset.UseScaling;
 
 			var values = new Dictionary<string, string>();
 			foreach (var role in CursorRoles.All)
@@ -255,9 +260,15 @@ public sealed class MainWindowViewModel : ViewModelBase
 			await Task.Run(() =>
 			{
 				cursorService.SaveSnapshotToDisk(cursorService.TakeSnapshot());
-				cursorService.ApplyValues(values);
+				var scaledValues = useScaling
+					? CursorScalerService.ScaleValues(values, preset.BaseSize)
+					: values;
+				cursorService.ApplyValues(scaledValues);
 				cursorService.SetBaseSize(preset.BaseSize);
 			});
+
+			_activeSourceValues = values;
+			_activeUseScaling = useScaling;
 
 			_baselineSizePx = preset.BaseSize;
 			_activePresetId = preset.Id;
@@ -280,13 +291,24 @@ public sealed class MainWindowViewModel : ViewModelBase
 		{
 			var cursorService = CursorServiceProvider.Current;
 			var defaultSize = AppState.GetDefaultBaseSize();
+			var defaultUseScaling = AppState.GetScaleCursorsEnabled();
+			var defaultValues = cursorService.GetDefaultValues();
 
 			await Task.Run(() =>
 			{
 				cursorService.SaveSnapshotToDisk(cursorService.TakeSnapshot());
-				cursorService.ResetToDefault();
+				var scaledValues = defaultUseScaling
+					? CursorScalerService.ScaleValues(defaultValues, defaultSize)
+					: defaultValues;
+				if (scaledValues.Count > 0)
+					cursorService.ApplyValues(scaledValues);
+				else
+					cursorService.ResetToDefault();
 				cursorService.SetBaseSize(defaultSize);
 			});
+
+			_activeSourceValues = defaultValues;
+			_activeUseScaling = defaultUseScaling;
 
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
@@ -431,15 +453,29 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 		try
 		{
+			var undoUseScaling = AppState.GetScaleCursorsEnabled();
+
 			await Task.Run(() =>
 			{
 				cursorService.SaveSnapshotToDisk(cursorService.TakeSnapshot());
-				cursorService.RestoreSnapshot(snapshot);
+				var scaledValues = undoUseScaling
+					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize)
+					: snapshot.Values;
+				cursorService.ApplyValues(scaledValues);
+				cursorService.SetBaseSize(snapshot.BaseSize);
 			});
+
+			_activeSourceValues = new Dictionary<string, string>(snapshot.Values);
 
 			_activePresetId = FindPresetIdByValues(snapshot.Values);
 			AppState.SetActivePresetId(_activePresetId);
 			_baselineSizePx = snapshot.BaseSize;
+
+			var undoPreset = _activePresetId != null
+				? PresetStore.LoadAll().FirstOrDefault(candidate => candidate.Id == _activePresetId)
+				: null;
+			var undoEffectiveUseScaling = undoPreset != null ? undoUseScaling && undoPreset.UseScaling : undoUseScaling;
+			_activeUseScaling = undoEffectiveUseScaling;
 
 			ReloadGallery();
 		}
@@ -572,19 +608,42 @@ public sealed class MainWindowViewModel : ViewModelBase
 		ReloadGallery();
 	}
 
-	public async Task ApplySizeAsync(int sizeInPixels)
+	public async Task ApplySizeAsync(int sizeInPixels, bool useScaling)
 	{
 		var cursorService = CursorServiceProvider.Current;
 
 		try
 		{
-			await Task.Run(() => cursorService.SetBaseSize(sizeInPixels));
+			await Task.Run(() =>
+			{
+				if (_activeSourceValues != null)
+				{
+					var scaledValues = useScaling
+						? CursorScalerService.ScaleValues(_activeSourceValues, sizeInPixels)
+						: _activeSourceValues;
+					cursorService.ApplyValues(scaledValues);
+				}
+				cursorService.SetBaseSize(sizeInPixels);
+			});
+
 			_baselineSizePx = sizeInPixels;
+			_activeUseScaling = useScaling;
 			RaisePropertyChanged(nameof(BaselineSizePx));
 		}
 		catch
 		{
 			// TODO: Show error dialog
 		}
+	}
+
+	public bool GetActiveUseScaling()
+	{
+		if (_activePresetId != null)
+		{
+			var preset = PresetStore.LoadAll().FirstOrDefault(p => p.Id == _activePresetId);
+			return preset?.UseScaling ?? AppState.GetScaleCursorsEnabled();
+		}
+
+		return AppState.GetScaleCursorsEnabled();
 	}
 }

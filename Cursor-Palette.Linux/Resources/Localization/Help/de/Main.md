@@ -13,6 +13,7 @@
 
 ## 🎨 Rastergröße — ändert die Zellgröße der Galerie.
 📏 Cursorgröße — Schieberegler + "Anwenden" ändert Systemgröße.
+📐 "Skalieren" Checkbox — wenn aktiviert, werden Cursor auf die gewählte Größe skaliert mit glatten flächengewichteten Pixeln statt verschwommenem Strecken.
 ↩️ "Zurück" — vorherigen Cursor-Zustand wiederherstellen.
 🌙/☀ — Dunkel/Hell-Design wechseln.
 🌐 — Sprache ändern.

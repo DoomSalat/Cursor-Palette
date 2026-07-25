@@ -13,6 +13,7 @@
 
 ## 🎨 Grid size — changes gallery cell size.
 📏 Cursor size — slider + "Apply" changes system cursor size.
+📐 "Scale" checkbox — when enabled, cursors are scaled to the selected size with smooth area-weighted pixels instead of blurry stretching.
 ↩️ "Undo" — revert to previous cursor set.
 🌙/☀ — toggle dark/light theme.
 🌐 — change interface language.

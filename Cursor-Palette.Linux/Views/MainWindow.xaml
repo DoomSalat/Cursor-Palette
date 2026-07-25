@@ -72,6 +72,11 @@
 					<Button x:Name="ApplySizeButton"
 							Content="Apply"
 							VerticalAlignment="Center" />
+					<CheckBox x:Name="ScaleCursorsCheckBox"
+							  Content="Scale"
+							  Margin="8,0,0,0"
+							  VerticalAlignment="Center"
+							  Click="OnScaleCursorsClick" />
 				</StackPanel>
 
 				<!-- Cell scale group -->

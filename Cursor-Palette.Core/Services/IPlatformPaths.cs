@@ -11,6 +11,7 @@ public interface IPlatformPaths
 	string ActiveStateFile { get; }
 	string SettingsFile { get; }
 	string PreviousSnapshotFile { get; }
+	string ScaledCursorsDir { get; }
 	void EnsureCreated();
 }
 

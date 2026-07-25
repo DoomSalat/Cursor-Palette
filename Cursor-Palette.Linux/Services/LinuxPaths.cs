@@ -37,12 +37,15 @@ public sealed class LinuxPaths : IPlatformPaths
 
 	public string PreviousSnapshotFile => Path.Combine(StateDir, "previous-snapshot.json");
 
+	public string ScaledCursorsDir => Path.Combine(CacheDir, AppFolderName, "scaled");
+
 	public void EnsureCreated()
 	{
 		Directory.CreateDirectory(RootDir);
 		Directory.CreateDirectory(DataRootDir);
 		Directory.CreateDirectory(PresetsDir);
 		Directory.CreateDirectory(StateDir);
+		Directory.CreateDirectory(ScaledCursorsDir);
 		Directory.CreateDirectory(DownloadsDir);
 	}
 }

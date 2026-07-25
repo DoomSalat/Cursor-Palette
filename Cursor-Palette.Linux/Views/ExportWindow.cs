@@ -237,6 +237,18 @@ public class ExportWindow : Window
 			TextAlignment = TextAlignment.Center,
 		});
 
+		if (preset.UseScaling)
+		{
+			panel.Children.Add(new TextBlock
+			{
+				Text = "📐",
+				FontSize = 10,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				VerticalAlignment = VerticalAlignment.Bottom,
+				Margin = new Thickness(0, 0, 4, 4),
+			});
+		}
+
 		var cell = new Border
 		{
 			Width = CellSize,

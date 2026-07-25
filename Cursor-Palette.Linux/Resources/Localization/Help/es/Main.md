@@ -13,6 +13,7 @@
 
 ## 🎨 Tamaño de cuadrícula — cambia el tamaño de las celdas.
 📏 Tamaño del cursor — deslizador + "Aplicar" cambia el tamaño del sistema.
+📐 Casilla "Escalar" — cuando está activada, los cursores se escalan al tamaño seleccionado con píxeles suaves de promedio por área en lugar de estiramiento borroso.
 ↩️ "Atrás" — revertir al conjunto anterior.
 🌙/☀ — cambiar tema oscuro/claro.
 🌐 — cambiar idioma.

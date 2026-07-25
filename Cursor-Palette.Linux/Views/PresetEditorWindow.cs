@@ -49,6 +49,7 @@ public class PresetEditorWindow : Window
 	private const string LocDefaultPresetName = "S.DefaultPresetName";
 	private const string LocCursorSize = "S.CursorSize";
 	private const string LocApplySize = "S.ApplySize";
+	private const string LocScaleCursors = "S.ScaleCursors";
 	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
 
 	private const string CursorFileFilterName = "Cursors";
@@ -68,6 +69,7 @@ public class PresetEditorWindow : Window
 	private readonly List<Slot> _slots = new();
 	private readonly string? _draftId;
 	private int _baseSize;
+	private bool _useScaling;
 
 	public PresetDraft? Result { get; private set; }
 
@@ -95,6 +97,7 @@ public class PresetEditorWindow : Window
 		};
 
 		_baseSize = existing?.BaseSize ?? AppState.GetDefaultBaseSize();
+		_useScaling = existing?.UseScaling ?? false;
 
 		_sizeSlider = new Slider
 		{
@@ -170,9 +173,19 @@ public class PresetEditorWindow : Window
 		};
 		applySizeButton.Click += OnApplySizeClick;
 
+		var useScalingCheckBox = new CheckBox
+		{
+			Content = Loc.Get(LocScaleCursors),
+			IsChecked = _useScaling,
+			Margin = new Avalonia.Thickness(8, 0, 0, 0),
+			VerticalAlignment = VerticalAlignment.Center,
+		};
+		useScalingCheckBox.IsCheckedChanged += (_, _) =>
+			_useScaling = useScalingCheckBox.IsChecked == true;
+
 		var sizeBar = new Grid
 		{
-			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,Auto"),
+			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,Auto,Auto"),
 			Margin = new Avalonia.Thickness(DialogMargin),
 		};
 		sizeBar.Children.Add(new TextBlock
@@ -187,6 +200,8 @@ public class PresetEditorWindow : Window
 		sizeBar.Children.Add(_sizeValueText);
 		Grid.SetColumn(applySizeButton, 3);
 		sizeBar.Children.Add(applySizeButton);
+		Grid.SetColumn(useScalingCheckBox, 4);
+		sizeBar.Children.Add(useScalingCheckBox);
 
 		var scrollViewer = new ScrollViewer
 		{
@@ -481,6 +496,7 @@ public class PresetEditorWindow : Window
 			Id = _draftId,
 			Name = _nameBox.Text ?? EmptyValue,
 			BaseSize = _baseSize,
+			UseScaling = _useScaling,
 		};
 
 		foreach (var slot in _slots.Where(slot => slot.SourcePath != null))
@@ -496,6 +512,7 @@ public class PresetEditorWindow : Window
 			return;
 
 		mainWindow.ApplyPresetSize(_baseSize);
+		mainWindow.SetScaleCursorsCheckbox(_useScaling);
 	}
 
 	private async Task BrowseFolder()

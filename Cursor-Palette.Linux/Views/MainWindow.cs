@@ -75,6 +75,7 @@ public partial class MainWindow : Window
 	private Slider? _sizeSlider;
 	private TextBlock? _sizeValueText;
 	private Button? _applySizeButton;
+	private CheckBox? _scaleCursorsCheckBox;
 	private Button? _languageButton;
 	private TextBlock? _zoomText;
 	private double _uiScale = 1.0;
@@ -102,6 +103,7 @@ public partial class MainWindow : Window
 		_sizeSlider = this.FindControl<Slider>("SizeSlider");
 		_sizeValueText = this.FindControl<TextBlock>("SizeValueText");
 		_applySizeButton = this.FindControl<Button>("ApplySizeButton");
+		_scaleCursorsCheckBox = this.FindControl<CheckBox>("ScaleCursorsCheckBox");
 		_languageButton = this.FindControl<Button>("LanguageButton");
 		_zoomText = this.FindControl<TextBlock>("ZoomText");
 		_cellScaleSlider = this.FindControl<Slider>("CellScaleSlider");
@@ -115,6 +117,9 @@ public partial class MainWindow : Window
 
 		if (_applySizeButton != null)
 			_applySizeButton.Click += OnApplySizeClick;
+
+		if (_scaleCursorsCheckBox != null)
+			_scaleCursorsCheckBox.IsChecked = AppState.GetScaleCursorsEnabled();
 
 		UpdateSizeText(_viewModel.BaselineSizePx);
 		ApplyLocalization();
@@ -389,13 +394,31 @@ public partial class MainWindow : Window
 		ShowLoadingOverlay();
 		try
 		{
-			await _viewModel.ApplySizeAsync(sizePx);
+			var useScaling = _scaleCursorsCheckBox?.IsChecked == true;
+
+			await _viewModel.ApplySizeAsync(sizePx, useScaling);
+
 			ShowToast(Loc.Get(LocToastSizeApplied));
 		}
 		finally
 		{
 			HideLoadingOverlay();
 		}
+	}
+
+	private void OnScaleCursorsClick(object? sender, RoutedEventArgs e)
+	{
+		var enabled = _scaleCursorsCheckBox?.IsChecked == true;
+
+		AppState.SetScaleCursorsEnabled(enabled);
+	}
+
+	public void SetScaleCursorsCheckbox(bool value)
+	{
+		if (_scaleCursorsCheckBox != null)
+			_scaleCursorsCheckBox.IsChecked = value;
+
+		AppState.SetScaleCursorsEnabled(value);
 	}
 
 	public async void OnPresetClick(object? sender, PointerPressedEventArgs e)
