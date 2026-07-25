@@ -151,12 +151,42 @@ public partial class MainWindow : Window
 		base.OnClosed(e);
 	}
 
+	private UpdateInfo? _updateInfo;
+
 	private async Task CheckForUpdatesAsync()
 	{
 		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+		_updateInfo = await UpdateChecker.GetLatestReleaseInfoAsync();
+
+		if (_updateInfo is null)
+			return;
+
 		var isAvailable = await UpdateChecker.IsUpdateAvailableAsync(version);
 		if (isAvailable)
+		{
 			ShowToast(Loc.Format(LocToastUpdateAvailable, version));
+			var indicator = this.FindControl<Button>("UpdateIndicator");
+			if (indicator != null)
+				indicator.IsVisible = true;
+		}
+	}
+
+	private void OnUpdateIndicatorClick(object? sender, RoutedEventArgs e)
+	{
+		if (_updateInfo == null)
+			return;
+
+		try
+		{
+			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+			{
+				FileName = _updateInfo.DownloadUrl,
+				UseShellExecute = true,
+			});
+		}
+		catch
+		{
+		}
 	}
 
 	private void ApplyUiScale(double scale)

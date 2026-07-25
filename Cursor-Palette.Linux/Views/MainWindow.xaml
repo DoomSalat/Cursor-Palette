@@ -242,7 +242,7 @@
 		<Border Grid.Row="3"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 				Padding="12,6">
-			<Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+			<Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto">
 				<StackPanel Grid.Column="0"
 							Orientation="Horizontal"
 							VerticalAlignment="Center"
@@ -278,8 +278,18 @@
 						   VerticalAlignment="Center"
 						   PointerPressed="OnFooterClick" />
 
-				<Button x:Name="GitHubLink"
+				<Button x:Name="UpdateIndicator"
 						Grid.Column="4"
+						Content="↓"
+						FontSize="14"
+						Padding="8,4"
+						Margin="8,0,0,0"
+						VerticalAlignment="Center"
+						IsVisible="False"
+						Click="OnUpdateIndicatorClick" />
+
+				<Button x:Name="GitHubLink"
+						Grid.Column="5"
 						Content="⌥"
 						FontSize="14"
 						Padding="8,4"
