@@ -4,6 +4,7 @@
 					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
+	<sys:String x:Key="S.AppLogo.RandomTooltip">Random cursor from the entire board</sys:String>
 
 	<sys:String x:Key="S.Toast.Saved">Preset saved</sys:String>
 	<sys:String x:Key="S.Toast.Downloaded">Downloaded: {0}</sys:String>
@@ -48,6 +49,7 @@
 	<sys:String x:Key="S.Menu.Ungroup">Ungroup</sys:String>
 	<sys:String x:Key="S.Menu.DeleteGroup">Delete group</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Group cells together</sys:String>
+	<sys:String x:Key="S.Menu.RandomPreset">Random pick</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Group</sys:String>
 	<sys:String x:Key="S.Group.SelectedCount">{0} selected</sys:String>
 	<sys:String x:Key="S.Group.MembersCount">{0} preset(s)</sys:String>

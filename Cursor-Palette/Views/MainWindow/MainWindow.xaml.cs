@@ -102,6 +102,7 @@ public partial class MainWindow : Window
 	private const string LocMenuUngroup = "S.Menu.Ungroup";
 	private const string LocMenuDeleteGroup = "S.Menu.DeleteGroup";
 	private const string LocMenuConsolidateGroup = "S.Menu.ConsolidateGroup";
+	private const string LocMenuRandomPreset = "S.Menu.RandomPreset";
 	private const string LocGroupDefaultName = "S.Group.DefaultName";
 	private const string LocGroupSelectedCount = "S.Group.SelectedCount";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
