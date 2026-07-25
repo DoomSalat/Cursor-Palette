@@ -5,7 +5,7 @@
 - Rechtsklick auf Preset — Menü (bearbeiten, umbenennen, nach links/rechts verschieben, herunterladen, löschen, zu Gruppe hinzufügen).
 - 🧩 Symbol — einige Rollen stammen aus anderen Presets.
 - Kachel auf eine andere ziehen — Presets neu anordnen.
-- Strg+Klick auf Kacheln — mehrere Presets auswählen, dann unten Farbe und Namen wählen, um eine Gruppe zu erstellen. Klick auf die Gruppenkachel klappt sie als Stapel ein/aus; Rechtsklick zum Bearbeiten, Zusammenlegen, Auflösen oder Löschen.
+- Strg+Klick auf Kacheln — mehrere Presets auswählen, dann unten Farbe und Namen wählen, um eine Gruppe zu erstellen. Klick auf die Gruppenkachel klappt sie als Stapel ein/aus; Rechtsklick für Zufallsauswahl, Bearbeiten, Zusammenlegen, Auflösen oder Löschen.
 - Rechtsklick auf leeren Platz im Board — "Gruppe erstellen" öffnet einen Dialog für eine leere Gruppe.
 
 ## ➕ "Preset hinzufügen" — neues Preset erstellen.
@@ -26,3 +26,4 @@
 - "Aktuell" Text — keine Updates.
 🖱️ Rechtsklick auf die Kachel „Standard" — Systemcursor in Downloads herunterladen (PNG+GIF oder .cur/.ani).
 ⓘ Schaltfläche oben rechts — Fenster-Hilfe.
+🖱️ Klick auf das blaue Cursor-Symbol im App-Namen — zufälligen Cursor vom gesamten Board anwenden.

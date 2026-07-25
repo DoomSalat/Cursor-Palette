@@ -76,6 +76,11 @@ public partial class MainWindow
 		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Main")) { Owner = this }.ShowDialog();
 	}
 
+	private void OnAppLogoClick(object sender, MouseButtonEventArgs e)
+	{
+		ApplyRandomFromBoard();
+	}
+
 	private void OnOpenFolderToggleClick(object sender, RoutedEventArgs e)
 	{
 		AppState.SetOpenFolderAfterDownload(!AppState.GetOpenFolderAfterDownload());

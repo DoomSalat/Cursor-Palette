@@ -4,6 +4,7 @@
 					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
+	<sys:String x:Key="S.AppLogo.RandomTooltip">Cursor aleatorio de todo el tablero</sys:String>
 
 	<sys:String x:Key="S.Toast.Saved">Ajuste guardado</sys:String>
 	<sys:String x:Key="S.Toast.Downloaded">Descargado: {0}</sys:String>
@@ -48,6 +49,7 @@
 	<sys:String x:Key="S.Menu.Ungroup">Desagrupar</sys:String>
 	<sys:String x:Key="S.Menu.DeleteGroup">Eliminar grupo</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Agrupar celdas juntas</sys:String>
+	<sys:String x:Key="S.Menu.RandomPreset">Selección aleatoria</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Grupo</sys:String>
 	<sys:String x:Key="S.Group.SelectedCount">{0} seleccionado(s)</sys:String>
 	<sys:String x:Key="S.Group.MembersCount">{0} preajuste(s)</sys:String>

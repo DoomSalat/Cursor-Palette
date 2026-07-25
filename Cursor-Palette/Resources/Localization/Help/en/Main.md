@@ -5,7 +5,7 @@
 - Right-click a preset — menu (edit, rename, move left/right, download, delete, add to group).
 - 🧩 badge — some roles are borrowed from other presets.
 - Drag a tile onto another — reorder presets.
-- Ctrl+click tiles — select several presets, then pick a color and name at the bottom to create a group. Click the group tile to collapse/expand it as a deck; right-click it to edit, consolidate, ungroup or delete it.
+- Ctrl+click tiles — select several presets, then pick a color and name at the bottom to create a group. Click the group tile to collapse/expand it as a deck; right-click it for random pick, edit, consolidate, ungroup or delete it.
 - Right-click empty space on the board — "Create group" opens a dialog to make an empty group.
 
 ## ➕ "Add preset" — create a new preset.
@@ -26,3 +26,4 @@
 - "Up to date" text — no updates.
 🖱️ Right-click the "Default" tile — download system cursors to Downloads (PNG+GIF or .cur/.ani).
 ⓘ Top-right button — window help.
+🖱️ Click the blue cursor icon in the app name — apply a random cursor from the entire board.

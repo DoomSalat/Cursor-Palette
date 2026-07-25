@@ -48,10 +48,14 @@
 				</Grid.ColumnDefinitions>
 
 				<StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-					<Path Width="18" Height="18"
+					<Path x:Name="AppLogoIcon"
+						  Width="18" Height="18"
 						  Stretch="Uniform"
 						  Fill="{StaticResource Brush.Accent}"
 						  Margin="0,0,8,0"
+						  Cursor="Hand"
+						  ToolTip="{DynamicResource S.AppLogo.RandomTooltip}"
+						  MouseLeftButtonUp="OnAppLogoClick"
 						  Data="M 0,0 L 0,16 L 4.5,12 L 7,18 L 9,17 L 6.5,11 L 12,11 Z" />
 					<TextBlock Text="Cursor"
 						   FontSize="16" FontWeight="SemiBold"

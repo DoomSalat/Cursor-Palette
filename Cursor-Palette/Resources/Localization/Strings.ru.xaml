@@ -4,6 +4,7 @@
 					xml:space="preserve">
 
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
+	<sys:String x:Key="S.AppLogo.RandomTooltip">Случайный курсор со всей доски</sys:String>
 
 	<sys:String x:Key="S.Toast.Saved">Пресет сохранён</sys:String>
 	<sys:String x:Key="S.Toast.Downloaded">Скачано: {0}</sys:String>
@@ -48,6 +49,7 @@
 	<sys:String x:Key="S.Menu.Ungroup">Разгруппировать</sys:String>
 	<sys:String x:Key="S.Menu.DeleteGroup">Удалить группу</sys:String>
 	<sys:String x:Key="S.Menu.ConsolidateGroup">Собрать ячейки вместе</sys:String>
+	<sys:String x:Key="S.Menu.RandomPreset">Случайный выбор</sys:String>
 	<sys:String x:Key="S.Group.DefaultName">Группа</sys:String>
 	<sys:String x:Key="S.Group.SelectedCount">Выбрано: {0}</sys:String>
 	<sys:String x:Key="S.Group.MembersCount">Пресетов: {0}</sys:String>
