@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -52,6 +53,7 @@ public partial class MainWindow : Window
 	private const double ButtonSpacing = 8;
 	private const double DeleteDialogWidth = 360;
 	private const double DeleteDialogHeight = 160;
+	private const double UiZoomStep = 0.1;
 
 	private static readonly string[] SupportedLanguages = { "en", "ru", "de", "es", "ja", "zh" };
 	private static readonly string[] CursorFilePatterns = { "*.cur", "*.ani", "*.png", "*.jpg", "*.bmp", "*.gif" };
@@ -61,6 +63,8 @@ public partial class MainWindow : Window
 	private TextBlock? _sizeValueText;
 	private Button? _applySizeButton;
 	private Button? _languageButton;
+	private TextBlock? _zoomText;
+	private double _uiScale = 1.0;
 
 	public MainWindow()
 	{
@@ -72,6 +76,7 @@ public partial class MainWindow : Window
 		_sizeValueText = this.FindControl<TextBlock>("SizeValueText");
 		_applySizeButton = this.FindControl<Button>("ApplySizeButton");
 		_languageButton = this.FindControl<Button>("LanguageButton");
+		_zoomText = this.FindControl<TextBlock>("ZoomText");
 
 		if (_sizeSlider != null)
 		{
@@ -93,6 +98,33 @@ public partial class MainWindow : Window
 
 		AddHandler(DragDrop.DropEvent, OnDrop);
 		AddHandler(DragDrop.DragOverEvent, OnDragOver);
+
+		_uiScale = AppState.GetUiScale();
+		ApplyUiScale(_uiScale);
+	}
+
+	private void ApplyUiScale(double scale)
+	{
+		var rootGrid = this.FindControl<Grid>("RootGrid");
+		if (rootGrid != null)
+		{
+			rootGrid.RenderTransform = new ScaleTransform(scale, scale);
+			rootGrid.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
+		}
+
+		if (_zoomText != null)
+			_zoomText.Text = $"{(int)Math.Round(scale * 100)}%";
+	}
+
+	public void OnZoomInClick(object? sender, RoutedEventArgs e) => AdjustUiZoom(UiZoomStep);
+	public void OnZoomOutClick(object? sender, RoutedEventArgs e) => AdjustUiZoom(-UiZoomStep);
+
+	private void AdjustUiZoom(double delta)
+	{
+		_uiScale = Math.Clamp(Math.Round(_uiScale + delta, 2), AppState.UiScaleMin, AppState.UiScaleMax);
+
+		ApplyUiScale(_uiScale);
+		AppState.SetUiScale(_uiScale);
 	}
 
 	private void ApplyLocalization()

@@ -50,6 +50,19 @@
 						Content="EN"
 						VerticalAlignment="Center"
 						Click="OnLanguageClick" />
+				<Separator Margin="8,0" />
+				<Button x:Name="ZoomOutButton"
+						Content="−"
+						VerticalAlignment="Center"
+						Click="OnZoomOutClick" />
+				<TextBlock x:Name="ZoomText"
+						   Text="100%"
+						   VerticalAlignment="Center"
+						   Margin="4,0" />
+				<Button x:Name="ZoomInButton"
+						Content="+"
+						VerticalAlignment="Center"
+						Click="OnZoomInClick" />
 			</StackPanel>
 		</Border>
 
