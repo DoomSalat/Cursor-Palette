@@ -17,8 +17,6 @@ public partial class ImportPickerWindow : Window
 	private const double CellNameFontSize = 12;
 	private const double CellCountFontSize = 10;
 	private const double GroupIndicatorSize = 10;
-	private const string MixedBadgeText = "🧩";
-	private const double MixedBadgeFontSize = 13;
 
 	private const string BrushAccent = "Brush.Accent";
 	private const string BrushBorder = "Brush.Border";
@@ -208,19 +206,6 @@ public partial class ImportPickerWindow : Window
 
 		var content = new Grid();
 		content.Children.Add(panel);
-
-		if (entry.HasRoleRefs)
-		{
-			content.Children.Add(new TextBlock
-			{
-				Text = MixedBadgeText,
-				FontSize = MixedBadgeFontSize,
-				HorizontalAlignment = HorizontalAlignment.Right,
-				VerticalAlignment = VerticalAlignment.Top,
-				Margin = new Thickness(0, 4, 6, 0),
-				IsHitTestVisible = false,
-			});
-		}
 
 		if (_entryToColorKey.TryGetValue(entry.Key, out var colorKey))
 		{

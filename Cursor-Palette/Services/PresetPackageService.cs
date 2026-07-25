@@ -93,7 +93,6 @@ public static class PresetPackageService
 					BaseSize = preset.BaseSize,
 					UseScaling = preset.UseScaling,
 					Roles = roles,
-					RoleRefs = new Dictionary<string, RoleRef>(preset.RoleRefs),
 					LockedRoles = new HashSet<string>(preset.LockedRoles),
 				});
 			}
@@ -174,7 +173,6 @@ public static class PresetPackageService
 					BaseSize = preset.BaseSize,
 					UseScaling = preset.UseScaling,
 					Roles = roles,
-					RoleRefs = new Dictionary<string, RoleRef>(preset.RoleRefs),
 					LockedRoles = new HashSet<string>(preset.LockedRoles),
 				});
 			}
@@ -523,7 +521,6 @@ public static class PresetPackageService
 					RoleCount = preset.Roles.Count,
 					BaseSize = preset.BaseSize,
 					UseScaling = preset.UseScaling,
-					HasRoleRefs = preset.RoleRefs.Count > 0,
 					PreviewPath = previewFileName != null
 						? Path.Combine(filesDir, previewFileName)
 						: null,
@@ -582,7 +579,6 @@ public static class PresetPackageService
 						RoleCount = preset.Roles.Count,
 						BaseSize = preset.BaseSize,
 						UseScaling = preset.UseScaling,
-						HasRoleRefs = preset.RoleRefs.Count > 0,
 						PreviewPath = previewFileName != null
 							? Path.Combine(presetDir, FilesFolderName, previewFileName)
 							: null,
@@ -1049,9 +1045,6 @@ public static class PresetPackageService
 				draft.RoleSources[role] = new RoleSourceDraft { OwnFilePath = filePath };
 		}
 
-		foreach (var (role, refEntry) in preset.RoleRefs)
-			draft.RoleSources[role] = new RoleSourceDraft { Ref = refEntry };
-
 		foreach (var role in preset.LockedRoles)
 			draft.LockedRoles.Add(role);
 
@@ -1076,9 +1069,6 @@ public static class PresetPackageService
 			if (File.Exists(filePath))
 				draft.RoleSources[role] = new RoleSourceDraft { OwnFilePath = filePath };
 		}
-
-		foreach (var (role, refEntry) in preset.RoleRefs)
-			draft.RoleSources[role] = new RoleSourceDraft { Ref = refEntry };
 
 		foreach (var role in preset.LockedRoles)
 			draft.LockedRoles.Add(role);

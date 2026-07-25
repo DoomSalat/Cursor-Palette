@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using CursorPalette.Models;
 using CursorPalette.Services;
 
 namespace CursorPalette.Views;
@@ -112,6 +113,21 @@ public partial class MainWindow
 			? _presets.FirstOrDefault(preset => preset.Id == _activePresetId)
 			: null;
 		var initialValue = activePreset?.UseScaling ?? AppState.GetScaleCursorsEnabled();
+
+		if (activePreset != null)
+		{
+			_activeSourceValues = new Dictionary<string, string>();
+			foreach (var role in CursorRoles.All)
+			{
+				var path = PresetStore.GetRoleFilePath(activePreset, role.RegistryName);
+				_activeSourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
+			}
+			_activeUseScaling = AppState.GetScaleCursorsEnabled() && activePreset.UseScaling;
+		}
+		else
+		{
+			_activeUseScaling = AppState.GetScaleCursorsEnabled();
+		}
 
 		SetScaleCheckboxSilently(initialValue);
 	}

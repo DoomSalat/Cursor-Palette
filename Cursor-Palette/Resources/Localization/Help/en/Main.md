@@ -12,7 +12,8 @@
 - Drag .cur/.ani files or a folder onto the window.
 
 ## 🎨 Grid size — changes gallery cell size.
-📏 Cursor size — slider + "Apply" changes system cursor size.
+📏 Cursor size — slider changes system cursor size; applied immediately.
+{img:ExpandIcon32} on a cell — scaling is enabled for that preset.
 ↩️ "Undo" — revert to previous cursor set.
 🌙/☀ — toggle dark/light theme.
 🌐 — change interface language.

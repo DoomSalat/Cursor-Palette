@@ -16,7 +16,6 @@ public sealed class PackageEntry
 	public int RoleCount { get; init; }
 	public int BaseSize { get; init; }
 	public bool UseScaling { get; init; }
-	public bool HasRoleRefs { get; init; }
 	public string? PreviewPath { get; init; }
 }
 
@@ -74,7 +73,6 @@ public sealed class ArchiveManifestPreset
 	public int BaseSize { get; set; }
 	public bool UseScaling { get; set; }
 	public Dictionary<string, string> Roles { get; set; } = new();
-	public Dictionary<string, RoleRef> RoleRefs { get; set; } = new();
 	public HashSet<string> LockedRoles { get; set; } = new();
 }
 
