@@ -156,6 +156,10 @@
 											  Header="Download"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuDownload" />
+									<MenuItem x:Name="MenuDownloadSystemItem"
+											  Header="Download system cursors"
+											  IsVisible="{Binding IsDefaultCell}"
+											  Click="OnMenuDownloadSystem" />
 									<MenuItem x:Name="MenuToggleCollapseItem"
 											  Header="Collapse/Expand"
 											  IsVisible="{Binding IsGroup}"

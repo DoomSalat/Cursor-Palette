@@ -940,6 +940,45 @@ public partial class MainWindow : Window
 		}
 	}
 
+	private const string LocToastSystemCursorsDownloaded = "S.Toast.SystemCursorsDownloaded";
+	private const string LocWindowsDefault = "S.WindowsDefault";
+	private const string DownloadsFolderName = "Downloads";
+
+	public void OnMenuDownloadSystem(object? sender, RoutedEventArgs e)
+	{
+		var cursorService = CursorServiceProvider.Current as LinuxCursorService;
+		if (cursorService == null)
+			return;
+
+		var currentValues = cursorService.ReadCurrentValues();
+		if (currentValues.Count == 0)
+			return;
+
+		var downloadsFolder = GetDownloadsFolder();
+		var folderName = Loc.Get(LocWindowsDefault);
+		var destFolder = System.IO.Path.Combine(downloadsFolder, folderName);
+		Directory.CreateDirectory(destFolder);
+
+		var count = 0;
+		foreach (var (roleName, sourcePath) in currentValues)
+		{
+			if (!File.Exists(sourcePath))
+				continue;
+
+			var destPath = System.IO.Path.Combine(destFolder, $"{roleName}.xcursor");
+			File.Copy(sourcePath, destPath, overwrite: true);
+			count++;
+		}
+
+		ShowToast(Loc.Format(LocToastSystemCursorsDownloaded, count));
+	}
+
+	private static string GetDownloadsFolder()
+	{
+		var path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), DownloadsFolderName);
+		return Directory.Exists(path) ? path : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+	}
+
 	private async void OnUndoClick(object? sender, RoutedEventArgs e)
 	{
 		await _viewModel.UndoAsync();
