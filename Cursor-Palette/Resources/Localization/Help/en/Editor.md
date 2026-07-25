@@ -17,5 +17,5 @@
 📝 Enter a preset name at the bottom.
 {img:DownloadIcon32} Left of the name — download the whole preset as a folder to Downloads.
 📏 Size slider — set cursor size for this preset.
-{img:ExpandIcon32} Scaling checkbox — when enabled, cursors are scaled to the preset size using nearest-neighbor. Enabled by default for new presets.
+{img:ExpandIcon32} Scaling checkbox — when enabled, cursors are scaled to the preset size using nearest-neighbor interpolation, keeping pixels sharp and crisp instead of blurry. Enabled by default for new presets.
 💾 "Save" — save preset to gallery (size and scaling are saved together).

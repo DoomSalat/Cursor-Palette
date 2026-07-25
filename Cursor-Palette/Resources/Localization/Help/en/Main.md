@@ -13,7 +13,7 @@
 
 ## 🎨 Grid size — changes gallery cell size.
 📏 Cursor size — slider changes system cursor size; applied immediately.
-{img:ExpandIcon32} on a cell — scaling is enabled for that preset.
+{img:ExpandIcon32} on a cell — scaling is enabled; cursors are scaled to the preset size with sharp nearest-neighbor pixels instead of blurry stretching.
 ↩️ "Undo" — revert to previous cursor set.
 🌙/☀ — toggle dark/light theme.
 🌐 — change interface language.

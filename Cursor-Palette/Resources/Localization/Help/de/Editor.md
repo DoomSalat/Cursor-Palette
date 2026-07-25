@@ -16,5 +16,6 @@
 
 📝 Preset-Namen unten eingeben.
 {img:DownloadIcon32} Links vom Namen — das gesamte Preset als Ordner in die Downloads herunterladen.
-📏 Größenregler — Cursorgröße in Plätzen vorschauen.
-💾 "Speichern" — Preset in Galerie speichern.
+📏 Größenregler — Cursorgröße für dieses Preset festlegen.
+{img:ExpandIcon32} Skalierungs-Checkbox — wenn aktiviert, werden Cursor auf die Preset-Größe skaliert (Nearest-Neighbor), sodass Pixel scharf und klar bleiben statt verschwommen. Standardmäßig für neue Presets aktiviert.
+💾 "Speichern" — Preset in Galerie speichern (Größe und Skalierung werden zusammen gespeichert).
