@@ -1,12 +1,14 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CursorPalette.Linux.Services;
 using CursorPalette.Linux.ViewModels;
 using CursorPalette.Models;
@@ -68,6 +70,8 @@ public partial class MainWindow : Window
 	private Slider? _cellScaleSlider;
 	private TextBlock? _cellScaleValueText;
 	private double _cellScale = 1.0;
+	private Border? _loadingOverlay;
+	private DispatcherTimer? _loadingSpinnerTimer;
 
 	public MainWindow()
 	{
@@ -167,6 +171,66 @@ public partial class MainWindow : Window
 		AppState.SetGalleryCellScale(_cellScale);
 	}
 
+	private void ShowLoadingOverlay()
+	{
+		if (_loadingOverlay != null)
+		{
+			_loadingOverlay.IsVisible = true;
+			return;
+		}
+
+		var spinner = new Ellipse
+		{
+			Width = 32,
+			Height = 32,
+			Stroke = Brushes.CornflowerBlue,
+			StrokeThickness = 3,
+			StrokeDashArray = new Avalonia.Collections.AvaloniaList<double> { 28, 9 },
+			RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative),
+			RenderTransform = new RotateTransform(0),
+		};
+
+		_loadingSpinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+		var angle = 0d;
+		_loadingSpinnerTimer.Tick += (_, _) =>
+		{
+			angle = (angle + 6) % 360;
+			spinner.RenderTransform = new RotateTransform(angle);
+		};
+
+		_loadingOverlay = new Border
+		{
+			Background = new SolidColorBrush(0xB3000000),
+			IsHitTestVisible = false,
+			IsVisible = true,
+			ZIndex = 3000,
+			Child = spinner,
+			HorizontalAlignment = HorizontalAlignment.Stretch,
+			VerticalAlignment = VerticalAlignment.Stretch,
+		};
+
+		var root = this.FindControl<Panel>("RootGrid");
+		root?.Children.Add(_loadingOverlay);
+		_loadingSpinnerTimer.Start();
+	}
+
+	private void HideLoadingOverlay()
+	{
+		if (_loadingSpinnerTimer != null)
+		{
+			_loadingSpinnerTimer.Stop();
+			_loadingSpinnerTimer = null;
+		}
+
+		if (_loadingOverlay != null)
+		{
+			_loadingOverlay.IsVisible = false;
+			var root = this.FindControl<Panel>("RootGrid");
+			root?.Children.Remove(_loadingOverlay);
+			_loadingOverlay = null;
+		}
+	}
+
 	private void ApplyLocalization()
 	{
 		if (_applySizeButton != null)
@@ -239,8 +303,16 @@ public partial class MainWindow : Window
 			return;
 
 		var size = (int)Math.Round(_sizeSlider.Value);
-		await _viewModel.ApplySizeAsync(size);
-		ShowToast(Loc.Get(LocToastSizeApplied));
+		ShowLoadingOverlay();
+		try
+		{
+			await _viewModel.ApplySizeAsync(size);
+			ShowToast(Loc.Get(LocToastSizeApplied));
+		}
+		finally
+		{
+			HideLoadingOverlay();
+		}
 	}
 
 	public async void OnPresetClick(object? sender, PointerPressedEventArgs e)
@@ -262,8 +334,16 @@ public partial class MainWindow : Window
 
 		if (item.IsPreset && item.Preset != null)
 		{
-			await _viewModel.ApplyPresetAsync(item.Preset);
-			ShowToast(Loc.Get(LocToastSaved));
+			ShowLoadingOverlay();
+			try
+			{
+				await _viewModel.ApplyPresetAsync(item.Preset);
+				ShowToast(Loc.Get(LocToastSaved));
+			}
+			finally
+			{
+				HideLoadingOverlay();
+			}
 		}
 	}
 
