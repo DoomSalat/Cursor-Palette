@@ -21,6 +21,8 @@
 	<sys:String x:Key="S.CursorSize">Размер курсора</sys:String>
 	<sys:String x:Key="S.ApplySize">Применить</sys:String>
 	<sys:String x:Key="S.ApplySize.Tooltip">Применить выбранный размер курсора</sys:String>
+	<sys:String x:Key="S.ScaleCursors">Масштаб</sys:String>
+	<sys:String x:Key="S.ScaleCursors.Tooltip">Пред-масштабировать файлы курсоров ближайшим соседом перед применением, чтобы избежать билинейной фильтрации Windows</sys:String>
 	<sys:String x:Key="S.GallerySize">Размер сетки</sys:String>
 	<sys:String x:Key="S.UiZoom.OutTooltip">Уменьшить интерфейс</sys:String>
 	<sys:String x:Key="S.UiZoom.InTooltip">Увеличить интерфейс</sys:String>
@@ -36,6 +38,7 @@
 	<sys:String x:Key="S.Menu.MoveLeft">Переместить влево</sys:String>
 	<sys:String x:Key="S.Menu.MoveRight">Переместить вправо</sys:String>
 	<sys:String x:Key="S.Menu.Download">Скачать пресет</sys:String>
+	<sys:String x:Key="S.Menu.UseScaling">Использовать масштабирование</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Удалить</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">ПКМ — меню</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Часть ролей взята из других пресетов</sys:String>

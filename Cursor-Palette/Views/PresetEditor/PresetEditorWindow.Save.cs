@@ -32,7 +32,7 @@ public partial class PresetEditorWindow
 			.Select(slot => slot.Role.RegistryName)
 			.ToHashSet();
 
-		var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, lockedRoles);
+		var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, _useScaling, lockedRoles);
 
 		if (path == null)
 			return;
@@ -119,7 +119,7 @@ public partial class PresetEditorWindow
 			return;
 		}
 
-		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, BaseSize = _baseSize };
+		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, BaseSize = _baseSize, UseScaling = _useScaling };
 
 		foreach (var slot in _slots.Where(slot => slot.SourcePath != null || slot.RefPresetId != null))
 		{

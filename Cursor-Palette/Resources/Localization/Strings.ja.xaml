@@ -16,6 +16,8 @@
 	<sys:String x:Key="S.CursorSize">カーソルサイズ</sys:String>
 	<sys:String x:Key="S.ApplySize">適用</sys:String>
 	<sys:String x:Key="S.ApplySize.Tooltip">選択したカーソルサイズを適用する</sys:String>
+	<sys:String x:Key="S.ScaleCursors">スケール</sys:String>
+	<sys:String x:Key="S.ScaleCursors.Tooltip">適用前にカーソルファイルを最近傍補間でスケールし、Windowsのバイリニアフィルタリングを回避します</sys:String>
 	<sys:String x:Key="S.GallerySize">グリッドサイズ</sys:String>
 	<sys:String x:Key="S.UiZoom.OutTooltip">画面を縮小</sys:String>
 	<sys:String x:Key="S.UiZoom.InTooltip">画面を拡大</sys:String>
@@ -31,6 +33,7 @@
 	<sys:String x:Key="S.Menu.MoveLeft">左に移動</sys:String>
 	<sys:String x:Key="S.Menu.MoveRight">右に移動</sys:String>
 	<sys:String x:Key="S.Menu.Download">プリセットをダウンロード</sys:String>
+	<sys:String x:Key="S.Menu.UseScaling">スケーリングを使用</sys:String>
 	<sys:String x:Key="S.Menu.Delete">削除</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">右クリックでメニュー</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">一部のロールは他のプリセットから使用されています</sys:String>

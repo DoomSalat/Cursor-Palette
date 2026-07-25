@@ -278,6 +278,24 @@ public partial class MainWindow
 		};
 		cellContent.Children.Add(selectionBadge);
 
+		if (preset.UseScaling)
+		{
+			var stairIcon = new Image
+			{
+				Width = 20 * CellFontScale,
+				Height = 20 * CellFontScale,
+				SnapsToDevicePixels = true,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				VerticalAlignment = VerticalAlignment.Bottom,
+				Margin = new Thickness(0, 0, 8, 8),
+				IsHitTestVisible = false,
+				Source = new System.Windows.Media.Imaging.BitmapImage(
+					new Uri(ExpandIconUri)),
+			};
+			RenderOptions.SetBitmapScalingMode(stairIcon, BitmapScalingMode.NearestNeighbor);
+			cellContent.Children.Add(stairIcon);
+		}
+
 		var cell = new Border
 		{
 			Width = CellSize * _cellScale,
@@ -405,6 +423,21 @@ public partial class MainWindow
 		menu.Items.Add(moveLeftItem);
 		menu.Items.Add(moveRightItem);
 		menu.Items.Add(downloadItem);
+
+		var useScalingItem = new MenuItem
+		{
+			Header = Loc.Get(LocMenuUseScaling),
+			IsCheckable = true,
+			IsChecked = preset.UseScaling,
+		};
+		useScalingItem.Click += (_, _) =>
+		{
+			var newValue = !preset.UseScaling;
+			PresetStore.UpdateUseScaling(preset.Id, newValue);
+			preset.UseScaling = newValue;
+			ReloadGallery();
+		};
+		menu.Items.Add(useScalingItem);
 
 		var assignableGroups = _groups.Where(candidate => group == null || candidate.Id != group.Id).ToList();
 		if (assignableGroups.Count > 0)

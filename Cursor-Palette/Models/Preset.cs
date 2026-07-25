@@ -10,6 +10,8 @@ public sealed class Preset
 	public int SortOrder { get; set; }
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
 
+	public bool UseScaling { get; set; }
+
 	public Dictionary<string, string> Roles { get; init; } = new();
 	public Dictionary<string, RoleRef> RoleRefs { get; init; } = new();
 	public HashSet<string> LockedRoles { get; init; } = new();
@@ -26,6 +28,8 @@ public sealed class PresetDraft
 	public string? Id { get; set; }
 	public string Name { get; set; } = "";
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
+	public bool UseScaling { get; set; }
+
 	public Dictionary<string, RoleSourceDraft> RoleSources { get; init; } = new();
 	public HashSet<string> LockedRoles { get; init; } = new();
 }

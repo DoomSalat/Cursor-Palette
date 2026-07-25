@@ -98,8 +98,8 @@
 				Padding="16,10">
 			<Grid>
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" MinWidth="240" />
-					<ColumnDefinition Width="*" MinWidth="360" />
+					<ColumnDefinition Width="Auto" MinWidth="160" />
+					<ColumnDefinition Width="*" MinWidth="320" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
@@ -107,7 +107,7 @@
 					<Grid VerticalAlignment="Center">
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="Auto" />
-							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
 							<ColumnDefinition Width="Auto" />
 						</Grid.ColumnDefinitions>
 
@@ -116,14 +116,14 @@
 									 VerticalAlignment="Center" />
 						<Slider x:Name="CellScaleSlider" Grid.Column="1"
 								Style="{StaticResource Style.Slider}"
-								MinWidth="60" Margin="8,0"
+								Width="80" Margin="8,0"
 								Minimum="{x:Static services:AppState.GalleryCellScaleMin}"
 								Maximum="{x:Static services:AppState.GalleryCellScaleMax}"
 								TickFrequency="0.1" IsSnapToTickEnabled="True"
 								VerticalAlignment="Center"
 								ValueChanged="OnCellScaleSliderValueChanged" />
 						<TextBlock x:Name="CellScaleValueText" Grid.Column="2"
-									 Width="46"
+									 Width="40"
 									 Foreground="{StaticResource Brush.TextDim}"
 									 VerticalAlignment="Center" />
 					</Grid>
@@ -136,6 +136,7 @@
 							<ColumnDefinition Width="*" />
 							<ColumnDefinition Width="Auto" />
 							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
 						</Grid.ColumnDefinitions>
 
 						<TextBlock Grid.Column="0" Text="{DynamicResource S.CursorSize}"
@@ -143,7 +144,7 @@
 									 VerticalAlignment="Center" />
 						<Slider x:Name="SizeSlider" Grid.Column="1"
 								Style="{StaticResource Style.Slider}"
-								MinWidth="90" Margin="8,0"
+								MinWidth="80" Margin="8,0"
 								Minimum="1" Maximum="15"
 								TickFrequency="1" IsSnapToTickEnabled="True"
 								VerticalAlignment="Center"
@@ -152,7 +153,18 @@
 									 Width="46"
 									 Foreground="{StaticResource Brush.TextDim}"
 									 VerticalAlignment="Center" />
-						<Button x:Name="ApplySizeButton" Grid.Column="3"
+						<CheckBox x:Name="ScaleCursorsCheckBox" Grid.Column="3"
+										Style="{StaticResource Style.ToggleCheckBox}"
+										ToolTip="{DynamicResource S.ScaleCursors.Tooltip}"
+										Margin="8,0,0,0"
+										VerticalAlignment="Center"
+										Checked="OnScaleCursorsCheckedChanged"
+										Unchecked="OnScaleCursorsCheckedChanged">
+							<Image x:Name="ScaleCursorsIcon" Width="16" Height="16"
+								   SnapsToDevicePixels="True"
+								   RenderOptions.BitmapScalingMode="NearestNeighbor" />
+						</CheckBox>
+						<Button x:Name="ApplySizeButton" Grid.Column="4"
 								Style="{StaticResource Style.Button}"
 								Content="{DynamicResource S.ApplySize}"
 								ToolTip="{DynamicResource S.ApplySize.Tooltip}"

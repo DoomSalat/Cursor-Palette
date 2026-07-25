@@ -17,6 +17,8 @@ public partial class ImportPickerWindow : Window
 	private const double CellNameFontSize = 12;
 	private const double CellCountFontSize = 10;
 	private const double GroupIndicatorSize = 10;
+	private const string MixedBadgeText = "🧩";
+	private const double MixedBadgeFontSize = 13;
 
 	private const string BrushAccent = "Brush.Accent";
 	private const string BrushBorder = "Brush.Border";
@@ -29,6 +31,7 @@ public partial class ImportPickerWindow : Window
 
 	private const string PixelSuffix = "px";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
+	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
 
 	private readonly List<(PackageEntry Entry, Border Cell, TextBlock SizeText)> _tiles = new();
 	private readonly List<(PackageGroupEntry Group, Border Cell)> _groupTiles = new();
@@ -206,6 +209,19 @@ public partial class ImportPickerWindow : Window
 		var content = new Grid();
 		content.Children.Add(panel);
 
+		if (entry.HasRoleRefs)
+		{
+			content.Children.Add(new TextBlock
+			{
+				Text = MixedBadgeText,
+				FontSize = MixedBadgeFontSize,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				VerticalAlignment = VerticalAlignment.Top,
+				Margin = new Thickness(0, 4, 6, 0),
+				IsHitTestVisible = false,
+			});
+		}
+
 		if (_entryToColorKey.TryGetValue(entry.Key, out var colorKey))
 		{
 			content.Children.Add(new Border
@@ -218,6 +234,24 @@ public partial class ImportPickerWindow : Window
 				VerticalAlignment = VerticalAlignment.Top,
 				Margin = new Thickness(6),
 			});
+		}
+
+		if (entry.UseScaling)
+		{
+			var scalingIcon = new Image
+			{
+				Width = 16,
+				Height = 16,
+				SnapsToDevicePixels = true,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				VerticalAlignment = VerticalAlignment.Bottom,
+				Margin = new Thickness(0, 0, 6, 6),
+				IsHitTestVisible = false,
+				Source = new System.Windows.Media.Imaging.BitmapImage(
+					new Uri(ExpandIconUri)),
+			};
+			RenderOptions.SetBitmapScalingMode(scalingIcon, BitmapScalingMode.NearestNeighbor);
+			content.Children.Add(scalingIcon);
 		}
 
 		var cell = new Border

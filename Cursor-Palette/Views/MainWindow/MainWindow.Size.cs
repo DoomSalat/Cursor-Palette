@@ -17,14 +17,34 @@ public partial class MainWindow
 		UpdateApplySizeButtonHighlight(sizeInPixels);
 	}
 
-	private void UpdateApplySizeButtonHighlight(int sizeInPixels) =>
+	private void UpdateApplySizeButtonHighlight(int sizeInPixels)
+	{
+		var sizeChanged = sizeInPixels != _baselineSizePx;
+		var scaleChanged = _scaleCursorsReady && (ScaleCursorsCheckBox.IsChecked == true) != _baselineScaleEnabled;
 		ApplySizeButton.Style = (Style)Application.Current.Resources[
-			sizeInPixels != _baselineSizePx ? StyleAccentButton : StyleButton];
+			sizeChanged || scaleChanged ? StyleAccentButton : StyleButton];
+	}
 
 	private void OnApplySizeButtonClick(object sender, RoutedEventArgs e)
 	{
 		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
+		var scaleEnabled = ScaleCursorsCheckBox.IsChecked == true;
+		AppState.SetScaleCursorsEnabled(scaleEnabled);
+
+		if (_activePresetId != null)
+		{
+			PresetStore.UpdateUseScaling(_activePresetId, scaleEnabled);
+
+			var preset = _presets.FirstOrDefault(preset => preset.Id == _activePresetId);
+			if (preset != null)
+				preset.UseScaling = scaleEnabled;
+		}
+
+		_baselineScaleEnabled = scaleEnabled;
+		_activeUseScaling = scaleEnabled;
+
 		ApplyAndPersistSize(sizeInPixels);
+		ReloadGallery();
 	}
 
 	public async void ApplyAndPersistSize(int sizeInPixels)
@@ -34,7 +54,20 @@ public partial class MainWindow
 			ShowLoadingOverlay();
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
-			await Task.Run(() => RegistryCursorService.SetBaseSize(sizeInPixels));
+			var sourceValues = _activeSourceValues;
+			var useScaling = _activeUseScaling;
+
+			await Task.Run(() =>
+			{
+				if (sourceValues != null)
+				{
+					var valuesToApply = useScaling
+						? CursorScalerService.ScaleValues(sourceValues, sizeInPixels)
+						: sourceValues;
+					RegistryCursorService.ApplyValues(valuesToApply);
+				}
+				RegistryCursorService.SetBaseSize(sizeInPixels);
+			});
 
 			if (_activePresetId != null)
 			{
@@ -69,4 +102,34 @@ public partial class MainWindow
 	}
 
 	public void SyncSizeSlider(int sizeInPixels) => SetSliderSilently(sizeInPixels);
+
+	private bool _scaleCursorsReady;
+	private bool _baselineScaleEnabled;
+
+	public void InitScaleCursorsCheckBox()
+	{
+		var activePreset = _activePresetId != null
+			? _presets.FirstOrDefault(preset => preset.Id == _activePresetId)
+			: null;
+		var initialValue = activePreset?.UseScaling ?? AppState.GetScaleCursorsEnabled();
+
+		SetScaleCheckboxSilently(initialValue);
+	}
+
+	private void SetScaleCheckboxSilently(bool value)
+	{
+		_scaleCursorsReady = false;
+		ScaleCursorsCheckBox.IsChecked = value;
+		_baselineScaleEnabled = value;
+		_scaleCursorsReady = true;
+	}
+
+	private void OnScaleCursorsCheckedChanged(object sender, RoutedEventArgs e)
+	{
+		if (!_scaleCursorsReady)
+			return;
+
+		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
+		UpdateApplySizeButtonHighlight(sizeInPixels);
+	}
 }

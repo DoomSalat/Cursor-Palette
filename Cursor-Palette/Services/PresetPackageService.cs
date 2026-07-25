@@ -91,7 +91,9 @@ public static class PresetPackageService
 					CreatedAt = preset.CreatedAt,
 					SortOrder = preset.SortOrder,
 					BaseSize = preset.BaseSize,
+					UseScaling = preset.UseScaling,
 					Roles = roles,
+					RoleRefs = new Dictionary<string, RoleRef>(preset.RoleRefs),
 					LockedRoles = new HashSet<string>(preset.LockedRoles),
 				});
 			}
@@ -170,7 +172,9 @@ public static class PresetPackageService
 					CreatedAt = preset.CreatedAt,
 					SortOrder = preset.SortOrder,
 					BaseSize = preset.BaseSize,
+					UseScaling = preset.UseScaling,
 					Roles = roles,
+					RoleRefs = new Dictionary<string, RoleRef>(preset.RoleRefs),
 					LockedRoles = new HashSet<string>(preset.LockedRoles),
 				});
 			}
@@ -262,7 +266,7 @@ public static class PresetPackageService
 	}
 
 	public static string? DownloadPresetAsFolder(string presetName, IReadOnlyDictionary<string, string> roleFiles,
-		int baseSize, IReadOnlySet<string>? lockedRoles = null)
+		int baseSize, bool useScaling = false, IReadOnlySet<string>? lockedRoles = null)
 	{
 		var destDir = GetUniqueDownloadFolderPath(SanitizeName(presetName));
 		Directory.CreateDirectory(destDir);
@@ -295,6 +299,7 @@ public static class PresetPackageService
 			Version = FormatVersion,
 			Name = presetName,
 			BaseSize = baseSize,
+			UseScaling = useScaling,
 			LockedRoles = lockedRoles != null ? new HashSet<string>(lockedRoles) : new HashSet<string>(),
 		};
 
@@ -517,6 +522,8 @@ public static class PresetPackageService
 					DisplayName = preset.Name,
 					RoleCount = preset.Roles.Count,
 					BaseSize = preset.BaseSize,
+					UseScaling = preset.UseScaling,
+					HasRoleRefs = preset.RoleRefs.Count > 0,
 					PreviewPath = previewFileName != null
 						? Path.Combine(filesDir, previewFileName)
 						: null,
@@ -574,6 +581,8 @@ public static class PresetPackageService
 						DisplayName = preset.Name,
 						RoleCount = preset.Roles.Count,
 						BaseSize = preset.BaseSize,
+						UseScaling = preset.UseScaling,
+						HasRoleRefs = preset.RoleRefs.Count > 0,
 						PreviewPath = previewFileName != null
 							? Path.Combine(presetDir, FilesFolderName, previewFileName)
 							: null,
@@ -834,6 +843,7 @@ public static class PresetPackageService
 				DisplayName = marker.Name,
 				RoleCount = cursorFiles.Count,
 				BaseSize = marker.BaseSize > 0 ? marker.BaseSize : RegistryCursorService.DefaultBaseSize,
+				UseScaling = marker.UseScaling,
 				PreviewPath = previewPath,
 			},
 		};
@@ -851,6 +861,7 @@ public static class PresetPackageService
 		{
 			Name = marker.Name,
 			BaseSize = marker.BaseSize > 0 ? marker.BaseSize : RegistryCursorService.DefaultBaseSize,
+			UseScaling = marker.UseScaling,
 		};
 
 		foreach (var file in Directory.EnumerateFiles(extractedDir).Where(IsCursorFile))
@@ -1029,7 +1040,7 @@ public static class PresetPackageService
 			return null;
 
 		var filesDir = Path.Combine(extractedDir, PresetsFolderName, preset.Id, FilesFolderName);
-		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize };
+		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize, UseScaling = preset.UseScaling };
 
 		foreach (var (role, fileName) in preset.Roles)
 		{
@@ -1037,6 +1048,9 @@ public static class PresetPackageService
 			if (File.Exists(filePath))
 				draft.RoleSources[role] = new RoleSourceDraft { OwnFilePath = filePath };
 		}
+
+		foreach (var (role, refEntry) in preset.RoleRefs)
+			draft.RoleSources[role] = new RoleSourceDraft { Ref = refEntry };
 
 		foreach (var role in preset.LockedRoles)
 			draft.LockedRoles.Add(role);
@@ -1054,7 +1068,7 @@ public static class PresetPackageService
 			return null;
 
 		var filesDir = Path.Combine(presetDir, FilesFolderName);
-		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize };
+		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize, UseScaling = preset.UseScaling };
 
 		foreach (var (role, fileName) in preset.Roles)
 		{
@@ -1062,6 +1076,9 @@ public static class PresetPackageService
 			if (File.Exists(filePath))
 				draft.RoleSources[role] = new RoleSourceDraft { OwnFilePath = filePath };
 		}
+
+		foreach (var (role, refEntry) in preset.RoleRefs)
+			draft.RoleSources[role] = new RoleSourceDraft { Ref = refEntry };
 
 		foreach (var role in preset.LockedRoles)
 			draft.LockedRoles.Add(role);

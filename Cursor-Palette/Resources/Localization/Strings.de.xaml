@@ -16,6 +16,8 @@
 	<sys:String x:Key="S.CursorSize">Cursorgröße</sys:String>
 	<sys:String x:Key="S.ApplySize">Anwenden</sys:String>
 	<sys:String x:Key="S.ApplySize.Tooltip">Ausgewählte Cursorgröße anwenden</sys:String>
+	<sys:String x:Key="S.ScaleCursors">Skalieren</sys:String>
+	<sys:String x:Key="S.ScaleCursors.Tooltip">Cursor-Dateien vor dem Anwenden mit Nearest-Neighbor skalieren, um bilineare Filterung durch Windows zu vermeiden</sys:String>
 	<sys:String x:Key="S.GallerySize">Rastergröße</sys:String>
 	<sys:String x:Key="S.UiZoom.OutTooltip">Ansicht verkleinern</sys:String>
 	<sys:String x:Key="S.UiZoom.InTooltip">Ansicht vergrößern</sys:String>
@@ -31,6 +33,7 @@
 	<sys:String x:Key="S.Menu.MoveLeft">Nach links verschieben</sys:String>
 	<sys:String x:Key="S.Menu.MoveRight">Nach rechts verschieben</sys:String>
 	<sys:String x:Key="S.Menu.Download">Preset herunterladen</sys:String>
+	<sys:String x:Key="S.Menu.UseScaling">Skalierung verwenden</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Löschen</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Rechtsklick für Menü</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Einige Rollen stammen aus anderen Presets</sys:String>

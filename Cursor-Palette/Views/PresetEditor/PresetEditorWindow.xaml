@@ -154,12 +154,17 @@
 								 Width="46"
 								 Foreground="{StaticResource Brush.TextDim}"
 								 VerticalAlignment="Center" />
-					<Button x:Name="EditorApplySizeButton" Grid.Column="3"
-							Style="{StaticResource Style.Button}"
-							Content="{DynamicResource S.ApplySize}"
-							ToolTip="{DynamicResource S.ApplySize.Tooltip}"
+					<CheckBox x:Name="EditorUseScalingCheckBox" Grid.Column="3"
+							Style="{StaticResource Style.ToggleCheckBox}"
+							ToolTip="{DynamicResource S.ScaleCursors.Tooltip}"
 							Margin="8,0,0,0"
-							Click="OnEditorApplySizeClick" />
+							VerticalAlignment="Center"
+							Checked="OnEditorUseScalingCheckedChanged"
+							Unchecked="OnEditorUseScalingCheckedChanged">
+							<Image x:Name="EditorUseScalingIcon" Width="16" Height="16"
+							   SnapsToDevicePixels="True"
+							   RenderOptions.BitmapScalingMode="NearestNeighbor" />
+					</CheckBox>
 				</Grid>
 			</Border>
 		</Border>

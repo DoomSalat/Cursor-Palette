@@ -38,19 +38,28 @@ public partial class MainWindow
 			ShowLoadingOverlay();
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
-			var values = new Dictionary<string, string>();
+			var sourceValues = new Dictionary<string, string>();
 			foreach (var role in CursorRoles.All)
 			{
 				var path = PresetStore.GetRoleFilePath(preset, role.RegistryName);
-				values[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
+				sourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
 			}
+
+			var baseSize = preset.BaseSize;
+			var useScaling = AppState.GetScaleCursorsEnabled() && preset.UseScaling;
 
 			await Task.Run(() =>
 			{
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
-				RegistryCursorService.ApplyValues(values);
-				RegistryCursorService.SetBaseSize(preset.BaseSize);
+				var scaledValues = useScaling
+					? CursorScalerService.ScaleValues(sourceValues, baseSize)
+					: sourceValues;
+				RegistryCursorService.ApplyValues(scaledValues);
+				RegistryCursorService.SetBaseSize(baseSize);
 			});
+
+			_activeSourceValues = sourceValues;
+			_activeUseScaling = useScaling;
 
 			_baselineSizePx = preset.BaseSize;
 			SetSliderSilently(preset.BaseSize);
@@ -58,6 +67,7 @@ public partial class MainWindow
 			AppState.SetActivePresetId(preset.Id);
 
 			ReloadGallery();
+			SetScaleCheckboxSilently(preset.UseScaling);
 			UpdateUndoButton();
 		}
 		catch (Exception exception)
@@ -82,13 +92,21 @@ public partial class MainWindow
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
 			var defaultSize = AppState.GetDefaultBaseSize();
+			var defaultValues = RegistryCursorService.GetWindowsDefaultValues();
+			var defaultUseScaling = AppState.GetScaleCursorsEnabled();
 
 			await Task.Run(() =>
 			{
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
-				RegistryCursorService.ApplyValues(RegistryCursorService.GetWindowsDefaultValues());
+				var scaledValues = defaultUseScaling
+					? CursorScalerService.ScaleValues(defaultValues, defaultSize)
+					: defaultValues;
+				RegistryCursorService.ApplyValues(scaledValues);
 				RegistryCursorService.SetBaseSize(defaultSize);
 			});
+
+			_activeSourceValues = defaultValues;
+			_activeUseScaling = defaultUseScaling;
 
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
@@ -97,6 +115,7 @@ public partial class MainWindow
 			SetSliderSilently(defaultSize);
 
 			ReloadGallery();
+			SetScaleCheckboxSilently(defaultUseScaling);
 			UpdateUndoButton();
 		}
 		catch (Exception exception)
@@ -122,11 +141,19 @@ public partial class MainWindow
 			ShowLoadingOverlay();
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
+			var undoUseScaling = AppState.GetScaleCursorsEnabled();
+
 			await Task.Run(() =>
 			{
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
-				RegistryCursorService.RestoreSnapshot(snapshot);
+				var scaledValues = undoUseScaling
+					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize)
+					: snapshot.Values;
+				RegistryCursorService.ApplyValues(scaledValues);
+				RegistryCursorService.SetBaseSize(snapshot.BaseSize);
 			});
+
+			_activeSourceValues = new Dictionary<string, string>(snapshot.Values);
 
 			_activePresetId = FindPresetIdByValues(snapshot.Values);
 			AppState.SetActivePresetId(_activePresetId);
@@ -135,6 +162,14 @@ public partial class MainWindow
 			SetSliderSilently(snapshot.BaseSize);
 
 			ReloadGallery();
+
+			var undoPreset = _activePresetId != null
+				? _presets.FirstOrDefault(candidate => candidate.Id == _activePresetId)
+				: null;
+			var undoEffectiveUseScaling = undoPreset != null ? undoUseScaling && undoPreset.UseScaling : undoUseScaling;
+			_activeUseScaling = undoEffectiveUseScaling;
+			SetScaleCheckboxSilently(undoPreset?.UseScaling ?? undoUseScaling);
+
 			UpdateUndoButton();
 		}
 		catch (Exception exception)
@@ -216,7 +251,7 @@ public partial class MainWindow
 				roleFiles[role.RegistryName] = resolvedPath;
 		}
 
-		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.LockedRoles);
+		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.LockedRoles);
 
 		if (path == null)
 			return;

@@ -16,6 +16,8 @@
 	<sys:String x:Key="S.CursorSize">光标大小</sys:String>
 	<sys:String x:Key="S.ApplySize">应用</sys:String>
 	<sys:String x:Key="S.ApplySize.Tooltip">应用所选的光标大小</sys:String>
+	<sys:String x:Key="S.ScaleCursors">缩放</sys:String>
+	<sys:String x:Key="S.ScaleCursors.Tooltip">在应用前使用最近邻缩放光标文件，以避免 Windows 的双线性过滤</sys:String>
 	<sys:String x:Key="S.GallerySize">网格大小</sys:String>
 	<sys:String x:Key="S.UiZoom.OutTooltip">缩小界面</sys:String>
 	<sys:String x:Key="S.UiZoom.InTooltip">放大界面</sys:String>
@@ -31,6 +33,7 @@
 	<sys:String x:Key="S.Menu.MoveLeft">左移</sys:String>
 	<sys:String x:Key="S.Menu.MoveRight">右移</sys:String>
 	<sys:String x:Key="S.Menu.Download">下载预设</sys:String>
+	<sys:String x:Key="S.Menu.UseScaling">使用缩放</sys:String>
 	<sys:String x:Key="S.Menu.Delete">删除</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">右键点击打开菜单</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">部分角色取自其他预设</sys:String>

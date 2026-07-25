@@ -40,6 +40,7 @@ public partial class MainWindow : Window
 	private const string LocMenuMoveRight = "S.Menu.MoveRight";
 	private const string LocMenuDownload = "S.Menu.Download";
 	private const string LocMenuDelete = "S.Menu.Delete";
+	private const string LocMenuUseScaling = "S.Menu.UseScaling";
 	private const string LocPresetContextHint = "S.Preset.ContextHint";
 	private const string LocAddPreset = "S.AddPreset";
 	private const string LocAddPresetHint = "S.AddPreset.Hint";
@@ -119,6 +120,9 @@ public partial class MainWindow : Window
 	private const double UiZoomStep = 0.1;
 	private const string ThemeIconDark = "🌙";
 	private const string ThemeIconLight = "☀";
+	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
+	private const string ExportIconUri = "pack://application:,,,/Resources/DownloadIcon32.png";
+	private const string ImportIconUri = "pack://application:,,,/Resources/LinkIcon32.png";
 
 	private sealed record BoardEntry(Preset? Preset, PresetGroup? Group, int BoardIndex);
 
@@ -144,6 +148,8 @@ public partial class MainWindow : Window
 	private string? _draggedPresetId;
 	private string? _draggedGroupId;
 	private bool _justDraggedGroup;
+	private Dictionary<string, string>? _activeSourceValues;
+	private bool _activeUseScaling;
 
 	public MainWindow()
 	{
@@ -168,9 +174,14 @@ public partial class MainWindow : Window
 
 		UpdateOpenFolderToggleIcon();
 
+		ScaleCursorsIcon.Source = new System.Windows.Media.Imaging.BitmapImage(
+			new Uri(ExpandIconUri));
+
 		BuildGroupColorSwatches();
 		ReloadGallery();
 		UpdateUndoButton();
+
+		InitScaleCursorsCheckBox();
 
 		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
 		FooterRun.Text = string.Format(FooterFormat, AppInfo.Author, version, AppInfo.LicenseName);
