@@ -986,4 +986,14 @@ public partial class MainWindow : Window
 		{
 		}
 	}
+
+	private const string LocInfoTitle = "S.Info.Title";
+
+	private void OnInfoClick(object? sender, RoutedEventArgs e)
+	{
+		var title = Loc.Get(LocInfoTitle);
+		var body = HelpTextService.Get("Main");
+		var dialog = new InfoHelpWindow(title, body);
+		dialog.ShowDialog(this);
+	}
 }
