@@ -12,7 +12,8 @@
 - Arrastra archivos .cur/.ani o una carpeta a la ventana.
 
 ## 🎨 Tamaño de cuadrícula — cambia el tamaño de las celdas.
-📏 Tamaño del cursor — deslizador + "Aplicar" cambia el tamaño del sistema.
+📏 Tamaño del cursor — el deslizador cambia el tamaño del sistema; se aplica inmediatamente.
+{img:ExpandIcon32} en una celda — escalado activado; los cursores se escalan al tamaño del preajuste con píxeles nítidos de vecino más cercano en lugar de estiramiento borroso.
 ↩️ "Atrás" — revertir al conjunto anterior.
 🌙/☀ — cambiar tema oscuro/claro.
 🌐 — cambiar idioma.

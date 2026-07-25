@@ -18,24 +18,13 @@ public partial class PresetEditorWindow
 			return;
 
 		_baseSize = sizePx;
-
-		(Owner as MainWindow)?.SyncSizeSlider(sizePx);
-
-		UpdateApplySizeButtonHighlight();
 	}
 
-	private void UpdateApplySizeButtonHighlight() =>
-		EditorApplySizeButton.Style = (Style)Application.Current.Resources[
-			_baseSize != _appliedPreviewSizePx ? StyleAccentButton : StyleButton];
-
-	private void OnEditorApplySizeClick(object sender, RoutedEventArgs e)
+	private void OnEditorUseScalingCheckedChanged(object sender, RoutedEventArgs e)
 	{
-		RegistryCursorService.SetBaseSize(_baseSize);
+		if (!_sizeSliderReady)
+			return;
 
-		_appliedPreviewSizePx = _baseSize;
-
-		UpdateApplySizeButtonHighlight();
-
-		ToastService.Show(EditorRootGrid, Loc.Get(LocToastSizeApplied));
+		_useScaling = EditorUseScalingCheckBox.IsChecked == true;
 	}
 }

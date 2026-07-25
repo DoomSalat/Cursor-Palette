@@ -22,6 +22,8 @@
 	<sys:String x:Key="S.CursorSize">Cursor size</sys:String>
 	<sys:String x:Key="S.ApplySize">Apply</sys:String>
 	<sys:String x:Key="S.ApplySize.Tooltip">Apply the selected cursor size</sys:String>
+	<sys:String x:Key="S.ScaleCursors">Scale</sys:String>
+	<sys:String x:Key="S.ScaleCursors.Tooltip">Pre-scale cursor files with nearest-neighbor before applying to avoid Windows bilinear filtering</sys:String>
 	<sys:String x:Key="S.GallerySize">Grid size</sys:String>
 	<sys:String x:Key="S.UiZoom.OutTooltip">Zoom interface out</sys:String>
 	<sys:String x:Key="S.UiZoom.InTooltip">Zoom interface in</sys:String>
@@ -37,6 +39,7 @@
 	<sys:String x:Key="S.Menu.MoveLeft">Move left</sys:String>
 	<sys:String x:Key="S.Menu.MoveRight">Move right</sys:String>
 	<sys:String x:Key="S.Menu.Download">Download preset</sys:String>
+	<sys:String x:Key="S.Menu.UseScaling">Use scaling</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Delete</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Right-click for menu</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Some roles are taken from other presets</sys:String>

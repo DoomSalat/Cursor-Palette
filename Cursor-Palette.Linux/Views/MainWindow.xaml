@@ -1,0 +1,376 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:svc="clr-namespace:CursorPalette.Services;assembly=Cursor-Palette.Core"
+		x:Class="CursorPalette.Linux.Views.MainWindow"
+		Width="860"
+		Height="640"
+		MinWidth="720"
+		MinHeight="440"
+		Background="{DynamicResource SystemRegionBrush}">
+	<Grid x:Name="RootGrid" RowDefinitions="Auto,Auto,*,Auto">
+		<!-- Toolbar row 1: logo (left) + theme/language (right) -->
+		<Border Grid.Row="0"
+				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+				Padding="12,8">
+			<Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+				<StackPanel Grid.Column="0"
+							Orientation="Horizontal"
+							VerticalAlignment="Center"
+							Spacing="8">
+					<TextBlock Text="Cursor Palette"
+							   FontSize="16"
+							   FontWeight="SemiBold"
+							   VerticalAlignment="Center" />
+				</StackPanel>
+
+				<Button x:Name="ThemeToggleButton"
+						Grid.Column="2"
+						Content="☀"
+						VerticalAlignment="Center"
+						Margin="0,0,8,0"
+						Click="OnThemeToggle" />
+				<Button x:Name="LanguageButton"
+						Grid.Column="3"
+						Content="EN"
+						VerticalAlignment="Center"
+						Margin="0,0,8,0"
+						Click="OnLanguageClick" />
+				<Button x:Name="InfoButton"
+						Grid.Column="4"
+						Content="ⓘ"
+						VerticalAlignment="Center"
+						Click="OnInfoClick" />
+			</Grid>
+		</Border>
+
+		<!-- Toolbar row 2: size slider (left) + cell scale (middle) + undo (right) -->
+		<Border Grid.Row="1"
+				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+				Padding="12,8">
+			<Grid ColumnDefinitions="*,*,Auto">
+				<!-- Cursor size group -->
+				<StackPanel Grid.Column="0"
+							Orientation="Horizontal"
+							VerticalAlignment="Center"
+							Spacing="8"
+							Margin="0,0,12,0">
+					<TextBlock x:Name="DefaultLabel"
+							   Text="Default"
+							   VerticalAlignment="Center"
+							   Margin="0,0,4,0" />
+					<Slider x:Name="SizeSlider"
+							Minimum="16"
+							Maximum="128"
+							Value="32"
+							MinWidth="80"
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Center" />
+					<TextBlock x:Name="SizeValueText"
+							   Text="32 px"
+							   VerticalAlignment="Center"
+							   Margin="4,0" />
+					<Button x:Name="ApplySizeButton"
+							Content="Apply"
+							VerticalAlignment="Center" />
+				</StackPanel>
+
+				<!-- Cell scale group -->
+				<StackPanel Grid.Column="1"
+							Orientation="Horizontal"
+							VerticalAlignment="Center"
+							Spacing="8"
+							Margin="0,0,12,0">
+					<TextBlock x:Name="CellScaleLabel"
+							   Text="Cells"
+							   VerticalAlignment="Center"
+							   Margin="0,0,4,0" />
+					<Slider x:Name="CellScaleSlider"
+							Minimum="0.5"
+							Maximum="3.5"
+							Value="1.0"
+							MinWidth="60"
+							HorizontalAlignment="Stretch"
+							TickFrequency="0.1"
+							IsSnapToTickEnabled="True"
+							VerticalAlignment="Center" />
+					<TextBlock x:Name="CellScaleValueText"
+							   Text="100%"
+							   VerticalAlignment="Center"
+							   Margin="4,0" />
+				</StackPanel>
+
+				<!-- Undo (right) -->
+				<Button x:Name="UndoButton"
+						Grid.Column="2"
+						Content="Undo"
+						VerticalAlignment="Center"
+						IsEnabled="{Binding CanUndo}"
+						Click="OnUndoClick" />
+			</Grid>
+		</Border>
+
+		<!-- Gallery -->
+		<ScrollViewer Grid.Row="2"
+					  HorizontalScrollBarVisibility="Auto"
+					  VerticalScrollBarVisibility="Disabled">
+			<ItemsControl x:Name="Gallery"
+						  ItemsSource="{Binding Board}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Border Width="148"
+								Height="148"
+								Margin="6"
+								CornerRadius="10"
+								BorderThickness="2"
+								BorderBrush="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+								Background="{DynamicResource SystemRegionBrush}"
+								Classes.active="{Binding IsActive}"
+								Classes.group="{Binding IsGroup}"
+								Classes.has-group="{Binding GroupColorHex, Converter={x:Static ObjectConverters.IsNotNull}}"
+								ToolTip.Tip="{Binding DisplayName}"
+								PointerPressed="OnPresetClick">
+							<Border.ContextMenu>
+								<ContextMenu Opening="OnContextMenuOpening">
+									<MenuItem x:Name="MenuEditItem"
+											  Header="Edit"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuEdit" />
+									<MenuItem x:Name="MenuRenameItem"
+											  Header="Rename"
+											  IsVisible="{Binding !IsGroup}"
+											  Click="OnMenuRename" />
+									<MenuItem x:Name="MenuMoveLeftItem"
+											  Header="Move left"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuMoveLeft" />
+									<MenuItem x:Name="MenuMoveRightItem"
+											  Header="Move right"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuMoveRight" />
+									<MenuItem x:Name="MenuDownloadItem"
+											  Header="Download"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuDownload" />
+									<MenuItem x:Name="MenuDownloadSystemItem"
+											  Header="Download system cursors"
+											  IsVisible="{Binding IsDefaultCell}"
+											  Click="OnMenuDownloadSystem" />
+									<MenuItem x:Name="MenuToggleCollapseItem"
+											  Header="Collapse/Expand"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuToggleCollapse" />
+									<MenuItem x:Name="MenuEditGroupItem"
+											  Header="Edit group"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuEditGroup" />
+									<MenuItem x:Name="MenuDeleteItem"
+											  Header="Delete"
+											  Click="OnMenuDelete" />
+								</ContextMenu>
+							</Border.ContextMenu>
+						<Grid>
+							<StackPanel VerticalAlignment="Center"
+										HorizontalAlignment="Center"
+										Spacing="4">
+								<!-- Add cell -->
+								<TextBlock Text="+"
+									   FontSize="34"
+									   HorizontalAlignment="Center"
+									   IsVisible="{Binding IsAddCell}" />
+								<!-- Group cell -->
+								<TextBlock Text="{Binding DisplayName}"
+										   FontSize="14"
+										   FontWeight="SemiBold"
+										   HorizontalAlignment="Center"
+										   TextTrimming="CharacterEllipsis"
+										   MaxWidth="130"
+										   IsVisible="{Binding IsGroup}" />
+								<TextBlock Text="{Binding MembersCountText}"
+										   FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding IsGroup}" />
+								<TextBlock Text="{Binding CollapsedText}"
+										   FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding IsCollapsed}" />
+								<!-- Preset cell -->
+								<Image Source="{Binding Preview}"
+									   Width="48"
+									   Height="48"
+									   IsVisible="{Binding Preview, Converter={x:Static ObjectConverters.IsNotNull}}" />
+								<TextBlock Text="{Binding DisplayName}"
+										   FontSize="13"
+										   HorizontalAlignment="Center"
+										   TextTrimming="CharacterEllipsis"
+										   MaxWidth="130"
+										   IsVisible="{Binding !IsGroup}" />
+								<TextBlock Text="{Binding RoleCount}"
+										   FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding IsPreset}" />
+								<TextBlock FontSize="11"
+										   HorizontalAlignment="Center"
+										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   IsVisible="{Binding IsPreset}"
+										   Text="{Binding BaseSize, StringFormat='{}{0} px'}" />
+							</StackPanel>
+							<TextBlock Text="🧩"
+									   FontSize="15"
+									   HorizontalAlignment="Right"
+									   VerticalAlignment="Top"
+									   Margin="0,4,6,0"
+									   IsHitTestVisible="False"
+									   IsVisible="{Binding IsMixed}" />
+						</Grid>
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<TextBlock Grid.Row="2"
+				   x:Name="EmptyGalleryHint"
+				   Text="No presets yet. Drop cursor files (.cur/.ani) onto the window or click Add preset."
+				   FontSize="14"
+				   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+				   HorizontalAlignment="Center"
+				   VerticalAlignment="Center"
+				   IsVisible="{Binding Board.Count, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=2}"
+				   IsHitTestVisible="False" />
+
+		<!-- Footer: zoom controls (left) + footer text (right) -->
+		<Border Grid.Row="3"
+				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+				Padding="12,6">
+			<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
+				<StackPanel Grid.Column="0"
+							Orientation="Horizontal"
+							VerticalAlignment="Center"
+							Spacing="4">
+					<Button x:Name="ZoomOutButton"
+							Content="−"
+							VerticalAlignment="Center"
+							Click="OnZoomOutClick" />
+					<TextBlock x:Name="ZoomText"
+							   Text="100%"
+							   VerticalAlignment="Center"
+							   Margin="4,0" />
+					<Button x:Name="ZoomInButton"
+							Content="+"
+							VerticalAlignment="Center"
+							Click="OnZoomInClick" />
+				</StackPanel>
+
+				<Button x:Name="ExportButton"
+						Grid.Column="1"
+						Content="📤"
+						FontSize="14"
+						Padding="8,4"
+						Margin="12,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnExportClick" />
+
+				<Button x:Name="ImportButton"
+						Grid.Column="2"
+						Content="📥"
+						FontSize="14"
+						Padding="8,4"
+						Margin="4,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnImportClick" />
+
+				<Button x:Name="OpenFolderToggle"
+						Grid.Column="3"
+						Content="📂"
+						FontSize="14"
+						Padding="8,4"
+						Margin="12,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnOpenFolderToggleClick" />
+
+				<TextBlock Grid.Column="4"
+						   Text="{Binding FooterText}"
+						   FontSize="11"
+						   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+						   HorizontalAlignment="Right"
+						   VerticalAlignment="Center"
+						   PointerPressed="OnFooterClick" />
+
+				<Button x:Name="UpdateIndicator"
+						Grid.Column="5"
+						Content="↓"
+						FontSize="14"
+						Padding="8,4"
+						Margin="8,0,0,0"
+						VerticalAlignment="Center"
+						IsVisible="False"
+						Click="OnUpdateIndicatorClick" />
+
+				<Button x:Name="GitHubLink"
+						Grid.Column="6"
+						Content="⌥"
+						FontSize="14"
+						Padding="8,4"
+						Margin="8,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnGitHubLinkClick" />
+			</Grid>
+		</Border>
+
+		<!-- Drag ghost overlay -->
+		<Border x:Name="DragGhost"
+				Grid.RowSpan="4"
+				IsHitTestVisible="False"
+				IsVisible="False"
+				Opacity="0.85"
+				ZIndex="960"
+				Width="120"
+				Height="120"
+				CornerRadius="10"
+				BorderThickness="2"
+				BorderBrush="CornflowerBlue"
+				Background="{DynamicResource SystemRegionBrush}"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top">
+			<Border.RenderTransform>
+				<TranslateTransform />
+			</Border.RenderTransform>
+			<StackPanel VerticalAlignment="Center"
+						HorizontalAlignment="Center"
+						Spacing="4">
+				<Image x:Name="DragGhostImage"
+					   Width="40"
+					   Height="40" />
+				<TextBlock x:Name="DragGhostText"
+						   TextTrimming="CharacterEllipsis"
+						   TextAlignment="Center"
+						   MaxWidth="108"
+						   FontSize="12" />
+			</StackPanel>
+		</Border>
+
+		<!-- Reorder insertion indicator -->
+		<Border x:Name="ReorderInsertionLine"
+				Grid.RowSpan="4"
+				IsHitTestVisible="False"
+				IsVisible="False"
+				ZIndex="950"
+				Width="4"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top"
+				Background="CornflowerBlue"
+				CornerRadius="2">
+			<Border.RenderTransform>
+				<TranslateTransform />
+			</Border.RenderTransform>
+		</Border>
+	</Grid>
+</Window>

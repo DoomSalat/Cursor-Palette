@@ -1,0 +1,57 @@
+<Application xmlns="https://github.com/avaloniaui"
+			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			x:Class="CursorPalette.Linux.App">
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Dark">
+					<Color x:Key="SystemAccentColor">#FF4F8CFF</Color>
+					<SolidColorBrush x:Key="SystemRegionBrush" Color="#FF1E1F24" />
+					<SolidColorBrush x:Key="SystemControlDefaultChromeMediumBrush" Color="#FF26272E" />
+					<SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush" Color="#FF9A9CA6" />
+					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FF555760" />
+					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#FF7A7C88" />
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Light">
+					<Color x:Key="SystemAccentColor">#FF3D7DFF</Color>
+					<SolidColorBrush x:Key="SystemRegionBrush" Color="#FFF4F5F7" />
+					<SolidColorBrush x:Key="SystemControlDefaultChromeMediumBrush" Color="#FFFFFFFF" />
+					<SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush" Color="#FF6B6E76" />
+					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FFC0C2CA" />
+					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#FF9A9CA6" />
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+	<Application.Styles>
+		<FluentTheme />
+		<Style Selector=":is(TemplatedControl)">
+			<Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter, Noto Sans CJK, Noto Sans, DejaVu Sans" />
+		</Style>
+		<Style Selector="Border.active">
+			<Setter Property="BorderBrush"
+					Value="{DynamicResource SystemAccentColor}" />
+		</Style>
+		<Style Selector="Border.group">
+			<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+			<Setter Property="BorderThickness" Value="2,2,2,6" />
+		</Style>
+		<Style Selector="ScrollBar">
+			<Setter Property="Width" Value="10" />
+			<Setter Property="Background" Value="Transparent" />
+		</Style>
+		<Style Selector="ScrollBar:horizontal">
+			<Setter Property="Height" Value="10" />
+			<Setter Property="Width" Value="NaN" />
+		</Style>
+		<Style Selector="ScrollBar /template/ Thumb">
+			<Setter Property="Background" Value="{DynamicResource ScrollBarThumbBrush}" />
+			<Setter Property="CornerRadius" Value="4" />
+			<Setter Property="MinHeight" Value="24" />
+			<Setter Property="MinWidth" Value="24" />
+		</Style>
+		<Style Selector="ScrollBar /template/ Thumb:pointerover">
+			<Setter Property="Background" Value="{DynamicResource ScrollBarThumbHoverBrush}" />
+		</Style>
+	</Application.Styles>
+</Application>

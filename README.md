@@ -91,8 +91,8 @@ apply.
   editor, instead of a static first frame.
 - **Cursor size per preset** — a slider controls the system cursor size
   (32–256 px), stored separately for each preset and for the default tile.
-  The "Apply" button lights up whenever the slider no longer matches what's
-  actually applied, as a reminder to confirm the change.
+  Scaling is enabled by default for new presets; a small icon on each cell
+  indicates whether scaling is active.
 - **Reset to Windows defaults** — a dedicated "Default" tile restores the
   system cursor scheme.
 - **Undo last change** ("Back") — the app keeps a snapshot of the previous
@@ -122,9 +122,9 @@ apply.
   it. Groups are preserved in board order across restarts and can be
   exported/imported with `.cursorpalette` bundles.
 - **Export presets** — pick any set of presets and save them either as a
-  `.cursorpalette` bundle (full-fidelity: roles, locked roles, and cursor
-  size are preserved, and roles borrowed from other presets are copied in
-  so the file is self-contained and safe to share) or as a plain ZIP
+  `.cursorpalette` bundle (full-fidelity: roles, locked roles, cursor size,
+  and scaling flag are preserved, and roles borrowed from other presets are
+  copied in so the file is self-contained and safe to share) or as a plain ZIP
   archive with the raw `.cur`/`.ani` files for use outside the app. Both are
   saved to the Downloads folder.
 

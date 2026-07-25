@@ -16,5 +16,6 @@
 
 📝 Escribe el nombre del preajuste abajo.
 {img:DownloadIcon32} A la izquierda del nombre — descargar todo el preajuste como carpeta a Descargas.
-📏 Deslizador de tamaño — vista previa del tamaño del cursor.
-💾 "Guardar" — guardar preajuste en la galería.
+📏 Deslizador de tamaño — ajustar el tamaño del cursor para este preajuste.
+{img:ExpandIcon32} Casilla de escalado — cuando está activada, los cursores se escalan al tamaño del preajuste usando interpolación de vecino más cercano, manteniendo los píxeles nítidos y definidos en lugar de borrosos. Activada por defecto para nuevos preajustes.
+💾 "Guardar" — guardar preajuste en la galería (tamaño y escalado se guardan juntos).

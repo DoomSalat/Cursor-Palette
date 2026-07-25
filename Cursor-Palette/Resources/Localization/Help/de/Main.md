@@ -12,7 +12,8 @@
 - .cur/.ani-Dateien oder Ordner ins Fenster ziehen.
 
 ## 🎨 Rastergröße — ändert die Zellgröße der Galerie.
-📏 Cursorgröße — Schieberegler + "Anwenden" ändert Systemgröße.
+📏 Cursorgröße — Schieberegler ändert Systemgröße; wird sofort angewendet.
+{img:ExpandIcon32} auf einer Zelle — Skalierung aktiviert; Cursor werden auf die Preset-Größe skaliert mit scharfen Nearest-Neighbor-Pixeln statt verschwommenem Strecken.
 ↩️ "Zurück" — vorherigen Cursor-Zustand wiederherstellen.
 🌙/☀ — Dunkel/Hell-Design wechseln.
 🌐 — Sprache ändern.

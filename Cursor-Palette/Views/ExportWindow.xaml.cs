@@ -38,6 +38,7 @@ public partial class ExportWindow : Window
 	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
 	private const string LocDownloadReadme = "S.Export.DownloadReadme";
 	private const string LocDownloadReadmeTooltip = "S.Export.DownloadReadme.Tooltip";
+	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
 	private readonly List<(PresetGroup Group, Border Cell)> _groupTiles = new();
@@ -216,6 +217,24 @@ public partial class ExportWindow : Window
 				VerticalAlignment = VerticalAlignment.Top,
 				Margin = new Thickness(6),
 			});
+		}
+
+		if (preset.UseScaling)
+		{
+			var scalingIcon = new Image
+			{
+				Width = 16,
+				Height = 16,
+				SnapsToDevicePixels = true,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				VerticalAlignment = VerticalAlignment.Bottom,
+				Margin = new Thickness(0, 0, 6, 6),
+				IsHitTestVisible = false,
+				Source = new System.Windows.Media.Imaging.BitmapImage(
+					new Uri(ExpandIconUri)),
+			};
+			RenderOptions.SetBitmapScalingMode(scalingIcon, BitmapScalingMode.NearestNeighbor);
+			content.Children.Add(scalingIcon);
 		}
 
 		var cell = new Border

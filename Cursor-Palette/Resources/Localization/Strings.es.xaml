@@ -22,6 +22,8 @@
 	<sys:String x:Key="S.CursorSize">Tamaño del cursor</sys:String>
 	<sys:String x:Key="S.ApplySize">Aplicar</sys:String>
 	<sys:String x:Key="S.ApplySize.Tooltip">Aplicar el tamaño de cursor seleccionado</sys:String>
+	<sys:String x:Key="S.ScaleCursors">Escalar</sys:String>
+	<sys:String x:Key="S.ScaleCursors.Tooltip">Pre-escalar archivos de cursor con vecino más cercano antes de aplicar para evitar el filtrado bilineal de Windows</sys:String>
 	<sys:String x:Key="S.GallerySize">Tamaño de la cuadrícula</sys:String>
 	<sys:String x:Key="S.UiZoom.OutTooltip">Alejar la interfaz</sys:String>
 	<sys:String x:Key="S.UiZoom.InTooltip">Acercar la interfaz</sys:String>
@@ -37,6 +39,7 @@
 	<sys:String x:Key="S.Menu.MoveLeft">Mover a la izquierda</sys:String>
 	<sys:String x:Key="S.Menu.MoveRight">Mover a la derecha</sys:String>
 	<sys:String x:Key="S.Menu.Download">Descargar preset</sys:String>
+	<sys:String x:Key="S.Menu.UseScaling">Usar escalado</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Eliminar</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Clic derecho para el menú</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Algunos roles provienen de otros preajustes</sys:String>

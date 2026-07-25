@@ -1,0 +1,205 @@
+namespace CursorPalette.Services;
+
+public sealed record CursorCanvasImage(int Width, int Height, int HotspotX, int HotspotY, byte[] Bgra);
+
+public static class CursorCanvasService
+{
+	private const string CurExtension = ".cur";
+	private const string AniExtension = ".ani";
+	private const int BytesPerPixel = 4;
+	private const int IconDirSize = 6;
+	private const int IconDirEntrySize = 16;
+	private const int BitmapInfoHeaderSize = 40;
+	private const ushort CursorResourceType = 2;
+	private const ushort CursorPlanes = 1;
+	private const ushort CursorBitCount = 32;
+	private const int RowAlignmentBits = 32;
+	private const int MaxClassicDimension = 256;
+
+	public static bool IsSupportedFile(string? filePath)
+	{
+		if (string.IsNullOrWhiteSpace(filePath))
+			return false;
+
+		var extension = Path.GetExtension(filePath);
+
+		return string.Equals(extension, CurExtension, StringComparison.OrdinalIgnoreCase) ||
+			string.Equals(extension, AniExtension, StringComparison.OrdinalIgnoreCase);
+	}
+
+	public static CursorCanvasImage? TryRead(string filePath)
+	{
+		if (!IsSupportedFile(filePath) || !File.Exists(filePath))
+			return null;
+
+		try
+		{
+			return TryReadFromBytes(File.ReadAllBytes(filePath));
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	public static CursorCanvasImage? TryReadFromBytes(byte[] bytes)
+	{
+		if (bytes.Length < IconDirSize + IconDirEntrySize)
+			return null;
+
+		var type = BitConverter.ToUInt16(bytes, 2);
+		if (type != CursorResourceType)
+			return null;
+
+		var count = BitConverter.ToUInt16(bytes, 4);
+		if (count == 0)
+			return null;
+
+		var entryOffset = IconDirSize;
+		var hotspotX = BitConverter.ToUInt16(bytes, entryOffset + 4);
+		var hotspotY = BitConverter.ToUInt16(bytes, entryOffset + 6);
+		var imageOffset = (int)BitConverter.ToUInt32(bytes, entryOffset + 12);
+
+		if (imageOffset + BitmapInfoHeaderSize > bytes.Length)
+			return null;
+
+		var width = Math.Abs(BitConverter.ToInt32(bytes, imageOffset + 4));
+		var heightRaw = BitConverter.ToInt32(bytes, imageOffset + 8);
+		var bitCount = BitConverter.ToUInt16(bytes, imageOffset + 14);
+		var actualHeight = Math.Abs(heightRaw) / 2;
+
+		if (width <= 0 || actualHeight <= 0 || width > MaxClassicDimension || actualHeight > MaxClassicDimension)
+			return null;
+
+		if (bitCount != CursorBitCount)
+			return null;
+
+		var colorRowStride = width * BytesPerPixel;
+		var colorDataOffset = imageOffset + BitmapInfoHeaderSize;
+
+		if (colorDataOffset + colorRowStride * actualHeight > bytes.Length)
+			return null;
+
+		var pixels = new byte[colorRowStride * actualHeight];
+
+		for (var y = 0; y < actualHeight; y++)
+		{
+			var srcY = actualHeight - 1 - y;
+			Array.Copy(bytes, colorDataOffset + srcY * colorRowStride, pixels, y * colorRowStride, colorRowStride);
+		}
+
+		var hasAlpha = false;
+
+		for (var i = 3; i < pixels.Length; i += 4)
+		{
+			if (pixels[i] == 0)
+				continue;
+
+			hasAlpha = true;
+			break;
+		}
+
+		if (!hasAlpha)
+		{
+			var maskRowStride = ((width + RowAlignmentBits - 1) / RowAlignmentBits) * (RowAlignmentBits / 8);
+			var maskDataOffset = colorDataOffset + colorRowStride * actualHeight;
+
+			if (maskDataOffset + maskRowStride * actualHeight <= bytes.Length)
+			{
+				for (var y = 0; y < actualHeight; y++)
+				{
+					var srcY = actualHeight - 1 - y;
+					for (var x = 0; x < width; x++)
+					{
+						var maskByte = bytes[maskDataOffset + srcY * maskRowStride + x / 8];
+						var isTransparent = (maskByte & (0x80 >> (x % 8))) != 0;
+						pixels[y * colorRowStride + x * BytesPerPixel + 3] = isTransparent ? (byte)0 : (byte)255;
+					}
+				}
+			}
+		}
+
+		return new CursorCanvasImage(width, actualHeight, hotspotX, hotspotY, pixels);
+	}
+
+	public static void Write(string destinationPath, CursorCanvasImage image)
+	{
+		using var stream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write);
+		WriteToStream(stream, image);
+	}
+
+	public static byte[] BuildBytes(CursorCanvasImage image)
+	{
+		using var stream = new MemoryStream();
+		WriteToStream(stream, image);
+
+		return stream.ToArray();
+	}
+
+	private static void WriteToStream(Stream stream, CursorCanvasImage image)
+	{
+		var width = Math.Clamp(image.Width, 1, MaxClassicDimension);
+		var height = Math.Clamp(image.Height, 1, MaxClassicDimension);
+		var hotspotX = Math.Clamp(image.HotspotX, 0, width - 1);
+		var hotspotY = Math.Clamp(image.HotspotY, 0, height - 1);
+
+		var colorRowStride = width * BytesPerPixel;
+		var maskRowStride = ((width + RowAlignmentBits - 1) / RowAlignmentBits) * (RowAlignmentBits / 8);
+		var colorDataSize = colorRowStride * height;
+		var maskDataSize = maskRowStride * height;
+		var imageDataSize = BitmapInfoHeaderSize + colorDataSize + maskDataSize;
+		var imageOffset = IconDirSize + IconDirEntrySize;
+
+		using var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true);
+
+		// ICONDIR
+		writer.Write((ushort)0);
+		writer.Write(CursorResourceType);
+		writer.Write((ushort)1);
+
+		// ICONDIRENTRY
+		writer.Write((byte)(width >= MaxClassicDimension ? 0 : width));
+		writer.Write((byte)(height >= MaxClassicDimension ? 0 : height));
+		writer.Write((byte)0);
+		writer.Write((byte)0);
+		writer.Write((ushort)hotspotX);
+		writer.Write((ushort)hotspotY);
+		writer.Write((uint)imageDataSize);
+		writer.Write((uint)imageOffset);
+
+		// BITMAPINFOHEADER
+		writer.Write((uint)BitmapInfoHeaderSize);
+		writer.Write(width);
+		writer.Write(height * 2);
+		writer.Write(CursorPlanes);
+		writer.Write(CursorBitCount);
+		writer.Write((uint)0);
+		writer.Write((uint)(colorDataSize + maskDataSize));
+		writer.Write(0);
+		writer.Write(0);
+		writer.Write((uint)0);
+		writer.Write((uint)0);
+
+		// Color data (bottom-up rows)
+		for (var y = height - 1; y >= 0; y--)
+			writer.Write(image.Bgra, y * colorRowStride, colorRowStride);
+
+		// AND mask (bottom-up rows), transparent pixels get their bit set
+		var maskRow = new byte[maskRowStride];
+
+		for (var y = height - 1; y >= 0; y--)
+		{
+			Array.Clear(maskRow, 0, maskRow.Length);
+
+			for (var x = 0; x < width; x++)
+			{
+				var alpha = image.Bgra[y * colorRowStride + x * BytesPerPixel + 3];
+
+				if (alpha == 0)
+					maskRow[x / 8] |= (byte)(0x80 >> (x % 8));
+			}
+
+			writer.Write(maskRow);
+		}
+	}
+}
