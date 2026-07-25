@@ -346,7 +346,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 		});
 	}
 
-	private void ImportAllFromPackage(DetectedPackage detected)
+	public void ImportAllFromPackage(DetectedPackage detected)
 	{
 		var allEntries = detected.Entries.ToList();
 		var allGroups = detected.Groups?.ToList();

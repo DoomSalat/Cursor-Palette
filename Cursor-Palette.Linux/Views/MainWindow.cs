@@ -995,6 +995,49 @@ public partial class MainWindow : Window
 		UpdateOpenFolderToggleIcon();
 	}
 
+	private void OnExportClick(object? sender, RoutedEventArgs e)
+	{
+		var presets = PresetStore.LoadAll();
+		var groups = GroupStore.LoadAll();
+		var toastHost = this.FindControl<Panel>("RootGrid");
+		if (toastHost == null)
+			return;
+
+		var dialog = new ExportWindow(presets, groups, toastHost);
+		dialog.ShowDialog(this);
+	}
+
+	private async void OnImportClick(object? sender, RoutedEventArgs e)
+	{
+		var storageProvider = StorageProvider;
+		var files = await storageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
+		{
+			Title = "Import",
+			AllowMultiple = false,
+			FileTypeFilter = new[]
+			{
+				new Avalonia.Platform.Storage.FilePickerFileType("Cursor Palette Package")
+				{
+					Patterns = new[] { "*.cursorpalette", "*.zip", "*.tar.gz" },
+				},
+			},
+		});
+
+		if (files.Count == 0)
+			return;
+
+		var filePath = files[0].Path.LocalPath;
+		var detected = PresetPackageService.TryDetectPackage(filePath);
+		if (detected == null)
+		{
+			ShowToast(Loc.Get("S.Error.ImportUnrecognized"));
+			return;
+		}
+
+		_viewModel.ImportAllFromPackage(detected);
+		ShowToast(Loc.Get(LocToastSaved));
+	}
+
 	private void UpdateOpenFolderToggleIcon()
 	{
 		var toggle = this.FindControl<Button>("OpenFolderToggle");

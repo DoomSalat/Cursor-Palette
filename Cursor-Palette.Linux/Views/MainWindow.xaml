@@ -242,7 +242,7 @@
 		<Border Grid.Row="3"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 				Padding="12,6">
-			<Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto">
+			<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
 				<StackPanel Grid.Column="0"
 							Orientation="Horizontal"
 							VerticalAlignment="Center"
@@ -261,8 +261,26 @@
 							Click="OnZoomInClick" />
 				</StackPanel>
 
-				<Button x:Name="OpenFolderToggle"
+				<Button x:Name="ExportButton"
 						Grid.Column="1"
+						Content="📤"
+						FontSize="14"
+						Padding="8,4"
+						Margin="12,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnExportClick" />
+
+				<Button x:Name="ImportButton"
+						Grid.Column="2"
+						Content="📥"
+						FontSize="14"
+						Padding="8,4"
+						Margin="4,0,0,0"
+						VerticalAlignment="Center"
+						Click="OnImportClick" />
+
+				<Button x:Name="OpenFolderToggle"
+						Grid.Column="3"
 						Content="📂"
 						FontSize="14"
 						Padding="8,4"
@@ -270,7 +288,7 @@
 						VerticalAlignment="Center"
 						Click="OnOpenFolderToggleClick" />
 
-				<TextBlock Grid.Column="3"
+				<TextBlock Grid.Column="4"
 						   Text="{Binding FooterText}"
 						   FontSize="11"
 						   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
@@ -279,7 +297,7 @@
 						   PointerPressed="OnFooterClick" />
 
 				<Button x:Name="UpdateIndicator"
-						Grid.Column="4"
+						Grid.Column="5"
 						Content="↓"
 						FontSize="14"
 						Padding="8,4"
@@ -289,7 +307,7 @@
 						Click="OnUpdateIndicatorClick" />
 
 				<Button x:Name="GitHubLink"
-						Grid.Column="5"
+						Grid.Column="6"
 						Content="⌥"
 						FontSize="14"
 						Padding="8,4"
