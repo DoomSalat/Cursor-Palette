@@ -34,17 +34,22 @@ public class ExportWindow : Window
 	private const string LocExportArchive = "S.Export.Archive";
 	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
 	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
+	private const string LocDownloadReadme = "S.Export.DownloadReadme";
+	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
 	private const string LocExportSelectAll = "S.Export.SelectAll";
 	private const string LocExportSelectNone = "S.Export.SelectNone";
 	private const string LocExportName = "S.Export.Name";
 	private const string LocExportTitle = "S.Export.Title";
 	private const string LocExportClose = "S.Export.Close";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
+	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
+	private readonly List<(PresetGroup Group, Border Cell)> _groupTiles = new();
 	private TextBlock? _selectionCountText;
 	private TextBox? _nameBox;
 	private readonly Panel _toastHost;
+	private const double GroupIndicatorSize = 10;
 
 	public ExportWindow(IReadOnlyList<Preset> presets, IReadOnlyList<PresetGroup>? groups, Panel toastHost)
 	{
@@ -108,12 +113,27 @@ public class ExportWindow : Window
 
 		foreach (var group in groups ?? Array.Empty<PresetGroup>())
 		{
+			_groupTiles.Add((group, CreateGroupTile(group, gallery)));
+
 			foreach (var presetId in group.MemberPresetIds)
 				presetToColorKey[presetId] = group.ColorKey;
 		}
 
 		foreach (var preset in presets)
 			_tiles.Add((preset, CreateTile(preset, gallery, presetToColorKey)));
+
+		if (presets.Count == 0)
+		{
+			gallery.Children.Add(new TextBlock
+			{
+				Text = Loc.Get("S.Export.Empty"),
+				FontSize = 14,
+				Foreground = Brushes.Gray,
+				HorizontalAlignment = HorizontalAlignment.Center,
+				VerticalAlignment = VerticalAlignment.Center,
+				Margin = new Thickness(0, 40, 0, 0),
+			});
+		}
 
 		scrollViewer.Content = gallery;
 		root.Children.Add(scrollViewer);
@@ -190,6 +210,13 @@ public class ExportWindow : Window
 
 		Content = root;
 
+		var uiScale = AppState.GetUiScale();
+		if (uiScale != 1.0)
+		{
+			root.RenderTransform = new ScaleTransform(uiScale, uiScale);
+			root.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
+		}
+
 		UpdateSelectionCount();
 	}
 
@@ -239,10 +266,11 @@ public class ExportWindow : Window
 
 		if (preset.UseScaling)
 		{
-			panel.Children.Add(new TextBlock
+			panel.Children.Add(new Image
 			{
-				Text = "📐",
-				FontSize = 10,
+				Source = IconHelper.Load("StairIcon24.png"),
+				Width = 12,
+				Height = 12,
 				HorizontalAlignment = HorizontalAlignment.Right,
 				VerticalAlignment = VerticalAlignment.Bottom,
 				Margin = new Thickness(0, 0, 4, 4),
@@ -280,11 +308,87 @@ public class ExportWindow : Window
 		cell.BorderBrush = selected ? Brushes.CornflowerBlue : Brushes.Gray;
 	}
 
+	private Border CreateGroupTile(PresetGroup group, WrapPanel gallery)
+	{
+		var colorBrush = new SolidColorBrush(Color.Parse(GroupColors.ResolveHex(group.ColorKey)));
+
+		var panel = new StackPanel
+		{
+			VerticalAlignment = VerticalAlignment.Center,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Spacing = 2,
+		};
+
+		panel.Children.Add(new TextBlock
+		{
+			Text = group.Name,
+			FontSize = CellNameFontSize,
+			FontWeight = FontWeight.SemiBold,
+			Foreground = Brushes.White,
+			TextTrimming = TextTrimming.CharacterEllipsis,
+			TextAlignment = TextAlignment.Center,
+			MaxWidth = CellSize - 12,
+		});
+
+		panel.Children.Add(new TextBlock
+		{
+			Text = Loc.Format(LocGroupMembersCount, group.MemberPresetIds.Count),
+			Foreground = Brushes.White,
+			Opacity = 0.85,
+			FontSize = CellCountFontSize,
+			TextAlignment = TextAlignment.Center,
+		});
+
+		var cell = new Border
+		{
+			Width = CellSize,
+			Height = CellSize,
+			Margin = new Thickness(CellMargin),
+			CornerRadius = new CornerRadius(CellCornerRadius),
+			BorderThickness = new Thickness(CellBorderThickness),
+			BorderBrush = colorBrush,
+			Background = colorBrush,
+			Child = panel,
+		};
+
+		cell.PointerPressed += (_, _) =>
+		{
+			var selecting = !IsSelected(cell);
+			SetSelected(cell, selecting);
+
+			foreach (var memberPresetId in group.MemberPresetIds)
+			{
+				var memberTile = _tiles.FirstOrDefault(t => t.Preset.Id == memberPresetId);
+				if (memberTile.Cell != null)
+					SetSelected(memberTile.Cell, selecting);
+			}
+
+			UpdateSelectionCount();
+		};
+
+		gallery.Children.Add(cell);
+		return cell;
+	}
+
+	private void SyncGroupTileSelections()
+	{
+		foreach (var (group, cell) in _groupTiles)
+		{
+			var allMembersSelected = group.MemberPresetIds.Count > 0 && group.MemberPresetIds.All(memberId =>
+				_tiles.FirstOrDefault(t => t.Preset.Id == memberId) is { Cell: not null } match &&
+				IsSelected(match.Cell));
+
+			SetSelected(cell, allMembersSelected);
+		}
+	}
+
 	private List<Preset> GetSelectedPresets() =>
 		_tiles.Where(tile => IsSelected(tile.Cell)).Select(tile => tile.Preset).ToList();
 
 	private void UpdateSelectionCount()
 	{
+		SyncGroupTileSelections();
+
 		if (_selectionCountText == null)
 			return;
 
@@ -296,6 +400,7 @@ public class ExportWindow : Window
 	{
 		foreach (var (_, cell) in _tiles)
 			SetSelected(cell, true);
+
 		UpdateSelectionCount();
 	}
 
@@ -303,6 +408,7 @@ public class ExportWindow : Window
 	{
 		foreach (var (_, cell) in _tiles)
 			SetSelected(cell, false);
+
 		UpdateSelectionCount();
 	}
 
@@ -316,8 +422,14 @@ public class ExportWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportBundle(selected, _nameBox?.Text);
 			ToastService.Show(_toastHost, Loc.Format(LocToastExportedBundle, count, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			ToastService.Show(_toastHost, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
 	}
 
 	private void ExportArchive()
@@ -330,8 +442,14 @@ public class ExportWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportArchive(selected, _nameBox?.Text);
 			ToastService.Show(_toastHost, Loc.Format(LocToastExportedArchive, count, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			ToastService.Show(_toastHost, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
 	}
 
 	private void ShowMoreMenu(Button target)
@@ -349,7 +467,27 @@ public class ExportWindow : Window
 		linuxItem.Click += (_, _) => ExportLinuxArchive();
 		menu.Items.Add(linuxItem);
 
+		var readmeItem = new MenuItem { Header = Loc.Get(LocDownloadReadme) };
+		readmeItem.Click += (_, _) => DownloadReadme();
+		menu.Items.Add(readmeItem);
+
 		menu.Open(target);
+	}
+
+	private void DownloadReadme()
+	{
+		try
+		{
+			var path = PresetPackageService.DownloadReadme();
+			ToastService.Show(_toastHost, Loc.Format(LocToastReadmeDownloaded, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ToastService.Show(_toastHost, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
 	}
 
 	private void ExportLinuxArchive()
@@ -362,8 +500,14 @@ public class ExportWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportLinuxArchive(selected, _nameBox?.Text);
 			ToastService.Show(_toastHost, Loc.Format(LocToastExportedLinuxArchive, count, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			ToastService.Show(_toastHost, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
 	}
 
 	private void ExportXcursorTheme()
@@ -376,7 +520,13 @@ public class ExportWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportXcursorTheme(selected, _nameBox?.Text);
 			ToastService.Show(_toastHost, Loc.Format(LocToastExportedXcursorTheme, count, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			ToastService.Show(_toastHost, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
 	}
 }

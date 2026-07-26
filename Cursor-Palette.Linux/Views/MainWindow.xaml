@@ -91,11 +91,11 @@
 							Cursor="Hand"
 							PointerPressed="OnScaleModeIconClick"
 							ToolTip.Tip="{DynamicResource S.ScaleCursors.Tooltip}">
-						<TextBlock x:Name="ScaleModeIcon"
-								   Text="📐"
-								   FontSize="14"
-								   HorizontalAlignment="Center"
-								   VerticalAlignment="Center" />
+						<Image x:Name="ScaleModeIcon"
+							   Width="16"
+							   Height="16"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center" />
 					</Border>
 				</StackPanel>
 
@@ -197,6 +197,14 @@
 											  Header="Download"
 											  IsVisible="{Binding IsPreset}"
 											  Click="OnMenuDownload" />
+									<MenuItem x:Name="MenuUseScalingItem"
+											  Header="Use scaling"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuUseScaling" />
+									<MenuItem x:Name="MenuScaleModeItem"
+											  Header="Scale mode"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuScaleMode" />
 									<MenuItem x:Name="MenuDownloadSystemItem"
 											  Header="Download system cursors"
 											  IsVisible="{Binding IsDefaultCell}">
@@ -304,13 +312,14 @@
 									   Margin="0,4,6,0"
 									   IsHitTestVisible="False"
 									   IsVisible="{Binding IsMixed}" />
-							<TextBlock Text="📐"
-									   FontSize="13"
-									   HorizontalAlignment="Right"
-									   VerticalAlignment="Bottom"
-									   Margin="0,0,6,4"
-									   IsHitTestVisible="False"
-									   IsVisible="{Binding UseScaling}" />
+							<Image Width="13"
+								   Height="13"
+								   HorizontalAlignment="Right"
+								   VerticalAlignment="Bottom"
+								   Margin="0,0,6,4"
+								   IsHitTestVisible="False"
+								   IsVisible="{Binding UseScaling}"
+								   Source="avares://Cursor-Palette-Linux/Resources/StairIcon24.png" />
 							<Border Width="6"
 									Height="6"
 									CornerRadius="3"

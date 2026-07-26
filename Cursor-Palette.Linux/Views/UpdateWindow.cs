@@ -24,6 +24,17 @@ public class UpdateWindow : Window
 	private const double VersionInfoFontSize = 13;
 	private const double StatusFontSize = 11;
 	private const double HeaderIconFontSize = 16;
+	private const double BarPaddingVertical = 10;
+	private const double VersionInfoMarginBottom = 20;
+	private const double StatusTextMarginTop = 16;
+	private const double ToastCornerRadius = 6;
+	private const double ToastPaddingHorizontal = 12;
+	private const double ToastPaddingVertical = 8;
+	private const double ToastMarginBottom = 8;
+	private const double ToastFontSize = 12;
+	private const double ToastBackgroundOpacity = 0.9;
+	private const int ToastDurationMs = 3000;
+	private const string DownloadIconFile = "DownloadIcon32.png";
 
 	private const string UserAgent = "Cursor-Palette-App";
 	private const string DownloadsFolderName = "Downloads";
@@ -69,11 +80,11 @@ public class UpdateWindow : Window
 		root.RowDefinitions.Add(new RowDefinition(1, GridUnitType.Star));
 		root.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 
-		var headerIcon = new TextBlock
+		var headerIcon = new Image
 		{
-			Text = "⬇",
-			FontSize = HeaderIconFontSize,
-			Foreground = Brushes.CornflowerBlue,
+			Source = IconHelper.Load(DownloadIconFile),
+			Width = HeaderIconFontSize,
+			Height = HeaderIconFontSize,
 			VerticalAlignment = VerticalAlignment.Center,
 			Margin = new Thickness(0, 0, 8, 0),
 		};
@@ -97,7 +108,7 @@ public class UpdateWindow : Window
 		{
 			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 0, 0, 1),
-			Padding = new Thickness(DialogPadding, 10),
+			Padding = new Thickness(DialogPadding, BarPaddingVertical),
 			Child = headerPanel,
 		};
 		Grid.SetRow(topBar, 0);
@@ -107,7 +118,7 @@ public class UpdateWindow : Window
 		{
 			FontSize = VersionInfoFontSize,
 			HorizontalAlignment = HorizontalAlignment.Center,
-			Margin = new Thickness(0, 0, 0, 20),
+			Margin = new Thickness(0, 0, 0, VersionInfoMarginBottom),
 			Text = string.Format(VersionLabelFormat,
 				Loc.Get(LocCurrentVersion), GetCurrentVersion(),
 				Loc.Get(LocNewVersion), updateInfo.Version),
@@ -117,7 +128,7 @@ public class UpdateWindow : Window
 		{
 			Content = Loc.Get(LocUpdateManualDownload),
 			MinWidth = DownloadButtonMinWidth,
-			Padding = new Thickness(ButtonPadding, 10),
+			Padding = new Thickness(ButtonPadding, BarPaddingVertical),
 			HorizontalAlignment = HorizontalAlignment.Center,
 		};
 		downloadButton.Click += OnDownloadClick;
@@ -127,7 +138,7 @@ public class UpdateWindow : Window
 			FontSize = StatusFontSize,
 			Foreground = Brushes.Gray,
 			HorizontalAlignment = HorizontalAlignment.Center,
-			Margin = new Thickness(0, 16, 0, 0),
+			Margin = new Thickness(0, StatusTextMarginTop, 0, 0),
 			IsVisible = false,
 		};
 
@@ -155,7 +166,7 @@ public class UpdateWindow : Window
 		{
 			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 1, 0, 0),
-			Padding = new Thickness(DialogPadding, 10),
+			Padding = new Thickness(DialogPadding, BarPaddingVertical),
 			Child = cancelButton,
 		};
 		Grid.SetRow(bottomBar, 2);
@@ -201,15 +212,15 @@ public class UpdateWindow : Window
 	{
 		var toast = new Border
 		{
-			Background = new SolidColorBrush(Colors.DarkSlateGray, 0.9),
-			CornerRadius = new CornerRadius(6),
-			Padding = new Thickness(12, 8),
-			Margin = new Thickness(0, 0, 0, 8),
+			Background = new SolidColorBrush(Colors.DarkSlateGray, ToastBackgroundOpacity),
+			CornerRadius = new CornerRadius(ToastCornerRadius),
+			Padding = new Thickness(ToastPaddingHorizontal, ToastPaddingVertical),
+			Margin = new Thickness(0, 0, 0, ToastMarginBottom),
 			Child = new TextBlock
 			{
 				Text = message,
 				Foreground = Brushes.White,
-				FontSize = 12,
+				FontSize = ToastFontSize,
 			},
 			HorizontalAlignment = HorizontalAlignment.Center,
 			VerticalAlignment = VerticalAlignment.Bottom,
@@ -217,7 +228,7 @@ public class UpdateWindow : Window
 
 		_toastHost.Children.Add(toast);
 
-		_ = Task.Delay(3000).ContinueWith(_ =>
+		_ = Task.Delay(ToastDurationMs).ContinueWith(_ =>
 		{
 			Avalonia.Threading.Dispatcher.UIThread.Post(() => _toastHost.Children.Remove(toast));
 		});

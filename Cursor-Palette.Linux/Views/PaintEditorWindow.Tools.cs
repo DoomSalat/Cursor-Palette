@@ -1,8 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using CursorPalette.Linux.Services;
 using CursorPalette.Services;
 
 namespace CursorPalette.Linux.Views;
@@ -16,10 +18,10 @@ public partial class PaintEditorWindow
 
 	private void BuildMoveToolPanel()
 	{
-		_moveLeftButton = new Button { Content = "←", Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
-		_moveRightButton = new Button { Content = "→", Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
-		_moveUpButton = new Button { Content = "↑", Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
-		_moveDownButton = new Button { Content = "↓", Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
+		_moveLeftButton = new Button { Content = IconHelper.CreateIcon("ArrowIcon48.png", 18, Brushes.White, 180), Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
+		_moveRightButton = new Button { Content = IconHelper.CreateIcon("ArrowIcon48.png", 18, Brushes.White), Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
+		_moveUpButton = new Button { Content = IconHelper.CreateIcon("ArrowIcon48.png", 18, Brushes.White, -90), Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
+		_moveDownButton = new Button { Content = IconHelper.CreateIcon("ArrowIcon48.png", 18, Brushes.White, 90), Padding = new Thickness(ToolButtonPadding), MinWidth = ToolButtonMinWidth };
 
 		var snapGrid = new Grid
 		{
@@ -32,9 +34,9 @@ public partial class PaintEditorWindow
 
 		var fractions = new[]
 		{
-			("0,0", "↖"), ("0.5,0", "↑"), ("1,0", "↗"),
-			("0,0.5", "←"), ("0.5,0.5", "●"), ("1,0.5", "→"),
-			("0,1", "↙"), ("0.5,1", "↓"), ("1,1", "↘"),
+			("0,0", CreateSnapIcon("ArrowIcon48.png", -45)), ("0.5,0", CreateSnapIcon("ArrowIcon48.png", -90)), ("1,0", CreateSnapIcon("ArrowIcon48.png", 45)),
+			("0,0.5", CreateSnapIcon("ArrowIcon48.png", 180)), ("0.5,0.5", CreateSnapIcon("CenterIcon26.png", 0)), ("1,0.5", CreateSnapIcon("ArrowIcon48.png", 0)),
+			("0,1", CreateSnapIcon("ArrowIcon48.png", 135)), ("0.5,1", CreateSnapIcon("ArrowIcon48.png", 90)), ("1,1", CreateSnapIcon("ArrowIcon48.png", -45)),
 		};
 
 		for (var i = 0; i < fractions.Length; i++)
@@ -73,6 +75,11 @@ public partial class PaintEditorWindow
 		_moveRightButton.Click += OnMoveRightClick;
 		_moveUpButton.Click += OnMoveUpClick;
 		_moveDownButton.Click += OnMoveDownClick;
+	}
+
+	private static Control CreateSnapIcon(string fileName, double rotation)
+	{
+		return IconHelper.CreateIcon(fileName, 18, Brushes.White, rotation);
 	}
 
 	private void BuildHandToolPanel()

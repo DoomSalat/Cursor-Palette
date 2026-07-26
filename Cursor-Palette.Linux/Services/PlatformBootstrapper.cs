@@ -14,6 +14,7 @@ public static class PlatformBootstrapper
 		CursorServiceProvider.Current = new LinuxCursorService();
 		ScreenColorPickerProvider.Current = new LinuxScreenColorPicker();
 		SingleInstanceProvider.Current = new LinuxSingleInstance();
+		FileExplorerProvider.Current = new LinuxFileExplorer();
 
 		LocalizationManager.Initialize();
 	}

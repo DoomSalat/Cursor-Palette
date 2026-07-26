@@ -95,6 +95,13 @@ public class GroupEditWindow : Window
 
 		Content = root;
 
+		var uiScale = AppState.GetUiScale();
+		if (uiScale != 1.0)
+		{
+			root.RenderTransform = new ScaleTransform(uiScale, uiScale);
+			root.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
+		}
+
 		BuildColorSwatches();
 		_nameBox.Focus();
 	}

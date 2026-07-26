@@ -18,6 +18,7 @@ public sealed class BoardItem
 	public Preset? Preset { get; init; }
 	public PresetGroup? Group { get; init; }
 	public Bitmap? Preview { get; init; }
+	public string? PreviewPath { get; init; }
 	public int RoleCount { get; init; }
 	public string MembersCountText { get; init; } = "";
 	public string CollapsedText { get; init; } = "";
@@ -42,6 +43,10 @@ public sealed class MainWindowViewModel : ViewModelBase
 	private const string LocWindowsDefault = "S.WindowsDefault";
 	private const string LocAddPreset = "S.AddPreset";
 	private const string LocDefaultPresetName = "S.DefaultPresetName";
+	private const string LocErrorApplyFailed = "S.Error.ApplyFailed";
+	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
+	private const string LocErrorImportVersionUnsupported = "S.Error.ImportVersionUnsupported";
+	private const string LocToastImported = "S.Toast.Imported";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
 	private const string LocGroupCollapsed = "S.Group.Collapsed";
 
@@ -58,6 +63,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 	private bool _activeUseScaling;
 	private ScaleMode _activeScaleMode = ScaleMode.AreaWeighted;
 	private HashSet<string>? _selectedPresetIds;
+
+	public Action<string>? ErrorOccurred { get; set; }
+	public Action<string>? ToastRequested { get; set; }
 
 	public ObservableCollection<BoardItem> Board { get; } = new();
 
@@ -164,6 +172,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 	{
 		if (presetToGroup.TryGetValue(id, out var group))
 			return !group.Collapsed;
+
 		return true;
 	}
 
@@ -180,6 +189,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 			Key = EmptyValue,
 			DisplayName = Loc.Get(LocWindowsDefault),
 			Preview = CursorPreviewService.GetPreview(previewPath),
+			PreviewPath = previewPath,
 			BaseSize = AppState.GetDefaultBaseSize(),
 			IsActive = isActive,
 		};
@@ -200,6 +210,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 			DisplayName = preset.Name,
 			Preset = preset,
 			Preview = CursorPreviewService.GetPreview(previewPath),
+			PreviewPath = previewPath,
 			RoleCount = preset.Roles.Count + preset.RoleRefs.Count,
 			BaseSize = preset.BaseSize,
 			UseScaling = preset.UseScaling,
@@ -286,9 +297,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 			ReloadGallery();
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			// TODO: Show error dialog
+			ErrorOccurred?.Invoke(Loc.Format(LocErrorApplyFailed, ex.Message));
 		}
 	}
 
@@ -329,9 +340,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 			ReloadGallery();
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			// TODO: Show error dialog
+			ErrorOccurred?.Invoke(Loc.Format(LocErrorApplyFailed, ex.Message));
 		}
 	}
 
@@ -356,8 +367,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 						return;
 					}
 				}
-				catch (PackageVersionUnsupportedException)
+				catch (PackageVersionUnsupportedException ex)
 				{
+					ErrorOccurred?.Invoke(Loc.Format(LocErrorImportVersionUnsupported, ex.FoundVersion, ex.MaxSupportedVersion));
 					return;
 				}
 			}
@@ -385,9 +397,21 @@ public sealed class MainWindowViewModel : ViewModelBase
 		var allEntries = detected.Entries.ToList();
 		var allGroups = detected.Groups?.ToList();
 
-		PresetPackageService.ImportSelected(detected, allEntries, allGroups);
+		try
+		{
+			PresetPackageService.ImportSelected(detected, allEntries, allGroups);
+		}
+		catch (PackageVersionUnsupportedException ex)
+		{
+			ErrorOccurred?.Invoke(Loc.Format(LocErrorImportVersionUnsupported, ex.FoundVersion, ex.MaxSupportedVersion));
+			PresetPackageService.CleanupPackage(detected);
+			return;
+		}
+
 		PresetPackageService.CleanupPackage(detected);
 		ReloadGallery();
+
+		ToastRequested?.Invoke(Loc.Format(LocToastImported, allEntries.Count));
 	}
 
 	private static List<string> ResolveCursorFiles(string[] paths)
@@ -406,6 +430,15 @@ public sealed class MainWindowViewModel : ViewModelBase
 						result.Add(file);
 				}
 			}
+			else if (File.Exists(path) && ArchiveImportService.IsArchiveFile(path))
+			{
+				var extractedDir = ArchiveImportService.ExtractToTempFolder(path);
+				foreach (var file in Directory.GetFiles(extractedDir, FileSearchPattern, SearchOption.AllDirectories))
+				{
+					if (SupportedExtensions.Contains(Path.GetExtension(file)))
+						result.Add(file);
+				}
+			}
 		}
 
 		return result;
@@ -413,16 +446,17 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 	private static string? GetSuggestedPresetName(string[] paths)
 	{
-		if (paths.Length == 1)
-		{
-			if (File.Exists(paths[0]))
-				return Path.GetFileNameWithoutExtension(paths[0]);
+		var folder = paths.FirstOrDefault(Directory.Exists);
+		if (folder != null)
+			return Path.GetFileName(folder);
 
-			if (Directory.Exists(paths[0]))
-				return Path.GetFileName(paths[0]);
-		}
+		var archive = paths.FirstOrDefault(ArchiveImportService.IsArchiveFile);
+		if (archive != null)
+			return Path.GetFileNameWithoutExtension(archive);
 
-		return null;
+		var file = paths.FirstOrDefault(File.Exists);
+
+		return file != null ? Path.GetFileNameWithoutExtension(file) : null;
 	}
 
 	private void CreatePresetFromFiles(List<string> files, string? suggestedName)
@@ -450,9 +484,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 			PresetStore.Save(draft);
 			ReloadGallery();
 		}
-		catch
+		catch (Exception ex)
 		{
-			// TODO: Show error dialog
+			ErrorOccurred?.Invoke(Loc.Format(LocErrorSaveFailed, ex.Message));
 		}
 	}
 
@@ -460,6 +494,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 	{
 		var cursorService = CursorServiceProvider.Current;
 		var snapshot = cursorService.LoadSnapshotFromDisk();
+
 		if (snapshot == null)
 			return;
 
@@ -495,9 +530,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 			ReloadGallery();
 		}
-		catch
+		catch (Exception ex)
 		{
-			// TODO: Show error dialog
+			ErrorOccurred?.Invoke(Loc.Format(LocErrorApplyFailed, ex.Message));
 		}
 	}
 
@@ -790,9 +825,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 			_activeScaleMode = scaleMode;
 			RaisePropertyChanged(nameof(BaselineSizePx));
 		}
-		catch
+		catch (Exception ex)
 		{
-			// TODO: Show error dialog
+			ErrorOccurred?.Invoke(Loc.Format(LocErrorApplyFailed, ex.Message));
 		}
 	}
 

@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
+using Ellipse = Avalonia.Controls.Shapes.Ellipse;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -22,6 +23,7 @@ public class PresetEditorWindow : Window
 	private const double SlotMargin = 6;
 	private const double SlotCornerRadius = 10;
 	private const double SlotPreviewSize = 40;
+	private const double HotspotDotSize = 8;
 	private const double DialogMargin = 16;
 	private const double DialogSpacing = 12;
 	private const double ButtonSpacing = 8;
@@ -52,13 +54,37 @@ public class PresetEditorWindow : Window
 	private const string LocScaleCursors = "S.ScaleCursors";
 	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
 	private const string LocEditorPickExisting = "S.Editor.PickExisting";
+	private const string LocEditorPivotTooltip = "S.Editor.Pivot.Tooltip";
+	private const string LocEditorPivotDisabledTooltip = "S.Editor.Pivot.Disabled.Tooltip";
 	private const string LocEditorLinkedRoleTooltip = "S.Editor.LinkedRole.Tooltip";
+	private const string LocEditorEmptyCursorWarning = "S.Editor.EmptyCursorWarning";
+	private const string LocToastDownloaded = "S.Toast.Downloaded";
+	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
+	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
+	private const string LocEditorDownloadPresetTooltip = "S.Editor.DownloadPreset.Tooltip";
+	private const string LocExportMoreOptionsTooltip = "S.Export.MoreOptions.Tooltip";
+	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
+	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
+	private const string LocDownloadReadme = "S.Export.DownloadReadme";
+	private const string LocToastExportedXcursorTheme = "S.Toast.ExportedXcursorTheme";
+	private const string LocToastExportedLinuxArchive = "S.Toast.ExportedLinuxArchive";
+	private const string LocErrorArchiveExtractFailed = "S.Error.ArchiveExtractFailed";
+	private const string LocEditorLockTooltip = "S.Editor.Lock.Tooltip";
+	private const string LocEditorUnlockTooltip = "S.Editor.Unlock.Tooltip";
+	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
 
 	private const string CursorFileFilterName = "Cursors";
 	private const string EmptyValue = "";
 	private const string PaintButtonText = "Paint";
 	private const string PickExistingButtonContent = "🧩";
-	private const string LinkBadgeText = "🔗";
+	private const string LinkIconFile = "LinkIcon32.png";
+	private const string LockIconFile = "LockIcon26.png";
+	private const string DownloadIconFile = "DownloadIcon32.png";
+	private const string StairIconFile = "StairIcon24.png";
+	private const string ExpandIconFile = "ExpandIcon32.png";
+	private const double LinkBadgeIconSize = 16;
+	private const double LockIconSize = 14;
+	private const double DownloadIconSize = 16;
 	private const double IconButtonSize = 28;
 	private const string PaintTempDirName = "cursor-palette-paint";
 	private const string CurExtension = ".cur";
@@ -71,11 +97,46 @@ public class PresetEditorWindow : Window
 		".cur", ".ani", ".png", ".jpg", ".jpeg", ".bmp", ".gif"
 	};
 
+	private const double WindowDefaultWidth = 760;
+	private const double WindowDefaultHeight = 640;
+	private const int NameMaxLength = 60;
+	private const double SliderMinWidth = 90;
+	private const double SizeValueTextWidth = 46;
+	private const double SaveButtonMinWidth = 110;
+	private const double CancelButtonMinWidth = 90;
+	private const double DownloadButtonSize = 32;
+	private const double DownloadMoreButtonWidth = 20;
+	private const double ScaleModeButtonSize = 28;
+	private const double ScaleModeButtonCornerRadius = 6;
+	private const double SlotHintFontSize = 12;
+	private const double RoleNameFontSize = 12;
+	private const double FileTextFontSize = 11;
+	private const double BrowseButtonFontSize = 11;
+	private const double PivotButtonFontSize = 14;
+	private const double ClearButtonSize = 22;
+	private const double SlotIconButtonSize = 22;
+	private const double HotspotDotStrokeThickness = 1.5;
+	private const double DropIndicatorBorderThickness = 3;
+	private const double SlotBorderThickness = 2;
+	private const double PlaceholderBadgeCornerRadius = 4;
+	private const string PivotButtonContent = "🎯";
+	private const string ClearButtonContent = "✕";
+	private const string DownloadMoreButtonContent = "▾";
+	private const string AniExtension = ".ani";
+	private const string GifExtension = ".gif";
+	private const string HotspotTempFilePrefix = "cursor-palette-hotspot-";
+	private const string PositionTempFilePrefix = "cursor-palette-position-";
+	private const string XcursorTempFilePrefix = "cursor-palette-editor-xcursor-";
+	private const double DefaultDpi = 96.0;
+	private const int MaxCursorDimension = 256;
+	private static readonly string[] CursorFilePickerPatterns = { "*.cur", "*.ani", "*.png", "*.jpg", "*.bmp", "*.gif" };
+
 	private readonly List<Slot> _slots = new();
 	private readonly string? _draftId;
 	private int _baseSize;
 	private bool _useScaling;
 	private ScaleMode _scaleMode = ScaleMode.AreaWeighted;
+	private Panel _rootPanel = null!;
 
 	public PresetDraft? Result { get; private set; }
 
@@ -87,8 +148,8 @@ public class PresetEditorWindow : Window
 	public PresetEditorWindow(Preset? existing, IReadOnlyList<string> droppedFiles, string? suggestedName = null)
 	{
 		Title = Loc.Get(existing == null ? LocEditorTitleNew : LocEditorTitleEdit);
-		Width = 760;
-		Height = 640;
+		Width = WindowDefaultWidth;
+		Height = WindowDefaultHeight;
 		MinWidth = WindowMinWidth;
 		MinHeight = WindowMinHeight;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -98,7 +159,7 @@ public class PresetEditorWindow : Window
 			Text = existing?.Name
 				?? (string.IsNullOrWhiteSpace(suggestedName) ? null : suggestedName)
 				?? Loc.Get(LocDefaultPresetName),
-			MaxLength = 60,
+			MaxLength = NameMaxLength,
 			Watermark = Loc.Get(LocEditorPresetName),
 		};
 
@@ -113,13 +174,13 @@ public class PresetEditorWindow : Window
 			Value = (_baseSize - CursorConstants.SizeStep) / (double)CursorConstants.SizeStep,
 			TickFrequency = 1,
 			IsSnapToTickEnabled = true,
-			MinWidth = 90,
+			MinWidth = SliderMinWidth,
 			Margin = new Avalonia.Thickness(8, 0),
 		};
 
 		_sizeValueText = new TextBlock
 		{
-			Width = 46,
+			Width = SizeValueTextWidth,
 			VerticalAlignment = VerticalAlignment.Center,
 			Text = $"{_baseSize} {PixelSuffix}",
 		};
@@ -139,22 +200,45 @@ public class PresetEditorWindow : Window
 		var saveButton = new Button
 		{
 			Content = Loc.Get(LocEditorSave),
-			MinWidth = 110,
+			MinWidth = SaveButtonMinWidth,
 		};
 
 		var cancelButton = new Button
 		{
 			Content = Loc.Get(LocEditorCancel),
-			MinWidth = 90,
+			MinWidth = CancelButtonMinWidth,
 			Margin = new Avalonia.Thickness(12, 0, 8, 0),
 		};
 
 		saveButton.Click += OnSaveClick;
 		cancelButton.Click += (_, _) => Close();
 
+		var downloadPresetButton = new Button
+		{
+			Content = IconHelper.CreateIcon(DownloadIconFile, 16, Brushes.White),
+			Width = DownloadButtonSize,
+			Height = DownloadButtonSize,
+			Padding = new Avalonia.Thickness(0),
+			Margin = new Avalonia.Thickness(0, 0, 2, 0),
+		};
+		ToolTip.SetTip(downloadPresetButton, Loc.Get(LocEditorDownloadPresetTooltip));
+
+		var downloadMoreButton = new Button
+		{
+			Content = DownloadMoreButtonContent,
+			Width = DownloadMoreButtonWidth,
+			Height = DownloadButtonSize,
+			Padding = new Avalonia.Thickness(0),
+			Margin = new Avalonia.Thickness(0, 0, 8, 0),
+		};
+		ToolTip.SetTip(downloadMoreButton, Loc.Get(LocExportMoreOptionsTooltip));
+
+		downloadPresetButton.Click += OnDownloadPresetClick;
+		downloadMoreButton.Click += OnDownloadPresetMoreClick;
+
 		var bottomBar = new Grid
 		{
-			ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,Auto,Auto"),
+			ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,Auto,Auto,Auto,Auto"),
 			Margin = new Avalonia.Thickness(DialogMargin),
 		};
 		var nameLabel = new TextBlock
@@ -168,9 +252,13 @@ public class PresetEditorWindow : Window
 		bottomBar.Children.Add(nameLabel);
 		Grid.SetColumn(_nameBox, 2);
 		bottomBar.Children.Add(_nameBox);
-		Grid.SetColumn(cancelButton, 3);
+		Grid.SetColumn(downloadPresetButton, 3);
+		bottomBar.Children.Add(downloadPresetButton);
+		Grid.SetColumn(downloadMoreButton, 4);
+		bottomBar.Children.Add(downloadMoreButton);
+		Grid.SetColumn(cancelButton, 5);
 		bottomBar.Children.Add(cancelButton);
-		Grid.SetColumn(saveButton, 4);
+		Grid.SetColumn(saveButton, 6);
 		bottomBar.Children.Add(saveButton);
 
 		var applySizeButton = new Button
@@ -190,19 +278,17 @@ public class PresetEditorWindow : Window
 		useScalingCheckBox.IsCheckedChanged += (_, _) =>
 			_useScaling = useScalingCheckBox.IsChecked == true;
 
-		var scaleModeIcon = new TextBlock
-		{
-			Text = _scaleMode == ScaleMode.NearestNeighbor ? "📐" : "📏",
-			FontSize = 14,
-			HorizontalAlignment = HorizontalAlignment.Center,
-			VerticalAlignment = VerticalAlignment.Center,
-		};
+		var scaleModeIcon = IconHelper.CreateIcon(
+			_scaleMode == ScaleMode.NearestNeighbor ? StairIconFile : ExpandIconFile,
+			16, Brushes.White);
+		scaleModeIcon.HorizontalAlignment = HorizontalAlignment.Center;
+		scaleModeIcon.VerticalAlignment = VerticalAlignment.Center;
 
 		var scaleModeButton = new Border
 		{
-			Width = 28,
-			Height = 28,
-			CornerRadius = new Avalonia.CornerRadius(6),
+			Width = ScaleModeButtonSize,
+			Height = ScaleModeButtonSize,
+			CornerRadius = new Avalonia.CornerRadius(ScaleModeButtonCornerRadius),
 			Background = new SolidColorBrush(0x00000000),
 			BorderBrush = Brushes.Gray,
 			BorderThickness = new Avalonia.Thickness(1),
@@ -215,7 +301,7 @@ public class PresetEditorWindow : Window
 			_scaleMode = _scaleMode == ScaleMode.NearestNeighbor
 				? ScaleMode.AreaWeighted
 				: ScaleMode.NearestNeighbor;
-			scaleModeIcon.Text = _scaleMode == ScaleMode.NearestNeighbor ? "📐" : "📏";
+			scaleModeIcon.OpacityMask = new ImageBrush { Source = IconHelper.Load(_scaleMode == ScaleMode.NearestNeighbor ? StairIconFile : ExpandIconFile) };
 		};
 
 		var sizeBar = new Grid
@@ -295,11 +381,57 @@ public class PresetEditorWindow : Window
 		rootPanel.Children.Add(scrollViewer);
 		rootPanel.Children.Add(bottomBar);
 
+		_rootPanel = rootPanel;
 		Content = rootPanel;
+
+		var uiScale = AppState.GetUiScale();
+		if (uiScale != 1.0)
+		{
+			rootPanel.RenderTransform = new ScaleTransform(uiScale, uiScale);
+			rootPanel.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
+		}
 
 		_draftId = existing?.Id;
 
 		BuildSlots(existing, droppedFiles);
+
+		AddHandler(DragDrop.DragEnterEvent, OnPresetWindowDragEnter);
+		AddHandler(DragDrop.DragLeaveEvent, OnPresetWindowDragLeave);
+		AddHandler(DragDrop.DropEvent, OnPresetWindowDrop);
+	}
+
+	private void OnPresetWindowDragEnter(object? sender, DragEventArgs e)
+	{
+		if (!e.Data.Contains(DataFormats.Files))
+			return;
+
+		var files = e.Data.GetFiles()?.Select(f => f.Path.LocalPath).ToArray();
+		var hasFolder = files?.Any(Directory.Exists) == true;
+
+		if (hasFolder)
+		{
+			HideAllDropIndicators();
+		}
+		else
+		{
+			ShowSlotDropIndicators();
+		}
+	}
+
+	private void OnPresetWindowDragLeave(object? sender, DragEventArgs e)
+	{
+		HideAllDropIndicators();
+	}
+
+	private void OnPresetWindowDrop(object? sender, DragEventArgs e)
+	{
+		HideAllDropIndicators();
+	}
+
+	private void ShowSlotDropIndicators()
+	{
+		foreach (var slot in _slots)
+			slot.DropIndicator.IsVisible = !slot.IsLocked;
 	}
 
 	private sealed class Slot
@@ -308,14 +440,22 @@ public class PresetEditorWindow : Window
 		public string? SourcePath { get; set; }
 		public string? RefPresetId { get; set; }
 		public string? RefFileName { get; set; }
+		public bool IsLocked { get; set; }
 		public required Image PreviewImage { get; init; }
+		public required Canvas PreviewHost { get; init; }
+		public required Ellipse HotspotDot { get; init; }
 		public required TextBlock FileText { get; init; }
 		public required Button BrowseButton { get; init; }
+		public required Button PivotButton { get; init; }
 		public required Button PaintButton { get; init; }
 		public required Button PickExistingButton { get; init; }
 		public required Button ClearButton { get; init; }
 		public required Border Container { get; init; }
-		public required TextBlock LinkBadge { get; init; }
+		public required Control LinkBadge { get; init; }
+		public required Border PlaceholderBadge { get; init; }
+		public required Button DownloadButton { get; init; }
+		public required Button LockButton { get; init; }
+		public required Border DropIndicator { get; init; }
 	}
 
 	private void BuildSlots(Preset? existing, IReadOnlyList<string> droppedFiles)
@@ -337,6 +477,9 @@ public class PresetEditorWindow : Window
 					if (path != null && File.Exists(path))
 						SetSlotSource(slot, path);
 				}
+
+				if (existing.LockedRoles.Contains(role.RegistryName))
+					SetSlotLocked(slot, true);
 			}
 
 			_slotsControl.Items.Add(slot.Container);
@@ -361,13 +504,32 @@ public class PresetEditorWindow : Window
 			Height = SlotPreviewSize,
 		};
 
+		var hotspotDot = new Ellipse
+		{
+			Width = HotspotDotSize,
+			Height = HotspotDotSize,
+			Fill = Brushes.CornflowerBlue,
+			Stroke = Brushes.White,
+			StrokeThickness = HotspotDotStrokeThickness,
+			IsVisible = false,
+		};
+
+		var previewHost = new Canvas
+		{
+			Width = SlotPreviewSize,
+			Height = SlotPreviewSize,
+			HorizontalAlignment = HorizontalAlignment.Center,
+		};
+		previewHost.Children.Add(preview);
+		previewHost.Children.Add(hotspotDot);
+
 		var roleName = new TextBlock
 		{
 			Text = Loc.Get("S." + role.DisplayKey),
 			FontWeight = FontWeight.SemiBold,
 			TextAlignment = TextAlignment.Center,
 			TextWrapping = TextWrapping.Wrap,
-			FontSize = 12,
+			FontSize = RoleNameFontSize,
 			Margin = new Avalonia.Thickness(4, 6, 4, 0),
 		};
 
@@ -375,7 +537,7 @@ public class PresetEditorWindow : Window
 		{
 			Text = Loc.Get(LocEditorEmptySlot),
 			Foreground = Brushes.Gray,
-			FontSize = 11,
+			FontSize = FileTextFontSize,
 			TextAlignment = TextAlignment.Center,
 			TextTrimming = TextTrimming.CharacterEllipsis,
 			Margin = new Avalonia.Thickness(4, 2, 4, 0),
@@ -385,16 +547,28 @@ public class PresetEditorWindow : Window
 		var browseButton = new Button
 		{
 			Content = Loc.Get(LocEditorBrowse),
-			FontSize = 11,
+			FontSize = BrowseButtonFontSize,
 			Padding = new Avalonia.Thickness(6, 3),
 			Margin = new Avalonia.Thickness(0, 6, 0, 0),
 			HorizontalAlignment = HorizontalAlignment.Center,
 		};
 
+		var pivotButton = new Button
+		{
+			Content = PivotButtonContent,
+			FontSize = PivotButtonFontSize,
+			Width = IconButtonSize,
+			Height = IconButtonSize,
+			Padding = new Avalonia.Thickness(0),
+			Margin = new Avalonia.Thickness(0, 4, 0, 0),
+			HorizontalAlignment = HorizontalAlignment.Center,
+			IsVisible = false,
+		};
+
 		var paintButton = new Button
 		{
 			Content = PaintButtonText,
-			FontSize = 11,
+			FontSize = BrowseButtonFontSize,
 			Padding = new Avalonia.Thickness(6, 3),
 			Margin = new Avalonia.Thickness(0, 4, 0, 0),
 			HorizontalAlignment = HorizontalAlignment.Center,
@@ -403,7 +577,7 @@ public class PresetEditorWindow : Window
 		var pickExistingButton = new Button
 		{
 			Content = PickExistingButtonContent,
-			FontSize = 11,
+			FontSize = BrowseButtonFontSize,
 			Width = IconButtonSize,
 			Height = IconButtonSize,
 			Padding = new Avalonia.Thickness(0),
@@ -414,10 +588,10 @@ public class PresetEditorWindow : Window
 
 		var clearButton = new Button
 		{
-			Content = "✕",
-			FontSize = 11,
-			Width = 22,
-			Height = 22,
+			Content = ClearButtonContent,
+			FontSize = BrowseButtonFontSize,
+			Width = ClearButtonSize,
+			Height = ClearButtonSize,
 			Padding = new Avalonia.Thickness(0),
 			HorizontalAlignment = HorizontalAlignment.Right,
 			VerticalAlignment = VerticalAlignment.Top,
@@ -430,16 +604,53 @@ public class PresetEditorWindow : Window
 			VerticalAlignment = VerticalAlignment.Center,
 			HorizontalAlignment = HorizontalAlignment.Center,
 		};
-		panel.Children.Add(preview);
+		panel.Children.Add(previewHost);
 		panel.Children.Add(roleName);
 		panel.Children.Add(fileText);
 		panel.Children.Add(browseButton);
+		panel.Children.Add(pivotButton);
 		panel.Children.Add(paintButton);
 		panel.Children.Add(pickExistingButton);
+
+		var downloadButton = new Button
+		{
+			Content = IconHelper.CreateIcon(DownloadIconFile, DownloadIconSize, Brushes.White),
+			Width = SlotIconButtonSize,
+			Height = SlotIconButtonSize,
+			Padding = new Avalonia.Thickness(0),
+			HorizontalAlignment = HorizontalAlignment.Right,
+			VerticalAlignment = VerticalAlignment.Bottom,
+			Margin = new Avalonia.Thickness(0, 0, 6, 6),
+			IsVisible = false,
+		};
+
+		var lockButton = new Button
+		{
+			Content = IconHelper.CreateIcon(LockIconFile, LockIconSize, Brushes.White),
+			Width = SlotIconButtonSize,
+			Height = SlotIconButtonSize,
+			Padding = new Avalonia.Thickness(0),
+			HorizontalAlignment = HorizontalAlignment.Left,
+			VerticalAlignment = VerticalAlignment.Top,
+			Margin = new Avalonia.Thickness(6, 6, 0, 0),
+		};
+		ToolTip.SetTip(lockButton, Loc.Get(LocEditorLockTooltip));
 
 		var slotContent = new Grid();
 		slotContent.Children.Add(panel);
 		slotContent.Children.Add(clearButton);
+		slotContent.Children.Add(downloadButton);
+		slotContent.Children.Add(lockButton);
+
+		var dropIndicator = new Border
+		{
+			BorderBrush = Brushes.CornflowerBlue,
+			BorderThickness = new Avalonia.Thickness(DropIndicatorBorderThickness),
+			CornerRadius = new Avalonia.CornerRadius(SlotCornerRadius),
+			IsVisible = false,
+			IsHitTestVisible = false,
+		};
+		slotContent.Children.Add(dropIndicator);
 
 		var border = new Border
 		{
@@ -447,69 +658,181 @@ public class PresetEditorWindow : Window
 			Height = SlotHeight,
 			Margin = new Avalonia.Thickness(SlotMargin),
 			CornerRadius = new Avalonia.CornerRadius(SlotCornerRadius),
-			BorderThickness = new Avalonia.Thickness(2),
+			BorderThickness = new Avalonia.Thickness(SlotBorderThickness),
 			BorderBrush = Brushes.DarkGray,
 			Background = Brushes.Transparent,
 			Child = slotContent,
 		};
 
-		var linkBadge = new TextBlock
+		var linkBadge = IconHelper.CreateIcon(LinkIconFile, LinkBadgeIconSize, Brushes.White);
+		linkBadge.HorizontalAlignment = HorizontalAlignment.Center;
+		linkBadge.Margin = new Avalonia.Thickness(0, 0, 0, 4);
+		linkBadge.IsVisible = false;
+
+		var placeholderBadge = new Border
 		{
-			Text = LinkBadgeText,
-			FontSize = 14,
-			HorizontalAlignment = HorizontalAlignment.Center,
+			Background = Brushes.DarkGray,
+			CornerRadius = new Avalonia.CornerRadius(PlaceholderBadgeCornerRadius),
+			Padding = new Avalonia.Thickness(8, 2),
 			Margin = new Avalonia.Thickness(0, 0, 0, 4),
-			IsVisible = false,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Child = new TextBlock
+			{
+				Text = Loc.Get(LocEditorPlaceholderBadge),
+				FontSize = FileTextFontSize,
+			},
 		};
 
 		panel.Children.Insert(0, linkBadge);
+		panel.Children.Insert(0, placeholderBadge);
 
 		var slot = new Slot
 		{
 			Role = role,
 			PreviewImage = preview,
+			PreviewHost = previewHost,
+			HotspotDot = hotspotDot,
 			FileText = fileText,
 			BrowseButton = browseButton,
+			PivotButton = pivotButton,
 			PaintButton = paintButton,
 			PickExistingButton = pickExistingButton,
 			ClearButton = clearButton,
 			Container = border,
 			LinkBadge = linkBadge,
+			PlaceholderBadge = placeholderBadge,
+			DownloadButton = downloadButton,
+			LockButton = lockButton,
+			DropIndicator = dropIndicator,
 		};
 
 		browseButton.Click += async (_, _) => await BrowseForSlot(slot);
+		pivotButton.Click += async (_, _) => await OpenHotspotEditor(slot);
 		paintButton.Click += (_, _) => OpenPaintEditor(slot);
 		pickExistingButton.Click += (_, _) => PickExistingForSlot(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
+		downloadButton.Click += (_, _) => DownloadSlot(slot);
+		lockButton.Click += (_, _) => SetSlotLocked(slot, !slot.IsLocked);
+
+		border.AddHandler(DragDrop.DragOverEvent, OnSlotDragOver);
+		border.AddHandler(DragDrop.DropEvent, OnSlotDrop);
+		border.Tag = slot;
 
 		return slot;
 	}
 
+	private async Task OpenHotspotEditor(Slot slot)
+	{
+		var resolvedPath = GetSlotResolvedPath(slot);
+		if (resolvedPath == null)
+			return;
+
+		var hotspot = CursorHotspotService.Read(resolvedPath);
+		if (hotspot == null)
+			return;
+
+		var editor = new HotspotEditorWindow(resolvedPath, hotspot);
+		await editor.ShowDialog(this);
+
+		if (editor.ResultX == hotspot.X && editor.ResultY == hotspot.Y)
+			return;
+
+		var tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+			$"cursor-palette-hotspot-{Guid.NewGuid():N}{System.IO.Path.GetExtension(resolvedPath)}");
+
+		try
+		{
+			CursorHotspotService.WriteWithHotspot(resolvedPath, tempPath, editor.ResultX, editor.ResultY);
+			CursorPreviewService.Invalidate(tempPath);
+			SetSlotSource(slot, tempPath);
+		}
+		catch
+		{
+		}
+	}
+
+	private const int AniOpenFrameLimit = 60;
+
 	private void OpenPaintEditor(Slot slot)
 	{
-		var source = slot.SourcePath != null ? CursorCanvasService.TryRead(slot.SourcePath) : null;
-		var editor = new PaintEditorWindow(source);
+		var resolvedPath = GetSlotResolvedPath(slot);
+
+		PaintEditorWindow editor;
+
+		if (resolvedPath != null && string.Equals(Path.GetExtension(resolvedPath), AniExtension, StringComparison.OrdinalIgnoreCase))
+		{
+			var seed = ReadAniAsFrames(resolvedPath);
+			if (seed == null)
+				return;
+
+			editor = new PaintEditorWindow(seed.Value.Frames, seed.Value.DelaysMs, _nameBox.Text, slot.Role.RegistryName);
+		}
+		else
+		{
+			var source = resolvedPath != null ? CursorCanvasService.TryRead(resolvedPath) : null;
+			editor = new PaintEditorWindow(source, _nameBox.Text, slot.Role.RegistryName);
+		}
+
 		editor.ShowDialog(this);
 
 		editor.Closed += (_, _) =>
 		{
-			if (editor.Result == null)
-				return;
-
-			var tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), PaintTempDirName);
-			System.IO.Directory.CreateDirectory(tempDir);
-			var fileName = string.Format(PaintFileNameFormat, slot.Role.RegistryName, DateTime.Now);
-			var tempPath = System.IO.Path.Combine(tempDir, fileName);
-
-			try
+			if (editor.ResultFrames is { Count: > 1 } resultFrames)
 			{
-				CursorCanvasService.Write(tempPath, editor.Result);
-				SetSlotSource(slot, tempPath);
+				var tempPath = Path.Combine(Path.GetTempPath(), $"{PositionTempFilePrefix}{Guid.NewGuid():N}{AniExtension}");
+				try
+				{
+					AniCursorWriter.Save(tempPath, resultFrames, editor.ResultFrameDelaysMs!);
+					CursorPreviewService.Invalidate(tempPath);
+					SetSlotSource(slot, tempPath);
+				}
+				catch (Exception ex)
+				{
+					ToastService.Show(_rootPanel, Loc.Format(LocErrorSaveFailed, ex.Message));
+				}
 			}
-			catch
+			else if (editor.Result != null)
 			{
+				var tempDir = Path.Combine(Path.GetTempPath(), PaintTempDirName);
+				Directory.CreateDirectory(tempDir);
+				var fileName = string.Format(PaintFileNameFormat, slot.Role.RegistryName, DateTime.Now);
+				var tempPath = Path.Combine(tempDir, fileName);
+
+				try
+				{
+					CursorCanvasService.Write(tempPath, editor.Result);
+					SetSlotSource(slot, tempPath);
+				}
+				catch (Exception ex)
+				{
+					ToastService.Show(_rootPanel, Loc.Format(LocErrorSaveFailed, ex.Message));
+				}
 			}
 		};
+	}
+
+	private static (List<CursorCanvasImage> Frames, List<int> DelaysMs)? ReadAniAsFrames(string path)
+	{
+		var animated = AniCursorReader.Read(path);
+		if (animated == null || animated.Frames.Count == 0 || animated.StepFrameIndices.Count == 0)
+			return null;
+
+		var hotspot = CursorHotspotService.Read(path);
+		var hotspotX = hotspot?.X ?? 0;
+		var hotspotY = hotspot?.Y ?? 0;
+
+		var frames = new List<CursorCanvasImage>();
+		var delays = new List<int>();
+		var stepCount = Math.Min(animated.StepFrameIndices.Count, AniOpenFrameLimit);
+
+		for (var i = 0; i < stepCount; i++)
+		{
+			var frameIndex = Math.Clamp(animated.StepFrameIndices[i], 0, animated.Frames.Count - 1);
+			frames.Add(animated.Frames[frameIndex]);
+			delays.Add((int)animated.StepDurations[i].TotalMilliseconds);
+		}
+
+		return (frames, delays);
 	}
 
 	private void PickExistingForSlot(Slot slot)
@@ -551,9 +874,18 @@ public class PresetEditorWindow : Window
 
 		try
 		{
-			var preview = CursorPreviewService.GetPreview(resolvedPath);
-			if (preview != null)
-				slot.PreviewImage.Source = preview;
+			if (string.Equals(Path.GetExtension(resolvedPath), AniExtension, StringComparison.OrdinalIgnoreCase))
+			{
+				AnimatedPreviewManager.TryAttach(slot.PreviewImage, resolvedPath);
+			}
+			else
+			{
+				AnimatedPreviewManager.Detach(slot.PreviewImage);
+				var preview = CursorPreviewService.GetPreview(resolvedPath);
+
+				if (preview != null)
+					slot.PreviewImage.Source = preview;
+			}
 		}
 		catch
 		{
@@ -562,13 +894,20 @@ public class PresetEditorWindow : Window
 		slot.FileText.Text = label;
 		slot.FileText.Foreground = Brushes.White;
 		slot.ClearButton.IsVisible = true;
+		slot.DownloadButton.IsVisible = true;
+		slot.PivotButton.IsVisible = true;
+		slot.PivotButton.IsEnabled = false;
+		ToolTip.SetTip(slot.PivotButton, Loc.Get(LocEditorPivotDisabledTooltip));
 		slot.LinkBadge.IsVisible = true;
+		slot.PlaceholderBadge.IsVisible = false;
 		ToolTip.SetTip(slot.LinkBadge, Loc.Format(LocEditorLinkedRoleTooltip, label));
+		UpdateHotspotDot(slot);
 	}
 
 	private static string BuildReferenceLabel(string presetId, string fileName)
 	{
 		var sourceName = PresetStore.LoadAll().FirstOrDefault(p => p.Id == presetId)?.Name;
+
 		return sourceName != null ? $"{sourceName} / {fileName}" : fileName;
 	}
 
@@ -582,7 +921,7 @@ public class PresetEditorWindow : Window
 			{
 				new FilePickerFileType(CursorFileFilterName)
 				{
-					Patterns = new[] { "*.cur", "*.ani", "*.png", "*.jpg", "*.bmp", "*.gif" },
+					Patterns = CursorFilePickerPatterns,
 				},
 			},
 		});
@@ -590,7 +929,16 @@ public class PresetEditorWindow : Window
 		if (files.Count == 0)
 			return;
 
-		SetSlotSource(slot, files[0].Path.LocalPath);
+		var filePath = files[0].Path.LocalPath;
+		var cursorPath = ConvertToCursorTempFile(filePath);
+
+		if (cursorPath != null && IsFullyTransparent(cursorPath))
+		{
+			ToastService.Show(_rootPanel, Loc.Get(LocEditorEmptyCursorWarning));
+			return;
+		}
+
+		SetSlotSource(slot, cursorPath ?? filePath);
 	}
 
 	private void SetSlotSource(Slot slot, string path)
@@ -601,17 +949,32 @@ public class PresetEditorWindow : Window
 		slot.FileText.Text = Path.GetFileName(path);
 		slot.FileText.Foreground = Brushes.White;
 		slot.ClearButton.IsVisible = true;
+		slot.DownloadButton.IsVisible = true;
+		slot.PivotButton.IsVisible = true;
+		slot.PivotButton.IsEnabled = true;
+		ToolTip.SetTip(slot.PivotButton, Loc.Get(LocEditorPivotTooltip));
 		slot.LinkBadge.IsVisible = false;
+		slot.PlaceholderBadge.IsVisible = false;
 
 		try
 		{
-			var preview = CursorPreviewService.GetPreview(path);
-			if (preview != null)
-				slot.PreviewImage.Source = preview;
+			if (string.Equals(Path.GetExtension(path), AniExtension, StringComparison.OrdinalIgnoreCase))
+			{
+				AnimatedPreviewManager.TryAttach(slot.PreviewImage, path);
+			}
+			else
+			{
+				AnimatedPreviewManager.Detach(slot.PreviewImage);
+				var preview = CursorPreviewService.GetPreview(path);
+				if (preview != null)
+					slot.PreviewImage.Source = preview;
+			}
 		}
 		catch
 		{
 		}
+
+		UpdateHotspotDot(slot);
 	}
 
 	private void ClearSlot(Slot slot)
@@ -622,15 +985,215 @@ public class PresetEditorWindow : Window
 		slot.FileText.Text = Loc.Get(LocEditorEmptySlot);
 		slot.FileText.Foreground = Brushes.Gray;
 		slot.ClearButton.IsVisible = false;
+		slot.DownloadButton.IsVisible = false;
+		slot.PivotButton.IsVisible = false;
+		AnimatedPreviewManager.Detach(slot.PreviewImage);
 		slot.PreviewImage.Source = null;
 		slot.LinkBadge.IsVisible = false;
+		slot.PlaceholderBadge.IsVisible = true;
+		slot.HotspotDot.IsVisible = false;
+	}
+
+	private void SetSlotLocked(Slot slot, bool locked)
+	{
+		slot.IsLocked = locked;
+
+		slot.LockButton.Content = IconHelper.CreateIcon(LockIconFile, LockIconSize, locked ? Brushes.Gold : Brushes.White);
+		ToolTip.SetTip(slot.LockButton, Loc.Get(locked ? LocEditorUnlockTooltip : LocEditorLockTooltip));
+
+		slot.BrowseButton.IsEnabled = !locked;
+		slot.PaintButton.IsEnabled = !locked;
+		slot.PickExistingButton.IsEnabled = !locked;
+		slot.ClearButton.IsEnabled = !locked;
+	}
+
+	private static string? GetSlotResolvedPath(Slot slot)
+	{
+		if (slot.SourcePath != null)
+			return slot.SourcePath;
+
+		if (slot.RefPresetId != null && slot.RefFileName != null)
+			return System.IO.Path.Combine(PresetStore.GetFilesDir(slot.RefPresetId), slot.RefFileName);
+
+		return null;
+	}
+
+	private void UpdateHotspotDot(Slot slot)
+	{
+		var resolvedPath = GetSlotResolvedPath(slot);
+		var hotspot = resolvedPath != null ? CursorHotspotService.Read(resolvedPath) : null;
+
+		if (hotspot == null)
+		{
+			slot.HotspotDot.IsVisible = false;
+			return;
+		}
+
+		var displayX = (hotspot.X + 0.5) / hotspot.Width * SlotPreviewSize;
+		var displayY = (hotspot.Y + 0.5) / hotspot.Height * SlotPreviewSize;
+
+		Canvas.SetLeft(slot.HotspotDot, displayX - HotspotDotSize / 2);
+		Canvas.SetTop(slot.HotspotDot, displayY - HotspotDotSize / 2);
+		slot.HotspotDot.IsVisible = true;
+	}
+
+	private void DownloadSlot(Slot slot)
+	{
+		var resolvedPath = GetSlotResolvedPath(slot);
+
+		if (resolvedPath == null || !File.Exists(resolvedPath))
+			return;
+
+		try
+		{
+			var downloadsDir = PathProvider.Current.DownloadsDir;
+			Directory.CreateDirectory(downloadsDir);
+
+			var baseName = ExportFileNaming.Build(_nameBox.Text, slot.Role.RegistryName, slot.Role.RegistryName);
+			var extension = Path.GetExtension(resolvedPath);
+			var destPath = Path.Combine(downloadsDir, $"{baseName}{extension}");
+
+			var attempt = 1;
+			while (File.Exists(destPath))
+				destPath = Path.Combine(downloadsDir, $"{baseName} ({attempt++}){extension}");
+
+			File.Copy(resolvedPath, destPath);
+			var now = DateTime.Now;
+			File.SetCreationTime(destPath, now);
+			File.SetLastWriteTime(destPath, now);
+
+			ToastService.Show(_rootPanel, Loc.Format(LocToastDownloaded, Path.GetFileName(destPath)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(destPath);
+		}
+		catch (Exception ex)
+		{
+			ToastService.Show(_rootPanel, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	private void OnDownloadPresetClick(object? sender, RoutedEventArgs e)
+	{
+		var invalid = Path.GetInvalidPathChars();
+		var presetName = string.Join("", (_nameBox.Text ?? "").Where(c => !invalid.Contains(c))).Trim();
+
+		if (string.IsNullOrWhiteSpace(presetName))
+			presetName = Loc.Get(LocDefaultPresetName);
+
+		var roleFiles = new Dictionary<string, string>();
+
+		foreach (var slot in _slots)
+		{
+			var resolvedPath = GetSlotResolvedPath(slot);
+			if (resolvedPath != null && File.Exists(resolvedPath))
+				roleFiles[slot.Role.RegistryName] = resolvedPath;
+		}
+
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, _useScaling, _scaleMode);
+			if (path == null)
+				return;
+
+			ToastService.Show(_rootPanel, Loc.Format(LocToastPresetDownloaded, presetName, roleFiles.Count));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ToastService.Show(_rootPanel, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	private void OnDownloadPresetMoreClick(object? sender, RoutedEventArgs e)
+	{
+		var menu = new ContextMenu
+		{
+			PlacementTarget = sender as Control,
+		};
+
+		var xcursorItem = new MenuItem { Header = Loc.Get(LocExportAsXcursorTheme) };
+		xcursorItem.Click += (_, _) => ExportPresetForLinux(asXcursorTheme: true);
+		menu.Items.Add(xcursorItem);
+
+		var linuxItem = new MenuItem { Header = Loc.Get(LocExportAsLinuxArchive) };
+		linuxItem.Click += (_, _) => ExportPresetForLinux(asXcursorTheme: false);
+		menu.Items.Add(linuxItem);
+
+		var readmeItem = new MenuItem { Header = Loc.Get(LocDownloadReadme) };
+		readmeItem.Click += (_, _) => DownloadReadme();
+		menu.Items.Add(readmeItem);
+
+		menu.Open(sender as Control);
+	}
+
+	private void DownloadReadme()
+	{
+		try
+		{
+			var path = PresetPackageService.DownloadReadme();
+			ToastService.Show(_rootPanel, Loc.Format(LocToastReadmeDownloaded, Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ToastService.Show(_rootPanel, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	private void ExportPresetForLinux(bool asXcursorTheme)
+	{
+		var invalid = Path.GetInvalidPathChars();
+		var presetName = string.Join("", (_nameBox.Text ?? "").Where(c => !invalid.Contains(c))).Trim();
+
+		if (string.IsNullOrWhiteSpace(presetName))
+			presetName = Loc.Get(LocDefaultPresetName);
+
+		var roleFiles = new Dictionary<string, string>();
+
+		foreach (var slot in _slots)
+		{
+			var resolvedPath = GetSlotResolvedPath(slot);
+			if (resolvedPath != null && File.Exists(resolvedPath))
+				roleFiles[slot.Role.RegistryName] = resolvedPath;
+		}
+
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = asXcursorTheme
+				? PresetPackageService.ExportXcursorThemeForFiles(presetName, roleFiles)
+				: PresetPackageService.ExportLinuxArchiveForFiles(presetName, roleFiles);
+
+			if (path == null)
+				return;
+
+			var toastKey = asXcursorTheme ? LocToastExportedXcursorTheme : LocToastExportedLinuxArchive;
+			ToastService.Show(_rootPanel, Loc.Format(toastKey, 1, Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ToastService.Show(_rootPanel, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
 	}
 
 	private void OnSaveClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
 		if (_slots.All(slot => slot.SourcePath == null && slot.RefPresetId == null))
 		{
-			// No files selected
+			ToastService.Show(_rootPanel, Loc.Get(LocEditorNoFiles));
 			return;
 		}
 
@@ -651,6 +1214,9 @@ public class PresetEditorWindow : Window
 			{
 				Ref = new RoleRef { PresetId = slot.RefPresetId!, FileName = slot.RefFileName! }
 			};
+
+		foreach (var slot in _slots.Where(slot => slot.IsLocked))
+			draft.LockedRoles.Add(slot.Role.RegistryName);
 
 		Result = draft;
 		Close();
@@ -690,6 +1256,8 @@ public class PresetEditorWindow : Window
 
 	private void OnDropZoneDrop(object? sender, DragEventArgs e)
 	{
+		HideAllDropIndicators();
+
 		if (!e.Data.Contains(DataFormats.Files))
 			return;
 
@@ -699,9 +1267,142 @@ public class PresetEditorWindow : Window
 
 		var folder = files[0];
 		if (Directory.Exists(folder))
-			ImportFolder(folder);
-		else if (File.Exists(folder))
-			ImportFolder(Path.GetDirectoryName(folder)!);
+		{
+			if (!TryImportXcursorTheme(folder, Path.GetFileName(folder)))
+				ImportFolder(folder);
+
+			return;
+		}
+
+		if (!File.Exists(folder))
+			return;
+
+		if (ArchiveImportService.IsArchiveFile(folder))
+		{
+			try
+			{
+				var extractedDir = ArchiveImportService.ExtractToTempFolder(folder);
+				var displayName = Path.GetFileNameWithoutExtension(folder);
+
+				if (!TryImportXcursorTheme(extractedDir, displayName))
+					ImportFolder(extractedDir);
+			}
+			catch (Exception ex)
+			{
+				ToastService.Show(_rootPanel, Loc.Format(LocErrorArchiveExtractFailed, ex.Message));
+			}
+
+			return;
+		}
+
+		ImportFolder(Path.GetDirectoryName(folder)!);
+	}
+
+	private bool TryImportXcursorTheme(string folder, string? displayName)
+	{
+		var themeDir = PresetPackageService.LooksLikeXcursorTheme(folder)
+			? folder
+			: Directory.GetDirectories(folder).FirstOrDefault(PresetPackageService.LooksLikeXcursorTheme);
+
+		if (themeDir == null)
+			return false;
+
+		var reconstructedDir = Path.Combine(Path.GetTempPath(), $"{XcursorTempFilePrefix}{Guid.NewGuid():N}");
+		var roleFiles = PresetPackageService.ReconstructXcursorThemeRoles(themeDir, reconstructedDir);
+
+		if (roleFiles.Count == 0)
+			return false;
+
+		var nameHint = PresetPackageService.ReadXcursorThemeName(themeDir) ?? displayName;
+		if (!string.IsNullOrWhiteSpace(nameHint) && string.IsNullOrWhiteSpace(_draftId))
+			_nameBox.Text = nameHint;
+
+		var matched = 0;
+		var emptySkipped = 0;
+
+		foreach (var slot in _slots)
+		{
+			if (!roleFiles.TryGetValue(slot.Role.RegistryName, out var cursorPath))
+				continue;
+
+			matched++;
+
+			if (slot.IsLocked)
+				continue;
+
+			if (IsFullyTransparent(cursorPath))
+			{
+				emptySkipped++;
+				continue;
+			}
+
+			SetSlotSource(slot, cursorPath);
+		}
+
+		if (emptySkipped > 0)
+			ToastService.Show(_rootPanel, Loc.Format(LocEditorEmptySkipped, emptySkipped));
+
+		if (matched == 0)
+			ToastService.Show(_rootPanel, Loc.Format(LocEditorNoMatchInFolder, roleFiles.Count));
+
+		return true;
+	}
+
+	private void OnSlotDragOver(object? sender, DragEventArgs e)
+	{
+		if (sender is not Border border || border.Tag is not Slot slot)
+			return;
+
+		if (slot.IsLocked || !e.Data.Contains(DataFormats.Files))
+		{
+			e.DragEffects = DragDropEffects.None;
+			return;
+		}
+
+		var file = e.Data.GetFiles()?.FirstOrDefault();
+		if (file == null)
+		{
+			e.DragEffects = DragDropEffects.None;
+			return;
+		}
+
+		e.DragEffects = DragDropEffects.Copy;
+		HideAllDropIndicators();
+		slot.DropIndicator.IsVisible = true;
+	}
+
+	private void OnSlotDrop(object? sender, DragEventArgs e)
+	{
+		if (sender is not Border border || border.Tag is not Slot slot)
+			return;
+
+		HideAllDropIndicators();
+
+		if (slot.IsLocked || !e.Data.Contains(DataFormats.Files))
+			return;
+
+		var file = e.Data.GetFiles()?.FirstOrDefault();
+		if (file == null)
+			return;
+
+		var filePath = file.Path.LocalPath;
+		if (!File.Exists(filePath))
+			return;
+
+		var cursorPath = ConvertToCursorTempFile(filePath);
+		if (cursorPath != null && IsFullyTransparent(cursorPath))
+		{
+			ToastService.Show(_rootPanel, Loc.Get(LocEditorEmptyCursorWarning));
+			return;
+		}
+
+		SetSlotSource(slot, cursorPath ?? filePath);
+	}
+
+	private void HideAllDropIndicators()
+	{
+		foreach (var slot in _slots)
+			slot.DropIndicator.IsVisible = false;
 	}
 
 	private void ImportFolder(string folder)
@@ -713,14 +1414,18 @@ public class PresetEditorWindow : Window
 		if (!string.IsNullOrWhiteSpace(folderName) && string.IsNullOrWhiteSpace(_draftId))
 			_nameBox.Text = folderName;
 
-		var convertibleFiles = Directory.EnumerateFiles(folder, AllFilesPattern, SearchOption.TopDirectoryOnly)
+		var convertibleFiles = Directory.EnumerateFiles(folder, AllFilesPattern, SearchOption.AllDirectories)
 			.Where(file => ConvertibleExtensions.Contains(Path.GetExtension(file)))
 			.ToList();
 
 		if (convertibleFiles.Count == 0)
+		{
+			ToastService.Show(_rootPanel, Loc.Get(LocEditorNoCursorInFolder));
 			return;
+		}
 
 		var matched = 0;
+		var emptySkipped = 0;
 
 		foreach (var file in convertibleFiles)
 		{
@@ -729,32 +1434,98 @@ public class PresetEditorWindow : Window
 				continue;
 
 			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
-			matched++;
 
 			var cursorPath = ConvertToCursorTempFile(file);
 			if (cursorPath == null)
 				continue;
 
+			if (IsFullyTransparent(cursorPath))
+			{
+				emptySkipped++;
+				continue;
+			}
+
 			SetSlotSource(slot, cursorPath);
+			matched++;
 		}
+
+		if (matched == 0 && emptySkipped == 0)
+			ToastService.Show(_rootPanel, Loc.Format(LocEditorNoMatchInFolder, convertibleFiles.Count));
+		else if (emptySkipped > 0)
+			ToastService.Show(_rootPanel, Loc.Format(LocEditorEmptySkipped, emptySkipped));
+	}
+
+	private static bool IsFullyTransparent(string path)
+	{
+		var ext = Path.GetExtension(path).ToLowerInvariant();
+
+		if (ext == CurExtension)
+		{
+			var image = CursorCanvasService.TryRead(path);
+			if (image == null)
+				return false;
+
+			for (var i = 3; i < image.Bgra.Length; i += 4)
+			{
+				if (image.Bgra[i] != 0)
+					return false;
+			}
+
+			return true;
+		}
+
+		if (ext == AniExtension)
+		{
+			var frames = AniCursorReader.Read(path);
+			if (frames == null || frames.Frames.Count == 0)
+				return false;
+
+			foreach (var frame in frames.Frames)
+			{
+				if (!IsBgraTransparent(frame.Bgra))
+					return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private static bool IsBgraTransparent(byte[] bgra)
+	{
+		for (var i = 3; i < bgra.Length; i += 4)
+		{
+			if (bgra[i] != 0)
+				return false;
+		}
+
+		return true;
 	}
 
 	private static string? ConvertToCursorTempFile(string path)
 	{
 		var extension = Path.GetExtension(path).ToLowerInvariant();
 
-		if (extension == CurExtension || extension == ".ani")
+		if (extension == CurExtension || extension == AniExtension)
 			return path;
+
+		if (extension == GifExtension)
+		{
+			var aniPath = TryConvertAnimatedGif(path);
+			if (aniPath != null)
+				return aniPath;
+		}
 
 		try
 		{
 			using var bitmap = new Bitmap(path);
-			var width = Math.Min(bitmap.PixelSize.Width, 256);
-			var height = Math.Min(bitmap.PixelSize.Height, 256);
+			var width = Math.Min(bitmap.PixelSize.Width, MaxCursorDimension);
+			var height = Math.Min(bitmap.PixelSize.Height, MaxCursorDimension);
 
 			var tempBitmap = new WriteableBitmap(
 				new PixelSize(width, height),
-				new Vector(96, 96),
+				new Vector(DefaultDpi, DefaultDpi),
 				Avalonia.Platform.PixelFormat.Bgra8888,
 				Avalonia.Platform.AlphaFormat.Unpremul);
 
@@ -781,5 +1552,60 @@ public class PresetEditorWindow : Window
 		{
 			return null;
 		}
+	}
+
+	private const int MaxDimension = 256;
+	private const int MinFrameDurationMs = 20;
+	private const int MaxFrameDurationMs = 10000;
+	private const string ConvertAniTempFilePrefix = "cursor-palette-convert-";
+
+	private static string? TryConvertAnimatedGif(string path)
+	{
+		var frames = GifDecoderService.Decode(path);
+		if (frames == null || frames.Count <= 1)
+			return null;
+
+		var clampedWidth = Math.Clamp(frames[0].Width, 1, MaxDimension);
+		var clampedHeight = Math.Clamp(frames[0].Height, 1, MaxDimension);
+
+		var cursorFrames = new List<CursorCanvasImage>(frames.Count);
+		var delays = new List<int>(frames.Count);
+
+		foreach (var frame in frames)
+		{
+			var bgra = frame.Bgra;
+
+			if (frame.Width != clampedWidth || frame.Height != clampedHeight)
+				bgra = CropBgra(bgra, frame.Width, frame.Height, clampedWidth, clampedHeight);
+
+			var duration = Math.Clamp(frame.DelayMs, MinFrameDurationMs, MaxFrameDurationMs);
+			cursorFrames.Add(new CursorCanvasImage(clampedWidth, clampedHeight, 0, 0, bgra));
+			delays.Add(duration);
+		}
+
+		var tempPath = Path.Combine(Path.GetTempPath(), ConvertAniTempFilePrefix + Guid.NewGuid() + ".ani");
+		AniCursorWriter.Save(tempPath, cursorFrames, delays);
+
+		return tempPath;
+	}
+
+	private static byte[] CropBgra(byte[] source, int srcWidth, int srcHeight, int dstWidth, int dstHeight)
+	{
+		var destination = new byte[dstWidth * dstHeight * 4];
+
+		for (var y = 0; y < dstHeight; y++)
+		{
+			for (var x = 0; x < dstWidth; x++)
+			{
+				var sourceIndex = (y * srcWidth + x) * 4;
+				var destinationIndex = (y * dstWidth + x) * 4;
+				destination[destinationIndex] = source[sourceIndex];
+				destination[destinationIndex + 1] = source[sourceIndex + 1];
+				destination[destinationIndex + 2] = source[sourceIndex + 2];
+				destination[destinationIndex + 3] = source[sourceIndex + 3];
+			}
+		}
+
+		return destination;
 	}
 }

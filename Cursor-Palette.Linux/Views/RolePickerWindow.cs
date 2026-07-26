@@ -25,6 +25,17 @@ public class RolePickerWindow : Window
 	private const double DialogPadding = 16;
 	private const double CloseButtonMinWidth = 90;
 	private const double InfoButtonFontSize = 15;
+	private const double InfoButtonPaddingH = 8;
+	private const double InfoButtonPaddingV = 6;
+	private const double TopBarPaddingVertical = 8;
+	private const double SourceNameMarginBottom = 4;
+	private const double CheckBoxMarginBottom = 10;
+	private const double ScrollViewerRightPadding = 6;
+	private const double BottomBarPaddingVertical = 10;
+	private const double TileBorderThickness = 2;
+	private const double TileHoverOpacity = 0.3;
+	private const string InfoButtonContent = "ⓘ";
+	private const string HelpTextRolePickerKey = "RolePicker";
 
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocInfoTooltip = "S.Info.Tooltip";
@@ -60,8 +71,8 @@ public class RolePickerWindow : Window
 
 		var infoButton = new Button
 		{
-			Content = new TextBlock { Text = "ⓘ", FontSize = InfoButtonFontSize },
-			Padding = new Thickness(8, 6),
+			Content = new TextBlock { Text = InfoButtonContent, FontSize = InfoButtonFontSize },
+			Padding = new Thickness(InfoButtonPaddingH, InfoButtonPaddingV),
 			HorizontalAlignment = HorizontalAlignment.Right,
 		};
 		ToolTip.SetTip(infoButton, Loc.Get(LocInfoTooltip));
@@ -71,7 +82,7 @@ public class RolePickerWindow : Window
 		{
 			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 0, 0, 1),
-			Padding = new Thickness(DialogPadding, 8),
+			Padding = new Thickness(DialogPadding, TopBarPaddingVertical),
 			Child = infoButton,
 		};
 		Grid.SetRow(topBar, 0);
@@ -81,7 +92,7 @@ public class RolePickerWindow : Window
 		{
 			Text = source.Name,
 			FontWeight = FontWeight.SemiBold,
-			Margin = new Thickness(DialogPadding, 0, 0, 4),
+			Margin = new Thickness(DialogPadding, 0, 0, SourceNameMarginBottom),
 		};
 		Grid.SetRow(sourceNameText, 1);
 		root.Children.Add(sourceNameText);
@@ -90,7 +101,7 @@ public class RolePickerWindow : Window
 		{
 			Content = Loc.Get(LocRolePickerOnlyCurrentRole),
 			IsChecked = true,
-			Margin = new Thickness(DialogPadding, 0, 0, 10),
+			Margin = new Thickness(DialogPadding, 0, 0, CheckBoxMarginBottom),
 		};
 		onlyCurrentRoleCheck.IsCheckedChanged += (_, _) =>
 		{
@@ -105,7 +116,7 @@ public class RolePickerWindow : Window
 		var scrollViewer = new ScrollViewer
 		{
 			Content = tilesPanel,
-			Padding = new Thickness(DialogPadding, 0, 6, 0),
+			Padding = new Thickness(DialogPadding, 0, ScrollViewerRightPadding, 0),
 			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
 			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
 		};
@@ -138,13 +149,20 @@ public class RolePickerWindow : Window
 		{
 			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 1, 0, 0),
-			Padding = new Thickness(DialogPadding, 10),
+			Padding = new Thickness(DialogPadding, BottomBarPaddingVertical),
 			Child = cancelButton,
 		};
 		Grid.SetRow(bottomBar, 4);
 		root.Children.Add(bottomBar);
 
 		Content = root;
+
+		var uiScale = AppState.GetUiScale();
+		if (uiScale != 1.0)
+		{
+			root.RenderTransform = new ScaleTransform(uiScale, uiScale);
+			root.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
+		}
 
 		_tilesPanel = tilesPanel;
 		_emptyHint = emptyHint;
@@ -160,7 +178,7 @@ public class RolePickerWindow : Window
 
 	private void OnInfoButtonClick(object? sender, RoutedEventArgs e)
 	{
-		new InfoHelpWindow(Loc.Get(LocInfoTitle), HelpTextService.Get("RolePicker")).ShowDialog(this);
+		new InfoHelpWindow(Loc.Get(LocInfoTitle), HelpTextService.Get(HelpTextRolePickerKey)).ShowDialog(this);
 	}
 
 	private void Rebuild()
@@ -224,13 +242,13 @@ public class RolePickerWindow : Window
 			Margin = new Thickness(TileMargin),
 			CornerRadius = new CornerRadius(TileCornerRadius),
 			Background = Brushes.Transparent,
-			BorderThickness = new Thickness(2),
+			BorderThickness = new Thickness(TileBorderThickness),
 			BorderBrush = isCurrent ? Brushes.CornflowerBlue : Brushes.DarkGray,
 			Child = panel,
 			Cursor = new Cursor(StandardCursorType.Hand),
 		};
 
-		tile.PointerEntered += (_, _) => tile.Background = new SolidColorBrush(Colors.LightGray, 0.3);
+		tile.PointerEntered += (_, _) => tile.Background = new SolidColorBrush(Colors.LightGray, TileHoverOpacity);
 		tile.PointerExited += (_, _) => tile.Background = Brushes.Transparent;
 		tile.PointerReleased += (_, e) =>
 		{

@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
@@ -10,6 +11,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CursorPalette.Linux.Services;
 using CursorPalette.Linux.ViewModels;
 using CursorPalette.Models;
@@ -43,6 +45,9 @@ public partial class MainWindow : Window
 	private const string LocMenuMoveLeft = "S.Menu.MoveLeft";
 	private const string LocMenuMoveRight = "S.Menu.MoveRight";
 	private const string LocMenuDownload = "S.Menu.Download";
+	private const string LocMenuUseScaling = "S.Menu.UseScaling";
+	private const string LocMenuScaleModeNearest = "S.Menu.ScaleMode.Nearest";
+	private const string LocMenuScaleModeSmooth = "S.Menu.ScaleMode.Smooth";
 	private const string LocMenuDelete = "S.Menu.Delete";
 	private const string LocMenuToggleCollapse = "S.Menu.ToggleCollapse";
 	private const string LocMenuRandomPreset = "S.Menu.RandomPreset";
@@ -73,6 +78,9 @@ public partial class MainWindow : Window
 	private const string LocAboutLicenseHint = "S.About.LicenseHint";
 	private const string LocToastUpdateAvailable = "S.Toast.UpdateAvailable";
 	private const string LocUpdateUpToDate = "S.Update.UpToDate";
+	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
+	private const string LocErrorImportVersionUnsupported = "S.Error.ImportVersionUnsupported";
+	private const string LocToastImported = "S.Toast.Imported";
 
 	private const double DialogMargin = 16;
 	private const double DialogSpacing = 12;
@@ -117,15 +125,48 @@ public partial class MainWindow : Window
 	private const double GhostPreviewSize = 40;
 	private const double CellMarginForIndicator = 6;
 
+	private const int SpinnerTimerIntervalMs = 16;
+	private const double SpinnerAngleStep = 6;
+	private const double SpinnerFullRotation = 360;
+	private const double LoadingSpinnerSize = 32;
+	private const double LoadingSpinnerStrokeThickness = 3;
+	private const double LoadingOverlayAlpha = 0.7;
+	private const int LoadingOverlayZIndex = 3000;
+	private const double DragThreshold = 4;
+	private const double ReorderLineOffset = 2;
+	private const double GroupAttachIndicatorOffset = 4;
+	private const double GroupAttachIndicatorPadding = 8;
+	private const double ColorSwatchSize = 20;
+	private const double ColorSwatchCornerRadius = 10;
+	private const double ColorSwatchMargin = 4;
+	private const double ColorSwatchSelectedBorder = 2;
+	private const double OpenFolderToggleActiveOpacity = 1.0;
+	private const double OpenFolderToggleInactiveOpacity = 0.4;
+	private const string PresetBundleExtension = "cursorpalette";
+	private const string PresetBundleFilterName = "Cursor Palette Bundle";
+	private const string PresetBundlePattern = "*.cursorpalette";
+	private const string ImportDialogTitle = "Import";
+	private const string ImportFilterName = "Cursor Palette Package";
+	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
+	private const string LocErrorImportUnrecognized = "S.Error.ImportUnrecognized";
+	private const string LocInfoTitle = "S.Info.Title";
+	private const string HelpTextMainKey = "Main";
+	private const string CheckMarkPrefix = "✓ ";
+	private const string ScaleModeNearestIconFile = "StairIcon24.png";
+	private const string ScaleModeSmoothIconFile = "ExpandIcon32.png";
+	private const double DefaultDpi = 96.0;
+
 	private ScaleMode _activeScaleMode = ScaleMode.AreaWeighted;
 	private ScaleMode _baselineScaleMode = ScaleMode.AreaWeighted;
-	private TextBlock? _scaleModeIcon;
+	private Image? _scaleModeIcon;
 
 	public MainWindow()
 	{
 		InitializeComponent();
 		DataContext = _viewModel;
 		_viewModel.Initialize();
+		_viewModel.ErrorOccurred = msg => ShowToast(msg);
+		_viewModel.ToastRequested = msg => ShowToast(msg);
 
 		Width = AppState.GetMainWindowWidth();
 		Height = AppState.GetMainWindowHeight();
@@ -138,7 +179,7 @@ public partial class MainWindow : Window
 		_zoomText = this.FindControl<TextBlock>("ZoomText");
 		_cellScaleSlider = this.FindControl<Slider>("CellScaleSlider");
 		_cellScaleValueText = this.FindControl<TextBlock>("CellScaleValueText");
-		_scaleModeIcon = this.FindControl<TextBlock>("ScaleModeIcon");
+		_scaleModeIcon = this.FindControl<Image>("ScaleModeIcon");
 
 		if (_sizeSlider != null)
 		{
@@ -191,10 +232,52 @@ public partial class MainWindow : Window
 		BuildGroupColorSwatches();
 
 		_ = CheckForUpdatesAsync();
+
+		_viewModel.Board.CollectionChanged += (_, _) =>
+			DispatcherTimer.RunOnce(AttachAnimatedPreviews, TimeSpan.FromMilliseconds(50));
+	}
+
+	private void AttachAnimatedPreviews()
+	{
+		var gallery = this.FindControl<ItemsControl>("Gallery");
+		if (gallery == null)
+			return;
+
+		AnimatedPreviewManager.DetachAll();
+
+		for (var i = 0; i < _viewModel.Board.Count; i++)
+		{
+			var item = _viewModel.Board[i];
+			if (item.PreviewPath == null)
+				continue;
+
+			if (!string.Equals(System.IO.Path.GetExtension(item.PreviewPath), ".ani", StringComparison.OrdinalIgnoreCase))
+				continue;
+
+			var container = gallery.ContainerFromIndex(i);
+			if (container is not Control control)
+				continue;
+
+			var image = FindPreviewImage(control);
+			if (image != null)
+				AnimatedPreviewManager.TryAttach(image, item.PreviewPath);
+		}
+	}
+
+	private static Image? FindPreviewImage(Control container)
+	{
+		foreach (var child in container.GetVisualDescendants())
+		{
+			if (child is Image img && img.Source != null)
+				return img;
+		}
+
+		return null;
 	}
 
 	protected override void OnClosed(EventArgs e)
 	{
+		AnimatedPreviewManager.DetachAll();
 		AppState.SetMainWindowSize(Width, Height);
 		base.OnClosed(e);
 	}
@@ -236,7 +319,7 @@ public partial class MainWindow : Window
 			var upToDateLabel = this.FindControl<TextBlock>("UpToDateLabel");
 			if (upToDateLabel != null)
 			{
-				upToDateLabel.Text = $"✓ {Loc.Get(LocUpdateUpToDate)}";
+				upToDateLabel.Text = $"{CheckMarkPrefix}{Loc.Get(LocUpdateUpToDate)}";
 				upToDateLabel.IsVisible = true;
 			}
 		}
@@ -280,11 +363,11 @@ public partial class MainWindow : Window
 		if (spinner?.RenderTransform is not RotateTransform rotate)
 			return;
 
-		_updateSpinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+		_updateSpinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(SpinnerTimerIntervalMs) };
 		var angle = 0d;
 		_updateSpinnerTimer.Tick += (_, _) =>
 		{
-			angle = (angle + 6) % 360;
+			angle = (angle + SpinnerAngleStep) % SpinnerFullRotation;
 			rotate.Angle = angle;
 		};
 		_updateSpinnerTimer.Start();
@@ -359,20 +442,20 @@ public partial class MainWindow : Window
 
 		var spinner = new Ellipse
 		{
-			Width = 32,
-			Height = 32,
+			Width = LoadingSpinnerSize,
+			Height = LoadingSpinnerSize,
 			Stroke = Brushes.CornflowerBlue,
-			StrokeThickness = 3,
+			StrokeThickness = LoadingSpinnerStrokeThickness,
 			StrokeDashArray = new Avalonia.Collections.AvaloniaList<double> { 28, 9 },
 			RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative),
 			RenderTransform = new RotateTransform(0),
 		};
 
-		_loadingSpinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+		_loadingSpinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(SpinnerTimerIntervalMs) };
 		var angle = 0d;
 		_loadingSpinnerTimer.Tick += (_, _) =>
 		{
-			angle = (angle + 6) % 360;
+			angle = (angle + SpinnerAngleStep) % SpinnerFullRotation;
 			spinner.RenderTransform = new RotateTransform(angle);
 		};
 
@@ -381,7 +464,7 @@ public partial class MainWindow : Window
 			Background = new SolidColorBrush(0xB3000000),
 			IsHitTestVisible = false,
 			IsVisible = true,
-			ZIndex = 3000,
+			ZIndex = LoadingOverlayZIndex,
 			Child = spinner,
 			HorizontalAlignment = HorizontalAlignment.Stretch,
 			VerticalAlignment = VerticalAlignment.Stretch,
@@ -463,6 +546,8 @@ public partial class MainWindow : Window
 			Loc.Get(LocMenuMoveLeft),
 			Loc.Get(LocMenuMoveRight),
 			Loc.Get(LocMenuDownload),
+			Loc.Get(LocMenuUseScaling),
+			Loc.Get(LocMenuScaleModeNearest),
 			Loc.Get(LocMenuDownloadSystem),
 			Loc.Get(LocMenuToggleCollapse),
 			Loc.Get(LocMenuRandomPreset),
@@ -481,6 +566,19 @@ public partial class MainWindow : Window
 				menuItem.Header = labels[index];
 			index++;
 		}
+
+		if (menu.DataContext is BoardItem { IsPreset: true, Preset: { } preset })
+		{
+			var useScalingItem = items.OfType<MenuItem>().FirstOrDefault(m => m.Name == "MenuUseScalingItem");
+			if (useScalingItem != null)
+				useScalingItem.Header = $"{(preset.UseScaling ? "✓ " : "   ")}{Loc.Get(LocMenuUseScaling)}";
+
+			var scaleModeItem = items.OfType<MenuItem>().FirstOrDefault(m => m.Name == "MenuScaleModeItem");
+			if (scaleModeItem != null)
+				scaleModeItem.Header = preset.ScaleMode == ScaleMode.NearestNeighbor
+					? Loc.Get(LocMenuScaleModeSmooth)
+					: Loc.Get(LocMenuScaleModeNearest);
+		}
 	}
 
 	private void InitializeComponent()
@@ -495,12 +593,22 @@ public partial class MainWindow : Window
 
 		var size = (int)Math.Round(_sizeSlider.Value);
 		UpdateSizeText(size);
+		UpdateApplySizeButtonHighlight(size);
 	}
 
 	private void UpdateSizeText(int size)
 	{
 		if (_sizeValueText != null)
 			_sizeValueText.Text = $"{size} {PixelSuffix}";
+	}
+
+	private void UpdateApplySizeButtonHighlight(int sizeInPixels)
+	{
+		if (_applySizeButton == null)
+			return;
+
+		var sizeChanged = sizeInPixels != _viewModel.BaselineSizePx;
+		_applySizeButton.Classes.Set("accent", sizeChanged);
 	}
 
 	private async void OnApplySizeClick(object? sender, RoutedEventArgs e)
@@ -527,6 +635,7 @@ public partial class MainWindow : Window
 			await _viewModel.ApplySizeAsync(sizePx, useScaling, _activeScaleMode);
 
 			_baselineScaleMode = _activeScaleMode;
+			UpdateApplySizeButtonHighlight(sizePx);
 			ShowToast(Loc.Get(LocToastSizeApplied));
 		}
 		finally
@@ -552,7 +661,7 @@ public partial class MainWindow : Window
 	private void UpdateScaleIcon(ScaleMode scaleMode)
 	{
 		if (_scaleModeIcon != null)
-			_scaleModeIcon.Text = scaleMode == ScaleMode.NearestNeighbor ? "📐" : "�";
+			_scaleModeIcon.Source = IconHelper.Load(scaleMode == ScaleMode.NearestNeighbor ? ScaleModeNearestIconFile : ScaleModeSmoothIconFile);
 	}
 
 	public void SetScaleCursorsCheckbox(bool value)
@@ -610,8 +719,17 @@ public partial class MainWindow : Window
 
 				if (editor.Result != null)
 				{
-					_viewModel.ReloadGallery();
-					ShowToast(Loc.Get(LocToastSaved));
+					try
+					{
+						var saved = PresetStore.Save(editor.Result);
+						InvalidatePresetPreviewCache(saved);
+						_viewModel.ReloadGallery();
+						ShowToast(Loc.Get(LocToastSaved));
+					}
+					catch (Exception ex)
+					{
+						ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
+					}
 				}
 				return;
 			}
@@ -631,7 +749,7 @@ public partial class MainWindow : Window
 			return;
 
 		var current = e.GetPosition(control);
-		if (Math.Abs(current.X - start.X) < 4 && Math.Abs(current.Y - start.Y) < 4)
+		if (Math.Abs(current.X - start.X) < DragThreshold && Math.Abs(current.Y - start.Y) < DragThreshold)
 			return;
 
 		if (_draggedGroupId != null)
@@ -700,6 +818,8 @@ public partial class MainWindow : Window
 			_activeScaleMode = _viewModel.GetActiveScaleMode();
 			_baselineScaleMode = _activeScaleMode;
 			UpdateScaleIcon(_activeScaleMode);
+			UpdateUndoButton();
+			UpdateApplySizeButtonHighlight(_viewModel.BaselineSizePx);
 			ShowToast(Loc.Get(LocToastSaved));
 		}
 		finally
@@ -910,7 +1030,7 @@ public partial class MainWindow : Window
 		var transform = insertionLine.RenderTransform as TranslateTransform;
 		if (transform != null)
 		{
-			transform.X = bestX + galleryOffset.X - 2;
+			transform.X = bestX + galleryOffset.X - ReorderLineOffset;
 			transform.Y = bestTop + galleryOffset.Y;
 		}
 		insertionLine.Height = bestHeight;
@@ -964,12 +1084,12 @@ public partial class MainWindow : Window
 		var transform = indicator.RenderTransform as TranslateTransform;
 		if (transform != null)
 		{
-			transform.X = posInGallery.X + galleryOffset.X - 4;
-			transform.Y = posInGallery.Y + galleryOffset.Y - 4;
+			transform.X = posInGallery.X + galleryOffset.X - GroupAttachIndicatorOffset;
+			transform.Y = posInGallery.Y + galleryOffset.Y - GroupAttachIndicatorOffset;
 		}
 
-		indicator.Width = bounds.Width + 8;
-		indicator.Height = bounds.Height + 8;
+		indicator.Width = bounds.Width + GroupAttachIndicatorPadding;
+		indicator.Height = bounds.Height + GroupAttachIndicatorPadding;
 		indicator.IsVisible = true;
 	}
 
@@ -1039,12 +1159,20 @@ public partial class MainWindow : Window
 
 		try
 		{
-			PresetStore.Save(editor.Result);
+			var saved = PresetStore.Save(editor.Result);
+			InvalidatePresetPreviewCache(saved);
 			_viewModel.ReloadGallery();
 		}
-		catch
+		catch (Exception ex)
 		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
 		}
+	}
+
+	private static void InvalidatePresetPreviewCache(Preset saved)
+	{
+		foreach (var fileName in saved.Roles.Values)
+			CursorPreviewService.Invalidate(System.IO.Path.Combine(PresetStore.GetFilesDir(saved.Id), fileName));
 	}
 
 	private void ShowToast(string message)
@@ -1132,76 +1260,134 @@ public partial class MainWindow : Window
 
 		try
 		{
-			PresetStore.Save(editor.Result);
+			var saved = PresetStore.Save(editor.Result);
+			InvalidatePresetPreviewCache(saved);
 			_viewModel.ReloadGallery();
 		}
-		catch
+		catch (Exception ex)
 		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
 		}
 	}
 
-	public async void OnMenuRename(object? sender, RoutedEventArgs e)
+	public void OnMenuRename(object? sender, RoutedEventArgs e)
 	{
 		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
 			return;
 
-		var dialog = new Window
-		{
-			Title = Loc.Get(LocRenameTitle),
-			Width = DeleteDialogWidth,
-			Height = DeleteDialogHeight,
-			WindowStartupLocation = WindowStartupLocation.CenterOwner,
-		};
+		var gallery = this.FindControl<ItemsControl>("Gallery");
+		if (gallery == null)
+			return;
 
-		var panel = new StackPanel
+		var index = -1;
+		for (var i = 0; i < _viewModel.Board.Count; i++)
 		{
-			Margin = new Avalonia.Thickness(DialogMargin),
-			Spacing = DialogSpacing,
-			VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
-		};
+			if (_viewModel.Board[i].IsPreset && _viewModel.Board[i].Key == preset.Id)
+			{
+				index = i;
+				break;
+			}
+		}
+		if (index < 0)
+			return;
+
+		var container = gallery.ContainerFromIndex(index);
+		if (container is not Control control)
+			return;
+
+		var nameText = FindNameTextBlock(control, preset.Name);
+		if (nameText == null || nameText.Parent is not StackPanel panel)
+			return;
+
+		StartInlineRename(preset, nameText, panel);
+	}
+
+	private static TextBlock? FindNameTextBlock(Control container, string name)
+	{
+		if (container is ContentPresenter presenter)
+			container = presenter.Child as Control ?? presenter;
+
+		foreach (var child in container.GetVisualDescendants())
+		{
+			if (child is TextBlock tb && tb.Text == name && tb.IsVisible)
+				return tb;
+		}
+
+		return null;
+	}
+
+	private void StartInlineRename(Preset preset, TextBlock nameText, StackPanel panel)
+	{
+		var index = panel.Children.IndexOf(nameText);
+		if (index < 0)
+			return;
+
+		var done = false;
 
 		var textBox = new TextBox
 		{
 			Text = preset.Name,
-			SelectionStart = 0,
-			SelectionEnd = preset.Name.Length,
+			FontSize = nameText.FontSize,
+			FontWeight = FontWeight.SemiBold,
+			TextAlignment = TextAlignment.Center,
+			Margin = nameText.Margin,
+			MaxWidth = nameText.MaxWidth,
+			HorizontalAlignment = HorizontalAlignment.Stretch,
 		};
 
-		panel.Children.Add(textBox);
-
-		var buttonPanel = new StackPanel
+		void Restore()
 		{
-			Orientation = Avalonia.Layout.Orientation.Horizontal,
-			HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
-			Spacing = ButtonSpacing,
-		};
+			var currentIndex = panel.Children.IndexOf(textBox);
+			if (currentIndex < 0)
+				return;
 
-		var saveButton = new Button { Content = Loc.Get(LocEditorSave) };
-		var cancelButton = new Button { Content = Loc.Get(LocEditorCancel) };
+			panel.Children.RemoveAt(currentIndex);
+			panel.Children.Insert(currentIndex, nameText);
+		}
 
-		buttonPanel.Children.Add(cancelButton);
-		buttonPanel.Children.Add(saveButton);
-		panel.Children.Add(buttonPanel);
-		dialog.Content = panel;
-
-		cancelButton.Click += (_, _) => dialog.Close();
-		saveButton.Click += (_, _) =>
+		void Commit()
 		{
-			_viewModel.RenamePreset(preset, textBox.Text ?? EmptyValue);
-			dialog.Close();
-		};
+			if (done)
+				return;
+			done = true;
+
+			var newName = textBox.Text?.Trim() ?? "";
+			Restore();
+
+			if (!string.IsNullOrWhiteSpace(newName) && newName != preset.Name)
+			{
+				_viewModel.RenamePreset(preset, newName);
+			}
+		}
+
+		void Cancel()
+		{
+			if (done)
+				return;
+			done = true;
+			Restore();
+		}
 
 		textBox.KeyDown += (_, keyEventArgs) =>
 		{
 			if (keyEventArgs.Key == Key.Enter)
 			{
-				_viewModel.RenamePreset(preset, textBox.Text ?? EmptyValue);
-				dialog.Close();
+				Commit();
+				keyEventArgs.Handled = true;
+			}
+			else if (keyEventArgs.Key == Key.Escape)
+			{
+				Cancel();
+				keyEventArgs.Handled = true;
 			}
 		};
+		textBox.LostFocus += (_, _) => Commit();
 
-		await dialog.ShowDialog(this);
+		panel.Children.RemoveAt(index);
+		panel.Children.Insert(index, textBox);
 		textBox.Focus();
+		textBox.SelectionStart = 0;
+		textBox.SelectionEnd = preset.Name.Length;
 	}
 
 	public void OnMenuMoveLeft(object? sender, RoutedEventArgs e)
@@ -1232,12 +1418,12 @@ public partial class MainWindow : Window
 		var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
 		{
 			Title = Loc.Get(LocMenuDownload),
-			DefaultExtension = "cursorpalette",
+			DefaultExtension = PresetBundleExtension,
 			FileTypeChoices = new[]
 			{
-				new FilePickerFileType("Cursor Palette Bundle")
+				new FilePickerFileType(PresetBundleFilterName)
 				{
-					Patterns = new[] { "*.cursorpalette" }
+					Patterns = new[] { PresetBundlePattern }
 				}
 			}
 		});
@@ -1249,11 +1435,39 @@ public partial class MainWindow : Window
 		{
 			var (path, count) = PresetPackageService.ExportBundle(new[] { preset }, preset.Name);
 			File.Move(path, file.Path.LocalPath, overwrite: true);
-			ShowToast(Loc.Get("S.Toast.PresetDownloaded"));
+			ShowToast(Loc.Get(LocToastPresetDownloaded));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(file.Path.LocalPath);
 		}
-		catch
+		catch (Exception ex)
 		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
 		}
+	}
+
+	public void OnMenuUseScaling(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var newValue = !preset.UseScaling;
+		PresetStore.UpdateUseScaling(preset.Id, newValue);
+		preset.UseScaling = newValue;
+		_viewModel.ReloadGallery();
+	}
+
+	public void OnMenuScaleMode(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var newMode = preset.ScaleMode == ScaleMode.NearestNeighbor
+			? ScaleMode.AreaWeighted
+			: ScaleMode.NearestNeighbor;
+		PresetStore.UpdateScaleMode(preset.Id, newMode);
+		preset.ScaleMode = newMode;
+		_viewModel.ReloadGallery();
 	}
 
 	public async void OnMenuDelete(object? sender, RoutedEventArgs e)
@@ -1264,13 +1478,18 @@ public partial class MainWindow : Window
 
 		if (item.IsGroup && item.Group != null)
 		{
-			_viewModel.DeleteGroup(item.Group.Id);
+			await ShowConfirmDeleteDialog(item.Group.Name, () => _viewModel.DeleteGroup(item.Group.Id));
 			return;
 		}
 
 		if (item is not { IsPreset: true, Preset: { } preset })
 			return;
 
+		await ShowConfirmDeleteDialog(preset.Name, () => _viewModel.DeletePreset(preset));
+	}
+
+	private async Task ShowConfirmDeleteDialog(string name, Action onConfirm)
+	{
 		var dialog = new Window
 		{
 			Title = Loc.Get(LocConfirmDeleteTitle),
@@ -1288,7 +1507,7 @@ public partial class MainWindow : Window
 
 		panel.Children.Add(new TextBlock
 		{
-			Text = Loc.Format(LocConfirmDeleteText, preset.Name),
+			Text = Loc.Format(LocConfirmDeleteText, name),
 			TextWrapping = Avalonia.Media.TextWrapping.Wrap,
 		});
 
@@ -1310,7 +1529,7 @@ public partial class MainWindow : Window
 		noButton.Click += (_, _) => dialog.Close();
 		yesButton.Click += (_, _) =>
 		{
-			_viewModel.DeletePreset(preset);
+			onConfirm();
 			dialog.Close();
 		};
 
@@ -1410,12 +1629,12 @@ public partial class MainWindow : Window
 		{
 			var swatch = new Border
 			{
-				Width = 20,
-				Height = 20,
-				CornerRadius = new CornerRadius(10),
+				Width = ColorSwatchSize,
+				Height = ColorSwatchSize,
+				CornerRadius = new CornerRadius(ColorSwatchCornerRadius),
 				Background = Brush.Parse(hex),
 				BorderThickness = new Thickness(0),
-				Margin = new Thickness(4, 0, 4, 0),
+				Margin = new Thickness(ColorSwatchMargin, 0, ColorSwatchMargin, 0),
 				Cursor = new Cursor(StandardCursorType.Hand),
 			};
 
@@ -1427,7 +1646,7 @@ public partial class MainWindow : Window
 				foreach (var other in _groupColorSwatches)
 					other.BorderThickness = new Thickness(0);
 
-				swatch.BorderThickness = new Thickness(2);
+				swatch.BorderThickness = new Thickness(ColorSwatchSelectedBorder);
 			};
 
 			swatchesPanel.Children.Add(swatch);
@@ -1578,6 +1797,9 @@ public partial class MainWindow : Window
 		}
 
 		ShowToast(Loc.Format(LocToastSystemCursorsDownloaded, count));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			FileExplorerProvider.Current?.RevealFile(destFolder);
 	}
 
 	public void OnMenuDownloadSystemImages(object? sender, RoutedEventArgs e)
@@ -1620,6 +1842,9 @@ public partial class MainWindow : Window
 		}
 
 		ShowToast(Loc.Format(LocToastSystemCursorsDownloaded, count));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			FileExplorerProvider.Current?.RevealFile(destFolder);
 	}
 
 	public void OnMenuDownloadSystemCurAni(object? sender, RoutedEventArgs e)
@@ -1665,13 +1890,16 @@ public partial class MainWindow : Window
 		}
 
 		ShowToast(Loc.Format(LocToastSystemCursorsDownloaded, count));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			FileExplorerProvider.Current?.RevealFile(destFolder);
 	}
 
 	private static void SaveFrameAsPng(XcursorFrame frame, string destPath)
 	{
 		var bitmap = new WriteableBitmap(
 			new PixelSize(frame.Width, frame.Height),
-			new Vector(96, 96),
+			new Vector(DefaultDpi, DefaultDpi),
 			Avalonia.Platform.PixelFormat.Bgra8888,
 			Avalonia.Platform.AlphaFormat.Unpremul);
 		using var locked = bitmap.Lock();
@@ -1690,7 +1918,7 @@ public partial class MainWindow : Window
 		{
 			var bitmap = new WriteableBitmap(
 				new PixelSize(frame.Width, frame.Height),
-				new Vector(96, 96),
+				new Vector(DefaultDpi, DefaultDpi),
 				Avalonia.Platform.PixelFormat.Bgra8888,
 				Avalonia.Platform.AlphaFormat.Unpremul);
 			using var locked = bitmap.Lock();
@@ -1712,15 +1940,22 @@ public partial class MainWindow : Window
 	private async void OnUndoClick(object? sender, RoutedEventArgs e)
 	{
 		await _viewModel.UndoAsync();
+		_activeScaleMode = _viewModel.GetActiveScaleMode();
+		_baselineScaleMode = _activeScaleMode;
+		UpdateScaleIcon(_activeScaleMode);
+		UpdateUndoButton();
 	}
 
-	private bool _isDarkTheme;
+	private void UpdateUndoButton()
+	{
+		var undoButton = this.FindControl<Button>("UndoButton");
+		if (undoButton != null)
+			undoButton.IsEnabled = _viewModel.CanUndo;
+	}
 
 	private void OnThemeToggle(object? sender, RoutedEventArgs e)
 	{
-		_isDarkTheme = !_isDarkTheme;
-		RequestedThemeVariant = _isDarkTheme ? Avalonia.Styling.ThemeVariant.Dark : Avalonia.Styling.ThemeVariant.Light;
-
+		ThemeManager.Toggle();
 		UpdateThemeToggleIcon();
 	}
 
@@ -1728,7 +1963,7 @@ public partial class MainWindow : Window
 	{
 		var themeButton = this.FindControl<Button>("ThemeToggleButton");
 		if (themeButton != null)
-			themeButton.Content = _isDarkTheme ? ThemeIconDark : ThemeIconLight;
+			themeButton.Content = ThemeManager.Current == ThemeManager.Dark ? ThemeIconDark : ThemeIconLight;
 	}
 
 	private int _languageIndex;
@@ -1796,13 +2031,13 @@ public partial class MainWindow : Window
 		var storageProvider = StorageProvider;
 		var files = await storageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
 		{
-			Title = "Import",
+			Title = ImportDialogTitle,
 			AllowMultiple = false,
 			FileTypeFilter = new[]
 			{
-				new Avalonia.Platform.Storage.FilePickerFileType("Cursor Palette Package")
+				new Avalonia.Platform.Storage.FilePickerFileType(ImportFilterName)
 				{
-					Patterns = new[] { "*.cursorpalette", "*.zip", "*.tar.gz" },
+					Patterns = new[] { PresetBundlePattern, "*.zip", "*.tar.gz" },
 				},
 			},
 		});
@@ -1811,22 +2046,59 @@ public partial class MainWindow : Window
 			return;
 
 		var filePath = files[0].Path.LocalPath;
-		var detected = PresetPackageService.TryDetectPackage(filePath);
+		DetectedPackage? detected;
+		try
+		{
+			detected = PresetPackageService.TryDetectPackage(filePath);
+		}
+		catch (PackageVersionUnsupportedException ex)
+		{
+			ShowToast(Loc.Format(LocErrorImportVersionUnsupported, ex.FoundVersion, ex.MaxSupportedVersion));
+			return;
+		}
 		if (detected == null)
 		{
-			ShowToast(Loc.Get("S.Error.ImportUnrecognized"));
+			ShowToast(Loc.Get(LocErrorImportUnrecognized));
 			return;
 		}
 
-		_viewModel.ImportAllFromPackage(detected);
-		ShowToast(Loc.Get(LocToastSaved));
+		var toastHost = this.FindControl<Panel>("RootGrid");
+		if (toastHost == null)
+			return;
+
+		var picker = new ImportPickerWindow(detected.Entries, detected.Groups, toastHost);
+		await picker.ShowDialog(this);
+
+		if (picker.SelectedEntries.Count == 0)
+		{
+			PresetPackageService.CleanupPackage(detected);
+			return;
+		}
+
+		try
+		{
+			var imported = PresetPackageService.ImportSelected(
+				detected, picker.SelectedEntries, picker.SelectedGroups,
+				picker.IgnoreIndividualSizes, picker.UniformSize);
+
+			_viewModel.ReloadGallery();
+
+			if (imported > 0)
+				ShowToast(Loc.Format(LocToastImported, imported));
+		}
+		catch (PackageVersionUnsupportedException ex)
+		{
+			ShowToast(Loc.Format(LocErrorImportVersionUnsupported, ex.FoundVersion, ex.MaxSupportedVersion));
+		}
+
+		PresetPackageService.CleanupPackage(detected);
 	}
 
 	private void UpdateOpenFolderToggleIcon()
 	{
 		var toggle = this.FindControl<Button>("OpenFolderToggle");
 		if (toggle != null)
-			toggle.Opacity = AppState.GetOpenFolderAfterDownload() ? 1.0 : 0.4;
+			toggle.Opacity = AppState.GetOpenFolderAfterDownload() ? OpenFolderToggleActiveOpacity : OpenFolderToggleInactiveOpacity;
 	}
 
 	private void OnGitHubLinkClick(object? sender, RoutedEventArgs e)
@@ -1844,12 +2116,10 @@ public partial class MainWindow : Window
 		}
 	}
 
-	private const string LocInfoTitle = "S.Info.Title";
-
 	private void OnInfoClick(object? sender, RoutedEventArgs e)
 	{
 		var title = Loc.Get(LocInfoTitle);
-		var body = HelpTextService.Get("Main");
+		var body = HelpTextService.Get(HelpTextMainKey);
 		var dialog = new InfoHelpWindow(title, body);
 		dialog.ShowDialog(this);
 	}

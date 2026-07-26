@@ -1,6 +1,5 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Styling;
 using CursorPalette.Linux.Services;
 using CursorPalette.Linux.Views;
 using CursorPalette.Services;
@@ -29,7 +28,7 @@ public partial class App : Avalonia.Application
 			}
 		}
 
-		RequestedThemeVariant = ThemeVariant.Default;
+		ThemeManager.Initialize();
 
 		if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 		{

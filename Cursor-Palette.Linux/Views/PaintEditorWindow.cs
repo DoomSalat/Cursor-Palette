@@ -10,6 +10,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CursorPalette.Linux.Controls;
+using CursorPalette.Linux.Services;
 using CursorPalette.Services;
 using System.Runtime.InteropServices;
 
@@ -302,18 +303,55 @@ public partial class PaintEditorWindow : Window
 
 		_toolMoveBtn = CreateToolButton("✥", AppState.PaintEditorToolMove);
 		_toolHandBtn = CreateToolButton("✋", AppState.PaintEditorToolHand);
-		_toolBrushBtn = CreateToolButton("🖌", AppState.PaintEditorToolBrush);
-		_toolEraserBtn = CreateToolButton("⌫", AppState.PaintEditorToolEraser);
-		_toolFillBtn = CreateToolButton("🪣", AppState.PaintEditorToolFill);
-		_toolCanvasBtn = CreateToolButton("⬚", AppState.PaintEditorToolCanvas);
-		_toolHotspotBtn = CreateToolButton("⊕", AppState.PaintEditorToolHotspot);
-		_toolBgRefBtn = CreateToolButton("🖼", AppState.PaintEditorToolBgRef);
+		_toolBrushBtn = CreateToolButton(IconHelper.CreateIcon("PencilIcon48.png", 18, Brushes.White), AppState.PaintEditorToolBrush);
+		_toolEraserBtn = CreateToolButton(IconHelper.CreateIcon("EraseIcon32.png", 18, Brushes.White), AppState.PaintEditorToolEraser);
+		_toolFillBtn = CreateToolButton(IconHelper.CreateIcon("FillIcon32.png", 18, Brushes.White), AppState.PaintEditorToolFill);
+		_toolCanvasBtn = CreateToolButton("⛶", AppState.PaintEditorToolCanvas);
+		_toolHotspotBtn = CreateToolButton("🎯", AppState.PaintEditorToolHotspot);
+		_toolBgRefBtn = CreateToolButton(IconHelper.CreateIcon("ImageRefIcon32.png", 20, Brushes.White), AppState.PaintEditorToolBgRef);
 
 		_undoButton = new Button { Content = "↶", Padding = new Thickness(UndoRedoButtonPadding) };
 		_redoButton = new Button { Content = "↷", Padding = new Thickness(UndoRedoButtonPadding) };
-		_importButton = new Button { Content = ImportButtonText, Padding = new Thickness(ImportButtonPaddingHorizontal, ImportButtonPaddingVertical, ImportButtonPaddingHorizontal, ImportButtonPaddingVertical) };
-		_exportPngButton = new Button { Content = ExportPngButtonText, Padding = new Thickness(ActionButtonPaddingHorizontal, ActionButtonPaddingVertical, ActionButtonPaddingHorizontal, ActionButtonPaddingVertical) };
-		_exportGifButton = new Button { Content = ExportGifButtonText, Padding = new Thickness(ActionButtonPaddingHorizontal, ActionButtonPaddingVertical, ActionButtonPaddingHorizontal, ActionButtonPaddingVertical), IsVisible = false };
+		_importButton = new Button
+		{
+			Content = new StackPanel
+			{
+				Orientation = Orientation.Horizontal,
+				Children =
+				{
+					IconHelper.CreateIcon("DownloadIcon32.png", 18, Brushes.White),
+					new TextBlock { Text = ImportButtonText, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) },
+				},
+			},
+			Padding = new Thickness(ImportButtonPaddingHorizontal, ImportButtonPaddingVertical, ImportButtonPaddingHorizontal, ImportButtonPaddingVertical),
+		};
+		_exportPngButton = new Button
+		{
+			Content = new StackPanel
+			{
+				Orientation = Orientation.Horizontal,
+				Children =
+				{
+					IconHelper.CreateIcon("DownloadIcon32.png", 18, Brushes.White),
+					new TextBlock { Text = ExportPngButtonText, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) },
+				},
+			},
+			Padding = new Thickness(ActionButtonPaddingHorizontal, ActionButtonPaddingVertical, ActionButtonPaddingHorizontal, ActionButtonPaddingVertical),
+		};
+		_exportGifButton = new Button
+		{
+			Content = new StackPanel
+			{
+				Orientation = Orientation.Horizontal,
+				Children =
+				{
+					IconHelper.CreateIcon("DownloadIcon32.png", 18, Brushes.White),
+					new TextBlock { Text = ExportGifButtonText, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(6, 0, 0, 0) },
+				},
+			},
+			Padding = new Thickness(ActionButtonPaddingHorizontal, ActionButtonPaddingVertical, ActionButtonPaddingHorizontal, ActionButtonPaddingVertical),
+			IsVisible = false,
+		};
 		_canvasSizeButton = new Button { Content = CanvasSizeButtonText, Padding = new Thickness(ActionButtonPaddingHorizontal, ActionButtonPaddingVertical, ActionButtonPaddingHorizontal, ActionButtonPaddingVertical) };
 		_showSpriteBoundsCheck = new ToggleButton { Content = SpriteBoundsButtonText, Padding = new Thickness(ActionButtonPaddingHorizontal, ActionButtonPaddingVertical, ActionButtonPaddingHorizontal, ActionButtonPaddingVertical) };
 
@@ -588,10 +626,24 @@ public partial class PaintEditorWindow : Window
 		return button;
 	}
 
+	private static ToggleButton CreateToolButton(Control icon, string tool)
+	{
+		var button = new ToggleButton
+		{
+			Content = icon,
+			Padding = new Thickness(ToolButtonPadding),
+			MinWidth = ToolButtonMinWidth,
+			Tag = tool,
+		};
+
+		return button;
+	}
+
 	private static Button CreateToolbarButton(string text, EventHandler<RoutedEventArgs> handler)
 	{
 		var button = new Button { Content = text, Padding = new Thickness(ActionButtonPaddingHorizontal, ActionButtonPaddingVertical, ActionButtonPaddingHorizontal, ActionButtonPaddingVertical) };
 		button.Click += handler;
+
 		return button;
 	}
 

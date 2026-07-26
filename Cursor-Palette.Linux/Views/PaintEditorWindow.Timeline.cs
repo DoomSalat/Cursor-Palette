@@ -111,6 +111,16 @@ public partial class PaintEditorWindow
 	}
 
 	private bool _isResizeDragging;
+	private Point _resizeDragStartScreen;
+	private double _resizeDragStartCanvasX;
+	private double _resizeDragStartCanvasY;
+	private int _resizeEdgeFlags;
+
+	private const int ResizeEdgeLeft = 1;
+	private const int ResizeEdgeRight = 2;
+	private const int ResizeEdgeTop = 4;
+	private const int ResizeEdgeBottom = 8;
+	private const double ResizeEdgeThreshold = 0.15;
 
 	private void StartResizeDrag(Point screenPos)
 	{
@@ -123,10 +133,69 @@ public partial class PaintEditorWindow
 		_resizeOriginalPanY = _panTransform.Y;
 		_resizeAccumulatorX = 0;
 		_resizeAccumulatorY = 0;
+		_resizeDragStartScreen = screenPos;
+
+		var canvasX = (screenPos.X - _panTransform.X) / _zoom;
+		var canvasY = (screenPos.Y - _panTransform.Y) / _zoom;
+		_resizeDragStartCanvasX = canvasX;
+		_resizeDragStartCanvasY = canvasY;
+
+		var relX = canvasX / _canvasWidth;
+		var relY = canvasY / _canvasHeight;
+
+		_resizeEdgeFlags = 0;
+		if (relX < ResizeEdgeThreshold)
+			_resizeEdgeFlags |= ResizeEdgeLeft;
+		else if (relX > 1 - ResizeEdgeThreshold)
+			_resizeEdgeFlags |= ResizeEdgeRight;
+		if (relY < ResizeEdgeThreshold)
+			_resizeEdgeFlags |= ResizeEdgeTop;
+		else if (relY > 1 - ResizeEdgeThreshold)
+			_resizeEdgeFlags |= ResizeEdgeBottom;
+
+		if (_resizeEdgeFlags == 0)
+			_resizeEdgeFlags = ResizeEdgeRight | ResizeEdgeBottom;
 	}
 
 	private void UpdateResizeDrag(Point screenPos)
 	{
+		var canvasX = (screenPos.X - _panTransform.X) / _zoom;
+		var canvasY = (screenPos.Y - _panTransform.Y) / _zoom;
+		var deltaX = canvasX - _resizeDragStartCanvasX;
+		var deltaY = canvasY - _resizeDragStartCanvasY;
+
+		var newWidth = _resizeOriginalWidth;
+		var newHeight = _resizeOriginalHeight;
+		var growthX = 0;
+		var growthY = 0;
+
+		if ((_resizeEdgeFlags & ResizeEdgeRight) != 0)
+			newWidth = Math.Clamp(_resizeOriginalWidth + (int)Math.Round(deltaX), MinCanvasDimension, MaxCanvasDimension);
+		else if ((_resizeEdgeFlags & ResizeEdgeLeft) != 0)
+		{
+			newWidth = Math.Clamp(_resizeOriginalWidth - (int)Math.Round(deltaX), MinCanvasDimension, MaxCanvasDimension);
+			growthX = newWidth - _resizeOriginalWidth;
+		}
+
+		if ((_resizeEdgeFlags & ResizeEdgeBottom) != 0)
+			newHeight = Math.Clamp(_resizeOriginalHeight + (int)Math.Round(deltaY), MinCanvasDimension, MaxCanvasDimension);
+		else if ((_resizeEdgeFlags & ResizeEdgeTop) != 0)
+		{
+			newHeight = Math.Clamp(_resizeOriginalHeight - (int)Math.Round(deltaY), MinCanvasDimension, MaxCanvasDimension);
+			growthY = newHeight - _resizeOriginalHeight;
+		}
+
+		_offsetX = _resizeOriginalOffsetX + growthX;
+		_offsetY = _resizeOriginalOffsetY + growthY;
+		_canvasWidth = newWidth;
+		_canvasHeight = newHeight;
+
+		_panTransform.X = _resizeOriginalPanX - growthX * _zoom;
+		_panTransform.Y = _resizeOriginalPanY - growthY * _zoom;
+
+		ClampOffset();
+		RenderAll();
+		UpdateCanvasSizeLabel();
 	}
 
 	private TimelineFrame CaptureCurrentAsFrame() =>

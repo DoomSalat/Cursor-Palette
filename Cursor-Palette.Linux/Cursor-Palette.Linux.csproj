@@ -27,6 +27,7 @@
 	<ItemGroup>
 		<AvaloniaResource Include="App.xaml" />
 		<AvaloniaResource Include="Views\**\*.xaml" />
+		<AvaloniaResource Include="Resources\*.png" />
 	</ItemGroup>
 
 	<ItemGroup>

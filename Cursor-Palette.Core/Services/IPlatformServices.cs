@@ -21,3 +21,8 @@ public interface IAssetLoader
 {
 	Stream? TryOpenAsset(string relativePath);
 }
+
+public static class FileExplorerProvider
+{
+	public static IFileExplorer? Current { get; set; }
+}
