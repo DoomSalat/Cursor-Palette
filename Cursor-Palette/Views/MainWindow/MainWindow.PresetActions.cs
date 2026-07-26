@@ -64,12 +64,13 @@ public partial class MainWindow
 			_activeScaleMode = scaleMode;
 
 			_baselineSizePx = baseSize;
-			SetSliderSilently(baseSize);
 			_activePresetId = preset.Id;
 			AppState.SetActivePresetId(preset.Id);
 
-			UpdateActiveCellHighlight();
 			SetScaleCheckboxSilently(preset.UseScaling);
+			SetSliderSilently(baseSize);
+
+			UpdateActiveCellHighlight();
 			UpdateScaleIcon(scaleMode);
 			UpdateUndoButton();
 		}
@@ -118,10 +119,11 @@ public partial class MainWindow
 			AppState.SetActivePresetId(null);
 
 			_baselineSizePx = defaultSize;
+
+			SetScaleCheckboxSilently(defaultUseScaling);
 			SetSliderSilently(defaultSize);
 
 			UpdateActiveCellHighlight();
-			SetScaleCheckboxSilently(defaultUseScaling);
 			UpdateScaleIcon(defaultScaleMode);
 			UpdateUndoButton();
 		}
@@ -195,7 +197,6 @@ public partial class MainWindow
 			AppState.SetActivePresetId(_activePresetId);
 
 			_baselineSizePx = snapshot.BaseSize;
-			SetSliderSilently(snapshot.BaseSize);
 
 			UpdateActiveCellHighlight();
 
@@ -206,6 +207,8 @@ public partial class MainWindow
 			_activeUseScaling = undoEffectiveUseScaling;
 			_activeScaleMode = undoPreset?.ScaleMode ?? undoScaleMode;
 			SetScaleCheckboxSilently(undoPreset?.UseScaling ?? undoUseScaling);
+			SetSliderSilently(snapshot.BaseSize);
+
 			UpdateScaleIcon(_activeScaleMode);
 
 			UpdateUndoButton();
