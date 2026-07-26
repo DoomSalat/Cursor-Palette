@@ -14,7 +14,7 @@
 ## 🎨 网格大小 — 改变画廊单元格大小。
 📏 光标大小 — 滑块改变系统光标大小; 立即应用。
 {img:ExpandIcon32} 单元格上 — 缩放已启用; 光标缩放到预设大小。
-{img:ExpandIcon32} {img:StairIcon24} 缩放模式按钮 — 点击切换平滑（area-weighted, {img:ExpandIcon32}）和最近邻（pixel-perfect, {img:StairIcon24}）缩放。按钮位于缩放开关旁边，固定轮廓大小，切换图标时不会跳动。更改缩放模式时"应用"按钮会高亮。
+{img:ExpandIcon32} {img:StairIcon24} 缩放模式 — 点击切换平滑（{img:ExpandIcon32}）和最近邻（{img:StairIcon24}）。最近邻为复古/像素艺术光标保留清晰像素。
 ↩️ "返回" — 恢复到上一个光标集。
 🌙/☀ — 切换深色/浅色主题。
 🌐 — 更改语言。

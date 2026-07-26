@@ -14,7 +14,7 @@
 ## 🎨 Rastergröße — ändert die Zellgröße der Galerie.
 📏 Cursorgröße — Schieberegler ändert Systemgröße; wird sofort angewendet.
 {img:ExpandIcon32} auf einer Zelle — Skalierung aktiviert; Cursor werden auf die Preset-Größe skaliert.
-{img:ExpandIcon32} {img:StairIcon24} Skalierungsmodus-Taste — Klick schaltet zwischen Weich (area-weighted, {img:ExpandIcon32}) und Nearest-Neighbor (pixel-perfect, {img:StairIcon24}) um. Die Taste sitzt neben dem Skalierungs-Schalter, mit fester Kontur damit sie beim Icon-Wechsel nicht springt. Die "Anwenden"-Taste wird beim Moduswechsel hervorgehoben.
+{img:ExpandIcon32} {img:StairIcon24} Skalierungsmodus — Klick schaltet zwischen Weich ({img:ExpandIcon32}) und Nearest-Neighbor ({img:StairIcon24}). Nearest-Neighbor erhält scharfe Pixel für Retro/Pixel-Art-Cursor.
 ↩️ "Zurück" — vorherigen Cursor-Zustand wiederherstellen.
 🌙/☀ — Dunkel/Hell-Design wechseln.
 🌐 — Sprache ändern.
