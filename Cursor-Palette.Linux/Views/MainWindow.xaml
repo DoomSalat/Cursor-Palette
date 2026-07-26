@@ -388,7 +388,7 @@
 		<Border Grid.Row="4"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 				Padding="12,6">
-			<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
+			<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
 				<StackPanel Grid.Column="0"
 							Orientation="Horizontal"
 							VerticalAlignment="Center"
@@ -442,8 +442,42 @@
 						   VerticalAlignment="Center"
 						   PointerPressed="OnFooterClick" />
 
-				<Button x:Name="UpdateIndicator"
+				<Ellipse x:Name="UpdateSpinner"
 						Grid.Column="5"
+						Width="12"
+						Height="12"
+						Stroke="CornflowerBlue"
+						StrokeThickness="2"
+						StrokeDashArray="14,5"
+						RenderTransformOrigin="0.5,0.5"
+						Margin="12,0,0,0"
+						VerticalAlignment="Center"
+						IsVisible="True">
+					<Ellipse.RenderTransform>
+						<RotateTransform Angle="0" />
+					</Ellipse.RenderTransform>
+				</Ellipse>
+
+				<TextBlock x:Name="UpdateCheckingLabel"
+						  Grid.Column="6"
+						  Text="{DynamicResource S.Update.Checking}"
+						  FontSize="11"
+						  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+						  VerticalAlignment="Center"
+						  Margin="6,0,0,0" />
+
+				<TextBlock x:Name="UpToDateLabel"
+						  Grid.Column="7"
+						  FontSize="11"
+						  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+						  VerticalAlignment="Center"
+						  Margin="12,0,0,0"
+						  IsVisible="False"
+						  PointerPressed="OnUpToDateLabelClick"
+						  ToolTip.Tip="{DynamicResource S.Update.Recheck.Tooltip}" />
+
+				<Button x:Name="UpdateIndicator"
+						Grid.Column="8"
 						Content="↓"
 						FontSize="14"
 						Padding="8,4"
@@ -453,7 +487,7 @@
 						Click="OnUpdateIndicatorClick" />
 
 				<Button x:Name="GitHubLink"
-						Grid.Column="6"
+						Grid.Column="9"
 						Content="⌥"
 						FontSize="14"
 						Padding="8,4"

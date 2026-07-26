@@ -69,6 +69,7 @@ public partial class MainWindow : Window
 	private const string LocAboutClose = "S.About.Close";
 	private const string LocAboutLicenseHint = "S.About.LicenseHint";
 	private const string LocToastUpdateAvailable = "S.Toast.UpdateAvailable";
+	private const string LocUpdateUpToDate = "S.Update.UpToDate";
 
 	private const double DialogMargin = 16;
 	private const double DialogSpacing = 12;
@@ -194,11 +195,25 @@ public partial class MainWindow : Window
 	}
 
 	private UpdateInfo? _updateInfo;
+	private DispatcherTimer? _updateSpinnerTimer;
 
 	private async Task CheckForUpdatesAsync()
 	{
 		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+
+		var spinner = this.FindControl<Ellipse>("UpdateSpinner");
+		var checkingLabel = this.FindControl<TextBlock>("UpdateCheckingLabel");
+
+		StartUpdateSpinner();
+
 		_updateInfo = await UpdateChecker.GetLatestReleaseInfoAsync();
+
+		StopUpdateSpinner();
+
+		if (spinner != null)
+			spinner.IsVisible = false;
+		if (checkingLabel != null)
+			checkingLabel.IsVisible = false;
 
 		if (_updateInfo is null)
 			return;
@@ -211,6 +226,15 @@ public partial class MainWindow : Window
 			if (indicator != null)
 				indicator.IsVisible = true;
 		}
+		else
+		{
+			var upToDateLabel = this.FindControl<TextBlock>("UpToDateLabel");
+			if (upToDateLabel != null)
+			{
+				upToDateLabel.Text = $"✓ {Loc.Get(LocUpdateUpToDate)}";
+				upToDateLabel.IsVisible = true;
+			}
+		}
 	}
 
 	private void OnUpdateIndicatorClick(object? sender, RoutedEventArgs e)
@@ -218,16 +242,55 @@ public partial class MainWindow : Window
 		if (_updateInfo == null)
 			return;
 
-		try
+		var root = this.FindControl<Panel>("RootGrid");
+		if (root == null)
+			return;
+
+		new UpdateWindow(_updateInfo, root).ShowDialog(this);
+	}
+
+	private void OnUpToDateLabelClick(object? sender, PointerPressedEventArgs e)
+	{
+		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
+
+		var upToDateLabel = this.FindControl<TextBlock>("UpToDateLabel");
+		var checkingLabel = this.FindControl<TextBlock>("UpdateCheckingLabel");
+		var spinner = this.FindControl<Ellipse>("UpdateSpinner");
+
+		if (upToDateLabel != null)
+			upToDateLabel.IsVisible = false;
+		if (checkingLabel != null)
+			checkingLabel.IsVisible = true;
+		if (spinner != null)
+			spinner.IsVisible = true;
+
+		StartUpdateSpinner();
+
+		_ = CheckForUpdatesAsync();
+	}
+
+	private void StartUpdateSpinner()
+	{
+		var spinner = this.FindControl<Ellipse>("UpdateSpinner");
+		if (spinner?.RenderTransform is not RotateTransform rotate)
+			return;
+
+		_updateSpinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+		var angle = 0d;
+		_updateSpinnerTimer.Tick += (_, _) =>
 		{
-			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-			{
-				FileName = _updateInfo.DownloadUrl,
-				UseShellExecute = true,
-			});
-		}
-		catch
+			angle = (angle + 6) % 360;
+			rotate.Angle = angle;
+		};
+		_updateSpinnerTimer.Start();
+	}
+
+	private void StopUpdateSpinner()
+	{
+		if (_updateSpinnerTimer != null)
 		{
+			_updateSpinnerTimer.Stop();
+			_updateSpinnerTimer = null;
 		}
 	}
 

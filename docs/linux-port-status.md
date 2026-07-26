@@ -228,7 +228,7 @@ WPF-оригинал (v1.1.2) позволяет брать роль из дру
     `S.Editor.LinkedRole.Tooltip`) уже есть во всех 6 языках
   - Help text — `PresetPicker.md` и `RolePicker.md` уже есть во всех 6 языках
 
-### 5. Индикатор обновлений — частично
+### 5. Индикатор обновлений — ✅ портировано
 
 WPF-оригинал имеет полноценный UI обновлений в футере:
 - **UpdateSpinner** — вращающийся спиннер во время проверки
@@ -240,8 +240,17 @@ WPF-оригинал имеет полноценный UI обновлений �
   кнопкой "Download" и "Open in browser"
 
 **Файлы WPF:** `MainWindow.Updates.cs`, `UpdateWindow.xaml(.cs)`
-**Статус Linux:** фоновая проверка через GitHub API, toast-уведомление,
-  кнопка-индикатор в шапке. `UpdateWindow` не портирован.
+**Статус Linux:** ✅ портировано полностью:
+  - `UpdateWindow.cs` — диалог с версией (текущая → новая), кнопка "Manual download"
+    (скачивает .tar.gz в Downloads), статус-текст, toast-уведомление
+  - `MainWindow.xaml` — добавлены `UpdateSpinner` (Ellipse + RotateTransform),
+    `UpdateCheckingLabel`, `UpToDateLabel` в футер
+  - `MainWindow.cs` — `CheckForUpdatesAsync` со спиннером/скрытием/показом,
+    `OnUpdateIndicatorClick` открывает `UpdateWindow` (вместо браузера),
+    `OnUpToDateLabelClick` для перепроверки, `StartUpdateSpinner`/`StopUpdateSpinner`
+    с `DispatcherTimer`
+  - Локализация — все ключи `S.Update.*` уже есть во всех 6 языках
+  - Auto-update (замена .exe) не применима к Linux — только manual download
 
 ### 6. Download System Cursors — частично
 
