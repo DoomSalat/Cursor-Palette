@@ -207,7 +207,7 @@ WPF-оригинал (v2.1.0) имеет полнофункциональный 
   `PaintEditorWindow.Timeline.cs`, `PaintEditorWindow.Import.cs`, `PaintEditorWindow.Keyboard.cs`,
   `Controls/ColorWheelControl.cs`, `Services/AnimatedGifWriter.cs`
 
-### 4. Микс ролей из существующих пресетов (RoleRefs)
+### 4. Микс ролей из существующих пресетов (RoleRefs) — ✅ портировано
 
 WPF-оригинал (v1.1.2) позволяет брать роль из другого пресета:
 - **RolePickerWindow** — двухшаговый picker: выбор пресета-источника → выбор роли
@@ -215,9 +215,18 @@ WPF-оригинал (v1.1.2) позволяет брать роль из дру
 - **Иконка-цепочка** на слоте с тултипом источника ссылки
 - **Правка hotspot на ссылочном слоте** — отвязывает роль в собственную копию
 
-**Файлы WPF:** `PresetEditorWindow.xaml(.cs)`, `RolePickerWindow.xaml(.cs)`
-**Статус Linux:** `IsMixed` вычисляется и отображается (🧩), но UI для создания
-  ссылочных ролей (RolePicker) не портирован.
+**Файлы WPF:** `PresetEditorWindow.xaml(.cs)`, `RolePickerWindow.xaml(.cs)`,
+  `ExistingPresetPickerWindow.xaml(.cs)`
+**Статус Linux:** ✅ портировано полностью:
+  - `ExistingPresetPickerWindow.cs` — выбор пресета-источника (галерея ячеек)
+  - `RolePickerWindow.cs` — выбор роли из пресета (галерея тайлов, тумблер "только текущая роль")
+  - `PresetEditorWindow.cs` — кнопка 🧩 (PickExisting) на каждом слоте,
+    `SetSlotReference` с 🔗 link badge и тултипом, `PickExistingForSlot` (двухшаговый picker),
+    `BuildReferenceLabel`, `RoleRef` в `OnSaveClick` → `PresetDraft.RoleSources`
+  - `BuildSlots` загружает существующие `RoleRefs` при редактировании пресета
+  - Локализация — все ключи (`S.PresetPicker.*`, `S.RolePicker.*`, `S.Editor.PickExisting`,
+    `S.Editor.LinkedRole.Tooltip`) уже есть во всех 6 языках
+  - Help text — `PresetPicker.md` и `RolePicker.md` уже есть во всех 6 языках
 
 ### 5. Индикатор обновлений — частично
 

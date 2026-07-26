@@ -51,10 +51,15 @@ public class PresetEditorWindow : Window
 	private const string LocApplySize = "S.ApplySize";
 	private const string LocScaleCursors = "S.ScaleCursors";
 	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
+	private const string LocEditorPickExisting = "S.Editor.PickExisting";
+	private const string LocEditorLinkedRoleTooltip = "S.Editor.LinkedRole.Tooltip";
 
 	private const string CursorFileFilterName = "Cursors";
 	private const string EmptyValue = "";
 	private const string PaintButtonText = "Paint";
+	private const string PickExistingButtonContent = "🧩";
+	private const string LinkBadgeText = "🔗";
+	private const double IconButtonSize = 28;
 	private const string PaintTempDirName = "cursor-palette-paint";
 	private const string CurExtension = ".cur";
 	private const string PaintFileNameFormat = "{0}_{1:yyyyMMddHHmmss}.cur";
@@ -301,12 +306,16 @@ public class PresetEditorWindow : Window
 	{
 		public required CursorRoleInfo Role { get; init; }
 		public string? SourcePath { get; set; }
+		public string? RefPresetId { get; set; }
+		public string? RefFileName { get; set; }
 		public required Image PreviewImage { get; init; }
 		public required TextBlock FileText { get; init; }
 		public required Button BrowseButton { get; init; }
 		public required Button PaintButton { get; init; }
+		public required Button PickExistingButton { get; init; }
 		public required Button ClearButton { get; init; }
 		public required Border Container { get; init; }
+		public required TextBlock LinkBadge { get; init; }
 	}
 
 	private void BuildSlots(Preset? existing, IReadOnlyList<string> droppedFiles)
@@ -318,9 +327,16 @@ public class PresetEditorWindow : Window
 
 			if (existing != null)
 			{
-				var path = PresetStore.GetRoleFilePath(existing, role.RegistryName);
-				if (path != null && File.Exists(path))
-					SetSlotSource(slot, path);
+				if (existing.RoleRefs.TryGetValue(role.RegistryName, out var roleRef))
+				{
+					SetSlotReference(slot, roleRef.PresetId, roleRef.FileName);
+				}
+				else
+				{
+					var path = PresetStore.GetRoleFilePath(existing, role.RegistryName);
+					if (path != null && File.Exists(path))
+						SetSlotSource(slot, path);
+				}
 			}
 
 			_slotsControl.Items.Add(slot.Container);
@@ -384,6 +400,18 @@ public class PresetEditorWindow : Window
 			HorizontalAlignment = HorizontalAlignment.Center,
 		};
 
+		var pickExistingButton = new Button
+		{
+			Content = PickExistingButtonContent,
+			FontSize = 11,
+			Width = IconButtonSize,
+			Height = IconButtonSize,
+			Padding = new Avalonia.Thickness(0),
+			Margin = new Avalonia.Thickness(0, 4, 0, 0),
+			HorizontalAlignment = HorizontalAlignment.Center,
+		};
+		ToolTip.SetTip(pickExistingButton, Loc.Get(LocEditorPickExisting));
+
 		var clearButton = new Button
 		{
 			Content = "✕",
@@ -407,6 +435,7 @@ public class PresetEditorWindow : Window
 		panel.Children.Add(fileText);
 		panel.Children.Add(browseButton);
 		panel.Children.Add(paintButton);
+		panel.Children.Add(pickExistingButton);
 
 		var slotContent = new Grid();
 		slotContent.Children.Add(panel);
@@ -424,6 +453,17 @@ public class PresetEditorWindow : Window
 			Child = slotContent,
 		};
 
+		var linkBadge = new TextBlock
+		{
+			Text = LinkBadgeText,
+			FontSize = 14,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Avalonia.Thickness(0, 0, 0, 4),
+			IsVisible = false,
+		};
+
+		panel.Children.Insert(0, linkBadge);
+
 		var slot = new Slot
 		{
 			Role = role,
@@ -431,12 +471,15 @@ public class PresetEditorWindow : Window
 			FileText = fileText,
 			BrowseButton = browseButton,
 			PaintButton = paintButton,
+			PickExistingButton = pickExistingButton,
 			ClearButton = clearButton,
 			Container = border,
+			LinkBadge = linkBadge,
 		};
 
 		browseButton.Click += async (_, _) => await BrowseForSlot(slot);
 		paintButton.Click += (_, _) => OpenPaintEditor(slot);
+		pickExistingButton.Click += (_, _) => PickExistingForSlot(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 
 		return slot;
@@ -469,6 +512,66 @@ public class PresetEditorWindow : Window
 		};
 	}
 
+	private void PickExistingForSlot(Slot slot)
+	{
+		var presets = PresetStore.LoadAll().Where(p => p.Id != _draftId).ToList();
+		var presetPicker = new ExistingPresetPickerWindow(presets);
+		presetPicker.ShowDialog(this);
+
+		presetPicker.Closed += (_, _) =>
+		{
+			if (presetPicker.SelectedPreset == null)
+				return;
+
+			var rolePicker = new RolePickerWindow(presetPicker.SelectedPreset, slot.Role.RegistryName);
+			rolePicker.ShowDialog(this);
+
+			rolePicker.Closed += (_, _) =>
+			{
+				if (rolePicker.SelectedRole == null)
+					return;
+
+				var flatRef = PresetStore.ResolveLeafRef(presetPicker.SelectedPreset, rolePicker.SelectedRole);
+				if (flatRef == null)
+					return;
+
+				SetSlotReference(slot, flatRef.PresetId, flatRef.FileName);
+			};
+		};
+	}
+
+	private void SetSlotReference(Slot slot, string presetId, string fileName)
+	{
+		slot.SourcePath = null;
+		slot.RefPresetId = presetId;
+		slot.RefFileName = fileName;
+
+		var resolvedPath = Path.Combine(PresetStore.GetFilesDir(presetId), fileName);
+		var label = BuildReferenceLabel(presetId, fileName);
+
+		try
+		{
+			var preview = CursorPreviewService.GetPreview(resolvedPath);
+			if (preview != null)
+				slot.PreviewImage.Source = preview;
+		}
+		catch
+		{
+		}
+
+		slot.FileText.Text = label;
+		slot.FileText.Foreground = Brushes.White;
+		slot.ClearButton.IsVisible = true;
+		slot.LinkBadge.IsVisible = true;
+		ToolTip.SetTip(slot.LinkBadge, Loc.Format(LocEditorLinkedRoleTooltip, label));
+	}
+
+	private static string BuildReferenceLabel(string presetId, string fileName)
+	{
+		var sourceName = PresetStore.LoadAll().FirstOrDefault(p => p.Id == presetId)?.Name;
+		return sourceName != null ? $"{sourceName} / {fileName}" : fileName;
+	}
+
 	private async Task BrowseForSlot(Slot slot)
 	{
 		var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
@@ -493,8 +596,12 @@ public class PresetEditorWindow : Window
 	private void SetSlotSource(Slot slot, string path)
 	{
 		slot.SourcePath = path;
+		slot.RefPresetId = null;
+		slot.RefFileName = null;
 		slot.FileText.Text = Path.GetFileName(path);
+		slot.FileText.Foreground = Brushes.White;
 		slot.ClearButton.IsVisible = true;
+		slot.LinkBadge.IsVisible = false;
 
 		try
 		{
@@ -510,14 +617,18 @@ public class PresetEditorWindow : Window
 	private void ClearSlot(Slot slot)
 	{
 		slot.SourcePath = null;
+		slot.RefPresetId = null;
+		slot.RefFileName = null;
 		slot.FileText.Text = Loc.Get(LocEditorEmptySlot);
+		slot.FileText.Foreground = Brushes.Gray;
 		slot.ClearButton.IsVisible = false;
 		slot.PreviewImage.Source = null;
+		slot.LinkBadge.IsVisible = false;
 	}
 
 	private void OnSaveClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
-		if (_slots.All(slot => slot.SourcePath == null))
+		if (_slots.All(slot => slot.SourcePath == null && slot.RefPresetId == null))
 		{
 			// No files selected
 			return;
@@ -534,6 +645,12 @@ public class PresetEditorWindow : Window
 
 		foreach (var slot in _slots.Where(slot => slot.SourcePath != null))
 			draft.RoleSources[slot.Role.RegistryName] = new RoleSourceDraft { OwnFilePath = slot.SourcePath };
+
+		foreach (var slot in _slots.Where(slot => slot.RefPresetId != null && slot.RefFileName != null))
+			draft.RoleSources[slot.Role.RegistryName] = new RoleSourceDraft
+			{
+				Ref = new RoleRef { PresetId = slot.RefPresetId!, FileName = slot.RefFileName! }
+			};
 
 		Result = draft;
 		Close();
