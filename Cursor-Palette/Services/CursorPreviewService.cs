@@ -14,11 +14,14 @@ public static class CursorPreviewService
 	private const string AniExtension = ".ani";
 	private const string CurExtension = ".cur";
 
+	private const uint ImageCursor = 2;
+	private const uint LrLoadFromFile = 0x00000010;
+
 	private static readonly Dictionary<string, ImageSource?> Cache = new(StringComparer.OrdinalIgnoreCase);
 	private static readonly Dictionary<string, AnimatedCursorFrames?> AnimatedCache = new(StringComparer.OrdinalIgnoreCase);
 
 	[DllImport(User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
-	private static extern IntPtr LoadCursorFromFile(string lpFileName);
+	private static extern IntPtr LoadImage(IntPtr hinst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
 
 	[DllImport(User32Dll, SetLastError = true)]
 	private static extern bool DestroyCursor(IntPtr hCursor);
@@ -49,7 +52,7 @@ public static class CursorPreviewService
 				}
 			}
 
-			var handle = LoadCursorFromFile(expanded);
+			var handle = LoadImage(IntPtr.Zero, expanded, ImageCursor, 0, 0, LrLoadFromFile);
 
 			if (handle != IntPtr.Zero)
 			{

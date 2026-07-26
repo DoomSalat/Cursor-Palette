@@ -23,8 +23,11 @@ public static class CursorCanvasService
 	private const int RowAlignmentBits = 32;
 	private const int MaxClassicDimension = 256;
 
+	private const uint ImageCursor = 2;
+	private const uint LrLoadFromFile = 0x00000010;
+
 	[DllImport(User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
-	private static extern IntPtr LoadCursorFromFile(string lpFileName);
+	private static extern IntPtr LoadImage(IntPtr hinst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
 
 	[DllImport(User32Dll, SetLastError = true)]
 	private static extern bool DestroyCursor(IntPtr cursorHandle);
@@ -89,7 +92,7 @@ public static class CursorCanvasService
 			return null;
 
 		if (bitCount != CursorBitCount)
-			return null;
+			return TryReadPalettedFromBytes(bytes, imageOffset, width, actualHeight, bitCount, hotspotX, hotspotY);
 
 		var colorRowStride = width * BytesPerPixel;
 		var colorDataOffset = imageOffset + BitmapInfoHeaderSize;
@@ -139,6 +142,96 @@ public static class CursorCanvasService
 		return new CursorCanvasImage(width, actualHeight, hotspotX, hotspotY, pixels);
 	}
 
+	private static CursorCanvasImage? TryReadPalettedFromBytes(
+		byte[] bytes, int imageOffset, int width, int actualHeight, ushort bitCount, int hotspotX, int hotspotY)
+	{
+		if (bitCount is not (8 or 4 or 24))
+			return null;
+
+		var paletteCount = bitCount == 24
+			? 0
+			: (int)BitConverter.ToUInt32(bytes, imageOffset + 32);
+
+		if (paletteCount == 0 && bitCount != 24)
+			paletteCount = 1 << bitCount;
+
+		var paletteOffset = imageOffset + BitmapInfoHeaderSize;
+
+		if (paletteOffset + paletteCount * 4 > bytes.Length)
+			return null;
+
+		var palette = new (byte B, byte G, byte R)[paletteCount];
+
+		for (var i = 0; i < paletteCount; i++)
+		{
+			palette[i] = (
+				bytes[paletteOffset + i * 4],
+				bytes[paletteOffset + i * 4 + 1],
+				bytes[paletteOffset + i * 4 + 2]);
+		}
+
+		var xorDataOffset = paletteOffset + paletteCount * 4;
+		var xorRowStride = ((width * bitCount + 31) / 32) * 4;
+
+		if (xorDataOffset + xorRowStride * actualHeight > bytes.Length)
+			return null;
+
+		var andDataOffset = xorDataOffset + xorRowStride * actualHeight;
+		var andRowStride = ((width + 31) / 32) * 4;
+
+		if (andDataOffset + andRowStride * actualHeight > bytes.Length)
+			return null;
+
+		var pixels = new byte[width * actualHeight * BytesPerPixel];
+
+		for (var y = 0; y < actualHeight; y++)
+		{
+			var srcY = actualHeight - 1 - y;
+			var xorRowStart = xorDataOffset + srcY * xorRowStride;
+			var andRowStart = andDataOffset + srcY * andRowStride;
+
+			for (var x = 0; x < width; x++)
+			{
+				byte b, g, r;
+
+				if (bitCount == 8)
+				{
+					var idx = bytes[xorRowStart + x];
+					if (idx >= paletteCount)
+						return null;
+					(b, g, r) = palette[idx];
+				}
+				else if (bitCount == 4)
+				{
+					var byteIdx = x / 2;
+					var nibble = (bytes[xorRowStart + byteIdx] >> (x % 2 == 0 ? 4 : 0)) & 0x0F;
+					if (nibble >= paletteCount)
+						return null;
+					(b, g, r) = palette[nibble];
+				}
+				else
+				{
+					var px = xorRowStart + x * 3;
+					b = bytes[px];
+					g = bytes[px + 1];
+					r = bytes[px + 2];
+				}
+
+				var maskByte = bytes[andRowStart + x / 8];
+				var isTransparent = (maskByte & (0x80 >> (x % 8))) != 0;
+				var alpha = isTransparent ? (byte)0 : (byte)255;
+
+				var dstIdx = (y * width + x) * BytesPerPixel;
+				pixels[dstIdx] = b;
+				pixels[dstIdx + 1] = g;
+				pixels[dstIdx + 2] = r;
+				pixels[dstIdx + 3] = alpha;
+			}
+		}
+
+		return new CursorCanvasImage(width, actualHeight, hotspotX, hotspotY, pixels);
+	}
+
 	public static BitmapSource? TryReadAsBitmap(string filePath)
 	{
 		if (!IsSupportedFile(filePath) || !File.Exists(filePath))
@@ -168,7 +261,7 @@ public static class CursorCanvasService
 		if (hotspot == null)
 			return null;
 
-		var handle = LoadCursorFromFile(filePath);
+		var handle = LoadImage(IntPtr.Zero, filePath, ImageCursor, 0, 0, LrLoadFromFile);
 
 		if (handle == IntPtr.Zero)
 			return null;

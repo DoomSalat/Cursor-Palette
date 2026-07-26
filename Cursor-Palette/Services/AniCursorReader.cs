@@ -38,8 +38,11 @@ public static class AniCursorReader
 	private const int AconTypeOffset = 8;
 	private const int BytesPerPixel = 4;
 
+	private const uint ImageCursor = 2;
+	private const uint LrLoadFromFile = 0x00000010;
+
 	[DllImport(User32Dll, CharSet = CharSet.Unicode, SetLastError = true)]
-	private static extern IntPtr LoadCursorFromFile(string lpFileName);
+	private static extern IntPtr LoadImage(IntPtr hinst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
 
 	[DllImport(User32Dll, SetLastError = true)]
 	private static extern bool DestroyCursor(IntPtr cursorHandle);
@@ -247,7 +250,7 @@ public static class AniCursorReader
 
 	private static BitmapSource? LoadCursorAsFrozenBitmap(string cursorFilePath)
 	{
-		var handle = LoadCursorFromFile(cursorFilePath);
+		var handle = LoadImage(IntPtr.Zero, cursorFilePath, ImageCursor, 0, 0, LrLoadFromFile);
 
 		if (handle == IntPtr.Zero)
 			return null;
