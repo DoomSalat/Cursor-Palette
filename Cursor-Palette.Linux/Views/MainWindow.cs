@@ -43,6 +43,22 @@ public partial class MainWindow : Window
 	private const string LocMenuDownload = "S.Menu.Download";
 	private const string LocMenuDelete = "S.Menu.Delete";
 	private const string LocMenuToggleCollapse = "S.Menu.ToggleCollapse";
+	private const string LocMenuRandomPreset = "S.Menu.RandomPreset";
+	private const string LocMenuDownloadSystem = "S.Menu.DownloadSystemCursors";
+	private const string LocMenuEditGroup = "S.Menu.EditGroup";
+	private const string LocMenuConsolidateGroup = "S.Menu.ConsolidateGroup";
+	private const string LocMenuUngroup = "S.Menu.Ungroup";
+	private const string LocMenuAssignToGroup = "S.Menu.AssignToGroup";
+	private const string LocMenuRemoveFromGroup = "S.Menu.RemoveFromGroup";
+	private const string LocGroupToastConsolidated = "S.Group.Toast.Consolidated";
+	private const string LocGroupToastUngrouped = "S.Group.Toast.Ungrouped";
+	private const string LocGroupToastCreated = "S.Group.Toast.Created";
+	private const string LocGroupSelectedCount = "S.Group.SelectedCount";
+	private const string LocGroupDefaultName = "S.Group.DefaultName";
+	private const string LocGroupCreate = "S.Group.Create";
+	private const string LocGroupCancel = "S.Group.Cancel";
+	private const string LocMenuCreateGroup = "S.Menu.CreateGroup";
+	private const string LocAppLogoRandomTooltip = "S.AppLogo.RandomTooltip";
 	private const string LocRenameTitle = "S.Menu.Rename";
 	private const string LocEditorSave = "S.Editor.Save";
 	private const string LocEmptyGallery = "S.EmptyGallery";
@@ -87,6 +103,9 @@ public partial class MainWindow : Window
 	private Point? _presetDragStartPoint;
 	private string? _draggedPresetId;
 	private BoardItem? _draggedBoardItem;
+	private readonly HashSet<string> _selectedPresetIds = new();
+	private string? _pendingGroupColorKey;
+	private readonly List<Border> _groupColorSwatches = new();
 	private const double GhostSize = 120;
 	private const double GhostPreviewSize = 40;
 	private const double CellMarginForIndicator = 6;
@@ -150,6 +169,8 @@ public partial class MainWindow : Window
 		ApplyCellScale(_cellScale);
 
 		UpdateOpenFolderToggleIcon();
+
+		BuildGroupColorSwatches();
 
 		_ = CheckForUpdatesAsync();
 	}
@@ -324,6 +345,22 @@ public partial class MainWindow : Window
 		var emptyHint = this.FindControl<TextBlock>("EmptyGalleryHint");
 		if (emptyHint != null)
 			emptyHint.Text = Loc.Get(LocEmptyGallery);
+
+		var logoText = this.FindControl<TextBlock>("AppLogoText");
+		if (logoText != null)
+			ToolTip.SetTip(logoText, Loc.Get(LocAppLogoRandomTooltip));
+
+		var groupCreateBtn = this.FindControl<Button>("GroupCreateButton");
+		if (groupCreateBtn != null)
+			groupCreateBtn.Content = Loc.Get(LocGroupCreate);
+
+		var groupCancelBtn = this.FindControl<Button>("GroupCancelButton");
+		if (groupCancelBtn != null)
+			groupCancelBtn.Content = Loc.Get(LocGroupCancel);
+
+		var groupNameBox = this.FindControl<TextBox>("GroupNameBox");
+		if (groupNameBox != null && string.IsNullOrEmpty(groupNameBox.Text))
+			groupNameBox.Text = Loc.Get(LocGroupDefaultName);
 	}
 
 	private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -342,7 +379,14 @@ public partial class MainWindow : Window
 			Loc.Get(LocMenuMoveLeft),
 			Loc.Get(LocMenuMoveRight),
 			Loc.Get(LocMenuDownload),
+			Loc.Get(LocMenuDownloadSystem),
 			Loc.Get(LocMenuToggleCollapse),
+			Loc.Get(LocMenuRandomPreset),
+			Loc.Get(LocMenuEditGroup),
+			Loc.Get(LocMenuConsolidateGroup),
+			Loc.Get(LocMenuUngroup),
+			Loc.Get(LocMenuAssignToGroup),
+			Loc.Get(LocMenuRemoveFromGroup),
 			Loc.Get(LocMenuDelete),
 		};
 
@@ -446,6 +490,13 @@ public partial class MainWindow : Window
 
 		if (item.IsPreset && item.Preset != null)
 		{
+			if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+			{
+				ToggleSelection(item.Preset.Id);
+				_viewModel.ReloadGallery();
+				return;
+			}
+
 			if (e.ClickCount >= 2)
 			{
 				var editor = new PresetEditorWindow(item.Preset, Array.Empty<string>());
@@ -1102,6 +1153,197 @@ public partial class MainWindow : Window
 		{
 			_viewModel.EditGroup(group.Id, dialog.GroupName, dialog.ColorKey);
 			ShowToast(Loc.Get(LocToastSaved));
+		}
+	}
+
+	public void OnMenuConsolidateGroup(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsGroup: true, Group: { } group })
+			return;
+
+		_viewModel.ConsolidateGroup(group.Id);
+		ShowToast(Loc.Format(LocGroupToastConsolidated, group.Name));
+	}
+
+	public void OnMenuUngroup(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsGroup: true, Group: { } group })
+			return;
+
+		_viewModel.Ungroup(group.Id);
+		ShowToast(Loc.Format(LocGroupToastUngrouped, group.Name));
+	}
+
+	public void OnMenuAssignToGroup(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var groups = CursorPalette.Services.GroupStore.LoadAll();
+		if (groups.Count == 0)
+			return;
+
+		var menu = new ContextMenu
+		{
+			PlacementTarget = sender as Control,
+		};
+
+		foreach (var targetGroup in groups)
+		{
+			var item = new MenuItem
+			{
+				Header = targetGroup.Name,
+			};
+			item.Click += (_, _) =>
+			{
+				_viewModel.AssignToGroup(preset.Id, targetGroup.Id);
+				ShowToast(Loc.Get(LocToastSaved));
+			};
+			menu.Items.Add(item);
+		}
+
+		menu.Open(this);
+	}
+
+	public void OnMenuRemoveFromGroup(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset, GroupId: { } groupId })
+			return;
+
+		_viewModel.RemoveFromGroup(preset.Id, groupId);
+		ShowToast(Loc.Get(LocToastSaved));
+	}
+
+	private void BuildGroupColorSwatches()
+	{
+		if (this.FindControl<WrapPanel>("GroupColorSwatches") is not { } swatchesPanel)
+			return;
+
+		swatchesPanel.Children.Clear();
+		_groupColorSwatches.Clear();
+
+		foreach (var (key, hex) in GroupColors.Palette)
+		{
+			var swatch = new Border
+			{
+				Width = 20,
+				Height = 20,
+				CornerRadius = new CornerRadius(10),
+				Background = Brush.Parse(hex),
+				BorderThickness = new Thickness(0),
+				Margin = new Thickness(4, 0, 4, 0),
+				Cursor = new Cursor(StandardCursorType.Hand),
+			};
+
+			var capturedKey = key;
+			swatch.PointerPressed += (_, _) =>
+			{
+				_pendingGroupColorKey = capturedKey;
+
+				foreach (var other in _groupColorSwatches)
+					other.BorderThickness = new Thickness(0);
+
+				swatch.BorderThickness = new Thickness(2);
+			};
+
+			swatchesPanel.Children.Add(swatch);
+			_groupColorSwatches.Add(swatch);
+		}
+	}
+
+	private void ClearGroupSelection()
+	{
+		_selectedPresetIds.Clear();
+		_pendingGroupColorKey = null;
+
+		if (this.FindControl<TextBox>("GroupNameBox") is { } nameBox)
+			nameBox.Text = Loc.Get(LocGroupDefaultName);
+
+		foreach (var swatch in _groupColorSwatches)
+			swatch.BorderThickness = new Thickness(0);
+
+		if (this.FindControl<Border>("GroupToolbar") is { } toolbar)
+			toolbar.IsVisible = false;
+	}
+
+	private void ToggleSelection(string presetId)
+	{
+		if (_selectedPresetIds.Contains(presetId))
+			_selectedPresetIds.Remove(presetId);
+		else
+			_selectedPresetIds.Add(presetId);
+
+		UpdateGroupToolbar();
+		_viewModel.SetSelectedPresetIds(_selectedPresetIds);
+	}
+
+	private void UpdateGroupToolbar()
+	{
+		if (this.FindControl<Border>("GroupToolbar") is not { } toolbar)
+			return;
+		if (this.FindControl<TextBlock>("GroupSelectionCountText") is not { } countText)
+			return;
+
+		if (_selectedPresetIds.Count == 0)
+		{
+			toolbar.IsVisible = false;
+			return;
+		}
+
+		toolbar.IsVisible = true;
+		countText.Text = Loc.Format(LocGroupSelectedCount, _selectedPresetIds.Count);
+	}
+
+	public void OnGroupCreateClick(object? sender, RoutedEventArgs e)
+	{
+		if (_selectedPresetIds.Count == 0 || _pendingGroupColorKey == null)
+			return;
+
+		var nameBox = this.FindControl<TextBox>("GroupNameBox");
+		var name = nameBox?.Text?.Trim() ?? "";
+		if (name.Length == 0)
+			name = Loc.Get(LocGroupDefaultName);
+
+		_viewModel.CreateGroupFromSelection(name, _pendingGroupColorKey, _selectedPresetIds.ToList());
+		ClearGroupSelection();
+		ShowToast(Loc.Format(LocGroupToastCreated, name));
+	}
+
+	public void OnGroupCancelClick(object? sender, RoutedEventArgs e)
+	{
+		ClearGroupSelection();
+		_viewModel.SetSelectedPresetIds(null);
+		_viewModel.ReloadGallery();
+	}
+
+	public async void OnMenuRandomPreset(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsGroup: true, Group: { } group })
+			return;
+
+		ShowLoadingOverlay();
+		try
+		{
+			await _viewModel.ApplyRandomFromGroupAsync(group);
+			ShowToast(Loc.Get(LocToastSaved));
+		}
+		finally
+		{
+			HideLoadingOverlay();
+		}
+	}
+
+	public async void OnAppLogoClick(object? sender, PointerPressedEventArgs e)
+	{
+		ShowLoadingOverlay();
+		try
+		{
+			await _viewModel.ApplyRandomFromBoardAsync();
+			ShowToast(Loc.Get(LocToastSaved));
+		}
+		finally
+		{
+			HideLoadingOverlay();
 		}
 	}
 

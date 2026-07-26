@@ -27,6 +27,7 @@ public sealed class BoardItem
 	public bool IsSelected { get; init; }
 	public bool IsMixed => Preset?.RoleRefs.Count > 0;
 	public string? GroupColorHex { get; init; }
+	public string? GroupId { get; init; }
 	public bool IsCollapsed { get; init; }
 }
 
@@ -53,6 +54,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 	private string _footerText = EmptyValue;
 	private Dictionary<string, string>? _activeSourceValues;
 	private bool _activeUseScaling;
+	private HashSet<string>? _selectedPresetIds;
 
 	public ObservableCollection<BoardItem> Board { get; } = new();
 
@@ -199,7 +201,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 			BaseSize = preset.BaseSize,
 			UseScaling = preset.UseScaling,
 			IsActive = isActive,
+			IsSelected = _selectedPresetIds?.Contains(preset.Id) ?? false,
 			GroupColorHex = group != null ? GroupColors.ResolveHex(group.ColorKey) : null,
+			GroupId = group?.Id,
 		};
 	}
 
@@ -608,6 +612,99 @@ public sealed class MainWindowViewModel : ViewModelBase
 		ReloadGallery();
 	}
 
+	public void ConsolidateGroup(string groupId)
+	{
+		var groups = GroupStore.LoadAll();
+		var group = groups.FirstOrDefault(g => g.Id == groupId);
+		if (group == null)
+			return;
+
+		var boardOrderIds = BoardOrderStore.Load();
+		var groupIndex = boardOrderIds.IndexOf(groupId);
+		if (groupIndex < 0)
+			return;
+
+		var memberIds = boardOrderIds.Where(id => group.MemberPresetIds.Contains(id)).ToList();
+		if (memberIds.Count == 0)
+			return;
+
+		boardOrderIds.RemoveAll(id => group.MemberPresetIds.Contains(id));
+		groupIndex = boardOrderIds.IndexOf(groupId);
+		boardOrderIds.InsertRange(groupIndex + 1, memberIds);
+
+		BoardOrderStore.Save(boardOrderIds);
+		ReloadGallery();
+	}
+
+	public void Ungroup(string groupId)
+	{
+		var groups = GroupStore.LoadAll();
+		var group = groups.FirstOrDefault(g => g.Id == groupId);
+		if (group == null)
+			return;
+
+		foreach (var presetId in group.MemberPresetIds.ToList())
+			GroupStore.RemoveMember(groupId, presetId);
+
+		ReloadGallery();
+	}
+
+	public void AssignToGroup(string presetId, string targetGroupId)
+	{
+		var groups = GroupStore.LoadAll();
+		var currentGroup = groups.FirstOrDefault(g => g.MemberPresetIds.Contains(presetId));
+		if (currentGroup != null)
+			GroupStore.RemoveMember(currentGroup.Id, presetId);
+
+		GroupStore.AddMember(targetGroupId, presetId);
+		ReloadGallery();
+	}
+
+	public void RemoveFromGroup(string presetId, string groupId)
+	{
+		GroupStore.RemoveMember(groupId, presetId);
+		ReloadGallery();
+	}
+
+	public void SetSelectedPresetIds(HashSet<string>? ids)
+	{
+		_selectedPresetIds = ids;
+	}
+
+	public void CreateGroupFromSelection(string name, string colorKey, List<string> memberIds)
+	{
+		var groups = GroupStore.LoadAll();
+		var presetToGroup = groups
+			.SelectMany(g => g.MemberPresetIds.Select(presetId => (presetId, g)))
+			.GroupBy(entry => entry.presetId)
+			.ToDictionary(entry => entry.Key, entry => entry.First().g);
+
+		foreach (var presetId in memberIds)
+		{
+			if (presetToGroup.TryGetValue(presetId, out var oldGroup))
+				GroupStore.RemoveMember(oldGroup.Id, presetId);
+		}
+
+		var group = new PresetGroup
+		{
+			Id = Guid.NewGuid().ToString("N"),
+			Name = name,
+			ColorKey = colorKey,
+			MemberPresetIds = memberIds,
+			Collapsed = false,
+		};
+
+		GroupStore.Save(group);
+
+		var boardOrderIds = BoardOrderStore.Load();
+		if (!boardOrderIds.Contains(group.Id))
+			boardOrderIds.Add(group.Id);
+		BoardOrderStore.Save(boardOrderIds);
+
+		_selectedPresetIds = null;
+		ReloadGallery();
+	}
+
 	public async Task ApplySizeAsync(int sizeInPixels, bool useScaling)
 	{
 		var cursorService = CursorServiceProvider.Current;
@@ -645,5 +742,34 @@ public sealed class MainWindowViewModel : ViewModelBase
 		}
 
 		return AppState.GetScaleCursorsEnabled();
+	}
+
+	private static readonly Random RandomPicker = new();
+
+	public async Task ApplyRandomFromGroupAsync(PresetGroup group)
+	{
+		var presetsById = PresetStore.LoadAll().ToDictionary(p => p.Id);
+		var members = group.MemberPresetIds
+			.Where(id => presetsById.ContainsKey(id))
+			.Select(id => presetsById[id])
+			.Where(p => p.Id != _activePresetId)
+			.ToList();
+
+		if (members.Count == 0)
+			return;
+
+		var picked = members[RandomPicker.Next(members.Count)];
+		await ApplyPresetAsync(picked, force: true);
+	}
+
+	public async Task ApplyRandomFromBoardAsync()
+	{
+		var candidates = PresetStore.LoadAll().Where(p => p.Id != _activePresetId).ToList();
+
+		if (candidates.Count == 0)
+			return;
+
+		var picked = candidates[RandomPicker.Next(candidates.Count)];
+		await ApplyPresetAsync(picked, force: true);
 	}
 }

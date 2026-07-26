@@ -7,7 +7,7 @@
 		MinWidth="720"
 		MinHeight="440"
 		Background="{DynamicResource SystemRegionBrush}">
-	<Grid x:Name="RootGrid" RowDefinitions="Auto,Auto,*,Auto">
+	<Grid x:Name="RootGrid" RowDefinitions="Auto,Auto,*,Auto,Auto">
 		<!-- Toolbar row 1: logo (left) + theme/language (right) -->
 		<Border Grid.Row="0"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
@@ -17,10 +17,14 @@
 							Orientation="Horizontal"
 							VerticalAlignment="Center"
 							Spacing="8">
-					<TextBlock Text="Cursor Palette"
+					<TextBlock x:Name="AppLogoText"
+							   Text="Cursor Palette"
 							   FontSize="16"
 							   FontWeight="SemiBold"
-							   VerticalAlignment="Center" />
+							   VerticalAlignment="Center"
+							   Cursor="Hand"
+							   ToolTip.Tip="Random cursor from the entire board"
+							   PointerPressed="OnAppLogoClick" />
 				</StackPanel>
 
 				<Button x:Name="ThemeToggleButton"
@@ -136,7 +140,8 @@
 								Background="{DynamicResource SystemRegionBrush}"
 								Classes.active="{Binding IsActive}"
 								Classes.group="{Binding IsGroup}"
-								Classes.has-group="{Binding GroupColorHex, Converter={x:Static ObjectConverters.IsNotNull}}"
+								Classes.cell="True"
+								Classes.selected="{Binding IsSelected}"
 								ToolTip.Tip="{Binding DisplayName}"
 								PointerPressed="OnPresetClick">
 							<Border.ContextMenu>
@@ -169,16 +174,44 @@
 											  Header="Collapse/Expand"
 											  IsVisible="{Binding IsGroup}"
 											  Click="OnMenuToggleCollapse" />
+									<MenuItem x:Name="MenuRandomPresetItem"
+											  Header="Random pick"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuRandomPreset" />
 									<MenuItem x:Name="MenuEditGroupItem"
 											  Header="Edit group"
 											  IsVisible="{Binding IsGroup}"
 											  Click="OnMenuEditGroup" />
+									<MenuItem x:Name="MenuConsolidateGroupItem"
+											  Header="Group cells together"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuConsolidateGroup" />
+									<MenuItem x:Name="MenuUngroupItem"
+											  Header="Ungroup"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuUngroup" />
+									<MenuItem x:Name="MenuAssignToGroupItem"
+											  Header="Add to group"
+											  IsVisible="{Binding IsPreset}"
+											  Click="OnMenuAssignToGroup" />
+									<MenuItem x:Name="MenuRemoveFromGroupItem"
+											  Header="Remove from group"
+											  IsVisible="{Binding GroupId, Converter={x:Static ObjectConverters.IsNotNull}}"
+											  Click="OnMenuRemoveFromGroup" />
 									<MenuItem x:Name="MenuDeleteItem"
 											  Header="Delete"
 											  Click="OnMenuDelete" />
 								</ContextMenu>
 							</Border.ContextMenu>
 						<Grid>
+							<Border Width="4"
+									HorizontalAlignment="Left"
+									VerticalAlignment="Stretch"
+									Margin="0,0,0,0"
+									CornerRadius="2,0,0,2"
+									IsHitTestVisible="False"
+									IsVisible="{Binding GroupColorHex, Converter={x:Static ObjectConverters.IsNotNull}}"
+									Background="{Binding GroupColorHex}" />
 							<StackPanel VerticalAlignment="Center"
 										HorizontalAlignment="Center"
 										Spacing="4">
@@ -234,6 +267,37 @@
 									   Margin="0,4,6,0"
 									   IsHitTestVisible="False"
 									   IsVisible="{Binding IsMixed}" />
+							<TextBlock Text="📐"
+									   FontSize="13"
+									   HorizontalAlignment="Right"
+									   VerticalAlignment="Bottom"
+									   Margin="0,0,6,4"
+									   IsHitTestVisible="False"
+									   IsVisible="{Binding UseScaling}" />
+							<Border Width="6"
+									Height="6"
+									CornerRadius="3"
+									HorizontalAlignment="Left"
+									VerticalAlignment="Top"
+									Margin="4,4,0,0"
+									IsHitTestVisible="False"
+									IsVisible="{Binding GroupColorHex, Converter={x:Static ObjectConverters.IsNotNull}}"
+									Background="{Binding GroupColorHex}" />
+							<Border Width="18"
+									Height="18"
+									CornerRadius="9"
+									HorizontalAlignment="Left"
+									VerticalAlignment="Top"
+									Margin="6,4,0,0"
+									IsHitTestVisible="False"
+									IsVisible="{Binding IsSelected}"
+									Background="{DynamicResource SystemAccentColor}">
+								<TextBlock Text="✓"
+										   FontSize="11"
+										   Foreground="White"
+										   HorizontalAlignment="Center"
+										   VerticalAlignment="Center" />
+							</Border>
 						</Grid>
 						</Border>
 					</DataTemplate>
@@ -251,8 +315,46 @@
 				   IsVisible="{Binding Board.Count, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=2}"
 				   IsHitTestVisible="False" />
 
-		<!-- Footer: zoom controls (left) + footer text (right) -->
-		<Border Grid.Row="3"
+	<!-- Group toolbar (visible when presets are Ctrl+click selected) -->
+	<Border x:Name="GroupToolbar"
+			Grid.Row="3"
+			Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+			BorderBrush="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+			BorderThickness="0,1,0,0"
+			Padding="12,6"
+			IsVisible="False">
+		<Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+			<TextBlock x:Name="GroupSelectionCountText"
+					   Grid.Column="0"
+					   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+					   VerticalAlignment="Center"
+					   Margin="0,0,16,0" />
+			<WrapPanel x:Name="GroupColorSwatches"
+					   Grid.Column="1"
+					   Orientation="Horizontal"
+					   VerticalAlignment="Center"
+					   Margin="0,0,16,0" />
+			<TextBox x:Name="GroupNameBox"
+					 Grid.Column="2"
+					 VerticalAlignment="Center"
+					 MaxWidth="200"
+					 Margin="0,0,12,0" />
+			<Button x:Name="GroupCancelButton"
+					Grid.Column="3"
+					Content="Cancel"
+					Margin="0,0,8,0"
+					MinWidth="80"
+					Click="OnGroupCancelClick" />
+			<Button x:Name="GroupCreateButton"
+					Grid.Column="4"
+					Content="Create group"
+					MinWidth="100"
+					Click="OnGroupCreateClick" />
+		</Grid>
+	</Border>
+
+	<!-- Footer: zoom controls (left) + footer text (right) -->
+		<Border Grid.Row="4"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 				Padding="12,6">
 			<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
@@ -332,7 +434,7 @@
 
 		<!-- Drag ghost overlay -->
 		<Border x:Name="DragGhost"
-				Grid.RowSpan="4"
+				Grid.RowSpan="5"
 				IsHitTestVisible="False"
 				IsVisible="False"
 				Opacity="0.85"
@@ -364,7 +466,7 @@
 
 		<!-- Reorder insertion indicator -->
 		<Border x:Name="ReorderInsertionLine"
-				Grid.RowSpan="4"
+				Grid.RowSpan="5"
 				IsHitTestVisible="False"
 				IsVisible="False"
 				ZIndex="950"

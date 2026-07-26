@@ -1,5 +1,6 @@
 {
 	"S.AppTitle": "Cursor Palette",
+	"S.AppLogo.RandomTooltip": "从整个面板随机选择光标",
 	"S.About.Title": "关于",
 	"S.About.Close": "关闭",
 	"S.About.LicenseHint": "MIT 许可证 — 点击查看详情",
@@ -34,6 +35,7 @@
 	"S.Menu.Ungroup": "取消分组",
 	"S.Menu.DeleteGroup": "删除分组",
 	"S.Menu.ConsolidateGroup": "整理分组卡片",
+	"S.Menu.RandomPreset": "随机选择",
 	"S.Group.DefaultName": "分组",
 	"S.Group.SelectedCount": "已选择 {0} 项",
 	"S.Group.MembersCount": "{0} 个预设",

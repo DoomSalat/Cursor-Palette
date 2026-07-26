@@ -9,12 +9,13 @@
 - **Галерея пресетов** — ячейки пресетов, "по умолчанию", Add cell с символом "+"
 - **Тулбар** — слайдер размера, Apply, Undo, Theme (☀/🌙), Language
 - **Редактор пресета** — слоты ролей (17 шт), превью курсоров, кнопка Browse
-  для каждого слота, кнопка Clear, имя пресета, слайдер размера, Save/Cancel.
-  Открывается из контекстного меню (Edit) с загрузкой существующего пресета
+  для каждого слота, кнопка Clear, имя пресета, слайдер размера, scaling checkbox,
+  Save/Cancel. Открывается из контекстного меню (Edit) и двойным кликом
 - **Контекстное меню** — Edit, Rename (диалог с TextBox), Move left/right,
-  Download (TODO), Delete (диалог подтверждения)
+  Download, Download System Cursors, Collapse/Expand, Random pick, Edit group,
+  Delete (диалог подтверждения). Локализуется через `OnContextMenuOpening`
 - **Локализация** — JSON-файлы вместо XAML, 6 языков (en/ru/de/es/ja/zh),
-  переключатель в шапке. Контекстное меню локализуется через `OnContextMenuOpening`
+  переключатель в шапке (выпадающее меню ContextMenu с галочкой у текущего)
 - **Темы** — Dark/Light через `ThemeDictionaries` в `App.xaml`, цвета сопоставлены
   с WPF-оригиналом (#FF1E1F24 фон dark, #FFF4F5F7 фон light)
 - **Drag-and-drop импорт** — перетаскивание .cur/.ani файлов и папок на окно
@@ -29,22 +30,47 @@
   сохраняется через `AppState.SetUiScale`
 - **Ползунок размера ячеек** — слайдер в тулбаре, `ScaleTransform` на Gallery,
   сохраняется через `AppState.SetGalleryCellScale`
-- **Экспорт/импорт пакетов** — контекстное меню Download экспортирует пресет
-  в `.cursorpalette`, drag-drop импортирует пакеты через `PresetPackageService`
+- **Экспорт/импорт пакетов** — кнопки Export и Import в футере.
+  Export открывает `ExportWindow` с выбором пресетов/групп для экспорта
+  в `.cursorpalette`, `.zip`, Xcursor theme, raw cursor files.
+  Import — диалог выбора файла + импорт через `PresetPackageService`.
+  Также Download из контекстного меню (экспорт одного пресета)
 - **Затемнение + спиннер** — overlay с вращающимся Ellipse во время применения
   пресета/размера
 - **Кастомный скроллбар** — тонкий (10px), закруглённый thumb, hover-эффект,
   цвета для dark/light тем
 - **Drag-and-drop reorder** — перетаскивание плиток пресетов для изменения порядка,
-  сохраняется через `BoardOrderStore`
+  сохраняется через `BoardOrderStore`. Drag ghost и reorder insertion line есть
 - **Группы пресетов** — отображение групп, collapse/expand по клику,
-  контекстное меню (rename, delete, collapse), цветовые метки через `GroupColors`
+  контекстное меню (collapse/expand, random pick, edit group, consolidate,
+  ungroup, delete), цветовые метки через `GroupColors` (левая полоса + бейдж),
+  `GroupEditWindow` портирован, assign to group (подменю), remove from group,
+  Ctrl+click выбор пресетов, selection badges (✓), group toolbar с color
+  swatches и кнопками Create/Cancel
 - **Проверка обновлений** — фоновая проверка через GitHub API при запуске,
-  toast-уведомление при наличии новой версии
+  toast-уведомление при наличии новой версии, кнопка-индикатор в шапке
 - **Paint editor** — окно с pixel canvas (brush/eraser/hotspot), импорт
   PNG/BMP/cursor файлов, zoom, интеграция с PresetEditor слотами
 - **Константы** — магические строки и числа вынесены в `private const` по стилю
   WPF-оригинала
+- **Масштаб курсора (scaling)** — checkbox в тулбаре и в редакторе пресета,
+  сохраняется в пресете, применяется при выборе
+- **Mixed badge (🧩)** — индикатор для пресетов со смешанными ролями (RoleRefs).
+  `BoardItem.IsMixed` вычисляется и отображается в XAML
+- **Scaling icon (📐)** — индикатор на ячейке пресета, если scaling включён
+- **Hover эффект** — фон ячейки меняется при наведении (`BrushSurfaceHover`)
+- **Group color indicator** — левая цветная полоса + бейдж на ячейках
+  пресетов, принадлежащих группе
+- **Info/Help dialog** — кнопка "ⓘ" в шапке открывает `InfoHelpWindow`
+  со справкой (`HelpTextService.Get("Main")`)
+- **Open Folder After Download toggle** — кнопка-переключатель 📂 в футере,
+  переключает `AppState.OpenFolderAfterDownload`
+- **GitHub icon link** — кнопка в футере, клик открывает `AppInfo.GitHubUrl`
+- **Window state persistence** — размер окна сохраняется/восстанавливается
+  через `AppState.SetMainWindowSize` / `GetMainWindowWidth/Height`
+- **Случайный пресет** — клик по логотипу "Cursor Palette" применяет случайный
+  пресет со всего табло; пункт "Random pick" в контекстном меню группы
+  применяет случайный пресет из группы
 
 ## Известные проблемы
 
@@ -75,77 +101,73 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 
 ## Не портировано (TODO)
 
-### 1. Кнопки Export/Import в футере
-
-WPF-оригинал имеет кнопки Export и Import в футере:
-- **Export** — открывает `ExportWindow` с выбором пресетов/групп для экспорта
-  в `.cursorpalette`, `.zip`, `.tar.gz`, Xcursor theme. В Linux есть только
-  Download из контекстного меню (экспорт одного пресета).
-- **Import** — открывает `OpenFileDialog` для выбора `.cursorpalette` файла,
-  затем `ImportPickerWindow` с выбором пресетов для импорта. В Linux есть
-  только drag-drop импорт (без диалога выбора конкретных пресетов).
-
-**Файлы WPF:** `MainWindow.ImportExport.cs`, `ExportWindow.xaml(.cs)`,
-`ImportPickerWindow.xaml(.cs)`
-**Статус Linux:** drag-drop импорт пакетов есть, кнопок Export/Import нет,
-`ExportWindow` и `ImportPickerWindow` не портированы.
-
-### 2. Управление группами
+### 1. Управление группами — частично
 
 WPF-оригинал имеет полнофункциональное управление группами:
-- **GroupEditWindow** — диалог создания/редактирования группы с выбором имени
-  и цвета (color swatches из `GroupColors.Palette`)
-- **Group toolbar** — нижняя панель, появляющаяся при Ctrl+click выборе пресетов:
-  счётчик выбранных, color swatches, поле имени, кнопки Create/Cancel
-- **Ctrl+click выбор пресетов** — множественный выбор для последующей группировки
-- **Selection badges** (✓) — визуальный индикатор выбранных пресетов
 - **Контекстное меню "Create Group"** — по правому клику на фоне галереи
-- **Контекстное меню "Assign to Group"** — подменю со списком групп для
-  назначения пресета в группу
-- **Контекстное меню "Remove from Group"** — для пресетов внутри группы
-- **Контекстное меню "Edit Group"** — открытие GroupEditWindow для группы
 - **Inline rename группы** — двойной клик по имени группы для переименования
-- **Group outline** — пунктирная рамка вокруг сгруппированных пресетов
-  (используя `GroupColors.ResolveHex`)
+- **Group drag-and-drop** — перетаскивание групп для reordering
+- **GroupAttachIndicator** — индикатор-рамка при перетаскивании пресета
+  на группу (для добавления в группу)
 
-**Файлы WPF:** `MainWindow.Groups.cs`, `GroupEditWindow.xaml(.cs)`,
-`MainWindow.Gallery.cs` (CreatePresetCell, CreateGroupCell)
-**Статус Linux:** отображение групп, collapse/expand, delete, toggle collapse
-  в контекстном меню. `GroupColorHex` передаётся в `BoardItem`, но не
-  используется в XAML-шаблоне. GroupEditWindow не портирован.
+**Файлы WPF:** `MainWindow.Groups.cs`, `MainWindow.Gallery.cs`
+**Статус Linux:** `GroupEditWindow` портирован. Collapse/expand, delete, random
+  pick, edit group, consolidate, ungroup, assign to group, remove from group
+  в контекстном меню есть. Цветовая полоса + бейдж на ячейках отображаются.
+  Ctrl+click выбор пресетов, selection badges (✓), group toolbar (с color
+  swatches, полем имени, кнопками Create/Cancel) — портированы.
+  Inline rename, group drag, group attach indicator — не портированы.
 
-### 3. UI ячеек пресетов
+### 2. UI ячеек пресетов — частично
 
-- **Mixed badge (🧩)** — индикатор для пресетов со смешанными ролями
-  (RoleRefs). `BoardItem.IsMixed` вычисляется, но не отображается в XAML.
 - **Tooltips на ячейках** — WPF показывает tooltip с именем пресета и
-  подсказкой контекстного меню. В Linux tooltips отсутствуют.
-- **Double-click to edit** — WPF открывает редактор пресета по двойному клику.
-  В Linux только через контекстное меню (Edit).
-- **Hover эффект** — WPF меняет фон ячейки при наведении (`BrushSurfaceHover`).
-  В Linux hover не реализован.
-- **Selection border** — утолщённая рамка для выбранных пресетов
-  (`SelectionBorderThickness = 4`).
+  подсказкой контекстного меню. В Linux tooltip на имени есть, но
+  подсказка "ПКМ — меню" отсутствует.
 
 **Файлы WPF:** `MainWindow.Gallery.cs` (CreatePresetCell, CreateDefaultCell)
-**Статус Linux:** базовые ячейки есть, расширенные визуальные эффекты нет.
+**Статус Linux:** базовые ячейки есть, mixed badge (🧩), scaling icon (📐),
+  hover эффект, group color indicator, selection border + selection badges (✓)
+  отображаются. Tooltip с подсказкой "ПКМ — меню" — нет.
 
-### 4. Download System Cursors
+### 3. Paint editor — частично
 
-WPF-оригинал имеет контекстное меню на ячейке "Windows Default":
-- **Download System Cursors** → подменю:
-  - **PNG/GIF** — экспорт системных курсоров как PNG/GIF изображения
-  - **CUR/ANI** — экспорт системных курсоров как .cur/.ani файлы
+WPF-оригинал (v2.1.0) имеет полнофункциональный Paint editor:
+- **Brush/Eraser** — рисование по пикселям ✅
+- **Hotspot** — перетаскивание маркера + 9 кнопок быстрой установки ✅
+  (но без кнопок быстрой установки, только маркер)
+- **Fill** — заливка области одним цветом ❌
+- **Eyedropper** — пипетка (Alt+клик) ❌
+- **Color wheel / color square** — выбор цвета (переключатель ◐/■) ❌
+- **Undo/Redo** — история изменений (Ctrl+Z / Ctrl+Y) ❌
+- **Background Ref** — полупрозрачная картинка позади спрайта ❌
+- **Canvas tool** — визуальная растяжка холста за края/углы ❌
+- **Move tool** — перетаскивание спрайта + джойстик "прижать к краю" ❌
+- **Hand tool** — панорамирование ❌
+- **Animation timeline** — до 60 кадров для .ani ❌
+- **Shift+клик** — прямая линия от последней точки ❌
+- **Import image** — диалог с режимами Over/Replace ❌ (есть только простой импорт)
+- **Paint editor для пустых слотов** — рисование с нуля ❌
+- **Горячие клавиши** инструментов (V/H/B/E/G/C/O) ❌
+- **Сохранение между запусками** — последний инструмент, зум, позиция, цвет ❌
 
-Использует `RegistryCursorService.GetWindowsDefaultValues()` и
-`DownloadSystemCursors(asImages)`.
+**Файлы WPF:** `PaintEditorWindow.xaml(.cs)`, `ColorWheelControl.xaml(.cs)`
+**Статус Linux:** базовый pixel canvas с brush/eraser/hotspot и импортом.
+  Fill, eyedropper, color wheel, undo/redo, background ref, canvas/move/hand
+  tools, animation timeline, shift+line — не портированы.
 
-**Файлы WPF:** `MainWindow.Gallery.cs` (CreateDefaultCell),
-`MainWindow.PresetActions.cs` (DownloadSystemCursors)
-**Статус Linux:** не портировано. На Linux нет реестра Windows, но можно
-  экспортировать курсоры из X11/Xcursor.
+### 4. Микс ролей из существующих пресетов (RoleRefs)
 
-### 5. Индикатор обновлений
+WPF-оригинал (v1.1.2) позволяет брать роль из другого пресета:
+- **RolePickerWindow** — двухшаговый picker: выбор пресета-источника → выбор роли
+- **Тумблер "только текущая роль"**
+- **Иконка-цепочка** на слоте с тултипом источника ссылки
+- **Правка hotspot на ссылочном слоте** — отвязывает роль в собственную копию
+
+**Файлы WPF:** `PresetEditorWindow.xaml(.cs)`, `RolePickerWindow.xaml(.cs)`
+**Статус Linux:** `IsMixed` вычисляется и отображается (🧩), но UI для создания
+  ссылочных ролей (RolePicker) не портирован.
+
+### 5. Индикатор обновлений — частично
 
 WPF-оригинал имеет полноценный UI обновлений в футере:
 - **UpdateSpinner** — вращающийся спиннер во время проверки
@@ -157,58 +179,29 @@ WPF-оригинал имеет полноценный UI обновлений �
   кнопкой "Download" и "Open in browser"
 
 **Файлы WPF:** `MainWindow.Updates.cs`, `UpdateWindow.xaml(.cs)`
-**Статус Linux:** только toast-уведомление при наличии обновления.
-  `UpdateWindow` не портирован.
+**Статус Linux:** фоновая проверка через GitHub API, toast-уведомление,
+  кнопка-индикатор в шапке. `UpdateWindow` не портирован.
 
-### 6. Info/Help dialogs
+### 6. Download System Cursors — частично
 
-WPF-оригинал имеет кнопку "ⓘ" в шапке и в каждом диалоге:
-- **InfoHelpWindow** — диалог с справочной информацией по текущему окну
-  (Main, Editor, Paint, Hotspot, Export, Import, RolePicker, PresetPicker, About)
-- **HelpTextService** — загружает тексты справки из JSON
+WPF-оригинал имеет подменю с двумя форматами:
+- **PNG/GIF** — экспорт системных курсоров как изображения
+- **CUR/ANI** — экспорт системных курсоров как .cur/.ani файлы
 
-**Файлы WPF:** `InfoHelpWindow.xaml(.cs)`, `HelpTextService.cs`
-**Статус Linux:** не портировано.
+**Файлы WPF:** `MainWindow.PresetActions.cs` (DownloadSystemCursors)
+**Статус Linux:** есть `OnMenuDownloadSystem` — экспортирует текущие
+  системные курсоры как .xcursor файлы в Downloads. PNG/GIF и CUR/ANI
+  форматы не поддерживаются.
 
-### 7. Open Folder After Download toggle
+### 7. WindowDropIndicator
 
-WPF-оригинал имеет кнопку-переключатель в футере:
-- **OpenFolderToggle** — иконка папки, переключает
-  `AppState.OpenFolderAfterDownload`
-- При включении автоматически открывает папку после скачивания/экспорта
-- Используется во всех окнах (MainWindow, PresetEditor, PaintEditor, Export)
-
-**Файлы WPF:** `MainWindow.xaml`, `MainWindow.Updates.cs`,
-`AppState.cs` (GetOpenFolderAfterDownload/SetOpenFolderAfterDownload)
-**Статус Linux:** не портировано. `AppState.OpenFolderAfterDownload`
-  существует в Core, но UI toggle отсутствует.
-
-### 8. GitHub icon link
-
-WPF-оригинал имеет иконку GitHub в футере:
-- Клик открывает `AppInfo.GitHubUrl` в браузере
-
-**Файлы WPF:** `MainWindow.xaml` (OnGitHubIconClick)
-**Статус Linux:** не портировано.
-
-### 9. Drag Ghost и индикаторы reorder
-
-WPF-оригинал имеет расширенные визуальные индикаторы при drag-and-drop:
-- **DragGhost** — полупрозрачная ячейка-призрак, следующая за курсором
-  при перетаскивании пресета/группы
-- **ReorderInsertionLine** — вертикальная линия, показывающая позицию
-  вставки при reordering
-- **WindowDropIndicator** — пунктирная рамка вокруг окна при drag-over
-  файлов извне
-- **GroupAttachIndicator** — индикатор-рамка при перетаскивании пресета
-  на группу (для добавления в группу)
-- **Group drag-and-drop** — перетаскивание групп для reordering
+WPF-оригинал показывает пунктирную рамку вокруг окна при drag-over
+файлов извне (визуальная реакция на перетаскивание).
 
 **Файлы WPF:** `MainWindow.DragDrop.cs`, `MainWindow.xaml`
-**Статус Linux:** базовый reorder пресетов через drag-drop есть,
-  визуальные индикаторы и drag group нет.
+**Статус Linux:** не портировано. Drop работает, но визуальной реакции нет.
 
-### 10. AboutWindow (отдельное окно)
+### 8. AboutWindow (отдельное окно)
 
 WPF-оригинал имеет отдельное `AboutWindow` (не диалог по клику на футер):
 - Открывается из контекстного меню или кнопки "ⓘ"
@@ -218,23 +211,3 @@ WPF-оригинал имеет отдельное `AboutWindow` (не диал�
 **Файлы WPF:** `AboutWindow.xaml(.cs)`
 **Статус Linux:** есть диалог "О программе" по клику на футер
   (программно построенный), отдельного `AboutWindow` нет.
-
-### 11. Language dropdown menu
-
-WPF-оригинал открывает выпадающее меню при клике на кнопку языка:
-- `ContextMenu` с пунктами для каждого языка
-- Отображает `DisplayName` каждого языка
-- Checkable items с галочкой у текущего языка
-
-**Файлы WPF:** `MainWindow.Settings.cs` (OnLanguageButtonClick)
-**Статус Linux:** циклическое переключение языков по клику
-  (без выпадающего меню).
-
-### 12. Window state persistence
-
-WPF-оригинал сохраняет размер окна:
-- `AppState.SetMainWindowSize(Width, Height)` при закрытии
-- `AppState.GetMainWindowWidth/Height` при открытии
-
-**Файлы WPF:** `MainWindow.xaml.cs` (OnClosed, конструктор)
-**Статус Linux:** не портировано (размер окна фиксирован в XAML).

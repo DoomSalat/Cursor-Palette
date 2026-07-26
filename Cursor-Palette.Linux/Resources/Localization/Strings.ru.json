@@ -1,5 +1,6 @@
 {
 	"S.AppTitle": "Cursor Palette",
+	"S.AppLogo.RandomTooltip": "Случайный курсор со всей доски",
 	"S.Toast.Saved": "Пресет сохранён",
 	"S.Toast.Downloaded": "Скачано: {0}",
 	"S.Toast.PresetDownloaded": "Пресет «{0}» скачан в «Загрузки» ({1} шт.)",
@@ -38,6 +39,7 @@
 	"S.Menu.Ungroup": "Разгруппировать",
 	"S.Menu.DeleteGroup": "Удалить группу",
 	"S.Menu.ConsolidateGroup": "Собрать ячейки вместе",
+	"S.Menu.RandomPreset": "Случайный выбор",
 	"S.Group.DefaultName": "Группа",
 	"S.Group.SelectedCount": "Выбрано: {0}",
 	"S.Group.MembersCount": "Пресетов: {0}",

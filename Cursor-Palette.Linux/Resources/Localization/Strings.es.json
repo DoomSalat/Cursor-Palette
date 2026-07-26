@@ -1,5 +1,6 @@
 {
 	"S.AppTitle": "Cursor Palette",
+	"S.AppLogo.RandomTooltip": "Cursor aleatorio de todo el tablero",
 	"S.Toast.Saved": "Ajuste guardado",
 	"S.Toast.Downloaded": "Descargado: {0}",
 	"S.Toast.PresetDownloaded": "Preajuste \"{0}\" descargado a Descargas ({1} elementos)",
@@ -38,6 +39,7 @@
 	"S.Menu.Ungroup": "Desagrupar",
 	"S.Menu.DeleteGroup": "Eliminar grupo",
 	"S.Menu.ConsolidateGroup": "Agrupar celdas juntas",
+	"S.Menu.RandomPreset": "Selección aleatoria",
 	"S.Group.DefaultName": "Grupo",
 	"S.Group.SelectedCount": "{0} seleccionado(s)",
 	"S.Group.MembersCount": "{0} preajuste(s)",

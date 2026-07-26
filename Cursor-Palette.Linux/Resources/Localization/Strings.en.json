@@ -1,5 +1,6 @@
 {
 	"S.AppTitle": "Cursor Palette",
+	"S.AppLogo.RandomTooltip": "Random cursor from the entire board",
 	"S.Toast.Saved": "Preset saved",
 	"S.Toast.Downloaded": "Downloaded: {0}",
 	"S.Toast.PresetDownloaded": "Preset \"{0}\" downloaded to Downloads ({1} items)",
@@ -38,6 +39,7 @@
 	"S.Menu.Ungroup": "Ungroup",
 	"S.Menu.DeleteGroup": "Delete group",
 	"S.Menu.ConsolidateGroup": "Group cells together",
+	"S.Menu.RandomPreset": "Random pick",
 	"S.Group.DefaultName": "Group",
 	"S.Group.SelectedCount": "{0} selected",
 	"S.Group.MembersCount": "{0} preset(s)",
