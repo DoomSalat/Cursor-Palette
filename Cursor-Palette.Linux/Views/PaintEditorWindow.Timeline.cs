@@ -131,8 +131,6 @@ public partial class PaintEditorWindow
 		_resizeOriginalOffsetY = _offsetY;
 		_resizeOriginalPanX = _panTransform.X;
 		_resizeOriginalPanY = _panTransform.Y;
-		_resizeAccumulatorX = 0;
-		_resizeAccumulatorY = 0;
 		_resizeDragStartScreen = screenPos;
 
 		var canvasX = (screenPos.X - _panTransform.X) / _zoom;

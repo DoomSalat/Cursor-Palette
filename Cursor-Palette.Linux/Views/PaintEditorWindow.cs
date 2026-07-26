@@ -129,8 +129,6 @@ public partial class PaintEditorWindow : Window
 	private int _resizeOriginalOffsetY;
 	private double _resizeOriginalPanX;
 	private double _resizeOriginalPanY;
-	private double _resizeAccumulatorX;
-	private double _resizeAccumulatorY;
 	private bool _hasCanvasResizeSnapshot;
 	private int _canvasResizeSnapshotWidth;
 	private int _canvasResizeSnapshotHeight;
@@ -138,7 +136,6 @@ public partial class PaintEditorWindow : Window
 	private int _canvasResizeSnapshotOffsetY;
 	private double _canvasResizeSnapshotPanX;
 	private double _canvasResizeSnapshotPanY;
-	private string? _resizeHandleTag;
 
 	private bool _hideMainImage;
 	private bool _showSpriteBounds;

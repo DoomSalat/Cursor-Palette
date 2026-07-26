@@ -286,7 +286,7 @@ public class CanvasSizeDialog : Window
 		}
 	}
 
-	private static int ParseDimension(string text, int fallback) =>
+	private static int ParseDimension(string? text, int fallback) =>
 		int.TryParse(text, out var value)
 			? Math.Clamp(value, MinDimension, MaxDimension)
 			: fallback;
