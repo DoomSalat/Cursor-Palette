@@ -82,6 +82,7 @@
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 
 				<StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
@@ -138,6 +139,7 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="Auto" />
 						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
 					</Grid.ColumnDefinitions>
 
 					<TextBlock Grid.Column="0" Text="{DynamicResource S.CursorSize}"
@@ -160,11 +162,23 @@
 							Margin="8,0,0,0"
 							VerticalAlignment="Center"
 							Checked="OnEditorUseScalingCheckedChanged"
-							Unchecked="OnEditorUseScalingCheckedChanged">
-							<Image x:Name="EditorUseScalingIcon" Width="16" Height="16"
+							Unchecked="OnEditorUseScalingCheckedChanged" />
+					<Border x:Name="EditorScaleModeButton" Grid.Column="4"
+						Width="28" Height="28"
+						CornerRadius="6"
+						Background="{StaticResource Brush.Surface}"
+						BorderBrush="{StaticResource Brush.Border}"
+						BorderThickness="1"
+						Margin="4,0,0,0"
+						Cursor="Hand"
+						MouseLeftButtonDown="OnEditorScaleModeIconClick"
+						ToolTip="{DynamicResource S.ScaleCursors.Tooltip}">
+						<Image x:Name="EditorUseScalingIcon" Width="16" Height="16"
 							   SnapsToDevicePixels="True"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center"
 							   RenderOptions.BitmapScalingMode="NearestNeighbor" />
-					</CheckBox>
+					</Border>
 				</Grid>
 			</Border>
 		</Border>

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using CursorPalette.Models;
 using CursorPalette.Services;
@@ -22,8 +23,9 @@ public partial class MainWindow
 	{
 		var sizeChanged = sizeInPixels != _baselineSizePx;
 		var scaleChanged = _scaleCursorsReady && (ScaleCursorsCheckBox.IsChecked == true) != _baselineScaleEnabled;
+		var scaleModeChanged = _activeScaleMode != _baselineScaleMode;
 		ApplySizeButton.Style = (Style)Application.Current.Resources[
-			sizeChanged || scaleChanged ? StyleAccentButton : StyleButton];
+			sizeChanged || scaleChanged || scaleModeChanged ? StyleAccentButton : StyleButton];
 	}
 
 	private void OnApplySizeButtonClick(object sender, RoutedEventArgs e)
@@ -48,6 +50,7 @@ public partial class MainWindow
 		}
 
 		_baselineScaleEnabled = scaleEnabled;
+		_baselineScaleMode = _activeScaleMode;
 
 		ApplyAndPersistSize(sizeInPixels);
 		ReloadGallery();
@@ -68,7 +71,7 @@ public partial class MainWindow
 				if (sourceValues != null)
 				{
 					var valuesToApply = useScaling
-						? CursorScalerService.ScaleValues(sourceValues, sizeInPixels)
+						? CursorScalerService.ScaleValues(sourceValues, sizeInPixels, _activeScaleMode)
 						: sourceValues;
 					RegistryCursorService.ApplyValues(valuesToApply);
 				}
@@ -111,6 +114,7 @@ public partial class MainWindow
 
 	private bool _scaleCursorsReady;
 	private bool _baselineScaleEnabled;
+	private ScaleMode _baselineScaleMode;
 
 	public void InitScaleCursorsCheckBox()
 	{
@@ -128,13 +132,17 @@ public partial class MainWindow
 				_activeSourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
 			}
 			_activeUseScaling = AppState.GetScaleCursorsEnabled() && activePreset.UseScaling;
+			_activeScaleMode = activePreset.ScaleMode;
 		}
 		else
 		{
 			_activeUseScaling = AppState.GetScaleCursorsEnabled();
+			_activeScaleMode = AppState.GetScaleMode();
 		}
 
 		SetScaleCheckboxSilently(initialValue);
+		_baselineScaleMode = _activeScaleMode;
+		UpdateScaleIcon(_activeScaleMode);
 	}
 
 	private void SetScaleCheckboxSilently(bool value)
@@ -142,6 +150,7 @@ public partial class MainWindow
 		_scaleCursorsReady = false;
 		ScaleCursorsCheckBox.IsChecked = value;
 		_baselineScaleEnabled = value;
+		_baselineScaleMode = _activeScaleMode;
 		_scaleCursorsReady = true;
 	}
 
@@ -152,5 +161,36 @@ public partial class MainWindow
 
 		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
 		UpdateApplySizeButtonHighlight(sizeInPixels);
+	}
+
+	private void OnScaleModeIconClick(object sender, MouseButtonEventArgs e)
+	{
+		_activeScaleMode = _activeScaleMode == ScaleMode.NearestNeighbor
+			? ScaleMode.AreaWeighted
+			: ScaleMode.NearestNeighbor;
+
+		if (_activePresetId != null)
+		{
+			PresetStore.UpdateScaleMode(_activePresetId, _activeScaleMode);
+
+			var preset = _presets.FirstOrDefault(preset => preset.Id == _activePresetId);
+			if (preset != null)
+				preset.ScaleMode = _activeScaleMode;
+		}
+		else
+		{
+			AppState.SetScaleMode(_activeScaleMode);
+		}
+
+		UpdateScaleIcon(_activeScaleMode);
+
+		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
+		UpdateApplySizeButtonHighlight(sizeInPixels);
+	}
+
+	private void UpdateScaleIcon(ScaleMode scaleMode)
+	{
+		var iconUri = scaleMode == ScaleMode.NearestNeighbor ? StairIconUri : ExpandIconUri;
+		ScaleCursorsIcon.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(iconUri));
 	}
 }

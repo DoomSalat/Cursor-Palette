@@ -16,6 +16,7 @@ public sealed class PackageEntry
 	public int RoleCount { get; init; }
 	public int BaseSize { get; init; }
 	public bool UseScaling { get; init; }
+	public int ScaleMode { get; init; } = 1;
 	public string? PreviewPath { get; init; }
 }
 
@@ -72,6 +73,7 @@ public sealed class ArchiveManifestPreset
 	public int SortOrder { get; set; }
 	public int BaseSize { get; set; }
 	public bool UseScaling { get; set; }
+	public int ScaleMode { get; set; } = 1;
 	public Dictionary<string, string> Roles { get; set; } = new();
 	public HashSet<string> LockedRoles { get; set; } = new();
 }
@@ -83,6 +85,7 @@ public sealed class SinglePresetMarker
 	public string Name { get; set; } = "";
 	public int BaseSize { get; set; }
 	public bool UseScaling { get; set; }
+	public int ScaleMode { get; set; } = 1;
 	public HashSet<string> LockedRoles { get; set; } = new();
 }
 

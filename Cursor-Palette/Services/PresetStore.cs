@@ -134,6 +134,7 @@ public static class PresetStore
 			SortOrder = sortOrder,
 			BaseSize = draft.BaseSize,
 			UseScaling = draft.UseScaling,
+			ScaleMode = draft.ScaleMode,
 			Roles = roles,
 			RoleRefs = roleRefs,
 			LockedRoles = new HashSet<string>(draft.LockedRoles),
@@ -182,6 +183,28 @@ public static class PresetStore
 				return;
 
 			preset.UseScaling = useScaling;
+			File.WriteAllText(manifestPath, JsonSerializer.Serialize(preset, JsonOptions));
+		}
+		catch
+		{
+		}
+	}
+
+	public static void UpdateScaleMode(string presetId, ScaleMode scaleMode)
+	{
+		var manifestPath = Path.Combine(GetPresetDir(presetId), ManifestFileName);
+
+		if (!File.Exists(manifestPath))
+			return;
+
+		try
+		{
+			var preset = JsonSerializer.Deserialize<Preset>(File.ReadAllText(manifestPath));
+
+			if (preset == null)
+				return;
+
+			preset.ScaleMode = scaleMode;
 			File.WriteAllText(manifestPath, JsonSerializer.Serialize(preset, JsonOptions));
 		}
 		catch

@@ -39,6 +39,7 @@ public partial class ExportWindow : Window
 	private const string LocDownloadReadme = "S.Export.DownloadReadme";
 	private const string LocDownloadReadmeTooltip = "S.Export.DownloadReadme.Tooltip";
 	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
+	private const string StairIconUri = "pack://application:,,,/Resources/StairIcon24.png";
 
 	private readonly List<(Preset Preset, Border Cell)> _tiles = new();
 	private readonly List<(PresetGroup Group, Border Cell)> _groupTiles = new();
@@ -231,7 +232,7 @@ public partial class ExportWindow : Window
 				Margin = new Thickness(0, 0, 6, 6),
 				IsHitTestVisible = false,
 				Source = new System.Windows.Media.Imaging.BitmapImage(
-					new Uri(ExpandIconUri)),
+					new Uri(preset.ScaleMode == ScaleMode.NearestNeighbor ? StairIconUri : ExpandIconUri)),
 			};
 			RenderOptions.SetBitmapScalingMode(scalingIcon, BitmapScalingMode.NearestNeighbor);
 			content.Children.Add(scalingIcon);

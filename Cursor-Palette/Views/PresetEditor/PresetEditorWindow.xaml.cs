@@ -64,6 +64,7 @@ public partial class PresetEditorWindow : Window
 	private const double LockIconSize = 14;
 	private const string DownloadIconUri = "pack://application:,,,/Resources/DownloadIcon32.png";
 	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
+	private const string StairIconUri = "pack://application:,,,/Resources/StairIcon24.png";
 	private const double DownloadIconSize = 16;
 
 	private const string BrushAccent = "Brush.Accent";
@@ -119,6 +120,7 @@ public partial class PresetEditorWindow : Window
 	private readonly string? _draftId;
 	private int _baseSize;
 	private bool _useScaling;
+	private ScaleMode _scaleMode = ScaleMode.AreaWeighted;
 	private bool _sizeSliderReady;
 
 	public PresetEditorWindow(Preset? existing, IReadOnlyList<string> droppedFiles, string? suggestedName = null)
@@ -134,12 +136,15 @@ public partial class PresetEditorWindow : Window
 		_draftId = existing?.Id;
 		_baseSize = existing?.BaseSize ?? RegistryCursorService.GetBaseSize();
 		_useScaling = existing?.UseScaling ?? true;
+		_scaleMode = existing?.ScaleMode ?? ScaleMode.AreaWeighted;
 
 		EditorSizeSlider.Value = (_baseSize - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
 		EditorSizeValueText.Text = $"{_baseSize} {PixelSuffix}";
 		EditorUseScalingCheckBox.IsChecked = _useScaling;
 		EditorUseScalingIcon.Source = new System.Windows.Media.Imaging.BitmapImage(
 			new Uri(ExpandIconUri));
+
+		UpdateEditorScaleIcon();
 		_sizeSliderReady = true;
 
 		var systemDefaults = RegistryCursorService.GetWindowsDefaultValues();

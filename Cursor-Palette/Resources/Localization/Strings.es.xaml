@@ -40,6 +40,8 @@
 	<sys:String x:Key="S.Menu.MoveRight">Mover a la derecha</sys:String>
 	<sys:String x:Key="S.Menu.Download">Descargar preset</sys:String>
 	<sys:String x:Key="S.Menu.UseScaling">Usar escalado</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Nearest">Modo de escala: Vecino más cercano</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Smooth">Modo de escala: Suave</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Eliminar</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Clic derecho para el menú</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Algunos roles provienen de otros preajustes</sys:String>

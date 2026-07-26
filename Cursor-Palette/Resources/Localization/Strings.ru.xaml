@@ -40,6 +40,8 @@
 	<sys:String x:Key="S.Menu.MoveRight">Переместить вправо</sys:String>
 	<sys:String x:Key="S.Menu.Download">Скачать пресет</sys:String>
 	<sys:String x:Key="S.Menu.UseScaling">Использовать масштабирование</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Nearest">Режим масштабирования: Ближайший</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Smooth">Режим масштабирования: Сглаженный</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Удалить</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">ПКМ — меню</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Часть ролей взята из других пресетов</sys:String>

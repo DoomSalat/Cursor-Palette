@@ -35,6 +35,8 @@
 	<sys:String x:Key="S.Menu.MoveRight">Nach rechts verschieben</sys:String>
 	<sys:String x:Key="S.Menu.Download">Preset herunterladen</sys:String>
 	<sys:String x:Key="S.Menu.UseScaling">Skalierung verwenden</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Nearest">Skalierungsmodus: Nächster Nachbar</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Smooth">Skalierungsmodus: Glatt</sys:String>
 	<sys:String x:Key="S.Menu.Delete">Löschen</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">Rechtsklick für Menü</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">Einige Rollen stammen aus anderen Presets</sys:String>

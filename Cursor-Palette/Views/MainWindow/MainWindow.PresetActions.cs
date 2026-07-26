@@ -52,7 +52,7 @@ public partial class MainWindow
 			{
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
 				var scaledValues = useScaling
-					? CursorScalerService.ScaleValues(sourceValues, baseSize)
+					? CursorScalerService.ScaleValues(sourceValues, baseSize, preset.ScaleMode)
 					: sourceValues;
 				RegistryCursorService.ApplyValues(scaledValues);
 				RegistryCursorService.SetBaseSize(baseSize);
@@ -60,6 +60,7 @@ public partial class MainWindow
 
 			_activeSourceValues = sourceValues;
 			_activeUseScaling = useScaling;
+			_activeScaleMode = preset.ScaleMode;
 
 			_baselineSizePx = preset.BaseSize;
 			SetSliderSilently(preset.BaseSize);
@@ -68,6 +69,7 @@ public partial class MainWindow
 
 			ReloadGallery();
 			SetScaleCheckboxSilently(preset.UseScaling);
+			UpdateScaleIcon(preset.ScaleMode);
 			UpdateUndoButton();
 		}
 		catch (Exception exception)
@@ -94,12 +96,13 @@ public partial class MainWindow
 			var defaultSize = AppState.GetDefaultBaseSize();
 			var defaultValues = RegistryCursorService.GetWindowsDefaultValues();
 			var defaultUseScaling = AppState.GetScaleCursorsEnabled();
+			var defaultScaleMode = AppState.GetScaleMode();
 
 			await Task.Run(() =>
 			{
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
 				var scaledValues = defaultUseScaling
-					? CursorScalerService.ScaleValues(defaultValues, defaultSize)
+					? CursorScalerService.ScaleValues(defaultValues, defaultSize, defaultScaleMode)
 					: defaultValues;
 				RegistryCursorService.ApplyValues(scaledValues);
 				RegistryCursorService.SetBaseSize(defaultSize);
@@ -107,6 +110,7 @@ public partial class MainWindow
 
 			_activeSourceValues = defaultValues;
 			_activeUseScaling = defaultUseScaling;
+			_activeScaleMode = defaultScaleMode;
 
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
@@ -116,6 +120,7 @@ public partial class MainWindow
 
 			ReloadGallery();
 			SetScaleCheckboxSilently(defaultUseScaling);
+			UpdateScaleIcon(defaultScaleMode);
 			UpdateUndoButton();
 		}
 		catch (Exception exception)
@@ -171,12 +176,13 @@ public partial class MainWindow
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
 			var undoUseScaling = AppState.GetScaleCursorsEnabled();
+			var undoScaleMode = AppState.GetScaleMode();
 
 			await Task.Run(() =>
 			{
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
 				var scaledValues = undoUseScaling
-					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize)
+					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize, undoScaleMode)
 					: snapshot.Values;
 				RegistryCursorService.ApplyValues(scaledValues);
 				RegistryCursorService.SetBaseSize(snapshot.BaseSize);
@@ -197,7 +203,9 @@ public partial class MainWindow
 				: null;
 			var undoEffectiveUseScaling = undoPreset != null ? undoUseScaling && undoPreset.UseScaling : undoUseScaling;
 			_activeUseScaling = undoEffectiveUseScaling;
+			_activeScaleMode = undoPreset?.ScaleMode ?? undoScaleMode;
 			SetScaleCheckboxSilently(undoPreset?.UseScaling ?? undoUseScaling);
+			UpdateScaleIcon(_activeScaleMode);
 
 			UpdateUndoButton();
 		}
@@ -280,7 +288,7 @@ public partial class MainWindow
 				roleFiles[role.RegistryName] = resolvedPath;
 		}
 
-		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.LockedRoles);
+		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
 
 		if (path == null)
 			return;

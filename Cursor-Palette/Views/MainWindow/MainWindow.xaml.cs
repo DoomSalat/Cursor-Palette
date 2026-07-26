@@ -41,6 +41,8 @@ public partial class MainWindow : Window
 	private const string LocMenuDownload = "S.Menu.Download";
 	private const string LocMenuDelete = "S.Menu.Delete";
 	private const string LocMenuUseScaling = "S.Menu.UseScaling";
+	private const string LocMenuScaleModeNearest = "S.Menu.ScaleMode.Nearest";
+	private const string LocMenuScaleModeSmooth = "S.Menu.ScaleMode.Smooth";
 	private const string LocPresetContextHint = "S.Preset.ContextHint";
 	private const string LocAddPreset = "S.AddPreset";
 	private const string LocAddPresetHint = "S.AddPreset.Hint";
@@ -122,6 +124,7 @@ public partial class MainWindow : Window
 	private const string ThemeIconDark = "🌙";
 	private const string ThemeIconLight = "☀";
 	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
+	private const string StairIconUri = "pack://application:,,,/Resources/StairIcon24.png";
 	private const string ExportIconUri = "pack://application:,,,/Resources/DownloadIcon32.png";
 	private const string ImportIconUri = "pack://application:,,,/Resources/LinkIcon32.png";
 
@@ -151,6 +154,7 @@ public partial class MainWindow : Window
 	private bool _justDraggedGroup;
 	private Dictionary<string, string>? _activeSourceValues;
 	private bool _activeUseScaling;
+	private ScaleMode _activeScaleMode = ScaleMode.AreaWeighted;
 
 	public MainWindow()
 	{
@@ -177,6 +181,8 @@ public partial class MainWindow : Window
 
 		ScaleCursorsIcon.Source = new System.Windows.Media.Imaging.BitmapImage(
 			new Uri(ExpandIconUri));
+
+		UpdateScaleIcon(_activeScaleMode);
 
 		BuildGroupColorSwatches();
 		ReloadGallery();

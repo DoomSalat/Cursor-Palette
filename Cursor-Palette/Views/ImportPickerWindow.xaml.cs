@@ -30,6 +30,7 @@ public partial class ImportPickerWindow : Window
 	private const string PixelSuffix = "px";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
 	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
+	private const string StairIconUri = "pack://application:,,,/Resources/StairIcon24.png";
 
 	private readonly List<(PackageEntry Entry, Border Cell, TextBlock SizeText)> _tiles = new();
 	private readonly List<(PackageGroupEntry Group, Border Cell)> _groupTiles = new();
@@ -233,7 +234,7 @@ public partial class ImportPickerWindow : Window
 				Margin = new Thickness(0, 0, 6, 6),
 				IsHitTestVisible = false,
 				Source = new System.Windows.Media.Imaging.BitmapImage(
-					new Uri(ExpandIconUri)),
+					new Uri((ScaleMode)entry.ScaleMode == ScaleMode.NearestNeighbor ? StairIconUri : ExpandIconUri)),
 			};
 			RenderOptions.SetBitmapScalingMode(scalingIcon, BitmapScalingMode.NearestNeighbor);
 			content.Children.Add(scalingIcon);

@@ -2,6 +2,12 @@ using CursorPalette.Services;
 
 namespace CursorPalette.Models;
 
+public enum ScaleMode
+{
+	NearestNeighbor = 0,
+	AreaWeighted = 1,
+}
+
 public sealed class Preset
 {
 	public required string Id { get; init; }
@@ -11,6 +17,7 @@ public sealed class Preset
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
 
 	public bool UseScaling { get; set; }
+	public ScaleMode ScaleMode { get; set; } = ScaleMode.AreaWeighted;
 
 	public Dictionary<string, string> Roles { get; init; } = new();
 	public Dictionary<string, RoleRef> RoleRefs { get; init; } = new();
@@ -29,6 +36,7 @@ public sealed class PresetDraft
 	public string Name { get; set; } = "";
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
 	public bool UseScaling { get; set; }
+	public ScaleMode ScaleMode { get; set; } = ScaleMode.AreaWeighted;
 
 	public Dictionary<string, RoleSourceDraft> RoleSources { get; init; } = new();
 	public HashSet<string> LockedRoles { get; init; } = new();

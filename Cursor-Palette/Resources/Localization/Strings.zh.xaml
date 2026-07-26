@@ -35,6 +35,8 @@
 	<sys:String x:Key="S.Menu.MoveRight">右移</sys:String>
 	<sys:String x:Key="S.Menu.Download">下载预设</sys:String>
 	<sys:String x:Key="S.Menu.UseScaling">使用缩放</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Nearest">缩放模式：最近邻</sys:String>
+	<sys:String x:Key="S.Menu.ScaleMode.Smooth">缩放模式：平滑</sys:String>
 	<sys:String x:Key="S.Menu.Delete">删除</sys:String>
 	<sys:String x:Key="S.Preset.ContextHint">右键点击打开菜单</sys:String>
 	<sys:String x:Key="S.Gallery.MixedBadgeTooltip">部分角色取自其他预设</sys:String>

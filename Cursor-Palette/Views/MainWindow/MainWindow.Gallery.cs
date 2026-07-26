@@ -290,7 +290,7 @@ public partial class MainWindow
 				Margin = new Thickness(0, 0, 8, 8),
 				IsHitTestVisible = false,
 				Source = new System.Windows.Media.Imaging.BitmapImage(
-					new Uri(ExpandIconUri)),
+					new Uri(preset.ScaleMode == ScaleMode.NearestNeighbor ? StairIconUri : ExpandIconUri)),
 			};
 			RenderOptions.SetBitmapScalingMode(stairIcon, BitmapScalingMode.NearestNeighbor);
 			cellContent.Children.Add(stairIcon);
@@ -438,6 +438,23 @@ public partial class MainWindow
 			ReloadGallery();
 		};
 		menu.Items.Add(useScalingItem);
+
+		var scaleModeItem = new MenuItem
+		{
+			Header = preset.ScaleMode == ScaleMode.NearestNeighbor
+				? Loc.Get(LocMenuScaleModeNearest)
+				: Loc.Get(LocMenuScaleModeSmooth),
+		};
+		scaleModeItem.Click += (_, _) =>
+		{
+			var newMode = preset.ScaleMode == ScaleMode.NearestNeighbor
+				? ScaleMode.AreaWeighted
+				: ScaleMode.NearestNeighbor;
+			PresetStore.UpdateScaleMode(preset.Id, newMode);
+			preset.ScaleMode = newMode;
+			ReloadGallery();
+		};
+		menu.Items.Add(scaleModeItem);
 
 		var assignableGroups = _groups.Where(candidate => group == null || candidate.Id != group.Id).ToList();
 		if (assignableGroups.Count > 0)

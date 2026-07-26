@@ -141,7 +141,8 @@
 							<ColumnDefinition Width="Auto" />
 							<ColumnDefinition Width="Auto" />
 							<ColumnDefinition Width="Auto" />
-						</Grid.ColumnDefinitions>
+													<ColumnDefinition Width="Auto" />
+</Grid.ColumnDefinitions>
 
 						<TextBlock Grid.Column="0" Text="{DynamicResource S.CursorSize}"
 									 Foreground="{StaticResource Brush.TextDim}"
@@ -158,17 +159,29 @@
 									 Foreground="{StaticResource Brush.TextDim}"
 									 VerticalAlignment="Center" />
 						<CheckBox x:Name="ScaleCursorsCheckBox" Grid.Column="3"
-										Style="{StaticResource Style.ToggleCheckBox}"
-										ToolTip="{DynamicResource S.ScaleCursors.Tooltip}"
-										Margin="8,0,0,0"
-										VerticalAlignment="Center"
-										Checked="OnScaleCursorsCheckedChanged"
-										Unchecked="OnScaleCursorsCheckedChanged">
-							<Image x:Name="ScaleCursorsIcon" Width="16" Height="16"
-								   SnapsToDevicePixels="True"
-								   RenderOptions.BitmapScalingMode="NearestNeighbor" />
-						</CheckBox>
-						<Button x:Name="ApplySizeButton" Grid.Column="4"
+						Style="{StaticResource Style.ToggleCheckBox}"
+						ToolTip="{DynamicResource S.ScaleCursors.Tooltip}"
+						Margin="8,0,0,0"
+						VerticalAlignment="Center"
+						Checked="OnScaleCursorsCheckedChanged"
+						Unchecked="OnScaleCursorsCheckedChanged" />
+					<Border x:Name="ScaleModeButton" Grid.Column="4"
+						Width="28" Height="28"
+						CornerRadius="6"
+						Background="{StaticResource Brush.Surface}"
+						BorderBrush="{StaticResource Brush.Border}"
+						BorderThickness="1"
+						Margin="4,0,0,0"
+						Cursor="Hand"
+						MouseLeftButtonDown="OnScaleModeIconClick"
+						ToolTip="{DynamicResource S.ScaleCursors.Tooltip}">
+						<Image x:Name="ScaleCursorsIcon" Width="16" Height="16"
+							   SnapsToDevicePixels="True"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center"
+							   RenderOptions.BitmapScalingMode="NearestNeighbor" />
+					</Border>
+						<Button x:Name="ApplySizeButton" Grid.Column="5"
 								Style="{StaticResource Style.Button}"
 								Content="{DynamicResource S.ApplySize}"
 								ToolTip="{DynamicResource S.ApplySize.Tooltip}"
