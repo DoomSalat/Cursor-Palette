@@ -38,38 +38,39 @@ public partial class MainWindow
 			ShowLoadingOverlay();
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
-			var sourceValues = new Dictionary<string, string>();
-			foreach (var role in CursorRoles.All)
-			{
-				var path = PresetStore.GetRoleFilePath(preset, role.RegistryName);
-				sourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
-			}
-
 			var baseSize = preset.BaseSize;
 			var useScaling = AppState.GetScaleCursorsEnabled() && preset.UseScaling;
+			var scaleMode = preset.ScaleMode;
 
+			Dictionary<string, string>? sourceValues = null;
 			await Task.Run(() =>
 			{
+				sourceValues = new Dictionary<string, string>();
+				foreach (var role in CursorRoles.All)
+				{
+					var path = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+					sourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
+				}
+
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
 				var scaledValues = useScaling
-					? CursorScalerService.ScaleValues(sourceValues, baseSize, preset.ScaleMode)
+					? CursorScalerService.ScaleValues(sourceValues, baseSize, scaleMode)
 					: sourceValues;
-				RegistryCursorService.ApplyValues(scaledValues);
-				RegistryCursorService.SetBaseSize(baseSize);
+				RegistryCursorService.ApplyValuesAndBaseSize(scaledValues, baseSize);
 			});
 
 			_activeSourceValues = sourceValues;
 			_activeUseScaling = useScaling;
-			_activeScaleMode = preset.ScaleMode;
+			_activeScaleMode = scaleMode;
 
-			_baselineSizePx = preset.BaseSize;
-			SetSliderSilently(preset.BaseSize);
+			_baselineSizePx = baseSize;
+			SetSliderSilently(baseSize);
 			_activePresetId = preset.Id;
 			AppState.SetActivePresetId(preset.Id);
 
-			ReloadGallery();
+			UpdateActiveCellHighlight();
 			SetScaleCheckboxSilently(preset.UseScaling);
-			UpdateScaleIcon(preset.ScaleMode);
+			UpdateScaleIcon(scaleMode);
 			UpdateUndoButton();
 		}
 		catch (Exception exception)
@@ -94,18 +95,19 @@ public partial class MainWindow
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
 			var defaultSize = AppState.GetDefaultBaseSize();
-			var defaultValues = RegistryCursorService.GetWindowsDefaultValues();
 			var defaultUseScaling = AppState.GetScaleCursorsEnabled();
 			var defaultScaleMode = AppState.GetScaleMode();
 
+			Dictionary<string, string>? defaultValues = null;
 			await Task.Run(() =>
 			{
+				defaultValues = RegistryCursorService.GetWindowsDefaultValues();
+
 				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
 				var scaledValues = defaultUseScaling
 					? CursorScalerService.ScaleValues(defaultValues, defaultSize, defaultScaleMode)
 					: defaultValues;
-				RegistryCursorService.ApplyValues(scaledValues);
-				RegistryCursorService.SetBaseSize(defaultSize);
+				RegistryCursorService.ApplyValuesAndBaseSize(scaledValues, defaultSize);
 			});
 
 			_activeSourceValues = defaultValues;
@@ -118,7 +120,7 @@ public partial class MainWindow
 			_baselineSizePx = defaultSize;
 			SetSliderSilently(defaultSize);
 
-			ReloadGallery();
+			UpdateActiveCellHighlight();
 			SetScaleCheckboxSilently(defaultUseScaling);
 			UpdateScaleIcon(defaultScaleMode);
 			UpdateUndoButton();
@@ -184,8 +186,7 @@ public partial class MainWindow
 				var scaledValues = undoUseScaling
 					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize, undoScaleMode)
 					: snapshot.Values;
-				RegistryCursorService.ApplyValues(scaledValues);
-				RegistryCursorService.SetBaseSize(snapshot.BaseSize);
+				RegistryCursorService.ApplyValuesAndBaseSize(scaledValues, snapshot.BaseSize);
 			});
 
 			_activeSourceValues = new Dictionary<string, string>(snapshot.Values);
@@ -196,7 +197,7 @@ public partial class MainWindow
 			_baselineSizePx = snapshot.BaseSize;
 			SetSliderSilently(snapshot.BaseSize);
 
-			ReloadGallery();
+			UpdateActiveCellHighlight();
 
 			var undoPreset = _activePresetId != null
 				? _presets.FirstOrDefault(candidate => candidate.Id == _activePresetId)

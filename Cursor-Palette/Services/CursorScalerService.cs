@@ -55,6 +55,9 @@ public static class CursorScalerService
 
 		var destPath = GetScaledPath(sourcePath, targetSize, CurExtension, scaleMode);
 
+		if (File.Exists(destPath))
+			return destPath;
+
 		var scaled = ScaleImage(image, targetSize, targetSize, scaleMode);
 		CursorCanvasService.Write(destPath, scaled);
 
@@ -74,6 +77,9 @@ public static class CursorScalerService
 		var iconRanges = AniCursorReader.FindIconChunkRanges(bytes);
 
 		var destPath = GetScaledPath(sourcePath, targetSize, AniExtension, scaleMode);
+
+		if (File.Exists(destPath))
+			return destPath;
 
 		var scaledFrames = new List<CursorCanvasImage>(frames.StepFrameIndices.Count);
 		var delays = new List<int>(frames.StepFrameIndices.Count);

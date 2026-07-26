@@ -26,6 +26,8 @@ public partial class MainWindow
 
 		Gallery.Items.Clear();
 		_activeCellSizeText = null;
+		_cellSizeTexts.Clear();
+		_defaultCellSizeText = null;
 
 		if (_activePresetId != null && _presets.All(preset => preset.Id != _activePresetId))
 		{
@@ -62,6 +64,33 @@ public partial class MainWindow
 
 		Gallery.Items.Add(CreateAddCell());
 		EmptyHint.Visibility = _presets.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+	}
+
+	private void UpdateActiveCellHighlight()
+	{
+		foreach (var item in Gallery.Items.OfType<FrameworkElement>())
+		{
+			var border = item is Grid grid
+				? grid.Children.OfType<Border>().FirstOrDefault()
+				: item as Border;
+
+			if (border == null)
+				continue;
+
+			var preset = border.Tag as Preset;
+			var isActive = preset == null
+				? _activePresetId == null
+				: preset.Id == _activePresetId;
+			var isSelected = preset != null && _selectedPresetIds.Contains(preset.Id);
+
+			border.BorderBrush = isActive || isSelected
+				? Brush(BrushAccent)
+				: Brush(BrushBorder);
+		}
+
+		_activeCellSizeText = _activePresetId != null && _cellSizeTexts.TryGetValue(_activePresetId, out var sizeText)
+			? sizeText
+			: _defaultCellSizeText;
 	}
 
 	private bool IsBoardIdVisible(string id)
@@ -134,6 +163,7 @@ public partial class MainWindow
 			Margin = new Thickness(0, 2, 0, 0),
 		};
 
+		_defaultCellSizeText = sizeText;
 		if (isActive)
 			_activeCellSizeText = sizeText;
 
@@ -230,6 +260,7 @@ public partial class MainWindow
 			Margin = new Thickness(0, 2, 0, 0),
 		};
 
+		_cellSizeTexts[preset.Id] = sizeText;
 		if (isActive)
 			_activeCellSizeText = sizeText;
 

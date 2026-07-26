@@ -141,6 +141,8 @@ public partial class MainWindow : Window
 	private string? _pendingGroupColorKey;
 	private string? _activePresetId;
 	private TextBlock? _activeCellSizeText;
+	private readonly Dictionary<string, TextBlock> _cellSizeTexts = new();
+	private TextBlock? _defaultCellSizeText;
 	private double _cellScale = AppState.GalleryCellScaleDefault;
 	private double _uiScale = AppState.UiScaleDefault;
 	private bool _cellScaleReady;

@@ -113,10 +113,31 @@ public static class RegistryCursorService
 		}
 	}
 
+	public static void ApplyValuesAndBaseSize(IReadOnlyDictionary<string, string> values, int sizeInPixels)
+	{
+		sizeInPixels = Math.Clamp(sizeInPixels / SizeStep * SizeStep, DefaultBaseSize, MaxBaseSize);
+
+		using var key = Registry.CurrentUser.CreateSubKey(CursorsKeyPath)!;
+
+		foreach (var role in CursorRoles.All)
+		{
+			var value = values.TryGetValue(role.RegistryName, out var resolvedValue) ? resolvedValue : "";
+			key.SetValue(role.RegistryName, value, RegistryValueKind.ExpandString);
+		}
+
+		key.SetValue(SchemeSourceName, SchemeSourceUserDefined, RegistryValueKind.DWord);
+		key.SetValue(CursorBaseSizeName, sizeInPixels, RegistryValueKind.DWord);
+
+		using (var accessibilityKey = Registry.CurrentUser.CreateSubKey(AccessibilityKeyPath)!)
+			accessibilityKey.SetValue(CursorSizeName, (sizeInPixels - SizeStep) / SizeStep, RegistryValueKind.DWord);
+
+		SystemParametersInfo(SpiSetCursorSize, 0, (IntPtr)sizeInPixels, SpifUpdateIniFile | SpifSendChange);
+		SystemParametersInfo(SpiSetCursors, 0, IntPtr.Zero, SpifUpdateIniFile | SpifSendChange);
+	}
+
 	public static void RestoreSnapshot(CursorSnapshot snapshot)
 	{
-		ApplyValues(snapshot.Values);
-		SetBaseSize(snapshot.BaseSize);
+		ApplyValuesAndBaseSize(snapshot.Values, snapshot.BaseSize);
 	}
 
 	public static Dictionary<string, string> GetWindowsDefaultValues()

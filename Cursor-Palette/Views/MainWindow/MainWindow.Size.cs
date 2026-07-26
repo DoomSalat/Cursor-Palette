@@ -73,9 +73,12 @@ public partial class MainWindow
 					var valuesToApply = useScaling
 						? CursorScalerService.ScaleValues(sourceValues, sizeInPixels, _activeScaleMode)
 						: sourceValues;
-					RegistryCursorService.ApplyValues(valuesToApply);
+					RegistryCursorService.ApplyValuesAndBaseSize(valuesToApply, sizeInPixels);
 				}
-				RegistryCursorService.SetBaseSize(sizeInPixels);
+				else
+				{
+					RegistryCursorService.SetBaseSize(sizeInPixels);
+				}
 			});
 
 			if (_activePresetId != null)
