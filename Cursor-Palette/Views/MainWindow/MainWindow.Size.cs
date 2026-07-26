@@ -146,6 +146,9 @@ public partial class MainWindow
 		SetScaleCheckboxSilently(initialValue);
 		_baselineScaleMode = _activeScaleMode;
 		UpdateScaleIcon(_activeScaleMode);
+
+		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
+		UpdateApplySizeButtonHighlight(sizeInPixels);
 	}
 
 	private void SetScaleCheckboxSilently(bool value)

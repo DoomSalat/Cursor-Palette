@@ -73,6 +73,7 @@ public partial class MainWindow
 			UpdateActiveCellHighlight();
 			UpdateScaleIcon(scaleMode);
 			UpdateUndoButton();
+			UpdateApplySizeButtonHighlight(baseSize);
 		}
 		catch (Exception exception)
 		{
@@ -126,6 +127,7 @@ public partial class MainWindow
 			UpdateActiveCellHighlight();
 			UpdateScaleIcon(defaultScaleMode);
 			UpdateUndoButton();
+			UpdateApplySizeButtonHighlight(defaultSize);
 		}
 		catch (Exception exception)
 		{
@@ -212,6 +214,7 @@ public partial class MainWindow
 			UpdateScaleIcon(_activeScaleMode);
 
 			UpdateUndoButton();
+			UpdateApplySizeButtonHighlight(snapshot.BaseSize);
 		}
 		catch (Exception exception)
 		{
