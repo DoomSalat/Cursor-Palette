@@ -252,16 +252,22 @@ WPF-оригинал имеет полноценный UI обновлений �
   - Локализация — все ключи `S.Update.*` уже есть во всех 6 языках
   - Auto-update (замена .exe) не применима к Linux — только manual download
 
-### 6. Download System Cursors — частично
+### 6. Download System Cursors — ✅ портировано
 
 WPF-оригинал имеет подменю с двумя форматами:
 - **PNG/GIF** — экспорт системных курсоров как изображения
 - **CUR/ANI** — экспорт системных курсоров как .cur/.ani файлы
 
 **Файлы WPF:** `MainWindow.PresetActions.cs` (DownloadSystemCursors)
-**Статус Linux:** есть `OnMenuDownloadSystem` — экспортирует текущие
-  системные курсоры как .xcursor файлы в Downloads. PNG/GIF и CUR/ANI
-  форматы не поддерживаются.
+**Статус Linux:** ✅ портировано полностью:
+  - `MainWindow.xaml` — `MenuDownloadSystemItem` заменён на подменю с 3 пунктами:
+    "As .xcursor", "As PNG + GIF", "As .cur and .ani"
+  - `MainWindow.cs` — 3 метода:
+    `OnMenuDownloadSystemXcursor` (копирование .xcursor, как раньше),
+    `OnMenuDownloadSystemImages` (PNG для статичных, GIF для анимированных через `XcursorWriter.LoadFrames` + `WriteableBitmap` + `AnimatedGifWriter`),
+    `OnMenuDownloadSystemCurAni` (.cur через `CursorCanvasService.Write`, .ani через `AniCursorWriter.Save`)
+  - Хелперы `SaveFrameAsPng` и `SaveFramesAsGif` для конвертации `XcursorFrame` → PNG/GIF
+  - Локализация — ключи `S.Menu.DownloadSystemPngGif` и `S.Menu.DownloadSystemCurAni` уже есть во всех 6 языках
 
 ### 7. WindowDropIndicator — ✅ портировано
 

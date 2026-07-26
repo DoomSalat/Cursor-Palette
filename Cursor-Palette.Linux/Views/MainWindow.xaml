@@ -199,8 +199,14 @@
 											  Click="OnMenuDownload" />
 									<MenuItem x:Name="MenuDownloadSystemItem"
 											  Header="Download system cursors"
-											  IsVisible="{Binding IsDefaultCell}"
-											  Click="OnMenuDownloadSystem" />
+											  IsVisible="{Binding IsDefaultCell}">
+										<MenuItem Header="As .xcursor"
+												  Click="OnMenuDownloadSystemXcursor" />
+										<MenuItem Header="As PNG + GIF"
+												  Click="OnMenuDownloadSystemImages" />
+										<MenuItem Header="As .cur and .ani"
+												  Click="OnMenuDownloadSystemCurAni" />
+									</MenuItem>
 									<MenuItem x:Name="MenuToggleCollapseItem"
 											  Header="Collapse/Expand"
 											  IsVisible="{Binding IsGroup}"

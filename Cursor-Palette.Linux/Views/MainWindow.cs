@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CursorPalette.Linux.Services;
@@ -46,6 +47,8 @@ public partial class MainWindow : Window
 	private const string LocMenuToggleCollapse = "S.Menu.ToggleCollapse";
 	private const string LocMenuRandomPreset = "S.Menu.RandomPreset";
 	private const string LocMenuDownloadSystem = "S.Menu.DownloadSystemCursors";
+	private const string LocMenuDownloadSystemPngGif = "S.Menu.DownloadSystemPngGif";
+	private const string LocMenuDownloadSystemCurAni = "S.Menu.DownloadSystemCurAni";
 	private const string LocMenuEditGroup = "S.Menu.EditGroup";
 	private const string LocMenuConsolidateGroup = "S.Menu.ConsolidateGroup";
 	private const string LocMenuUngroup = "S.Menu.Ungroup";
@@ -1548,7 +1551,7 @@ public partial class MainWindow : Window
 	private const string LocWindowsDefault = "S.WindowsDefault";
 	private const string DownloadsFolderName = "Downloads";
 
-	public void OnMenuDownloadSystem(object? sender, RoutedEventArgs e)
+	public void OnMenuDownloadSystemXcursor(object? sender, RoutedEventArgs e)
 	{
 		var cursorService = CursorServiceProvider.Current as LinuxCursorService;
 		if (cursorService == null)
@@ -1575,6 +1578,129 @@ public partial class MainWindow : Window
 		}
 
 		ShowToast(Loc.Format(LocToastSystemCursorsDownloaded, count));
+	}
+
+	public void OnMenuDownloadSystemImages(object? sender, RoutedEventArgs e)
+	{
+		var cursorService = CursorServiceProvider.Current as LinuxCursorService;
+		if (cursorService == null)
+			return;
+
+		var currentValues = cursorService.ReadCurrentValues();
+		if (currentValues.Count == 0)
+			return;
+
+		var downloadsFolder = GetDownloadsFolder();
+		var folderName = Loc.Get(LocWindowsDefault);
+		var destFolder = System.IO.Path.Combine(downloadsFolder, folderName);
+		Directory.CreateDirectory(destFolder);
+
+		var count = 0;
+		foreach (var (roleName, sourcePath) in currentValues)
+		{
+			if (!File.Exists(sourcePath))
+				continue;
+
+			var frames = XcursorWriter.LoadFrames(sourcePath);
+			if (frames == null || frames.Count == 0)
+				continue;
+
+			if (frames.Count == 1)
+			{
+				var destPath = System.IO.Path.Combine(destFolder, $"{roleName}.png");
+				SaveFrameAsPng(frames[0], destPath);
+				count++;
+			}
+			else
+			{
+				var destPath = System.IO.Path.Combine(destFolder, $"{roleName}.gif");
+				SaveFramesAsGif(frames, destPath);
+				count++;
+			}
+		}
+
+		ShowToast(Loc.Format(LocToastSystemCursorsDownloaded, count));
+	}
+
+	public void OnMenuDownloadSystemCurAni(object? sender, RoutedEventArgs e)
+	{
+		var cursorService = CursorServiceProvider.Current as LinuxCursorService;
+		if (cursorService == null)
+			return;
+
+		var currentValues = cursorService.ReadCurrentValues();
+		if (currentValues.Count == 0)
+			return;
+
+		var downloadsFolder = GetDownloadsFolder();
+		var folderName = Loc.Get(LocWindowsDefault);
+		var destFolder = System.IO.Path.Combine(downloadsFolder, folderName);
+		Directory.CreateDirectory(destFolder);
+
+		var count = 0;
+		foreach (var (roleName, sourcePath) in currentValues)
+		{
+			if (!File.Exists(sourcePath))
+				continue;
+
+			var frames = XcursorWriter.LoadFrames(sourcePath);
+			if (frames == null || frames.Count == 0)
+				continue;
+
+			if (frames.Count == 1)
+			{
+				var image = new CursorCanvasImage(frames[0].Width, frames[0].Height, frames[0].HotspotX, frames[0].HotspotY, frames[0].Bgra);
+				var destPath = System.IO.Path.Combine(destFolder, $"{roleName}.cur");
+				CursorCanvasService.Write(destPath, image);
+				count++;
+			}
+			else
+			{
+				var images = frames.Select(f => new CursorCanvasImage(f.Width, f.Height, f.HotspotX, f.HotspotY, f.Bgra)).ToList();
+				var delays = frames.Select(f => f.DelayMs).ToList();
+				var destPath = System.IO.Path.Combine(destFolder, $"{roleName}.ani");
+				AniCursorWriter.Save(destPath, images, delays);
+				count++;
+			}
+		}
+
+		ShowToast(Loc.Format(LocToastSystemCursorsDownloaded, count));
+	}
+
+	private static void SaveFrameAsPng(XcursorFrame frame, string destPath)
+	{
+		var bitmap = new WriteableBitmap(
+			new PixelSize(frame.Width, frame.Height),
+			new Vector(96, 96),
+			Avalonia.Platform.PixelFormat.Bgra8888,
+			Avalonia.Platform.AlphaFormat.Unpremul);
+		using var locked = bitmap.Lock();
+		System.Runtime.InteropServices.Marshal.Copy(frame.Bgra, 0, locked.Address, frame.Bgra.Length);
+
+		using var stream = File.Create(destPath);
+		bitmap.Save(stream);
+	}
+
+	private static void SaveFramesAsGif(IReadOnlyList<XcursorFrame> frames, string destPath)
+	{
+		var bitmaps = new List<WriteableBitmap>(frames.Count);
+		var delays = new List<int>(frames.Count);
+
+		foreach (var frame in frames)
+		{
+			var bitmap = new WriteableBitmap(
+				new PixelSize(frame.Width, frame.Height),
+				new Vector(96, 96),
+				Avalonia.Platform.PixelFormat.Bgra8888,
+				Avalonia.Platform.AlphaFormat.Unpremul);
+			using var locked = bitmap.Lock();
+			System.Runtime.InteropServices.Marshal.Copy(frame.Bgra, 0, locked.Address, frame.Bgra.Length);
+			bitmaps.Add(bitmap);
+			delays.Add(frame.DelayMs);
+		}
+
+		using var stream = File.Create(destPath);
+		AnimatedGifWriter.Save(stream, bitmaps, delays);
 	}
 
 	private static string GetDownloadsFolder()
