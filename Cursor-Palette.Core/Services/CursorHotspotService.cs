@@ -29,18 +29,18 @@ public static class CursorHotspotService
 		}
 	}
 
-	public static void WriteWithHotspot(string sourcePath, string destinationPath, int x, int y)
+	public static void WriteWithHotspot(string sourcePath, string destinationPath, int hotspotX, int hotspotY)
 	{
 		var bytes = File.ReadAllBytes(sourcePath);
 
 		if (IsAniFile(sourcePath))
 		{
 			foreach (var (offset, _) in AniCursorReader.FindIconChunkRanges(bytes))
-				WriteAt(bytes, offset, x, y);
+				WriteAt(bytes, offset, hotspotX, hotspotY);
 		}
 		else
 		{
-			WriteAt(bytes, 0, x, y);
+			WriteAt(bytes, 0, hotspotX, hotspotY);
 		}
 
 		File.WriteAllBytes(destinationPath, bytes);
@@ -60,16 +60,16 @@ public static class CursorHotspotService
 	{
 		var width = bytes[blobOffset + WidthOffset];
 		var height = bytes[blobOffset + HeightOffset];
-		var x = BitConverter.ToUInt16(bytes, blobOffset + XHotspotOffset);
-		var y = BitConverter.ToUInt16(bytes, blobOffset + YHotspotOffset);
+		var hotspotX = BitConverter.ToUInt16(bytes, blobOffset + XHotspotOffset);
+		var hotspotY = BitConverter.ToUInt16(bytes, blobOffset + YHotspotOffset);
 
-		return new CursorHotspot(x, y, width == 0 ? ImplicitCursorDimension : width, height == 0 ? ImplicitCursorDimension : height);
+		return new CursorHotspot(hotspotX, hotspotY, width == 0 ? ImplicitCursorDimension : width, height == 0 ? ImplicitCursorDimension : height);
 	}
 
-	private static void WriteAt(byte[] bytes, int blobOffset, int x, int y)
+	private static void WriteAt(byte[] bytes, int blobOffset, int hotspotX, int hotspotY)
 	{
-		BitConverter.GetBytes((ushort)x).CopyTo(bytes, blobOffset + XHotspotOffset);
-		BitConverter.GetBytes((ushort)y).CopyTo(bytes, blobOffset + YHotspotOffset);
+		BitConverter.GetBytes((ushort)hotspotX).CopyTo(bytes, blobOffset + XHotspotOffset);
+		BitConverter.GetBytes((ushort)hotspotY).CopyTo(bytes, blobOffset + YHotspotOffset);
 	}
 
 	private static bool IsAniFile(string path) =>

@@ -790,9 +790,9 @@ public partial class MainWindow : Window
 		var bestTop = 0.0;
 		var bestHeight = 0.0;
 
-		for (var i = 0; i < items.Count; i++)
+		for (var index = 0; index < items.Count; index++)
 		{
-			var container = gallery.ContainerFromIndex(i);
+			var container = gallery.ContainerFromIndex(index);
 			if (container is not Control control)
 				continue;
 
@@ -806,14 +806,14 @@ public partial class MainWindow : Window
 			{
 				if (positionInGallery.X < posInGallery.X + bounds.Width / 2)
 				{
-					bestIndex = i;
+					bestIndex = index;
 					bestX = posInGallery.X - CellMarginForIndicator;
 					bestTop = posInGallery.Y;
 					bestHeight = bounds.Height;
 				}
 				else
 				{
-					bestIndex = i + 1;
+					bestIndex = index + 1;
 					bestX = posInGallery.X + bounds.Width + CellMarginForIndicator;
 					bestTop = posInGallery.Y;
 					bestHeight = bounds.Height;
@@ -853,12 +853,12 @@ public partial class MainWindow : Window
 
 	private BoardItem? FindGroupHover(IReadOnlyList<BoardItem> items, ItemsControl gallery, Point positionInGallery)
 	{
-		for (var i = 0; i < items.Count; i++)
+		for (var index = 0; index < items.Count; index++)
 		{
-			if (!items[i].IsGroup || items[i].Group == null)
+			if (!items[index].IsGroup || items[index].Group == null)
 				continue;
 
-			var container = gallery.ContainerFromIndex(i);
+			var container = gallery.ContainerFromIndex(index);
 			if (container is not Control control)
 				continue;
 
@@ -875,7 +875,7 @@ public partial class MainWindow : Window
 				Math.Max(0, rect.Width - 2 * marginX), Math.Max(0, rect.Height - 2 * marginY));
 
 			if (zone.Contains(positionInGallery))
-				return items[i];
+				return items[index];
 		}
 
 		return null;

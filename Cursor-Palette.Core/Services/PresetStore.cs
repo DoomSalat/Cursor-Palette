@@ -233,9 +233,9 @@ public static class PresetStore
 
 	public static void Reorder(IReadOnlyList<string> orderedPresetIds)
 	{
-		for (var i = 0; i < orderedPresetIds.Count; i++)
+		for (var index = 0; index < orderedPresetIds.Count; index++)
 		{
-			var manifestPath = Path.Combine(GetPresetDir(orderedPresetIds[i]), ManifestFileName);
+			var manifestPath = Path.Combine(GetPresetDir(orderedPresetIds[index]), ManifestFileName);
 
 			if (!File.Exists(manifestPath))
 				continue;
@@ -247,7 +247,7 @@ public static class PresetStore
 				if (preset == null)
 					continue;
 
-				preset.SortOrder = i;
+				preset.SortOrder = index;
 				File.WriteAllText(manifestPath, JsonSerializer.Serialize(preset, JsonOptions));
 			}
 			catch

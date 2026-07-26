@@ -30,10 +30,10 @@ public static class AniCursorWriter
 
 		var rateJiffies = new uint[frames.Count];
 
-		for (var i = 0; i < frames.Count; i++)
+		for (var index = 0; index < frames.Count; index++)
 		{
-			var delayMs = i < frameDelaysMs.Count ? frameDelaysMs[i] : (int)(MsPerJiffy * 6);
-			rateJiffies[i] = (uint)Math.Max(1, (int)Math.Round(delayMs / MsPerJiffy));
+			var delayMs = index < frameDelaysMs.Count ? frameDelaysMs[index] : (int)(MsPerJiffy * 6);
+			rateJiffies[index] = (uint)Math.Max(1, (int)Math.Round(delayMs / MsPerJiffy));
 		}
 
 		using var stream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write);
