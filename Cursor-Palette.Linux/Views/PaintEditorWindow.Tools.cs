@@ -37,11 +37,11 @@ public partial class PaintEditorWindow
 			("0,1", "↙"), ("0.5,1", "↓"), ("1,1", "↘"),
 		};
 
-		for (var index = 0; index < fractions.Length; index++)
+		for (var i = 0; i < fractions.Length; i++)
 		{
-			var (tag, icon) = fractions[index];
-			var row = index / 3;
-			var col = index % 3;
+			var (tag, icon) = fractions[i];
+			var row = i / 3;
+			var col = i % 3;
 			var snapButton = new Button
 			{
 				Content = icon,

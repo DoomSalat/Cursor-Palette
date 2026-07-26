@@ -15,6 +15,7 @@ public static class XcursorWriter
 	private const uint ImageChunkVersion = 1;
 	private const int TocEntrySize = 12;
 	private const int BytesPerPixel = 4;
+	private const int MaxImageDimension = 4096;
 	private const string AniExtension = ".ani";
 
 	public static readonly IReadOnlyDictionary<string, string[]> RoleAliases = new Dictionary<string, string[]>
@@ -108,7 +109,7 @@ public static class XcursorWriter
 		var hotspotY = (int)BitConverter.ToUInt32(bytes, offset + 28);
 		var delayMs = (int)BitConverter.ToUInt32(bytes, offset + 32);
 
-		if (width <= 0 || height <= 0 || width > 4096 || height > 4096)
+		if (width <= 0 || height <= 0 || width > MaxImageDimension || height > MaxImageDimension)
 			return null;
 
 		var pixelOffset = offset + (int)ImageChunkHeaderSize;
@@ -121,12 +122,12 @@ public static class XcursorWriter
 
 		for (var i = 0; i < byteCount; i += BytesPerPixel)
 		{
-			var b = bytes[pixelOffset + i];
-			var g = bytes[pixelOffset + i + 1];
-			var r = bytes[pixelOffset + i + 2];
-			var a = bytes[pixelOffset + i + 3];
+			var blue = bytes[pixelOffset + i];
+			var green = bytes[pixelOffset + i + 1];
+			var red = bytes[pixelOffset + i + 2];
+			var alpha = bytes[pixelOffset + i + 3];
 
-			if (a == 0)
+			if (alpha == 0)
 			{
 				bgra[i] = 0;
 				bgra[i + 1] = 0;
@@ -135,10 +136,10 @@ public static class XcursorWriter
 				continue;
 			}
 
-			bgra[i] = (byte)Math.Min(255, b * 255 / a);
-			bgra[i + 1] = (byte)Math.Min(255, g * 255 / a);
-			bgra[i + 2] = (byte)Math.Min(255, r * 255 / a);
-			bgra[i + 3] = a;
+			bgra[i] = (byte)Math.Min(255, blue * 255 / alpha);
+			bgra[i + 1] = (byte)Math.Min(255, green * 255 / alpha);
+			bgra[i + 2] = (byte)Math.Min(255, red * 255 / alpha);
+			bgra[i + 3] = alpha;
 		}
 
 		return new XcursorFrame(width, height, hotspotX, hotspotY, bgra, delayMs);
@@ -265,15 +266,15 @@ public static class XcursorWriter
 			for (var x = 0; x < frame.Width; x++)
 			{
 				var offset = y * stride + x * BytesPerPixel;
-				var b = frame.Bgra[offset];
-				var g = frame.Bgra[offset + 1];
-				var r = frame.Bgra[offset + 2];
-				var a = frame.Bgra[offset + 3];
+				var blue = frame.Bgra[offset];
+				var green = frame.Bgra[offset + 1];
+				var red = frame.Bgra[offset + 2];
+				var alpha = frame.Bgra[offset + 3];
 
-				writer.Write((byte)(b * a / 255));
-				writer.Write((byte)(g * a / 255));
-				writer.Write((byte)(r * a / 255));
-				writer.Write(a);
+				writer.Write((byte)(blue * alpha / 255));
+				writer.Write((byte)(green * alpha / 255));
+				writer.Write((byte)(red * alpha / 255));
+				writer.Write(alpha);
 			}
 		}
 	}

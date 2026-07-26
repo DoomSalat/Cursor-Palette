@@ -53,9 +53,9 @@ public static class XcursorWriter
 
 			var imageEntries = new List<(uint Subtype, uint Position)>();
 
-			for (var index = 0; index < tocCount; index++)
+			for (var i = 0; i < tocCount; i++)
 			{
-				var entryOffset = headerSize + index * TocEntrySize;
+				var entryOffset = headerSize + i * TocEntrySize;
 
 				if (entryOffset + TocEntrySize > bytes.Length)
 					break;
@@ -117,26 +117,26 @@ public static class XcursorWriter
 
 		var bgra = new byte[byteCount];
 
-		for (var pixelIndex = 0; pixelIndex < byteCount; pixelIndex += BytesPerPixel)
+		for (var i = 0; i < byteCount; i += BytesPerPixel)
 		{
-			var blue = bytes[pixelOffset + pixelIndex];
-			var green = bytes[pixelOffset + pixelIndex + 1];
-			var red = bytes[pixelOffset + pixelIndex + 2];
-			var alpha = bytes[pixelOffset + pixelIndex + 3];
+			var blue = bytes[pixelOffset + i];
+			var green = bytes[pixelOffset + i + 1];
+			var red = bytes[pixelOffset + i + 2];
+			var alpha = bytes[pixelOffset + i + 3];
 
 			if (alpha == 0)
 			{
-				bgra[pixelIndex] = 0;
-				bgra[pixelIndex + 1] = 0;
-				bgra[pixelIndex + 2] = 0;
-				bgra[pixelIndex + 3] = 0;
+				bgra[i] = 0;
+				bgra[i + 1] = 0;
+				bgra[i + 2] = 0;
+				bgra[i + 3] = 0;
 				continue;
 			}
 
-			bgra[pixelIndex] = (byte)Math.Min(255, blue * 255 / alpha);
-			bgra[pixelIndex + 1] = (byte)Math.Min(255, green * 255 / alpha);
-			bgra[pixelIndex + 2] = (byte)Math.Min(255, red * 255 / alpha);
-			bgra[pixelIndex + 3] = alpha;
+			bgra[i] = (byte)Math.Min(255, blue * 255 / alpha);
+			bgra[i + 1] = (byte)Math.Min(255, green * 255 / alpha);
+			bgra[i + 2] = (byte)Math.Min(255, red * 255 / alpha);
+			bgra[i + 3] = alpha;
 		}
 
 		return new XcursorFrame(width, height, hotspotX, hotspotY, bgra, delayMs);
@@ -214,17 +214,17 @@ public static class XcursorWriter
 		var chunkOffsets = new uint[frames.Count];
 		var runningOffset = FileHeaderSize + tocCount * TocEntrySize;
 
-		for (var index = 0; index < frames.Count; index++)
+		for (var i = 0; i < frames.Count; i++)
 		{
-			chunkOffsets[index] = runningOffset;
-			runningOffset += ImageChunkHeaderSize + (uint)(frames[index].Width * frames[index].Height * BytesPerPixel);
+			chunkOffsets[i] = runningOffset;
+			runningOffset += ImageChunkHeaderSize + (uint)(frames[i].Width * frames[i].Height * BytesPerPixel);
 		}
 
-		for (var index = 0; index < frames.Count; index++)
+		for (var i = 0; i < frames.Count; i++)
 		{
 			writer.Write(ImageChunkType);
-			writer.Write((uint)Math.Max(frames[index].Width, frames[index].Height));
-			writer.Write(chunkOffsets[index]);
+			writer.Write((uint)Math.Max(frames[i].Width, frames[i].Height));
+			writer.Write(chunkOffsets[i]);
 		}
 
 		foreach (var frame in frames)

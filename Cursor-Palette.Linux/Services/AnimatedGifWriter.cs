@@ -50,10 +50,10 @@ public static class AnimatedGifWriter
 
 		WriteLoopExtension(writer);
 
-		for (var index = 0; index < frames.Count; index++)
+		for (var i = 0; i < frames.Count; i++)
 		{
-			var delayCentiseconds = Math.Max(MinDelayCentiseconds, frameDelaysMs[index] / 10);
-			WriteFrame(writer, frames[index], delayCentiseconds);
+			var delayCentiseconds = Math.Max(MinDelayCentiseconds, frameDelaysMs[i] / 10);
+			WriteFrame(writer, frames[i], delayCentiseconds);
 		}
 
 		writer.Write(Trailer);
@@ -114,12 +114,12 @@ public static class AnimatedGifWriter
 		var colorList = new List<byte>();
 		var indices = new byte[width * height];
 
-		for (var index = 0; index < width * height; index++)
+		for (var i = 0; i < width * height; i++)
 		{
-			var blue = bgra[index * BgraBytesPerPixel];
-			var green = bgra[index * BgraBytesPerPixel + 1];
-			var red = bgra[index * BgraBytesPerPixel + 2];
-			var alpha = bgra[index * BgraBytesPerPixel + 3];
+			var blue = bgra[i * BgraBytesPerPixel];
+			var green = bgra[i * BgraBytesPerPixel + 1];
+			var red = bgra[i * BgraBytesPerPixel + 2];
+			var alpha = bgra[i * BgraBytesPerPixel + 3];
 			var packed = (uint)((alpha << 24) | (red << 16) | (green << 8) | blue);
 
 			if (!colorMap.TryGetValue(packed, out var colorIndex))
@@ -138,14 +138,14 @@ public static class AnimatedGifWriter
 				}
 			}
 
-			indices[index] = (byte)colorIndex;
+			indices[i] = (byte)colorIndex;
 		}
 
 		var tableSize = Math.Max(2, NextPowerOfTwo(colorMap.Count));
 		while (tableSize < 2) tableSize *= 2;
 		var table = new byte[tableSize * 3];
-		for (var index = 0; index < colorList.Count && index < tableSize * 3; index++)
-			table[index] = colorList[index];
+		for (var i = 0; i < colorList.Count && i < tableSize * 3; i++)
+			table[i] = colorList[i];
 
 		return (table, indices);
 	}
@@ -154,16 +154,16 @@ public static class AnimatedGifWriter
 	{
 		var bestIndex = 0;
 		var bestDistance = int.MaxValue;
-		for (var index = 0; index < colorList.Count / 3; index++)
+		for (var i = 0; i < colorList.Count / 3; i++)
 		{
-			var deltaRed = red - colorList[index * 3];
-			var deltaGreen = green - colorList[index * 3 + 1];
-			var deltaBlue = blue - colorList[index * 3 + 2];
+			var deltaRed = red - colorList[i * 3];
+			var deltaGreen = green - colorList[i * 3 + 1];
+			var deltaBlue = blue - colorList[i * 3 + 2];
 			var distance = deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue;
 			if (distance < bestDistance)
 			{
 				bestDistance = distance;
-				bestIndex = index;
+				bestIndex = i;
 			}
 		}
 		return bestIndex;
@@ -186,16 +186,16 @@ public static class AnimatedGifWriter
 		var output = new List<bool>();
 		var maxCode = 1 << codeSize;
 
-		for (var index = 0; index < clearCode; index++)
-			dictionary[index.ToString()] = index;
+		for (var i = 0; i < clearCode; i++)
+			dictionary[i.ToString()] = i;
 
 		EmitCode(output, clearCode, codeSize);
 
 		var currentString = indices[0].ToString();
 
-		for (var index = 1; index < indices.Length; index++)
+		for (var i = 1; i < indices.Length; i++)
 		{
-			var combinedKey = currentString + "," + indices[index];
+			var combinedKey = currentString + "," + indices[i];
 			if (dictionary.ContainsKey(combinedKey))
 			{
 				currentString = combinedKey;
@@ -217,13 +217,13 @@ public static class AnimatedGifWriter
 				{
 					EmitCode(output, clearCode, codeSize);
 					dictionary.Clear();
-					for (var resetIndex = 0; resetIndex < clearCode; resetIndex++)
-						dictionary[resetIndex.ToString()] = resetIndex;
+					for (var j = 0; j < clearCode; j++)
+						dictionary[j.ToString()] = j;
 					nextCode = endCode + 1;
 					codeSize = minCodeSize + 1;
 					maxCode = 1 << codeSize;
 				}
-				currentString = indices[index].ToString();
+				currentString = indices[i].ToString();
 			}
 		}
 
@@ -235,18 +235,18 @@ public static class AnimatedGifWriter
 
 	private static void EmitCode(List<bool> output, int code, int codeSize)
 	{
-		for (var index = 0; index < codeSize; index++)
-			output.Add(((code >> index) & 1) == 1);
+		for (var i = 0; i < codeSize; i++)
+			output.Add(((code >> i) & 1) == 1);
 	}
 
 	private static byte[] BitsToBytes(List<bool> bits)
 	{
 		var byteCount = (bits.Count + 7) / 8;
 		var bytes = new byte[byteCount];
-		for (var index = 0; index < bits.Count; index++)
+		for (var i = 0; i < bits.Count; i++)
 		{
-			if (bits[index])
-				bytes[index / 8] |= (byte)(1 << (index % 8));
+			if (bits[i])
+				bytes[i / 8] |= (byte)(1 << (i % 8));
 		}
 		return bytes;
 	}

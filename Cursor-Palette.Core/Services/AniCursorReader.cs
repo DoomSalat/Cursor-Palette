@@ -217,8 +217,8 @@ public static class AniCursorReader
 		var count = length / UInt32Size;
 		var result = new uint[count];
 
-		for (var index = 0; index < count; index++)
-			result[index] = ReadUInt32(bytes, offset + index * UInt32Size);
+		for (var i = 0; i < count; i++)
+			result[i] = ReadUInt32(bytes, offset + i * UInt32Size);
 
 		return result;
 	}

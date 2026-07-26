@@ -157,13 +157,13 @@ public partial class PaintEditorWindow
 	private void InitTimelineFromFrames(IReadOnlyList<CursorCanvasImage> frames, IReadOnlyList<int> frameDelaysMs)
 	{
 		_timelineFrames.Clear();
-		for (var index = 0; index < frames.Count && index < MaxTimelineFrames; index++)
+		for (var i = 0; i < frames.Count && i < MaxTimelineFrames; i++)
 		{
-			var currentFrame = frames[index];
+			var currentFrame = frames[i];
 			var bounds = FindOpaqueBounds(currentFrame);
 			var sprite = ExtractRegion(currentFrame.Bgra, currentFrame.Width, bounds);
-			var duration = index < frameDelaysMs.Count
-				? Math.Clamp(frameDelaysMs[index], MinFrameDurationMs, MaxFrameDurationMs)
+			var duration = i < frameDelaysMs.Count
+				? Math.Clamp(frameDelaysMs[i], MinFrameDurationMs, MaxFrameDurationMs)
 				: DefaultFrameDurationMs;
 			_timelineFrames.Add(new TimelineFrame(sprite, bounds.Width, bounds.Height, bounds.X, bounds.Y, duration));
 		}
@@ -181,10 +181,10 @@ public partial class PaintEditorWindow
 	private void RebuildFrameStrip()
 	{
 		_timelineFramesPanel.Children.Clear();
-		for (var index = 0; index < _timelineFrames.Count; index++)
+		for (var i = 0; i < _timelineFrames.Count; i++)
 		{
-			var frameIndex = index;
-			var frame = _timelineFrames[index];
+			var frameIndex = i;
+			var frame = _timelineFrames[i];
 			var bitmap = new WriteableBitmap(
 				new PixelSize(_canvasWidth, _canvasHeight),
 				new Vector(Dpi, Dpi),

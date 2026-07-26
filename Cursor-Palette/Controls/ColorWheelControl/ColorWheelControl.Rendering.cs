@@ -134,19 +134,19 @@ public partial class ColorWheelControl : UserControl
 
 	private static (double Hue, double Saturation, double Value) RgbToHsv(byte red, byte green, byte blue)
 	{
-		var r = red / 255.0;
-		var g = green / 255.0;
-		var b = blue / 255.0;
+		var redNormalized = red / 255.0;
+		var greenNormalized = green / 255.0;
+		var blueNormalized = blue / 255.0;
 
-		var max = Math.Max(r, Math.Max(g, b));
-		var min = Math.Min(r, Math.Min(g, b));
+		var max = Math.Max(redNormalized, Math.Max(greenNormalized, blueNormalized));
+		var min = Math.Min(redNormalized, Math.Min(greenNormalized, blueNormalized));
 		var delta = max - min;
 
 		double hue;
 		if (delta < DeltaEpsilon) hue = 0;
-		else if (max == r) hue = HueSegmentDegrees * (((g - b) / delta) % 6);
-		else if (max == g) hue = HueSegmentDegrees * (((b - r) / delta) + 2);
-		else hue = HueSegmentDegrees * (((r - g) / delta) + 4);
+		else if (max == redNormalized) hue = HueSegmentDegrees * (((greenNormalized - blueNormalized) / delta) % 6);
+		else if (max == greenNormalized) hue = HueSegmentDegrees * (((blueNormalized - redNormalized) / delta) + 2);
+		else hue = HueSegmentDegrees * (((redNormalized - greenNormalized) / delta) + 4);
 
 		if (hue < 0) hue += FullCircleDegrees;
 

@@ -90,9 +90,9 @@ public static class CursorCanvasService
 
 		var hasAlpha = false;
 
-		for (var alphaIndex = 3; alphaIndex < pixels.Length; alphaIndex += BytesPerPixel)
+		for (var i = 3; i < pixels.Length; i += BytesPerPixel)
 		{
-			if (pixels[alphaIndex] == 0)
+			if (pixels[i] == 0)
 				continue;
 
 			hasAlpha = true;
@@ -142,12 +142,12 @@ public static class CursorCanvasService
 
 		var palette = new (byte B, byte G, byte R)[paletteCount];
 
-		for (var paletteIndex = 0; paletteIndex < paletteCount; paletteIndex++)
+		for (var i = 0; i < paletteCount; i++)
 		{
-			palette[paletteIndex] = (
-				bytes[paletteOffset + paletteIndex * 4],
-				bytes[paletteOffset + paletteIndex * 4 + 1],
-				bytes[paletteOffset + paletteIndex * 4 + 2]);
+			palette[i] = (
+				bytes[paletteOffset + i * 4],
+				bytes[paletteOffset + i * 4 + 1],
+				bytes[paletteOffset + i * 4 + 2]);
 		}
 
 		var xorDataOffset = paletteOffset + paletteCount * 4;

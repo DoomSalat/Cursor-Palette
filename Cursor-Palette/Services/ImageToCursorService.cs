@@ -77,7 +77,7 @@ public static class ImageToCursorService
 			if (image == null)
 				return false;
 
-			for (var i = 3; i < image.Bgra.Length; i += 4)
+			for (var i = 3; i < image.Bgra.Length; i += BytesPerPixel)
 			{
 				if (image.Bgra[i] != 0)
 					return false;
@@ -269,7 +269,7 @@ public static class ImageToCursorService
 			converted.CopyPixels(pixels, stride, 0);
 		}
 
-		for (var i = 3; i < pixels.Length; i += 4)
+		for (var i = 3; i < pixels.Length; i += BytesPerPixel)
 		{
 			if (pixels[i] != 0)
 				return true;

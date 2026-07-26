@@ -110,7 +110,7 @@ public static class CursorCanvasService
 
 		var hasAlpha = false;
 
-		for (var i = 3; i < pixels.Length; i += 4)
+		for (var i = 3; i < pixels.Length; i += BytesPerPixel)
 		{
 			if (pixels[i] == 0)
 				continue;
@@ -192,40 +192,40 @@ public static class CursorCanvasService
 
 			for (var x = 0; x < width; x++)
 			{
-				byte b, g, r;
+				byte blue, green, red;
 
 				if (bitCount == 8)
 				{
-					var idx = bytes[xorRowStart + x];
-					if (idx >= paletteCount)
+					var colorIndex = bytes[xorRowStart + x];
+					if (colorIndex >= paletteCount)
 						return null;
-					(b, g, r) = palette[idx];
+					(blue, green, red) = palette[colorIndex];
 				}
 				else if (bitCount == 4)
 				{
-					var byteIdx = x / 2;
-					var nibble = (bytes[xorRowStart + byteIdx] >> (x % 2 == 0 ? 4 : 0)) & 0x0F;
+					var byteIndex = x / 2;
+					var nibble = (bytes[xorRowStart + byteIndex] >> (x % 2 == 0 ? 4 : 0)) & 0x0F;
 					if (nibble >= paletteCount)
 						return null;
-					(b, g, r) = palette[nibble];
+					(blue, green, red) = palette[nibble];
 				}
 				else
 				{
-					var px = xorRowStart + x * 3;
-					b = bytes[px];
-					g = bytes[px + 1];
-					r = bytes[px + 2];
+					var pixelOffset = xorRowStart + x * 3;
+					blue = bytes[pixelOffset];
+					green = bytes[pixelOffset + 1];
+					red = bytes[pixelOffset + 2];
 				}
 
 				var maskByte = bytes[andRowStart + x / 8];
 				var isTransparent = (maskByte & (0x80 >> (x % 8))) != 0;
 				var alpha = isTransparent ? (byte)0 : (byte)255;
 
-				var dstIdx = (y * width + x) * BytesPerPixel;
-				pixels[dstIdx] = b;
-				pixels[dstIdx + 1] = g;
-				pixels[dstIdx + 2] = r;
-				pixels[dstIdx + 3] = alpha;
+				var destIndex = (y * width + x) * BytesPerPixel;
+				pixels[destIndex] = blue;
+				pixels[destIndex + 1] = green;
+				pixels[destIndex + 2] = red;
+				pixels[destIndex + 3] = alpha;
 			}
 		}
 
