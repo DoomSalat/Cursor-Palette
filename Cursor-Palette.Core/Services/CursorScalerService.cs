@@ -186,10 +186,10 @@ public static class CursorScalerService
 				var xEnd = Math.Min(srcWidth - 1, (int)Math.Ceiling(srcX1) - 1);
 				if (xEnd < xStart) xEnd = xStart;
 
-				var sumB = 0.0;
-				var sumG = 0.0;
-				var sumR = 0.0;
-				var sumA = 0.0;
+				var sumBlue = 0.0;
+				var sumGreen = 0.0;
+				var sumRed = 0.0;
+				var sumAlpha = 0.0;
 				var totalWeight = 0.0;
 
 				for (var sy = yStart; sy <= yEnd; sy++)
@@ -205,30 +205,30 @@ public static class CursorScalerService
 							continue;
 
 						var weight = overlapX * overlapY;
-						var srcIdx = (sy * srcWidth + sx) * BytesPerPixel;
+						var sourceIndex = (sy * srcWidth + sx) * BytesPerPixel;
 
-						var alpha = source[srcIdx + 3] / 255.0;
+						var alpha = source[sourceIndex + 3] / 255.0;
 						var alphaWeight = weight * alpha;
 
-						sumB += source[srcIdx] * alphaWeight;
-						sumG += source[srcIdx + 1] * alphaWeight;
-						sumR += source[srcIdx + 2] * alphaWeight;
-						sumA += weight * alpha;
+						sumBlue += source[sourceIndex] * alphaWeight;
+						sumGreen += source[sourceIndex + 1] * alphaWeight;
+						sumRed += source[sourceIndex + 2] * alphaWeight;
+						sumAlpha += weight * alpha;
 						totalWeight += weight;
 					}
 				}
 
-				var dstIdx = (dy * dstWidth + dx) * BytesPerPixel;
+				var destIndex = (dy * dstWidth + dx) * BytesPerPixel;
 
-				if (sumA > 0)
+				if (sumAlpha > 0)
 				{
-					dest[dstIdx] = (byte)Math.Clamp(Math.Round(sumB / sumA), 0, 255);
-					dest[dstIdx + 1] = (byte)Math.Clamp(Math.Round(sumG / sumA), 0, 255);
-					dest[dstIdx + 2] = (byte)Math.Clamp(Math.Round(sumR / sumA), 0, 255);
+					dest[destIndex] = (byte)Math.Clamp(Math.Round(sumBlue / sumAlpha), 0, 255);
+					dest[destIndex + 1] = (byte)Math.Clamp(Math.Round(sumGreen / sumAlpha), 0, 255);
+					dest[destIndex + 2] = (byte)Math.Clamp(Math.Round(sumRed / sumAlpha), 0, 255);
 				}
 
-				dest[dstIdx + 3] = totalWeight > 0
-					? (byte)Math.Clamp(Math.Round(sumA / totalWeight * 255.0), 0, 255)
+				dest[destIndex + 3] = totalWeight > 0
+					? (byte)Math.Clamp(Math.Round(sumAlpha / totalWeight * 255.0), 0, 255)
 					: (byte)0;
 			}
 		}

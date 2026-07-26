@@ -51,14 +51,14 @@ public partial class PaintEditorWindow
 	{
 		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolMove)
 		{
-			var pos = GetCanvasPosition(e);
+			var canvasPosition = GetCanvasPosition(e);
 
-			if (pos.X < 0 || pos.X >= _canvasWidth || pos.Y < 0 || pos.Y >= _canvasHeight)
+			if (canvasPosition.X < 0 || canvasPosition.X >= _canvasWidth || canvasPosition.Y < 0 || canvasPosition.Y >= _canvasHeight)
 				return;
 
 			PushHistory();
 			_isDraggingSprite = true;
-			_spriteDragStart = pos;
+			_spriteDragStart = canvasPosition;
 			_dragStartOffsetX = _offsetX;
 			_dragStartOffsetY = _offsetY;
 			ViewportHost.CaptureMouse();
@@ -69,13 +69,13 @@ public partial class PaintEditorWindow
 
 		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolBgRef && _bgRefBitmap != null)
 		{
-			var pos = GetCanvasPosition(e);
+			var canvasPosition = GetCanvasPosition(e);
 
-			if (pos.X < 0 || pos.X >= _canvasWidth || pos.Y < 0 || pos.Y >= _canvasHeight)
+			if (canvasPosition.X < 0 || canvasPosition.X >= _canvasWidth || canvasPosition.Y < 0 || canvasPosition.Y >= _canvasHeight)
 				return;
 
 			_isDraggingBgRef = true;
-			_bgRefDragStart = pos;
+			_bgRefDragStart = canvasPosition;
 			_bgRefDragStartOffsetX = _bgRefOffsetX;
 			_bgRefDragStartOffsetY = _bgRefOffsetY;
 			ViewportHost.CaptureMouse();
@@ -103,11 +103,11 @@ public partial class PaintEditorWindow
 
 		if (e.ChangedButton == MouseButton.Left && _currentTool == AppState.PaintEditorToolFill)
 		{
-			var pos = GetCanvasPosition(e);
+			var canvasPosition = GetCanvasPosition(e);
 
 			PushHistory();
 
-			FloodFill((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y));
+			FloodFill((int)Math.Floor(canvasPosition.X), (int)Math.Floor(canvasPosition.Y));
 			RenderAll();
 			e.Handled = true;
 

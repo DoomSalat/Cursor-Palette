@@ -760,15 +760,18 @@ public partial class PaintEditorWindow : Window
 		{
 			if (_currentTool == AppState.PaintEditorToolMove)
 			{
-				var pos = GetCanvasPosition(e);
-				if (pos.X < 0 || pos.X >= _canvasWidth || pos.Y < 0 || pos.Y >= _canvasHeight)
+				var canvasPosition = GetCanvasPosition(e);
+
+				if (canvasPosition.X < 0 || canvasPosition.X >= _canvasWidth || canvasPosition.Y < 0 || canvasPosition.Y >= _canvasHeight)
 					return;
+
 				PushHistory();
 				_isDraggingSprite = true;
 				_spriteDragStart = GetCanvasPosition(e);
 				_dragStartOffsetX = _offsetX;
 				_dragStartOffsetY = _offsetY;
 				e.Handled = true;
+
 				return;
 			}
 
@@ -788,11 +791,12 @@ public partial class PaintEditorWindow : Window
 
 			if (_currentTool == AppState.PaintEditorToolFill)
 			{
-				var pos = GetCanvasPosition(e);
+				var canvasPosition = GetCanvasPosition(e);
 				PushHistory();
-				FloodFill((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y));
+				FloodFill((int)Math.Floor(canvasPosition.X), (int)Math.Floor(canvasPosition.Y));
 				RenderAll();
 				e.Handled = true;
+
 				return;
 			}
 
@@ -807,22 +811,26 @@ public partial class PaintEditorWindow : Window
 
 			if (_currentTool == AppState.PaintEditorToolBgRef && _bgRefBitmap != null)
 			{
-				var pos = GetCanvasPosition(e);
-				if (pos.X < 0 || pos.X >= _canvasWidth || pos.Y < 0 || pos.Y >= _canvasHeight)
+				var canvasPosition = GetCanvasPosition(e);
+
+				if (canvasPosition.X < 0 || canvasPosition.X >= _canvasWidth || canvasPosition.Y < 0 || canvasPosition.Y >= _canvasHeight)
 					return;
+
 				_isDraggingBgRef = true;
-				_bgRefDragStart = pos;
+				_bgRefDragStart = canvasPosition;
 				_bgRefDragStartOffsetX = _bgRefOffsetX;
 				_bgRefDragStartOffsetY = _bgRefOffsetY;
 				e.Handled = true;
+
 				return;
 			}
 
 			if (_currentTool == AppState.PaintEditorToolCanvas)
 			{
-				var pos = e.GetPosition(_viewportHost);
-				StartResizeDrag(pos);
+				var resizePosition = e.GetPosition(_viewportHost);
+				StartResizeDrag(resizePosition);
 				e.Handled = true;
+
 				return;
 			}
 
@@ -833,6 +841,7 @@ public partial class PaintEditorWindow : Window
 				_panStartX = _panTransform.X;
 				_panStartY = _panTransform.Y;
 				e.Handled = true;
+
 				return;
 			}
 		}
@@ -851,10 +860,11 @@ public partial class PaintEditorWindow : Window
 	{
 		if (_isPainting)
 		{
-			var pos = GetCanvasPosition(e);
-			PaintStrokeTo(pos, e.KeyModifiers);
-			UpdatePaintCursor(pos);
+			var canvasPosition = GetCanvasPosition(e);
+			PaintStrokeTo(canvasPosition, e.KeyModifiers);
+			UpdatePaintCursor(canvasPosition);
 			e.Handled = true;
+
 			return;
 		}
 
@@ -862,40 +872,44 @@ public partial class PaintEditorWindow : Window
 		{
 			SetHotspotFromCanvasPosition(GetCanvasPosition(e));
 			e.Handled = true;
+
 			return;
 		}
 
 		if (_isDraggingSprite)
 		{
-			var pos = GetCanvasPosition(e);
-			var deltaX = (int)Math.Round(pos.X - _spriteDragStart.X);
-			var deltaY = (int)Math.Round(pos.Y - _spriteDragStart.Y);
+			var canvasPosition = GetCanvasPosition(e);
+			var deltaX = (int)Math.Round(canvasPosition.X - _spriteDragStart.X);
+			var deltaY = (int)Math.Round(canvasPosition.Y - _spriteDragStart.Y);
 			var (minX, maxX) = HorizontalRange();
 			var (minY, maxY) = VerticalRange();
 			_offsetX = Math.Clamp(_dragStartOffsetX + deltaX, minX, maxX);
 			_offsetY = Math.Clamp(_dragStartOffsetY + deltaY, minY, maxY);
 			RenderAll();
 			e.Handled = true;
+
 			return;
 		}
 
 		if (_isDraggingBgRef)
 		{
-			var pos = GetCanvasPosition(e);
-			var deltaX = (int)Math.Round(pos.X - _bgRefDragStart.X);
-			var deltaY = (int)Math.Round(pos.Y - _bgRefDragStart.Y);
+			var canvasPosition = GetCanvasPosition(e);
+			var deltaX = (int)Math.Round(canvasPosition.X - _bgRefDragStart.X);
+			var deltaY = (int)Math.Round(canvasPosition.Y - _bgRefDragStart.Y);
 			_bgRefOffsetX = _bgRefDragStartOffsetX + deltaX;
 			_bgRefOffsetY = _bgRefDragStartOffsetY + deltaY;
 			UpdateBgRefRender();
 			e.Handled = true;
+
 			return;
 		}
 
 		if (_isResizeDragging)
 		{
-			var pos = e.GetPosition(_viewportHost);
-			UpdateResizeDrag(pos);
+			var resizePosition = e.GetPosition(_viewportHost);
+			UpdateResizeDrag(resizePosition);
 			e.Handled = true;
+
 			return;
 		}
 

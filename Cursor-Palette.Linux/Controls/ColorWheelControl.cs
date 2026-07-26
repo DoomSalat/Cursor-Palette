@@ -43,9 +43,10 @@ public class ColorWheelControl : UserControl
 	{
 		get
 		{
-			var (r, g, b) = HsvToRgb(_hue, _saturation, _value);
-			var a = (byte)Math.Round(_alphaPercent * AlphaToPercentFactor);
-			return Color.FromArgb(a, r, g, b);
+			var (red, green, blue) = HsvToRgb(_hue, _saturation, _value);
+			var alpha = (byte)Math.Round(_alphaPercent * AlphaToPercentFactor);
+
+			return Color.FromArgb(alpha, red, green, blue);
 		}
 	}
 
@@ -331,8 +332,10 @@ public class ColorWheelControl : UserControl
 
 		UpdateIndicator();
 		UpdateSquareIndicator();
+
 		if (_mode == PickerMode.Square)
 			_squareImage.Source = GenerateSquareBitmap(_hue);
+
 		UpdatePreview();
 		UpdateAlphaPercent();
 	}
@@ -369,8 +372,10 @@ public class ColorWheelControl : UserControl
 
 		UpdateIndicator();
 		UpdateSquareIndicator();
+
 		if (_mode == PickerMode.Square)
 			_squareImage.Source = GenerateSquareBitmap(_hue);
+
 		UpdatePreview();
 		UpdateAlphaPercent();
 
@@ -422,6 +427,7 @@ public class ColorWheelControl : UserControl
 	{
 		if (!_isDraggingWheel)
 			return;
+
 		UpdateFromMouse(e.GetPosition(_wheelImage));
 		e.Handled = true;
 	}
@@ -596,8 +602,8 @@ public class ColorWheelControl : UserControl
 			}
 		}
 
-		using var fb = bitmap.Lock();
-		Marshal.Copy(pixels, 0, fb.Address, pixels.Length);
+		using var lockedBitmap = bitmap.Lock();
+		Marshal.Copy(pixels, 0, lockedBitmap.Address, pixels.Length);
 		return bitmap;
 	}
 
@@ -627,8 +633,8 @@ public class ColorWheelControl : UserControl
 			}
 		}
 
-		using var fb = bitmap.Lock();
-		Marshal.Copy(pixels, 0, fb.Address, pixels.Length);
+		using var lockedBitmap = bitmap.Lock();
+		Marshal.Copy(pixels, 0, lockedBitmap.Address, pixels.Length);
 		return bitmap;
 	}
 
@@ -658,19 +664,19 @@ public class ColorWheelControl : UserControl
 
 	private static (double Hue, double Saturation, double Value) RgbToHsv(byte red, byte green, byte blue)
 	{
-		var r = red / 255.0;
-		var g = green / 255.0;
-		var b = blue / 255.0;
+		var redNormalized = red / 255.0;
+		var greenNormalized = green / 255.0;
+		var blueNormalized = blue / 255.0;
 
-		var max = Math.Max(r, Math.Max(g, b));
-		var min = Math.Min(r, Math.Min(g, b));
+		var max = Math.Max(redNormalized, Math.Max(greenNormalized, blueNormalized));
+		var min = Math.Min(redNormalized, Math.Min(greenNormalized, blueNormalized));
 		var delta = max - min;
 
 		double hue;
 		if (delta < DeltaEpsilon) hue = 0;
-		else if (max == r) hue = HueSegmentDegrees * (((g - b) / delta) % 6);
-		else if (max == g) hue = HueSegmentDegrees * (((b - r) / delta) + 2);
-		else hue = HueSegmentDegrees * (((r - g) / delta) + 4);
+		else if (max == redNormalized) hue = HueSegmentDegrees * (((greenNormalized - blueNormalized) / delta) % 6);
+		else if (max == greenNormalized) hue = HueSegmentDegrees * (((blueNormalized - redNormalized) / delta) + 2);
+		else hue = HueSegmentDegrees * (((redNormalized - greenNormalized) / delta) + 4);
 
 		if (hue < 0) hue += FullCircleDegrees;
 

@@ -223,24 +223,24 @@ public static class ImageToCursorService
 		return result;
 	}
 
-	private static byte[] CropBgra(byte[] src, int srcWidth, int srcHeight, int dstWidth, int dstHeight)
+	private static byte[] CropBgra(byte[] source, int srcWidth, int srcHeight, int dstWidth, int dstHeight)
 	{
-		var dst = new byte[dstWidth * dstHeight * BytesPerPixel];
+		var destination = new byte[dstWidth * dstHeight * BytesPerPixel];
 
 		for (var y = 0; y < dstHeight; y++)
 		{
 			for (var x = 0; x < dstWidth; x++)
 			{
-				var srcIdx = (y * srcWidth + x) * BytesPerPixel;
-				var dstIdx = (y * dstWidth + x) * BytesPerPixel;
-				dst[dstIdx] = src[srcIdx];
-				dst[dstIdx + 1] = src[srcIdx + 1];
-				dst[dstIdx + 2] = src[srcIdx + 2];
-				dst[dstIdx + 3] = src[srcIdx + 3];
+				var sourceIndex = (y * srcWidth + x) * BytesPerPixel;
+				var destinationIndex = (y * dstWidth + x) * BytesPerPixel;
+				destination[destinationIndex] = source[sourceIndex];
+				destination[destinationIndex + 1] = source[sourceIndex + 1];
+				destination[destinationIndex + 2] = source[sourceIndex + 2];
+				destination[destinationIndex + 3] = source[sourceIndex + 3];
 			}
 		}
 
-		return dst;
+		return destination;
 	}
 
 	private static bool IsBitmapVisible(BitmapSource bitmap)

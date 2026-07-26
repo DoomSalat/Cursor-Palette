@@ -54,11 +54,11 @@ public sealed class LinuxScreenColorPicker : IScreenColorPicker
 				return (0, 0, 0);
 
 			// XImage structure: first 8 bytes are header, pixel data at offset 8
-			var pixel = Marshal.ReadByte(image, 8 + BgraBlueOffset);
-			var g = Marshal.ReadByte(image, 8 + BgraGreenOffset);
-			var r = Marshal.ReadByte(image, 8 + BgraRedOffset);
+			var blue = Marshal.ReadByte(image, 8 + BgraBlueOffset);
+			var green = Marshal.ReadByte(image, 8 + BgraGreenOffset);
+			var red = Marshal.ReadByte(image, 8 + BgraRedOffset);
 
-			return (r, g, pixel);
+			return (red, green, blue);
 		}
 		catch
 		{

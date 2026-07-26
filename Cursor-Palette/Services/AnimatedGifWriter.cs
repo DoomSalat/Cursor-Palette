@@ -102,29 +102,29 @@ public static class AnimatedGifWriter
 		var width = BitConverter.ToUInt16(bytes, HeaderSize);
 		var height = BitConverter.ToUInt16(bytes, HeaderSize + 2);
 		var lsdPacked = bytes[HeaderSize + 4];
-		var pos = HeaderSize + LsdSize;
+		var position = HeaderSize + LsdSize;
 
 		var globalColorTable = Array.Empty<byte>();
 
 		if ((lsdPacked & 0x80) != 0)
 		{
-			var gctLen = 3 * (1 << ((lsdPacked & 0x07) + 1));
-			globalColorTable = bytes[pos..(pos + gctLen)];
-			pos += gctLen;
+			var globalColorTableLength = 3 * (1 << ((lsdPacked & 0x07) + 1));
+			globalColorTable = bytes[position..(position + globalColorTableLength)];
+			position += globalColorTableLength;
 		}
 
-		var extensionsStart = pos;
+		var extensionsStart = position;
 
-		while (bytes[pos] == ExtensionIntroducer)
+		while (bytes[position] == ExtensionIntroducer)
 		{
-			pos += 2;
-			pos = SkipSubBlocks(bytes, pos);
+			position += 2;
+			position = SkipSubBlocks(bytes, position);
 		}
 
 		byte[]? gceBytes = null;
 		var extensionsPos = extensionsStart;
 
-		while (extensionsPos < pos)
+		while (extensionsPos < position)
 		{
 			var blockStart = extensionsPos;
 			var label = bytes[blockStart + 1];
@@ -138,32 +138,32 @@ public static class AnimatedGifWriter
 
 		gceBytes ??= new byte[] { ExtensionIntroducer, GraphicControlLabel, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-		var descriptorStart = pos;
+		var descriptorStart = position;
 		var originalPacked = bytes[descriptorStart + 9];
-		pos += ImageDescriptorSize;
+		position += ImageDescriptorSize;
 
 		byte[] colorTable;
 
 		if ((originalPacked & 0x80) != 0)
 		{
-			var lctLen = 3 * (1 << ((originalPacked & 0x07) + 1));
-			colorTable = bytes[pos..(pos + lctLen)];
-			pos += lctLen;
+			var localColorTableLength = 3 * (1 << ((originalPacked & 0x07) + 1));
+			colorTable = bytes[position..(position + localColorTableLength)];
+			position += localColorTableLength;
 		}
 		else
 		{
 			colorTable = globalColorTable;
 		}
 
-		var lzwStart = pos;
-		pos += 1;
-		pos = SkipSubBlocks(bytes, pos);
-		var imageDataBytes = bytes[lzwStart..pos];
+		var lzwStart = position;
+		position += 1;
+		position = SkipSubBlocks(bytes, position);
+		var imageDataBytes = bytes[lzwStart..position];
 
 		var colorCount = Math.Max(colorTable.Length / 3, 2);
-		var sizeExp = Math.Max(BitOperations.Log2((uint)colorCount) - 1, 0);
+		var sizeExponent = Math.Max(BitOperations.Log2((uint)colorCount) - 1, 0);
 		var descriptorBytes = bytes[descriptorStart..(descriptorStart + ImageDescriptorSize)].ToArray();
-		descriptorBytes[9] = (byte)(0x80 | (originalPacked & 0x60) | sizeExp);
+		descriptorBytes[9] = (byte)(0x80 | (originalPacked & 0x60) | sizeExponent);
 
 		using var output = new MemoryStream();
 		output.Write(gceBytes);
