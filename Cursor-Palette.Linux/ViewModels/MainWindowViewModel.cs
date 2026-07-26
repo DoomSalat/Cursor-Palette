@@ -21,6 +21,7 @@ public sealed class BoardItem
 	public int RoleCount { get; init; }
 	public string MembersCountText { get; init; } = "";
 	public string CollapsedText { get; init; } = "";
+	public string ContextHint { get; init; } = "";
 	public int BaseSize { get; init; }
 	public bool UseScaling { get; init; }
 	public bool IsActive { get; init; }
@@ -204,6 +205,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 			IsSelected = _selectedPresetIds?.Contains(preset.Id) ?? false,
 			GroupColorHex = group != null ? GroupColors.ResolveHex(group.ColorKey) : null,
 			GroupId = group?.Id,
+			ContextHint = Loc.Get("S.Preset.ContextHint"),
 		};
 	}
 
@@ -596,6 +598,27 @@ public sealed class MainWindowViewModel : ViewModelBase
 		};
 
 		GroupStore.Save(group);
+		ReloadGallery();
+	}
+
+	public void CreateEmptyGroup(string name, string colorKey)
+	{
+		var group = new PresetGroup
+		{
+			Id = Guid.NewGuid().ToString("N"),
+			Name = name,
+			ColorKey = colorKey,
+			MemberPresetIds = new(),
+			Collapsed = false,
+		};
+
+		GroupStore.Save(group);
+
+		var boardOrderIds = BoardOrderStore.Load();
+		if (!boardOrderIds.Contains(group.Id))
+			boardOrderIds.Add(group.Id);
+		BoardOrderStore.Save(boardOrderIds);
+
 		ReloadGallery();
 	}
 

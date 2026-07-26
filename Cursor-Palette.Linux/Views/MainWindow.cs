@@ -361,6 +361,10 @@ public partial class MainWindow : Window
 		var groupNameBox = this.FindControl<TextBox>("GroupNameBox");
 		if (groupNameBox != null && string.IsNullOrEmpty(groupNameBox.Text))
 			groupNameBox.Text = Loc.Get(LocGroupDefaultName);
+
+		var menuCreateGroup = this.FindControl<MenuItem>("MenuCreateGroupItem");
+		if (menuCreateGroup != null)
+			menuCreateGroup.Header = Loc.Get(LocMenuCreateGroup);
 	}
 
 	private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -1314,6 +1318,22 @@ public partial class MainWindow : Window
 		ClearGroupSelection();
 		_viewModel.SetSelectedPresetIds(null);
 		_viewModel.ReloadGallery();
+	}
+
+	public async void OnMenuCreateGroup(object? sender, RoutedEventArgs e)
+	{
+		var dialog = new GroupEditWindow();
+		var result = await dialog.ShowDialog<bool?>(this);
+
+		if (result != true)
+			return;
+
+		var name = dialog.GroupName;
+		if (string.IsNullOrWhiteSpace(name))
+			name = Loc.Get(LocGroupDefaultName);
+
+		_viewModel.CreateEmptyGroup(name, dialog.ColorKey);
+		ShowToast(Loc.Format(LocGroupToastCreated, name));
 	}
 
 	public async void OnMenuRandomPreset(object? sender, RoutedEventArgs e)

@@ -46,7 +46,7 @@
   ungroup, delete), цветовые метки через `GroupColors` (левая полоса + бейдж),
   `GroupEditWindow` портирован, assign to group (подменю), remove from group,
   Ctrl+click выбор пресетов, selection badges (✓), group toolbar с color
-  swatches и кнопками Create/Cancel
+  swatches и кнопками Create/Cancel, контекстное меню "Create Group" на фоне
 - **Проверка обновлений** — фоновая проверка через GitHub API при запуске,
   toast-уведомление при наличии новой версии, кнопка-индикатор в шапке
 - **Paint editor** — окно с pixel canvas (brush/eraser/hotspot), импорт
@@ -104,8 +104,6 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 ### 1. Управление группами — частично
 
 WPF-оригинал имеет полнофункциональное управление группами:
-- **Контекстное меню "Create Group"** — по правому клику на фоне галереи
-- **Inline rename группы** — двойной клик по имени группы для переименования
 - **Group drag-and-drop** — перетаскивание групп для reordering
 - **GroupAttachIndicator** — индикатор-рамка при перетаскивании пресета
   на группу (для добавления в группу)
@@ -116,18 +114,15 @@ WPF-оригинал имеет полнофункциональное упра�
   в контекстном меню есть. Цветовая полоса + бейдж на ячейках отображаются.
   Ctrl+click выбор пресетов, selection badges (✓), group toolbar (с color
   swatches, полем имени, кнопками Create/Cancel) — портированы.
-  Inline rename, group drag, group attach indicator — не портированы.
+  Контекстное меню "Create Group" на фоне галереи — портировано.
+  Group drag, group attach indicator — не портированы.
 
-### 2. UI ячеек пресетов — частично
-
-- **Tooltips на ячейках** — WPF показывает tooltip с именем пресета и
-  подсказкой контекстного меню. В Linux tooltip на имени есть, но
-  подсказка "ПКМ — меню" отсутствует.
+### 2. UI ячеек пресетов — полностью
 
 **Файлы WPF:** `MainWindow.Gallery.cs` (CreatePresetCell, CreateDefaultCell)
 **Статус Linux:** базовые ячейки есть, mixed badge (🧩), scaling icon (📐),
-  hover эффект, group color indicator, selection border + selection badges (✓)
-  отображаются. Tooltip с подсказкой "ПКМ — меню" — нет.
+  hover эффект, group color indicator, selection border + selection badges (✓),
+  tooltip с именем пресета и подсказкой "ПКМ — меню" — всё отображается.
 
 ### 3. Paint editor — частично
 
