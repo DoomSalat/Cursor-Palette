@@ -51,8 +51,11 @@
   (перетаскивание пресета на группу)
 - **Проверка обновлений** — фоновая проверка через GitHub API при запуске,
   toast-уведомление при наличии новой версии, кнопка-индикатор в шапке
-- **Paint editor** — окно с pixel canvas (brush/eraser/hotspot), импорт
-  PNG/BMP/cursor файлов, zoom, интеграция с PresetEditor слотами
+- **Paint editor** — полнофункциональный pixel editor: brush/eraser/fill, color wheel
+  (wheel/square mode), hotspot с 3×3 preset grid, eyedropper, undo/redo (50 шагов),
+  background reference, canvas resize, move/hand tools, animation timeline (до 60 кадров),
+  shift+click line, import PNG/JPG/BMP/GIF/CUR/ANI, export PNG/GIF, hotkeys (V/H/B/E/G/C/O/R),
+  persistence (tool/zoom/pan/color/window size/bgref settings)
 - **Константы** — магические строки и числа вынесены в `private const` по стилю
   WPF-оригинала
 - **Масштаб курсора (scaling)** — checkbox в тулбаре и в редакторе пресета,
@@ -176,31 +179,33 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
   hover эффект, group color indicator, selection border + selection badges (✓),
   tooltip с именем пресета и подсказкой "ПКМ — меню" — всё отображается.
 
-### 3. Paint editor — частично
+### 3. Paint editor — ✅ полностью портирован
 
-WPF-оригинал (v2.1.0) имеет полнофункциональный Paint editor:
+WPF-оригинал (v2.1.0) имеет полнофункциональный Paint editor — все функции портированы:
 - **Brush/Eraser** — рисование по пикселям ✅
 - **Hotspot** — перетаскивание маркера + 9 кнопок быстрой установки ✅
-  (но без кнопок быстрой установки, только маркер)
-- **Fill** — заливка области одним цветом ❌
-- **Eyedropper** — пипетка (Alt+клик) ❌
-- **Color wheel / color square** — выбор цвета (переключатель ◐/■) ❌
-- **Undo/Redo** — история изменений (Ctrl+Z / Ctrl+Y) ❌
-- **Background Ref** — полупрозрачная картинка позади спрайта ❌
-- **Canvas tool** — визуальная растяжка холста за края/углы ❌
-- **Move tool** — перетаскивание спрайта + джойстик "прижать к краю" ❌
-- **Hand tool** — панорамирование ❌
-- **Animation timeline** — до 60 кадров для .ani ❌
-- **Shift+клик** — прямая линия от последней точки ❌
-- **Import image** — диалог с режимами Over/Replace ❌ (есть только простой импорт)
-- **Paint editor для пустых слотов** — рисование с нуля ❌
-- **Горячие клавиши** инструментов (V/H/B/E/G/C/O) ❌
-- **Сохранение между запусками** — последний инструмент, зум, позиция, цвет ❌
+- **Fill** — заливка области одним цветом ✅
+- **Eyedropper** — пипетка (Alt+клик + кнопка) ✅
+- **Color wheel / color square** — выбор цвета (переключатель ○/■) ✅
+- **Undo/Redo** — история изменений (Ctrl+Z / Ctrl+Y), до 50 шагов ✅
+- **Background Ref** — полупрозрачная картинка позади спрайта, opacity/margin/offset ✅
+- **Canvas tool** — визуальная растяжка холста за края/углы ✅
+- **Move tool** — перетаскивание спрайта + джойстик "прижать к краю" (3×3 grid) ✅
+- **Hand tool** — панорамирование (drag + middle mouse) ✅
+- **Animation timeline** — до 60 кадров для .ani, play/stop, duration ✅
+- **Shift+клик** — прямая линия от последней точки ✅
+- **Import image** — диалог загрузки PNG/JPG/BMP/GIF/CUR/ANI ✅
+- **Paint editor для пустых слотов** — рисование с нуля ✅
+- **Горячие клавиши** инструментов (V/H/B/E/G/C/O/R, Ctrl+Z/Y) ✅
+- **Сохранение между запусками** — последний инструмент, зум, позиция, цвет ✅
+- **Export PNG/GIF** — экспорт текущего кадра или анимации ✅
+- **Sprite bounds toggle** — отображение границ спрайта ✅
 
-**Файлы WPF:** `PaintEditorWindow.xaml(.cs)`, `ColorWheelControl.xaml(.cs)`
-**Статус Linux:** базовый pixel canvas с brush/eraser/hotspot и импортом.
-  Fill, eyedropper, color wheel, undo/redo, background ref, canvas/move/hand
-  tools, animation timeline, shift+line — не портированы.
+**Файлы Linux:** `PaintEditorWindow.cs` (core), `PaintEditorWindow.Canvas.cs`,
+  `PaintEditorWindow.Paint.cs`, `PaintEditorWindow.History.cs`, `PaintEditorWindow.Tools.cs`,
+  `PaintEditorWindow.Hotspot.cs`, `PaintEditorWindow.Eyedropper.cs`, `PaintEditorWindow.BgRef.cs`,
+  `PaintEditorWindow.Timeline.cs`, `PaintEditorWindow.Import.cs`, `PaintEditorWindow.Keyboard.cs`,
+  `Controls/ColorWheelControl.cs`, `Services/AnimatedGifWriter.cs`
 
 ### 4. Микс ролей из существующих пресетов (RoleRefs)
 
