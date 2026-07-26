@@ -164,6 +164,8 @@ public partial class MainWindow : Window
 
 		AddHandler(DragDrop.DropEvent, OnDrop);
 		AddHandler(DragDrop.DragOverEvent, OnDragOver);
+		AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+		AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
 		AddHandler(PointerMovedEvent, OnPresetPointerMoved, RoutingStrategies.Bubble);
 		AddHandler(PointerReleasedEvent, OnPresetPointerReleased, RoutingStrategies.Bubble);
 		AddHandler(DragDrop.DragOverEvent, OnPresetDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
@@ -1051,107 +1053,47 @@ public partial class MainWindow : Window
 
 	public async void OnFooterClick(object? sender, PointerPressedEventArgs e)
 	{
-		var dialog = new Window
-		{
-			Title = Loc.Get(LocAboutTitle),
-			Width = AboutDialogWidth,
-			Height = AboutDialogHeight,
-			MinWidth = AboutMinWidth,
-			MinHeight = AboutMinHeight,
-			WindowStartupLocation = WindowStartupLocation.CenterOwner,
-			CanResize = true,
-			ShowInTaskbar = false,
-		};
-
-		var contentPanel = new StackPanel
-		{
-			Spacing = 12,
-		};
-
-		var titlePanel = new StackPanel
-		{
-			Orientation = Orientation.Horizontal,
-			Margin = new Avalonia.Thickness(0, 0, 0, 4),
-		};
-		titlePanel.Children.Add(new TextBlock
-		{
-			Text = "Cursor ",
-			FontSize = 18,
-			FontWeight = FontWeight.SemiBold,
-			VerticalAlignment = VerticalAlignment.Center,
-		});
-		titlePanel.Children.Add(new TextBlock
-		{
-			Text = "Palette",
-			FontSize = 18,
-			FontWeight = FontWeight.SemiBold,
-			Foreground = (IBrush?)Application.Current?.FindResource("SystemAccentColor"),
-			VerticalAlignment = VerticalAlignment.Center,
-		});
-		contentPanel.Children.Add(titlePanel);
-
-		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
-		contentPanel.Children.Add(new TextBlock
-		{
-			Text = $"v{version}",
-			FontSize = 12,
-			Foreground = Brushes.Gray,
-		});
-
-		contentPanel.Children.Add(new TextBlock
-		{
-			Text = AppInfo.LicenseName,
-			FontSize = 13,
-			FontWeight = FontWeight.SemiBold,
-		});
-
-		contentPanel.Children.Add(new TextBlock
-		{
-			Text = AboutLicenseText,
-			FontSize = 12,
-			TextWrapping = TextWrapping.Wrap,
-		});
-
-		var scrollViewer = new ScrollViewer
-		{
-			Content = contentPanel,
-			Padding = new Avalonia.Thickness(AboutPadding),
-			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-		};
-
-		var closeButton = new Button
-		{
-			Content = Loc.Get(LocAboutClose),
-			HorizontalAlignment = HorizontalAlignment.Right,
-			MinWidth = AboutCloseButtonMinWidth,
-			Margin = new Avalonia.Thickness(DialogMargin, 10, DialogMargin, 10),
-		};
-		closeButton.Click += (_, _) => dialog.Close();
-
-		var root = new Grid
-		{
-			RowDefinitions = new RowDefinitions("*,Auto"),
-		};
-		Grid.SetRow(scrollViewer, 0);
-		Grid.SetRow(closeButton, 1);
-		root.Children.Add(scrollViewer);
-		root.Children.Add(closeButton);
-
-		dialog.Content = root;
-		await dialog.ShowDialog(this);
+		await new AboutWindow().ShowDialog(this);
 	}
 
 	private void OnDragOver(object? sender, DragEventArgs e)
 	{
 		if (e.Data.Contains(DataFormats.Files))
+		{
 			e.DragEffects = DragDropEffects.Copy;
+			var dropIndicator = this.FindControl<Rectangle>("WindowDropIndicator");
+			if (dropIndicator != null)
+				dropIndicator.IsVisible = true;
+		}
 		else
+		{
 			e.DragEffects = DragDropEffects.None;
+		}
+	}
+
+	private void OnDragEnter(object? sender, DragEventArgs e)
+	{
+		if (!e.Data.Contains(DataFormats.Files))
+			return;
+
+		var dropIndicator = this.FindControl<Rectangle>("WindowDropIndicator");
+		if (dropIndicator != null)
+			dropIndicator.IsVisible = true;
+	}
+
+	private void OnDragLeave(object? sender, DragEventArgs e)
+	{
+		var dropIndicator = this.FindControl<Rectangle>("WindowDropIndicator");
+		if (dropIndicator != null)
+			dropIndicator.IsVisible = false;
 	}
 
 	private async void OnDrop(object? sender, DragEventArgs e)
 	{
+		var dropIndicator = this.FindControl<Rectangle>("WindowDropIndicator");
+		if (dropIndicator != null)
+			dropIndicator.IsVisible = false;
+
 		if (e.Data.Contains(DataFormats.Files))
 		{
 			var files = e.Data.GetFiles();

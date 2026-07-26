@@ -263,15 +263,20 @@ WPF-оригинал имеет подменю с двумя форматами:
   системные курсоры как .xcursor файлы в Downloads. PNG/GIF и CUR/ANI
   форматы не поддерживаются.
 
-### 7. WindowDropIndicator
+### 7. WindowDropIndicator — ✅ портировано
 
 WPF-оригинал показывает пунктирную рамку вокруг окна при drag-over
 файлов извне (визуальная реакция на перетаскивание).
 
 **Файлы WPF:** `MainWindow.DragDrop.cs`, `MainWindow.xaml`
-**Статус Linux:** не портировано. Drop работает, но визуальной реакции нет.
+**Статус Linux:** ✅ портировано:
+  - `MainWindow.xaml` — `WindowDropIndicator` (Rectangle со `StrokeDashArray="6,3"`,
+    `RadiusX/Y=10`, `ZIndex=900`, `IsHitTestVisible=False`)
+  - `MainWindow.cs` — `OnDragEnter`/`OnDragLeave` handlers показывают/скрывают индикатор,
+    `OnDragOver` также показывает индикатор при `DataFormats.Files`,
+    `OnDrop` скрывает индикатор
 
-### 8. AboutWindow (отдельное окно)
+### 8. AboutWindow (отдельное окно) — ✅ портировано
 
 WPF-оригинал имеет отдельное `AboutWindow` (не диалог по клику на футер):
 - Открывается из контекстного меню или кнопки "ⓘ"
@@ -279,5 +284,8 @@ WPF-оригинал имеет отдельное `AboutWindow` (не диал�
 - Имеет кнопку "ⓘ" для открытия справки об About
 
 **Файлы WPF:** `AboutWindow.xaml(.cs)`
-**Статус Linux:** есть диалог "О программе" по клику на футер
-  (программно построенный), отдельного `AboutWindow` нет.
+**Статус Linux:** ✅ портировано:
+  - `AboutWindow.cs` — отдельный класс окна с логотипом, версией (author · version · license),
+    полным текстом MIT лицензии, кнопкой "ⓘ" (открывает `InfoHelpWindow` с `HelpTextService.Get("About")`),
+    кнопкой "Close", ScrollViewer для длинного текста
+  - `MainWindow.cs` — `OnFooterClick` упрощён до `new AboutWindow().ShowDialog(this)`

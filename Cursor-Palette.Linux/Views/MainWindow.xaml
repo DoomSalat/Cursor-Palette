@@ -560,5 +560,18 @@
 				<TranslateTransform />
 			</Border.RenderTransform>
 		</Border>
+
+		<!-- Window drop indicator (dashed border shown on file drag-over) -->
+		<Rectangle x:Name="WindowDropIndicator"
+				   Grid.RowSpan="5"
+				   IsHitTestVisible="False"
+				   IsVisible="False"
+				   ZIndex="900"
+				   Margin="4"
+				   Stroke="CornflowerBlue"
+				   StrokeThickness="4"
+				   StrokeDashArray="6,3"
+				   RadiusX="10"
+				   RadiusY="10" />
 	</Grid>
 </Window>
