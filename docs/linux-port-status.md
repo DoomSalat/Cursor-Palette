@@ -47,6 +47,7 @@
   `GroupEditWindow` портирован, assign to group (подменю), remove from group,
   Ctrl+click выбор пресетов, selection badges (✓), group toolbar с color
   swatches и кнопками Create/Cancel, контекстное меню "Create Group" на фоне
+  галереи, group drag-and-drop (reordering групп)
 - **Проверка обновлений** — фоновая проверка через GitHub API при запуске,
   toast-уведомление при наличии новой версии, кнопка-индикатор в шапке
 - **Paint editor** — окно с pixel canvas (brush/eraser/hotspot), импорт
@@ -104,7 +105,6 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 ### 1. Управление группами — частично
 
 WPF-оригинал имеет полнофункциональное управление группами:
-- **Group drag-and-drop** — перетаскивание групп для reordering
 - **GroupAttachIndicator** — индикатор-рамка при перетаскивании пресета
   на группу (для добавления в группу)
 
@@ -115,7 +115,8 @@ WPF-оригинал имеет полнофункциональное упра�
   Ctrl+click выбор пресетов, selection badges (✓), group toolbar (с color
   swatches, полем имени, кнопками Create/Cancel) — портированы.
   Контекстное меню "Create Group" на фоне галереи — портировано.
-  Group drag, group attach indicator — не портированы.
+  Group drag-and-drop (перетаскивание групп для reordering) — портирован.
+  Group attach indicator — не портирован.
 
 ### 2. UI ячеек пресетов — полностью
 

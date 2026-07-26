@@ -29,6 +29,7 @@ public partial class MainWindow : Window
 	private const string ThemeIconLight = "☀";
 	private const string MixedBadgeText = "🧩";
 	private const string PresetDragFormat = "application/x-cursor-palette-preset";
+	private const string GroupDragFormat = "application/x-cursor-palette-group";
 
 	private const string LocApplySize = "S.ApplySize";
 	private const string LocUndo = "S.Undo";
@@ -102,6 +103,7 @@ public partial class MainWindow : Window
 	private DispatcherTimer? _loadingSpinnerTimer;
 	private Point? _presetDragStartPoint;
 	private string? _draggedPresetId;
+	private string? _draggedGroupId;
 	private BoardItem? _draggedBoardItem;
 	private readonly HashSet<string> _selectedPresetIds = new();
 	private string? _pendingGroupColorKey;
@@ -488,7 +490,15 @@ public partial class MainWindow : Window
 
 		if (item.IsGroup && item.Group != null)
 		{
-			_viewModel.ToggleGroupCollapse(item.Group.Id);
+			if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+			{
+				_viewModel.ToggleGroupCollapse(item.Group.Id);
+				return;
+			}
+
+			_presetDragStartPoint = e.GetPosition(control);
+			_draggedGroupId = item.Group.Id;
+			_draggedBoardItem = item;
 			return;
 		}
 
@@ -522,7 +532,7 @@ public partial class MainWindow : Window
 
 	public async void OnPresetPointerMoved(object? sender, PointerEventArgs e)
 	{
-		if (_presetDragStartPoint is not { } start || _draggedPresetId == null)
+		if (_presetDragStartPoint is not { } start)
 			return;
 
 		if (sender is not Control control)
@@ -532,16 +542,35 @@ public partial class MainWindow : Window
 		if (Math.Abs(current.X - start.X) < 4 && Math.Abs(current.Y - start.Y) < 4)
 			return;
 
+		if (_draggedGroupId != null)
+		{
+			var groupId = _draggedGroupId;
+			var draggedItem = _draggedBoardItem;
+			_presetDragStartPoint = null;
+			_draggedGroupId = null;
+
+			var data = new DataObject();
+			data.Set(GroupDragFormat, groupId);
+
+			BeginDragGhost(draggedItem);
+			await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+			EndDragGhost();
+			return;
+		}
+
+		if (_draggedPresetId == null)
+			return;
+
 		var presetId = _draggedPresetId;
-		var draggedItem = _draggedBoardItem;
+		var draggedItem2 = _draggedBoardItem;
 		_presetDragStartPoint = null;
 		_draggedPresetId = null;
 
-		var data = new DataObject();
-		data.Set(PresetDragFormat, presetId);
+		var data2 = new DataObject();
+		data2.Set(PresetDragFormat, presetId);
 
-		BeginDragGhost(draggedItem);
-		await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+		BeginDragGhost(draggedItem2);
+		await DragDrop.DoDragDrop(e, data2, DragDropEffects.Move);
 		EndDragGhost();
 	}
 
@@ -555,6 +584,13 @@ public partial class MainWindow : Window
 
 		if (sender is not Control control || control.DataContext is not BoardItem item)
 			return;
+
+		if (item.IsGroup && item.Group != null)
+		{
+			_draggedGroupId = null;
+			_viewModel.ToggleGroupCollapse(item.Group.Id);
+			return;
+		}
 
 		if (item.IsPreset && item.Preset != null)
 		{
@@ -579,7 +615,7 @@ public partial class MainWindow : Window
 
 	public void OnPresetDragOver(object? sender, DragEventArgs e)
 	{
-		if (e.Data.Contains(PresetDragFormat))
+		if (e.Data.Contains(PresetDragFormat) || e.Data.Contains(GroupDragFormat))
 		{
 			e.DragEffects = DragDropEffects.Move;
 			UpdateDragGhostPosition(e.GetPosition(this));
@@ -591,10 +627,24 @@ public partial class MainWindow : Window
 
 	public void OnPresetDrop(object? sender, DragEventArgs e)
 	{
-		if (!e.Data.Contains(PresetDragFormat))
+		if (sender is not Control control || control.DataContext is not BoardItem item)
 			return;
 
-		if (sender is not Control control || control.DataContext is not BoardItem item)
+		if (e.Data.Contains(GroupDragFormat))
+		{
+			var draggedGroupId = (string?)e.Data.Get(GroupDragFormat);
+			if (draggedGroupId == null)
+				return;
+
+			var targetId = item.IsPreset ? item.Preset?.Id : item.IsGroup ? item.Group?.Id : null;
+			if (targetId == null || targetId == draggedGroupId)
+				return;
+
+			_viewModel.ReorderPresetTo(draggedGroupId, targetId);
+			return;
+		}
+
+		if (!e.Data.Contains(PresetDragFormat))
 			return;
 
 		if (!item.IsPreset || item.Preset == null)
@@ -639,6 +689,7 @@ public partial class MainWindow : Window
 			insertionLine.IsVisible = false;
 
 		_draggedBoardItem = null;
+		_draggedGroupId = null;
 	}
 
 	private void UpdateDragGhostPosition(Point positionInWindow)
@@ -672,7 +723,7 @@ public partial class MainWindow : Window
 			return;
 		}
 
-		var draggedId = _draggedBoardItem?.Preset?.Id;
+		var draggedId = _draggedBoardItem?.Preset?.Id ?? _draggedBoardItem?.Group?.Id;
 		var bestIndex = -1;
 		var bestX = 0.0;
 		var bestTop = 0.0;
@@ -717,7 +768,7 @@ public partial class MainWindow : Window
 		}
 
 		var draggedIndex = draggedId != null
-			? items.ToList().FindIndex(b => b.Preset?.Id == draggedId)
+			? items.ToList().FindIndex(b => b.Preset?.Id == draggedId || b.Group?.Id == draggedId)
 			: -1;
 
 		if (draggedIndex >= 0 && (bestIndex == draggedIndex || bestIndex == draggedIndex + 1))
