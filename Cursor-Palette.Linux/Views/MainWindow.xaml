@@ -494,5 +494,21 @@
 				<TranslateTransform />
 			</Border.RenderTransform>
 		</Border>
+
+		<!-- Group attach indicator (shown when dragging preset onto a group) -->
+		<Border x:Name="GroupAttachIndicator"
+				Grid.RowSpan="5"
+				IsHitTestVisible="False"
+				IsVisible="False"
+				ZIndex="955"
+				BorderThickness="3"
+				BorderBrush="{DynamicResource SystemAccentColor}"
+				CornerRadius="12"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top">
+			<Border.RenderTransform>
+				<TranslateTransform />
+			</Border.RenderTransform>
+		</Border>
 	</Grid>
 </Window>

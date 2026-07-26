@@ -549,6 +549,35 @@ public sealed class MainWindowViewModel : ViewModelBase
 		ReloadGallery();
 	}
 
+	public void AttachPresetToGroup(string presetId, string groupId)
+	{
+		var groups = GroupStore.LoadAll();
+		var group = groups.FirstOrDefault(g => g.Id == groupId);
+		if (group == null)
+			return;
+
+		var oldGroup = groups.FirstOrDefault(g => g.MemberPresetIds.Contains(presetId));
+		if (oldGroup != null && oldGroup.Id != groupId)
+			GroupStore.RemoveMember(oldGroup.Id, presetId);
+
+		GroupStore.AddMember(groupId, presetId);
+
+		var boardOrderIds = BoardOrderStore.Load();
+		var groupIndex = boardOrderIds.IndexOf(groupId);
+		if (groupIndex >= 0)
+		{
+			var presetIndex = boardOrderIds.IndexOf(presetId);
+			if (presetIndex >= 0)
+				boardOrderIds.RemoveAt(presetIndex);
+
+			groupIndex = boardOrderIds.IndexOf(groupId);
+			boardOrderIds.Insert(groupIndex + 1, presetId);
+			BoardOrderStore.Save(boardOrderIds);
+		}
+
+		ReloadGallery();
+	}
+
 	public void ReorderPresetTo(string draggedId, string targetId)
 	{
 		if (draggedId == targetId)

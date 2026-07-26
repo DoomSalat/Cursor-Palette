@@ -104,6 +104,7 @@ public partial class MainWindow : Window
 	private Point? _presetDragStartPoint;
 	private string? _draggedPresetId;
 	private string? _draggedGroupId;
+	private string? _pendingGroupAttachId;
 	private BoardItem? _draggedBoardItem;
 	private readonly HashSet<string> _selectedPresetIds = new();
 	private string? _pendingGroupColorKey;
@@ -647,14 +648,22 @@ public partial class MainWindow : Window
 		if (!e.Data.Contains(PresetDragFormat))
 			return;
 
-		if (!item.IsPreset || item.Preset == null)
-			return;
+		if (item.IsPreset || item.IsGroup)
+		{
+			var draggedId = (string?)e.Data.Get(PresetDragFormat);
+			if (draggedId == null)
+				return;
 
-		var draggedId = (string?)e.Data.Get(PresetDragFormat);
-		if (draggedId == null)
-			return;
+			if (_pendingGroupAttachId is { } groupId)
+			{
+				_viewModel.AttachPresetToGroup(draggedId, groupId);
+				_pendingGroupAttachId = null;
+				return;
+			}
 
-		_viewModel.ReorderPresetTo(draggedId, item.Preset.Id);
+			if (item.IsPreset && item.Preset != null)
+				_viewModel.ReorderPresetTo(draggedId, item.Preset.Id);
+		}
 	}
 
 	private void BeginDragGhost(BoardItem? item)
@@ -681,6 +690,7 @@ public partial class MainWindow : Window
 	{
 		var ghost = this.FindControl<Border>("DragGhost");
 		var insertionLine = this.FindControl<Border>("ReorderInsertionLine");
+		var groupAttachIndicator = this.FindControl<Border>("GroupAttachIndicator");
 
 		if (ghost != null)
 			ghost.IsVisible = false;
@@ -688,8 +698,12 @@ public partial class MainWindow : Window
 		if (insertionLine != null)
 			insertionLine.IsVisible = false;
 
+		if (groupAttachIndicator != null)
+			groupAttachIndicator.IsVisible = false;
+
 		_draggedBoardItem = null;
 		_draggedGroupId = null;
+		_pendingGroupAttachId = null;
 	}
 
 	private void UpdateDragGhostPosition(Point positionInWindow)
@@ -709,6 +723,7 @@ public partial class MainWindow : Window
 	private void UpdateReorderIndicator(Point positionInWindow)
 	{
 		var insertionLine = this.FindControl<Border>("ReorderInsertionLine");
+		var groupAttachIndicator = this.FindControl<Border>("GroupAttachIndicator");
 		var gallery = this.FindControl<ItemsControl>("Gallery");
 
 		if (insertionLine == null || gallery == null)
@@ -720,8 +735,28 @@ public partial class MainWindow : Window
 		if (items.Count == 0)
 		{
 			insertionLine.IsVisible = false;
+			if (groupAttachIndicator != null)
+				groupAttachIndicator.IsVisible = false;
+			_pendingGroupAttachId = null;
 			return;
 		}
+
+		var isPresetDrag = _draggedBoardItem?.IsPreset == true;
+
+		if (isPresetDrag && groupAttachIndicator != null)
+		{
+			var groupHover = FindGroupHover(items, gallery, positionInGallery);
+			if (groupHover != null)
+			{
+				SetGroupAttachIndicator(groupAttachIndicator, groupHover, gallery, positionInGallery);
+				insertionLine.IsVisible = false;
+				return;
+			}
+		}
+
+		if (groupAttachIndicator != null)
+			groupAttachIndicator.IsVisible = false;
+		_pendingGroupAttachId = null;
 
 		var draggedId = _draggedBoardItem?.Preset?.Id ?? _draggedBoardItem?.Group?.Id;
 		var bestIndex = -1;
@@ -786,6 +821,62 @@ public partial class MainWindow : Window
 		}
 		insertionLine.Height = bestHeight;
 		insertionLine.IsVisible = true;
+	}
+
+	private const double GroupAttachZoneMargin = 0.2;
+
+	private BoardItem? FindGroupHover(IReadOnlyList<BoardItem> items, ItemsControl gallery, Point positionInGallery)
+	{
+		for (var i = 0; i < items.Count; i++)
+		{
+			if (!items[i].IsGroup || items[i].Group == null)
+				continue;
+
+			var container = gallery.ContainerFromIndex(i);
+			if (container is not Control control)
+				continue;
+
+			var bounds = control.Bounds;
+			if (bounds.Width == 0 || bounds.Height == 0)
+				continue;
+
+			var posInGallery = control.TranslatePoint(new Point(0, 0), gallery)!.Value;
+			var rect = new Rect(posInGallery.X, posInGallery.Y, bounds.Width, bounds.Height);
+
+			var marginX = rect.Width * GroupAttachZoneMargin;
+			var marginY = rect.Height * GroupAttachZoneMargin;
+			var zone = new Rect(rect.X + marginX, rect.Y + marginY,
+				Math.Max(0, rect.Width - 2 * marginX), Math.Max(0, rect.Height - 2 * marginY));
+
+			if (zone.Contains(positionInGallery))
+				return items[i];
+		}
+
+		return null;
+	}
+
+	private void SetGroupAttachIndicator(Border indicator, BoardItem groupItem, ItemsControl gallery, Point positionInGallery)
+	{
+		var container = gallery.ContainerFromIndex(_viewModel.Board.IndexOf(groupItem));
+		if (container is not Control control)
+			return;
+
+		var bounds = control.Bounds;
+		var posInGallery = control.TranslatePoint(new Point(0, 0), gallery)!.Value;
+		var galleryOffset = gallery.TranslatePoint(new Point(0, 0), this)!.Value;
+
+		_pendingGroupAttachId = groupItem.Group!.Id;
+
+		var transform = indicator.RenderTransform as TranslateTransform;
+		if (transform != null)
+		{
+			transform.X = posInGallery.X + galleryOffset.X - 4;
+			transform.Y = posInGallery.Y + galleryOffset.Y - 4;
+		}
+
+		indicator.Width = bounds.Width + 8;
+		indicator.Height = bounds.Height + 8;
+		indicator.IsVisible = true;
 	}
 
 	private async void ApplyDefault()
