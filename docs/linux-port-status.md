@@ -57,6 +57,11 @@
   WPF-оригинала
 - **Масштаб курсора (scaling)** — checkbox в тулбаре и в редакторе пресета,
   сохраняется в пресете, применяется при выборе
+- **ScaleMode (NearestNeighbor/AreaWeighted)** — иконка-переключатель в тулбаре
+  и в редакторе пресета, 📐 ↔ 📏, сохраняется в пресете и AppState,
+  передаётся в CursorScalerService, локализована (6 языков)
+- **Paletted cursor support** — `TryReadPalettedFromBytes` в Core для 8/4/24-bit
+  cursor форматов, фикс артефактов чёрного контура
 - **Mixed badge (🧩)** — индикатор для пресетов со смешанными ролями (RoleRefs).
   `BoardItem.IsMixed` вычисляется и отображается в XAML
 - **Scaling icon (📐)** — индикатор на ячейке пресета, если scaling включён
@@ -100,6 +105,54 @@ sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-dejavu
 Пресеты хранятся в платформо-зависимых путях (`%APPDATA%` vs `~/.config`),
 ручной перенос невозможен. Нужен механизм синхронизации или импорт/экспорт
 настроек.
+
+## Новые фичи WPF (коммиты 5c34040, 995c853) — портировано
+
+### A. Fix: non-32-bit cursor dimensions + paletted transparency (5c34040) — ✅ готово
+
+**Коммит:** `5c34040` — "Fix: support non-32-bit cursor dimensions and paletted transparency"
+- Замена `LoadCursorFromFile` на `LoadImage` (без `LR_DEFAULTSIZE`) в WPF-версиях
+  `CursorCanvasService`, `CursorPreviewService`, `AniCursorReader` — курсоры грузятся
+  в реальных размерах вместо принудительного 32×32
+- Добавлен `TryReadPalettedFromBytes` в `CursorCanvasService` — парсинг 8-bit, 4-bit,
+  24-bit cursor форматов с палитрой и AND-mask прозрачностью. Фикс артефактов
+  чёрного контура на палеттированных .ani/.cur
+
+**Статус Linux:** ✅ портировано. Core `CursorCanvasService.TryReadPalettedFromBytes`
+  добавлен, `TryReadFromBytes` делегирует в него для non-32-bit cursors. Core
+  `AniCursorReader` уже работает с байтами напрямую — изменений не потребовалось.
+
+### B. Selectable scaling modes — NearestNeighbor / AreaWeighted (995c853) — ✅ готово
+
+**Коммит:** `995c853` — "Add selectable scaling modes (NearestNeighbor/AreaWeighted)"
+- `ScaleMode` enum (`NearestNeighbor = 0`, `AreaWeighted = 1`) в `Preset.cs`
+- `ScaleMode` property в `Preset` и `PresetDraft` (default `AreaWeighted`)
+- `ScaleMode` в `PresetPackage.cs`: `PackageEntry`, `ArchiveManifestPreset`, `SinglePresetMarker`
+- `CursorScalerService`: параметр `ScaleMode` во всех методах, новый алгоритм
+  `ScaleBgraNearestNeighbor`, cache keys включают mode suffix (`-nn` / `-aw`), version → v4
+- `AppState`: `ScaleMode` в Settings, `GetScaleMode()` / `SetScaleMode()`
+- `PresetStore`: `ScaleMode` в `Save`, новый метод `UpdateScaleMode`
+- `PresetPackageService`: `ScaleMode` во всех путях экспорта/импорта, параметр
+  в `DownloadPresetAsFolder`
+- `AppInfo`: версия → 2.3.1
+- **UI MainWindow:** кликабельная иконка-переключатель режима масштабирования (Border 28×28
+  с контуром, отдельная от CheckBox), swap иконки (📐 ↔ 📏), обновление при применении
+  пресета/размера/по умолчанию
+- **UI PresetEditor:** кликабельная иконка-переключатель, отдельная от CheckBox,
+  передача `ScaleMode` в `PresetDraft`
+- **Локализация:** `S.ScaleCursors`, `S.ScaleCursors.Tooltip`, `S.Menu.ScaleMode.Nearest`
+  и `S.Menu.ScaleMode.Smooth` (все 6 языков)
+
+**Статус Linux:** ✅ портировано полностью:
+  - Core: `ScaleMode` enum, property во всех моделях, `CursorScalerService`, `AppState`,
+    `PresetStore`, `PresetPackageService`, `AppInfo` 2.3.1
+  - Linux: `MainWindowViewModel` — `_activeScaleMode`, `GetActiveScaleMode()`,
+    `ToggleScaleMode()`, передача `ScaleMode` в `ApplyPresetAsync`/`ApplyDefaultAsync`/
+    `UndoAsync`/`ApplySizeAsync`; `BoardItem.ScaleMode`
+  - Linux: `MainWindow.xaml/cs` — иконка-переключатель `ScaleModeButton` с `ScaleModeIcon`,
+    handler `OnScaleModeIconClick`, `UpdateScaleIcon`, синхронизация при применении
+  - Linux: `PresetEditorWindow.cs` — `_scaleMode`, иконка-переключатель, передача в draft
+  - Linux: локализация — ключи добавлены во все 6 JSON-файлов
 
 ## Не портировано (TODO)
 

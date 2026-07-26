@@ -24,6 +24,7 @@ public sealed class BoardItem
 	public string ContextHint { get; init; } = "";
 	public int BaseSize { get; init; }
 	public bool UseScaling { get; init; }
+	public ScaleMode ScaleMode { get; init; } = ScaleMode.AreaWeighted;
 	public bool IsActive { get; init; }
 	public bool IsSelected { get; init; }
 	public bool IsMixed => Preset?.RoleRefs.Count > 0;
@@ -55,6 +56,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 	private string _footerText = EmptyValue;
 	private Dictionary<string, string>? _activeSourceValues;
 	private bool _activeUseScaling;
+	private ScaleMode _activeScaleMode = ScaleMode.AreaWeighted;
 	private HashSet<string>? _selectedPresetIds;
 
 	public ObservableCollection<BoardItem> Board { get; } = new();
@@ -201,6 +203,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 			RoleCount = preset.Roles.Count + preset.RoleRefs.Count,
 			BaseSize = preset.BaseSize,
 			UseScaling = preset.UseScaling,
+			ScaleMode = preset.ScaleMode,
 			IsActive = isActive,
 			IsSelected = _selectedPresetIds?.Contains(preset.Id) ?? false,
 			GroupColorHex = group != null ? GroupColors.ResolveHex(group.ColorKey) : null,
@@ -267,7 +270,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 			{
 				cursorService.SaveSnapshotToDisk(cursorService.TakeSnapshot());
 				var scaledValues = useScaling
-					? CursorScalerService.ScaleValues(values, preset.BaseSize)
+					? CursorScalerService.ScaleValues(values, preset.BaseSize, preset.ScaleMode)
 					: values;
 				cursorService.ApplyValues(scaledValues);
 				cursorService.SetBaseSize(preset.BaseSize);
@@ -275,6 +278,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 			_activeSourceValues = values;
 			_activeUseScaling = useScaling;
+			_activeScaleMode = preset.ScaleMode;
 
 			_baselineSizePx = preset.BaseSize;
 			_activePresetId = preset.Id;
@@ -298,13 +302,14 @@ public sealed class MainWindowViewModel : ViewModelBase
 			var cursorService = CursorServiceProvider.Current;
 			var defaultSize = AppState.GetDefaultBaseSize();
 			var defaultUseScaling = AppState.GetScaleCursorsEnabled();
+			var defaultScaleMode = AppState.GetScaleMode();
 			var defaultValues = cursorService.GetDefaultValues();
 
 			await Task.Run(() =>
 			{
 				cursorService.SaveSnapshotToDisk(cursorService.TakeSnapshot());
 				var scaledValues = defaultUseScaling
-					? CursorScalerService.ScaleValues(defaultValues, defaultSize)
+					? CursorScalerService.ScaleValues(defaultValues, defaultSize, defaultScaleMode)
 					: defaultValues;
 				if (scaledValues.Count > 0)
 					cursorService.ApplyValues(scaledValues);
@@ -315,6 +320,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 			_activeSourceValues = defaultValues;
 			_activeUseScaling = defaultUseScaling;
+			_activeScaleMode = defaultScaleMode;
 
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
@@ -460,28 +466,32 @@ public sealed class MainWindowViewModel : ViewModelBase
 		try
 		{
 			var undoUseScaling = AppState.GetScaleCursorsEnabled();
+			var undoScaleMode = AppState.GetScaleMode();
+
+			_activeSourceValues = new Dictionary<string, string>(snapshot.Values);
+			_activePresetId = FindPresetIdByValues(snapshot.Values);
+
+			var undoPreset = _activePresetId != null
+				? PresetStore.LoadAll().FirstOrDefault(candidate => candidate.Id == _activePresetId)
+				: null;
+			var undoScaleModeToUse = undoPreset?.ScaleMode ?? undoScaleMode;
 
 			await Task.Run(() =>
 			{
 				cursorService.SaveSnapshotToDisk(cursorService.TakeSnapshot());
 				var scaledValues = undoUseScaling
-					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize)
+					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize, undoScaleModeToUse)
 					: snapshot.Values;
 				cursorService.ApplyValues(scaledValues);
 				cursorService.SetBaseSize(snapshot.BaseSize);
 			});
 
-			_activeSourceValues = new Dictionary<string, string>(snapshot.Values);
-
-			_activePresetId = FindPresetIdByValues(snapshot.Values);
 			AppState.SetActivePresetId(_activePresetId);
 			_baselineSizePx = snapshot.BaseSize;
 
-			var undoPreset = _activePresetId != null
-				? PresetStore.LoadAll().FirstOrDefault(candidate => candidate.Id == _activePresetId)
-				: null;
 			var undoEffectiveUseScaling = undoPreset != null ? undoUseScaling && undoPreset.UseScaling : undoUseScaling;
 			_activeUseScaling = undoEffectiveUseScaling;
+			_activeScaleMode = undoPreset?.ScaleMode ?? undoScaleMode;
 
 			ReloadGallery();
 		}
@@ -757,7 +767,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 		ReloadGallery();
 	}
 
-	public async Task ApplySizeAsync(int sizeInPixels, bool useScaling)
+	public async Task ApplySizeAsync(int sizeInPixels, bool useScaling, ScaleMode scaleMode)
 	{
 		var cursorService = CursorServiceProvider.Current;
 
@@ -768,7 +778,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 				if (_activeSourceValues != null)
 				{
 					var scaledValues = useScaling
-						? CursorScalerService.ScaleValues(_activeSourceValues, sizeInPixels)
+						? CursorScalerService.ScaleValues(_activeSourceValues, sizeInPixels, scaleMode)
 						: _activeSourceValues;
 					cursorService.ApplyValues(scaledValues);
 				}
@@ -777,6 +787,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 			_baselineSizePx = sizeInPixels;
 			_activeUseScaling = useScaling;
+			_activeScaleMode = scaleMode;
 			RaisePropertyChanged(nameof(BaselineSizePx));
 		}
 		catch
@@ -794,6 +805,37 @@ public sealed class MainWindowViewModel : ViewModelBase
 		}
 
 		return AppState.GetScaleCursorsEnabled();
+	}
+
+	public ScaleMode GetActiveScaleMode()
+	{
+		if (_activePresetId != null)
+		{
+			var preset = PresetStore.LoadAll().FirstOrDefault(p => p.Id == _activePresetId);
+			return preset?.ScaleMode ?? AppState.GetScaleMode();
+		}
+
+		return AppState.GetScaleMode();
+	}
+
+	public void ToggleScaleMode()
+	{
+		_activeScaleMode = _activeScaleMode == ScaleMode.NearestNeighbor
+			? ScaleMode.AreaWeighted
+			: ScaleMode.NearestNeighbor;
+
+		if (_activePresetId != null)
+		{
+			PresetStore.UpdateScaleMode(_activePresetId, _activeScaleMode);
+
+			var preset = PresetStore.LoadAll().FirstOrDefault(p => p.Id == _activePresetId);
+			if (preset != null)
+				preset.ScaleMode = _activeScaleMode;
+		}
+		else
+		{
+			AppState.SetScaleMode(_activeScaleMode);
+		}
 	}
 
 	private static readonly Random RandomPicker = new();

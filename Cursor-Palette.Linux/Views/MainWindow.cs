@@ -113,6 +113,10 @@ public partial class MainWindow : Window
 	private const double GhostPreviewSize = 40;
 	private const double CellMarginForIndicator = 6;
 
+	private ScaleMode _activeScaleMode = ScaleMode.AreaWeighted;
+	private ScaleMode _baselineScaleMode = ScaleMode.AreaWeighted;
+	private TextBlock? _scaleModeIcon;
+
 	public MainWindow()
 	{
 		InitializeComponent();
@@ -130,6 +134,7 @@ public partial class MainWindow : Window
 		_zoomText = this.FindControl<TextBlock>("ZoomText");
 		_cellScaleSlider = this.FindControl<Slider>("CellScaleSlider");
 		_cellScaleValueText = this.FindControl<TextBlock>("CellScaleValueText");
+		_scaleModeIcon = this.FindControl<TextBlock>("ScaleModeIcon");
 
 		if (_sizeSlider != null)
 		{
@@ -142,6 +147,10 @@ public partial class MainWindow : Window
 
 		if (_scaleCursorsCheckBox != null)
 			_scaleCursorsCheckBox.IsChecked = AppState.GetScaleCursorsEnabled();
+
+		_activeScaleMode = _viewModel.GetActiveScaleMode();
+		_baselineScaleMode = _activeScaleMode;
+		UpdateScaleIcon(_activeScaleMode);
 
 		UpdateSizeText(_viewModel.BaselineSizePx);
 		ApplyLocalization();
@@ -447,8 +456,9 @@ public partial class MainWindow : Window
 		{
 			var useScaling = _scaleCursorsCheckBox?.IsChecked == true;
 
-			await _viewModel.ApplySizeAsync(sizePx, useScaling);
+			await _viewModel.ApplySizeAsync(sizePx, useScaling, _activeScaleMode);
 
+			_baselineScaleMode = _activeScaleMode;
 			ShowToast(Loc.Get(LocToastSizeApplied));
 		}
 		finally
@@ -462,6 +472,19 @@ public partial class MainWindow : Window
 		var enabled = _scaleCursorsCheckBox?.IsChecked == true;
 
 		AppState.SetScaleCursorsEnabled(enabled);
+	}
+
+	private void OnScaleModeIconClick(object? sender, PointerPressedEventArgs e)
+	{
+		_viewModel.ToggleScaleMode();
+		_activeScaleMode = _viewModel.GetActiveScaleMode();
+		UpdateScaleIcon(_activeScaleMode);
+	}
+
+	private void UpdateScaleIcon(ScaleMode scaleMode)
+	{
+		if (_scaleModeIcon != null)
+			_scaleModeIcon.Text = scaleMode == ScaleMode.NearestNeighbor ? "📐" : "�";
 	}
 
 	public void SetScaleCursorsCheckbox(bool value)
@@ -606,6 +629,9 @@ public partial class MainWindow : Window
 		try
 		{
 			await _viewModel.ApplyPresetAsync(preset);
+			_activeScaleMode = _viewModel.GetActiveScaleMode();
+			_baselineScaleMode = _activeScaleMode;
+			UpdateScaleIcon(_activeScaleMode);
 			ShowToast(Loc.Get(LocToastSaved));
 		}
 		finally
@@ -882,6 +908,10 @@ public partial class MainWindow : Window
 	private async void ApplyDefault()
 	{
 		await _viewModel.ApplyDefaultAsync();
+
+		_activeScaleMode = _viewModel.GetActiveScaleMode();
+		_baselineScaleMode = _activeScaleMode;
+		UpdateScaleIcon(_activeScaleMode);
 	}
 
 	private async Task OpenFilePickerForCursors()

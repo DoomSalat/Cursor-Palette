@@ -13,7 +13,8 @@
 
 ## 🎨 Grid size — changes gallery cell size.
 📏 Cursor size — slider changes system cursor size; applied immediately.
-{img:ExpandIcon32} on a cell — scaling is enabled; cursors are scaled to the preset size with sharp nearest-neighbor pixels instead of blurry stretching.
+{img:ExpandIcon32} on a cell — scaling is enabled; cursors are scaled to the preset size.
+{img:ExpandIcon32} {img:StairIcon24} Scale mode button — click to toggle between Smooth (area-weighted, {img:ExpandIcon32}) and Nearest (pixel-perfect, {img:StairIcon24}) scaling. The button sits next to the scaling toggle and has a fixed outline so it doesn't shift when the icon changes. The "Apply" button highlights when the scale mode changes.
 ↩️ "Undo" — revert to previous cursor set.
 🌙/☀ — toggle dark/light theme.
 🌐 — change interface language.

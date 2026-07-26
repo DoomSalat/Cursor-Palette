@@ -81,6 +81,22 @@
 							  Margin="8,0,0,0"
 							  VerticalAlignment="Center"
 							  Click="OnScaleCursorsClick" />
+					<Border x:Name="ScaleModeButton"
+							Width="28" Height="28"
+							CornerRadius="6"
+							Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+							BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
+							BorderThickness="1"
+							Margin="4,0,0,0"
+							Cursor="Hand"
+							PointerPressed="OnScaleModeIconClick"
+							ToolTip.Tip="{DynamicResource S.ScaleCursors.Tooltip}">
+						<TextBlock x:Name="ScaleModeIcon"
+								   Text="📐"
+								   FontSize="14"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center" />
+					</Border>
 				</StackPanel>
 
 				<!-- Cell scale group -->

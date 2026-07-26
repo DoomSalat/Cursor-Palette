@@ -13,7 +13,8 @@
 
 ## 🎨 Tamaño de cuadrícula — cambia el tamaño de las celdas.
 📏 Tamaño del cursor — el deslizador cambia el tamaño del sistema; se aplica inmediatamente.
-{img:ExpandIcon32} en una celda — escalado activado; los cursores se escalan al tamaño del preajuste con píxeles nítidos de vecino más cercano en lugar de estiramiento borroso.
+{img:ExpandIcon32} en una celda — escalado activado; los cursores se escalan al tamaño del preajuste.
+{img:ExpandIcon32} {img:StairIcon24} Botón de modo de escalado — clic para alternar entre Suave (area-weighted, {img:ExpandIcon32}) y Vecino más cercano (pixel-perfect, {img:StairIcon24}). El botón está junto al interruptor de escalado, con contorno fijo para que no salte al cambiar el icono. El botón "Aplicar" se resalta al cambiar el modo.
 ↩️ "Atrás" — revertir al conjunto anterior.
 🌙/☀ — cambiar tema oscuro/claro.
 🌐 — cambiar idioma.

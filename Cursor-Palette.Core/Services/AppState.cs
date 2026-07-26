@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CursorPalette.Models;
 
 namespace CursorPalette.Services;
 
@@ -81,6 +82,7 @@ public static class AppState
 		public bool BgRefBilinear { get; set; }
 		public double PaintEditorToolPanelWidth { get; set; } = PaintEditorToolPanelWidthDefault;
 		public bool ScaleCursorsEnabled { get; set; }
+		public int ScaleMode { get; set; } = 1;
 	}
 
 	public static string? GetActivePresetId()
@@ -391,6 +393,16 @@ public static class AppState
 	{
 		var settings = LoadSettings();
 		settings.ScaleCursorsEnabled = enabled;
+
+		SaveSettings(settings);
+	}
+
+	public static ScaleMode GetScaleMode() => (ScaleMode)LoadSettings().ScaleMode;
+
+	public static void SetScaleMode(ScaleMode mode)
+	{
+		var settings = LoadSettings();
+		settings.ScaleMode = (int)mode;
 
 		SaveSettings(settings);
 	}

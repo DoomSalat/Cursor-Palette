@@ -1,4 +1,5 @@
 using System.Text;
+using CursorPalette.Models;
 
 namespace CursorPalette.Services;
 
@@ -9,7 +10,7 @@ public static class CursorScalerService
 	private const int BytesPerPixel = 4;
 
 	public static Dictionary<string, string> ScaleValues(
-		IReadOnlyDictionary<string, string> values, int targetSize)
+		IReadOnlyDictionary<string, string> values, int targetSize, ScaleMode scaleMode = ScaleMode.AreaWeighted)
 	{
 		var result = new Dictionary<string, string>(values.Count);
 
@@ -21,14 +22,14 @@ public static class CursorScalerService
 				continue;
 			}
 
-			var scaledPath = ScaleToSize(path, targetSize);
+			var scaledPath = ScaleToSize(path, targetSize, scaleMode);
 			result[role] = scaledPath ?? path;
 		}
 
 		return result;
 	}
 
-	public static string? ScaleToSize(string sourcePath, int targetSize)
+	public static string? ScaleToSize(string sourcePath, int targetSize, ScaleMode scaleMode = ScaleMode.AreaWeighted)
 	{
 		if (!File.Exists(sourcePath))
 			return null;
@@ -37,13 +38,13 @@ public static class CursorScalerService
 
 		return ext switch
 		{
-			CurExtension => ScaleCurFile(sourcePath, targetSize),
-			AniExtension => ScaleAniFile(sourcePath, targetSize),
+			CurExtension => ScaleCurFile(sourcePath, targetSize, scaleMode),
+			AniExtension => ScaleAniFile(sourcePath, targetSize, scaleMode),
 			_ => sourcePath,
 		};
 	}
 
-	private static string? ScaleCurFile(string sourcePath, int targetSize)
+	private static string? ScaleCurFile(string sourcePath, int targetSize, ScaleMode scaleMode)
 	{
 		var image = CursorCanvasService.TryRead(sourcePath);
 		if (image == null)
@@ -52,15 +53,15 @@ public static class CursorScalerService
 		if (image.Width == targetSize && image.Height == targetSize)
 			return sourcePath;
 
-		var destPath = GetScaledPath(sourcePath, targetSize, CurExtension);
+		var destPath = GetScaledPath(sourcePath, targetSize, CurExtension, scaleMode);
 
-		var scaled = ScaleImage(image, targetSize, targetSize);
+		var scaled = ScaleImage(image, targetSize, targetSize, scaleMode);
 		CursorCanvasService.Write(destPath, scaled);
 
 		return destPath;
 	}
 
-	private static string? ScaleAniFile(string sourcePath, int targetSize)
+	private static string? ScaleAniFile(string sourcePath, int targetSize, ScaleMode scaleMode)
 	{
 		var frames = AniCursorReader.Read(sourcePath);
 		if (frames == null || frames.Frames.Count == 0)
@@ -72,7 +73,7 @@ public static class CursorScalerService
 		var bytes = File.ReadAllBytes(sourcePath);
 		var iconRanges = AniCursorReader.FindIconChunkRanges(bytes);
 
-		var destPath = GetScaledPath(sourcePath, targetSize, AniExtension);
+		var destPath = GetScaledPath(sourcePath, targetSize, AniExtension, scaleMode);
 
 		var scaledFrames = new List<CursorCanvasImage>(frames.StepFrameIndices.Count);
 		var delays = new List<int>(frames.StepFrameIndices.Count);
@@ -107,7 +108,7 @@ public static class CursorScalerService
 					continue;
 			}
 
-			var scaled = ScaleImage(image, targetSize, targetSize);
+			var scaled = ScaleImage(image, targetSize, targetSize, scaleMode);
 			scaledFrames.Add(scaled);
 			delays.Add((int)frames.StepDurations[step].TotalMilliseconds);
 		}
@@ -120,10 +121,11 @@ public static class CursorScalerService
 		return destPath;
 	}
 
-	private static CursorCanvasImage ScaleImage(CursorCanvasImage source, int targetWidth, int targetHeight)
+	private static CursorCanvasImage ScaleImage(CursorCanvasImage source, int targetWidth, int targetHeight, ScaleMode scaleMode)
 	{
-		var scaledBgra = ScaleBgraAreaWeighted(
-			source.Bgra, source.Width, source.Height, targetWidth, targetHeight);
+		var scaledBgra = scaleMode == ScaleMode.NearestNeighbor
+			? ScaleBgraNearestNeighbor(source.Bgra, source.Width, source.Height, targetWidth, targetHeight)
+			: ScaleBgraAreaWeighted(source.Bgra, source.Width, source.Height, targetWidth, targetHeight);
 
 		var scaledHotspotX = source.Width > 0
 			? Math.Clamp((int)Math.Round((double)source.HotspotX * targetWidth / source.Width), 0, targetWidth - 1)
@@ -133,6 +135,31 @@ public static class CursorScalerService
 			: 0;
 
 		return new CursorCanvasImage(targetWidth, targetHeight, scaledHotspotX, scaledHotspotY, scaledBgra);
+	}
+
+	private static byte[] ScaleBgraNearestNeighbor(
+		byte[] source, int srcWidth, int srcHeight, int dstWidth, int dstHeight)
+	{
+		var dest = new byte[dstWidth * dstHeight * BytesPerPixel];
+
+		for (var destY = 0; destY < dstHeight; destY++)
+		{
+			var sourceY = Math.Min(destY * srcHeight / dstHeight, srcHeight - 1);
+
+			for (var destX = 0; destX < dstWidth; destX++)
+			{
+				var sourceX = Math.Min(destX * srcWidth / dstWidth, srcWidth - 1);
+				var sourceIndex = (sourceY * srcWidth + sourceX) * BytesPerPixel;
+				var destIndex = (destY * dstWidth + destX) * BytesPerPixel;
+
+				dest[destIndex] = source[sourceIndex];
+				dest[destIndex + 1] = source[sourceIndex + 1];
+				dest[destIndex + 2] = source[sourceIndex + 2];
+				dest[destIndex + 3] = source[sourceIndex + 3];
+			}
+		}
+
+		return dest;
 	}
 
 	private static byte[] ScaleBgraAreaWeighted(
@@ -209,14 +236,15 @@ public static class CursorScalerService
 		return dest;
 	}
 
-	private const string ScaleAlgorithmVersion = "v3";
+	private const string ScaleAlgorithmVersion = "v4";
 
-	private static string GetScaledPath(string sourcePath, int targetSize, string extension)
+	private static string GetScaledPath(string sourcePath, int targetSize, string extension, ScaleMode scaleMode)
 	{
 		Directory.CreateDirectory(PathProvider.Current.ScaledCursorsDir);
 
+		var modeSuffix = scaleMode == ScaleMode.NearestNeighbor ? "-nn" : "-aw";
 		var hash = System.Security.Cryptography.SHA256.HashData(
-			Encoding.UTF8.GetBytes(ScaleAlgorithmVersion + sourcePath.ToLowerInvariant()));
+			Encoding.UTF8.GetBytes(ScaleAlgorithmVersion + modeSuffix + sourcePath.ToLowerInvariant()));
 
 		var hashStr = Convert.ToHexString(hash)[..8];
 		var fileName = $"{Path.GetFileNameWithoutExtension(sourcePath)}-{targetSize}-{hashStr}{extension}";
