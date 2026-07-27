@@ -72,6 +72,10 @@ public class PresetEditorWindow : Window
 	private const string LocEditorLockTooltip = "S.Editor.Lock.Tooltip";
 	private const string LocEditorUnlockTooltip = "S.Editor.Unlock.Tooltip";
 	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
+	private const string LocEditorAuthor = "S.Editor.Author";
+	private const string LocEditorAuthorTooltip = "S.Editor.Author.Tooltip";
+	private const string LocExportAsFullPackage = "S.Export.AsFullPackage";
+	private const string LocToastExportedFullPackage = "S.Toast.ExportedFullPackage";
 
 	private const string CursorFileFilterName = "Cursors";
 	private const string EmptyValue = "";
@@ -137,10 +141,15 @@ public class PresetEditorWindow : Window
 	private bool _useScaling;
 	private ScaleMode _scaleMode = ScaleMode.AreaWeighted;
 	private Panel _rootPanel = null!;
+	private string? _draftAuthor;
+
+	private readonly TextBox _nameBox;
+	private readonly TextBlock _authorDisplayText;
+	private readonly Panel _authorDisplayPanel;
+	private readonly TextBox _authorEditBox;
 
 	public PresetDraft? Result { get; private set; }
 
-	private readonly TextBox _nameBox;
 	private readonly Slider _sizeSlider;
 	private readonly TextBlock _sizeValueText;
 	private readonly ItemsControl _slotsControl;
@@ -161,6 +170,74 @@ public class PresetEditorWindow : Window
 				?? Loc.Get(LocDefaultPresetName),
 			MaxLength = NameMaxLength,
 			Watermark = Loc.Get(LocEditorPresetName),
+		};
+
+		_draftAuthor = existing?.Author;
+
+		_authorDisplayText = new TextBlock
+		{
+			Text = _draftAuthor ?? "",
+			Foreground = Brushes.Gray,
+			VerticalAlignment = VerticalAlignment.Center,
+		};
+
+		var authorEditButton = new Button
+		{
+			Content = "✏",
+			FontSize = 10,
+			Padding = new Avalonia.Thickness(2),
+			Margin = new Avalonia.Thickness(4, 0, 0, 0),
+			VerticalAlignment = VerticalAlignment.Center,
+			Background = Brushes.Transparent,
+			BorderThickness = new Avalonia.Thickness(0),
+			Cursor = new Avalonia.Input.Cursor(StandardCursorType.Hand),
+		};
+		ToolTip.SetTip(authorEditButton, Loc.Get(LocEditorAuthorTooltip));
+
+		_authorDisplayPanel = new StackPanel
+		{
+			Orientation = Orientation.Horizontal,
+		};
+		_authorDisplayPanel.Children.Add(_authorDisplayText);
+		_authorDisplayPanel.Children.Add(authorEditButton);
+
+		_authorEditBox = new TextBox
+		{
+			Text = _draftAuthor ?? "",
+			MaxLength = NameMaxLength,
+			MinWidth = 100,
+			IsVisible = false,
+			Watermark = Loc.Get(LocEditorAuthor),
+		};
+		ToolTip.SetTip(_authorEditBox, Loc.Get(LocEditorAuthorTooltip));
+
+		authorEditButton.Click += (_, _) =>
+		{
+			_authorEditBox.Text = _authorDisplayText.Text;
+			_authorDisplayPanel.IsVisible = false;
+			_authorEditBox.IsVisible = true;
+			_authorEditBox.Focus();
+		};
+
+		_authorEditBox.KeyDown += (_, e) =>
+		{
+			if (e.Key == Key.Enter)
+			{
+				CommitAuthorEdit();
+				e.Handled = true;
+			}
+			else if (e.Key == Key.Escape)
+			{
+				_authorEditBox.IsVisible = false;
+				_authorDisplayPanel.IsVisible = true;
+				e.Handled = true;
+			}
+		};
+
+		_authorEditBox.LostFocus += (_, _) =>
+		{
+			if (_authorEditBox.IsVisible)
+				CommitAuthorEdit();
 		};
 
 		_baseSize = existing?.BaseSize ?? AppState.GetDefaultBaseSize();
@@ -235,6 +312,25 @@ public class PresetEditorWindow : Window
 
 		downloadPresetButton.Click += OnDownloadPresetClick;
 		downloadMoreButton.Click += OnDownloadPresetMoreClick;
+
+		var authorBar = new Grid
+		{
+			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
+			Margin = new Avalonia.Thickness(DialogMargin, 0, DialogMargin, 0),
+		};
+		var authorLabel = new TextBlock
+		{
+			Text = Loc.Get(LocEditorAuthor) + ":",
+			Foreground = Brushes.Gray,
+			VerticalAlignment = VerticalAlignment.Center,
+			Margin = new Avalonia.Thickness(0, 0, 8, 0),
+		};
+		Grid.SetColumn(authorLabel, 0);
+		authorBar.Children.Add(authorLabel);
+		Grid.SetColumn(_authorDisplayPanel, 1);
+		authorBar.Children.Add(_authorDisplayPanel);
+		Grid.SetColumn(_authorEditBox, 1);
+		authorBar.Children.Add(_authorEditBox);
 
 		var bottomBar = new Grid
 		{
@@ -367,17 +463,20 @@ public class PresetEditorWindow : Window
 		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
+		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 		rootPanel.RowDefinitions.Add(new RowDefinition(1, GridUnitType.Star));
 		rootPanel.RowDefinitions.Add(new RowDefinition(0, GridUnitType.Auto));
 
 		Grid.SetRow(sizeBar, 0);
 		Grid.SetRow(slotHint, 1);
 		Grid.SetRow(dropZone, 2);
-		Grid.SetRow(scrollViewer, 3);
-		Grid.SetRow(bottomBar, 4);
+		Grid.SetRow(authorBar, 3);
+		Grid.SetRow(scrollViewer, 4);
+		Grid.SetRow(bottomBar, 5);
 		rootPanel.Children.Add(sizeBar);
 		rootPanel.Children.Add(slotHint);
 		rootPanel.Children.Add(dropZone);
+		rootPanel.Children.Add(authorBar);
 		rootPanel.Children.Add(scrollViewer);
 		rootPanel.Children.Add(bottomBar);
 
@@ -399,6 +498,16 @@ public class PresetEditorWindow : Window
 		AddHandler(DragDrop.DragLeaveEvent, OnPresetWindowDragLeave);
 		AddHandler(DragDrop.DropEvent, OnPresetWindowDrop);
 	}
+
+	private void CommitAuthorEdit()
+	{
+		_authorDisplayText.Text = _authorEditBox.Text;
+		_draftAuthor = string.IsNullOrWhiteSpace(_authorEditBox.Text) ? null : _authorEditBox.Text.Trim();
+		_authorEditBox.IsVisible = false;
+		_authorDisplayPanel.IsVisible = true;
+	}
+
+	private string? GetAuthor() => string.IsNullOrWhiteSpace(_authorDisplayText.Text) ? null : _authorDisplayText.Text.Trim();
 
 	private void OnPresetWindowDragEnter(object? sender, DragEventArgs e)
 	{
@@ -765,12 +874,29 @@ public class PresetEditorWindow : Window
 			if (seed == null)
 				return;
 
-			editor = new PaintEditorWindow(seed.Value.Frames, seed.Value.DelaysMs, _nameBox.Text, slot.Role.RegistryName);
+			var existingIconImages = ReadAniIconImages(resolvedPath);
+
+			editor = new PaintEditorWindow(seed.Value.Frames, seed.Value.DelaysMs, _nameBox.Text, slot.Role.RegistryName, existingIconImages);
 		}
 		else
 		{
-			var source = resolvedPath != null ? CursorCanvasService.TryRead(resolvedPath) : null;
-			editor = new PaintEditorWindow(source, _nameBox.Text, slot.Role.RegistryName);
+			CursorCanvasImage? image;
+			List<CursorCanvasImage>? existingIconImages = null;
+
+			if (resolvedPath != null)
+			{
+				image = CursorCanvasService.TryRead(resolvedPath);
+				if (image == null)
+					return;
+
+				existingIconImages = CursorCanvasService.TryReadAllImages(resolvedPath);
+			}
+			else
+			{
+				image = new CursorCanvasImage(32, 32, 0, 0, new byte[32 * 32 * 4]);
+			}
+
+			editor = new PaintEditorWindow(image, _nameBox.Text, slot.Role.RegistryName, existingIconImages);
 		}
 
 		editor.ShowDialog(this);
@@ -782,7 +908,9 @@ public class PresetEditorWindow : Window
 				var tempPath = Path.Combine(Path.GetTempPath(), $"{PositionTempFilePrefix}{Guid.NewGuid():N}{AniExtension}");
 				try
 				{
-					AniCursorWriter.Save(tempPath, resultFrames, editor.ResultFrameDelaysMs!);
+					AniCursorWriter.Save(tempPath, resultFrames, editor.ResultFrameDelaysMs!,
+						editor.ResultIconSizes, editor.ResultIconSizeCustomImages,
+						editor.ResultIconSizeScaleModeOverrides, editor.ResultIconSizesScaleMode);
 					CursorPreviewService.Invalidate(tempPath);
 					SetSlotSource(slot, tempPath);
 				}
@@ -800,7 +928,31 @@ public class PresetEditorWindow : Window
 
 				try
 				{
-					CursorCanvasService.Write(tempPath, editor.Result);
+					if (editor.ResultIconSizes is { Count: > 1 } iconSizes)
+					{
+						var overrides = editor.ResultIconSizeScaleModeOverrides;
+						var customImages = editor.ResultIconSizeCustomImages;
+
+						var images = iconSizes
+							.Select(size =>
+							{
+								if (customImages != null && customImages.TryGetValue(size, out var custom))
+									return custom;
+
+								return size == editor.Result.Width
+									? editor.Result
+									: CursorScalerService.ScaleImage(editor.Result, size, size,
+											overrides != null && overrides.TryGetValue(size, out var mode) ? mode : editor.ResultIconSizesScaleMode);
+							})
+							.ToList();
+
+						CursorCanvasService.WriteMultiSize(tempPath, images);
+					}
+					else
+					{
+						CursorCanvasService.Write(tempPath, editor.Result);
+					}
+
 					SetSlotSource(slot, tempPath);
 				}
 				catch (Exception ex)
@@ -833,6 +985,28 @@ public class PresetEditorWindow : Window
 		}
 
 		return (frames, delays);
+	}
+
+	private static List<CursorCanvasImage>? ReadAniIconImages(string path)
+	{
+		try
+		{
+			var bytes = File.ReadAllBytes(path);
+			var chunks = AniCursorReader.FindIconChunkRanges(bytes);
+
+			if (chunks.Count == 0)
+				return null;
+
+			var (offset, length) = chunks[0];
+			var frameBytes = new byte[length];
+			Array.Copy(bytes, offset, frameBytes, 0, length);
+
+			return CursorCanvasService.TryReadAllImagesFromBytes(frameBytes);
+		}
+		catch
+		{
+			return null;
+		}
 	}
 
 	private void PickExistingForSlot(Slot slot)
@@ -1095,7 +1269,7 @@ public class PresetEditorWindow : Window
 
 		try
 		{
-			var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, _useScaling, _scaleMode);
+			var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, _useScaling, _scaleMode, author: GetAuthor());
 			if (path == null)
 				return;
 
@@ -1116,6 +1290,10 @@ public class PresetEditorWindow : Window
 		{
 			PlacementTarget = sender as Control,
 		};
+
+		var fullPackageItem = new MenuItem { Header = Loc.Get(LocExportAsFullPackage) };
+		fullPackageItem.Click += (_, _) => ExportPresetFullPackage();
+		menu.Items.Add(fullPackageItem);
 
 		var xcursorItem = new MenuItem { Header = Loc.Get(LocExportAsXcursorTheme) };
 		xcursorItem.Click += (_, _) => ExportPresetForLinux(asXcursorTheme: true);
@@ -1138,6 +1316,44 @@ public class PresetEditorWindow : Window
 		{
 			var path = PresetPackageService.DownloadReadme();
 			ToastService.Show(_rootPanel, Loc.Format(LocToastReadmeDownloaded, Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ToastService.Show(_rootPanel, Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	private void ExportPresetFullPackage()
+	{
+		var invalid = Path.GetInvalidPathChars();
+		var presetName = string.Join("", (_nameBox.Text ?? "").Where(c => !invalid.Contains(c))).Trim();
+
+		if (string.IsNullOrWhiteSpace(presetName))
+			presetName = Loc.Get(LocDefaultPresetName);
+
+		var roleFiles = new Dictionary<string, string>();
+
+		foreach (var slot in _slots)
+		{
+			var resolvedPath = GetSlotResolvedPath(slot);
+			if (resolvedPath != null && File.Exists(resolvedPath))
+				roleFiles[slot.Role.RegistryName] = resolvedPath;
+		}
+
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.ExportFullPackageForFiles(presetName, roleFiles, _baseSize, _useScaling, _scaleMode, author: GetAuthor());
+
+			if (path == null)
+				return;
+
+			ToastService.Show(_rootPanel, Loc.Format(LocToastExportedFullPackage, Path.GetFileName(path)));
 
 			if (AppState.GetOpenFolderAfterDownload())
 				FileExplorerProvider.Current?.RevealFile(path);
@@ -1201,6 +1417,7 @@ public class PresetEditorWindow : Window
 		{
 			Id = _draftId,
 			Name = _nameBox.Text ?? EmptyValue,
+			Author = GetAuthor(),
 			BaseSize = _baseSize,
 			UseScaling = _useScaling,
 			ScaleMode = _scaleMode,

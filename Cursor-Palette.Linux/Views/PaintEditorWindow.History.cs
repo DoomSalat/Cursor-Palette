@@ -80,7 +80,9 @@ public partial class PaintEditorWindow
 
 	private void UpdateUndoRedoButtons()
 	{
-		_undoButton.IsEnabled = _undoStack.Count > 0;
-		_redoButton.IsEnabled = _redoStack.Count > 0;
+		var iconSizesPreviewActive = _currentTool == AppState.PaintEditorToolIconSizes && _hasIconSizesSnapshot;
+
+		_undoButton.IsEnabled = !iconSizesPreviewActive && _undoStack.Count > 0;
+		_redoButton.IsEnabled = !iconSizesPreviewActive && _redoStack.Count > 0;
 	}
 }

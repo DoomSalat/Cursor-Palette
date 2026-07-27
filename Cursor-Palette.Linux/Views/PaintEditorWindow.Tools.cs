@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -144,5 +146,141 @@ public partial class PaintEditorWindow
 		_offsetX = newOffsetX;
 		_offsetY = newOffsetY;
 		RenderAll();
+	}
+
+	private void BuildIconSizesToolPanel()
+	{
+		_iconSizesUnavailableHint = new TextBlock
+		{
+			FontSize = 12,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			TextWrapping = TextWrapping.Wrap,
+			TextAlignment = TextAlignment.Center,
+			IsVisible = false,
+		};
+
+		_iconSizesContentPanel = new StackPanel();
+
+		_iconSizesHintText = new TextBlock
+		{
+			FontSize = 11,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			TextWrapping = TextWrapping.Wrap,
+			TextAlignment = TextAlignment.Center,
+			Margin = new Thickness(0, 0, 0, 10),
+		};
+		_iconSizesContentPanel.Children.Add(_iconSizesHintText);
+
+		_iconSizesScaleModeResetButton = new Button
+		{
+			Content = "⟲",
+			Padding = new Thickness(6, 0, 6, 1),
+			Margin = new Thickness(6, 0, 0, 0),
+			IsVisible = false,
+		};
+		_iconSizesScaleModeResetButton.Click += OnIconSizesScaleModeResetClick;
+
+		_iconSizesScaleModeIcon = new Image
+		{
+			Width = 16,
+			Height = 16,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			VerticalAlignment = VerticalAlignment.Center,
+		};
+
+		_iconSizesScaleModeIconBorder = new Border
+		{
+			Background = new SolidColorBrush(Color.FromArgb(40, 128, 128, 128)),
+			BorderBrush = Brushes.Gray,
+			BorderThickness = new Thickness(1),
+			CornerRadius = new CornerRadius(4),
+			Padding = new Thickness(4),
+			HorizontalAlignment = HorizontalAlignment.Right,
+			Cursor = new Cursor(StandardCursorType.Hand),
+			Child = _iconSizesScaleModeIcon,
+		};
+		_iconSizesScaleModeIconBorder.PointerPressed += OnIconSizesScaleModeIconClick;
+
+		_iconSizesScaleModeLabel = new TextBlock
+		{
+			FontSize = 11,
+			VerticalAlignment = VerticalAlignment.Center,
+			TextWrapping = TextWrapping.Wrap,
+		};
+
+		var scaleModeBar = new DockPanel
+		{
+			Children =
+			{
+				_iconSizesScaleModeResetButton,
+				_iconSizesScaleModeIconBorder,
+				_iconSizesScaleModeLabel,
+			},
+		};
+		DockPanel.SetDock(_iconSizesScaleModeResetButton, Dock.Right);
+		DockPanel.SetDock(_iconSizesScaleModeIconBorder, Dock.Right);
+
+		var scaleModeBorder = new Border
+		{
+			BorderBrush = Brushes.Gray,
+			BorderThickness = new Thickness(1),
+			CornerRadius = new CornerRadius(4),
+			Padding = new Thickness(8, 6),
+			Margin = new Thickness(0, 0, 0, 10),
+			Child = scaleModeBar,
+		};
+		_iconSizesContentPanel.Children.Add(scaleModeBorder);
+
+		_iconSizesEditModeCheck = new ToggleButton
+		{
+			Margin = new Thickness(0, 0, 0, 10),
+		};
+		_iconSizesEditModeCheck.IsCheckedChanged += OnIconSizesEditModeChanged;
+		_iconSizesContentPanel.Children.Add(_iconSizesEditModeCheck);
+
+		_iconSizesAddSizeButton = new Button
+		{
+			Content = "+",
+			Padding = new Thickness(10, 4),
+			Margin = new Thickness(6, 0, 0, 0),
+		};
+		_iconSizesAddSizeButton.Click += OnIconSizesAddSizeClick;
+		ToolTip.SetTip(_iconSizesAddSizeButton, Loc.Get("S.Editor.Tool.IconSizesAdd"));
+
+		_iconSizesAddSizeBox = new TextBox
+		{
+			Padding = new Thickness(4, 2),
+			HorizontalContentAlignment = HorizontalAlignment.Center,
+		};
+
+		var addSizeRow = new DockPanel
+		{
+			Margin = new Thickness(0, 0, 0, 10),
+			Children = { _iconSizesAddSizeButton, _iconSizesAddSizeBox },
+		};
+		DockPanel.SetDock(_iconSizesAddSizeButton, Dock.Right);
+		_iconSizesContentPanel.Children.Add(addSizeRow);
+
+		_iconSizesListPanel = new StackPanel();
+		_iconSizesContentPanel.Children.Add(_iconSizesListPanel);
+
+		_iconSizesSummaryText = new TextBlock
+		{
+			FontSize = 11,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Thickness(0, 10, 0, 10),
+		};
+		_iconSizesContentPanel.Children.Add(_iconSizesSummaryText);
+
+		_iconSizesApplyButton = new Button
+		{
+			HorizontalAlignment = HorizontalAlignment.Stretch,
+			HorizontalContentAlignment = HorizontalAlignment.Center,
+		};
+		_iconSizesApplyButton.Click += OnIconSizesApplyClick;
+		_iconSizesContentPanel.Children.Add(_iconSizesApplyButton);
+
+		_iconSizesToolPanel.Children.Add(_iconSizesUnavailableHint);
+		_iconSizesToolPanel.Children.Add(_iconSizesContentPanel);
 	}
 }

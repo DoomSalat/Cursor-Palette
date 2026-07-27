@@ -172,6 +172,7 @@ public partial class PaintEditorWindow : Window
 	private readonly StackPanel _fillToolPanel;
 	private readonly StackPanel _hotspotToolPanel;
 	private readonly StackPanel _bgRefToolPanel;
+	private readonly StackPanel _iconSizesToolPanel;
 
 	private readonly ToggleButton _toolMoveBtn;
 	private readonly ToggleButton _toolHandBtn;
@@ -181,6 +182,23 @@ public partial class PaintEditorWindow : Window
 	private readonly ToggleButton _toolCanvasBtn;
 	private readonly ToggleButton _toolHotspotBtn;
 	private readonly ToggleButton _toolBgRefBtn;
+	private readonly ToggleButton _toolIconSizesBtn;
+
+	private TextBlock _iconSizesHintText = null!;
+	private TextBlock _iconSizesUnavailableHint = null!;
+	private StackPanel _iconSizesContentPanel = null!;
+	private Border _iconSizesScaleModeIconBorder = null!;
+	private Image _iconSizesScaleModeIcon = null!;
+	private TextBlock _iconSizesScaleModeLabel = null!;
+	private Button _iconSizesScaleModeResetButton = null!;
+	private ToggleButton _iconSizesEditModeCheck = null!;
+	private Button _iconSizesAddSizeButton = null!;
+	private TextBox _iconSizesAddSizeBox = null!;
+	private StackPanel _iconSizesListPanel = null!;
+	private TextBlock _iconSizesSummaryText = null!;
+	private Button _iconSizesApplyButton = null!;
+
+	private Grid _rootGrid = null!;
 
 	private readonly Button _undoButton;
 	private readonly Button _redoButton;
@@ -206,7 +224,7 @@ public partial class PaintEditorWindow : Window
 	public IReadOnlyList<CursorCanvasImage>? ResultFrames { get; private set; }
 	public IReadOnlyList<int>? ResultFrameDelaysMs { get; private set; }
 
-	public PaintEditorWindow(CursorCanvasImage? source = null, string? presetName = null, string? roleName = null)
+	public PaintEditorWindow(CursorCanvasImage? source = null, string? presetName = null, string? roleName = null, IReadOnlyList<CursorCanvasImage>? existingIconImages = null)
 	{
 		_presetName = presetName;
 		_roleName = roleName;
@@ -306,6 +324,7 @@ public partial class PaintEditorWindow : Window
 		_toolCanvasBtn = CreateToolButton("⛶", AppState.PaintEditorToolCanvas);
 		_toolHotspotBtn = CreateToolButton("🎯", AppState.PaintEditorToolHotspot);
 		_toolBgRefBtn = CreateToolButton(IconHelper.CreateIcon("ImageRefIcon32.png", 20, Brushes.White), AppState.PaintEditorToolBgRef);
+		_toolIconSizesBtn = CreateToolButton("⊞", AppState.PaintEditorToolIconSizes);
 
 		_undoButton = new Button { Content = "↶", Padding = new Thickness(UndoRedoButtonPadding) };
 		_redoButton = new Button { Content = "↷", Padding = new Thickness(UndoRedoButtonPadding) };
@@ -360,6 +379,7 @@ public partial class PaintEditorWindow : Window
 		_fillToolPanel = new StackPanel { IsVisible = false, Spacing = ToolPanelSpacing, Margin = new Thickness(ToolPanelMargin) };
 		_hotspotToolPanel = new StackPanel { IsVisible = false, Spacing = ToolPanelSpacing, Margin = new Thickness(ToolPanelMargin) };
 		_bgRefToolPanel = new StackPanel { IsVisible = false, Spacing = ToolPanelSpacing, Margin = new Thickness(ToolPanelMargin) };
+		_iconSizesToolPanel = new StackPanel { IsVisible = false, Spacing = ToolPanelSpacing, Margin = new Thickness(ToolPanelMargin) };
 
 		BuildMoveToolPanel();
 		BuildHandToolPanel();
@@ -369,12 +389,13 @@ public partial class PaintEditorWindow : Window
 		BuildFillToolPanel();
 		BuildHotspotToolPanel();
 		BuildBgRefToolPanel();
+		BuildIconSizesToolPanel();
 
 		_toolPanel = new StackPanel
 		{
 			Width = ToolPanelWidth,
 			VerticalAlignment = VerticalAlignment.Stretch,
-			Children = { _moveToolPanel, _handToolPanel, _canvasToolPanel, _brushToolPanel, _eraserToolPanel, _fillToolPanel, _hotspotToolPanel, _bgRefToolPanel },
+			Children = { _moveToolPanel, _handToolPanel, _canvasToolPanel, _brushToolPanel, _eraserToolPanel, _fillToolPanel, _hotspotToolPanel, _bgRefToolPanel, _iconSizesToolPanel },
 		};
 
 		_timelinePanel = new Panel { IsVisible = false };
@@ -391,6 +412,9 @@ public partial class PaintEditorWindow : Window
 
 		AttachEvents();
 
+		if (existingIconImages is { Count: > 0 })
+			SeedIconSizes(existingIconImages);
+
 		_ready = true;
 		RenderAll();
 		InitTimeline();
@@ -400,8 +424,8 @@ public partial class PaintEditorWindow : Window
 		this.Closed += OnWindowClosed;
 	}
 
-	public PaintEditorWindow(IReadOnlyList<CursorCanvasImage> frames, IReadOnlyList<int> frameDelaysMs, string? presetName = null, string? roleName = null)
-		: this(frames[0], presetName, roleName)
+	public PaintEditorWindow(IReadOnlyList<CursorCanvasImage> frames, IReadOnlyList<int> frameDelaysMs, string? presetName = null, string? roleName = null, IReadOnlyList<CursorCanvasImage>? existingIconImages = null)
+		: this(frames[0], presetName, roleName, existingIconImages)
 	{
 		InitTimelineFromFrames(frames, frameDelaysMs);
 	}
@@ -503,11 +527,12 @@ public partial class PaintEditorWindow : Window
 			},
 		};
 
-		Content = new Grid
+		_rootGrid = new Grid
 		{
 			RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto"),
 			Children = { toolbar, mainArea, _timelinePanel, statusBar },
 		};
+		Content = _rootGrid;
 
 		Grid.SetRow(toolbar, 0);
 		Grid.SetRow(mainArea, 1);
@@ -550,6 +575,7 @@ public partial class PaintEditorWindow : Window
 		_toolCanvasBtn.Click += (_, _) => SetTool(AppState.PaintEditorToolCanvas);
 		_toolHotspotBtn.Click += (_, _) => SetTool(AppState.PaintEditorToolHotspot);
 		_toolBgRefBtn.Click += (_, _) => SetTool(AppState.PaintEditorToolBgRef);
+		_toolIconSizesBtn.Click += (_, _) => SetTool(AppState.PaintEditorToolIconSizes);
 
 		_undoButton.Click += (_, _) => Undo();
 		_redoButton.Click += (_, _) => Redo();
@@ -730,6 +756,7 @@ public partial class PaintEditorWindow : Window
 		var isFill = _currentTool == AppState.PaintEditorToolFill;
 		var isHotspot = _currentTool == AppState.PaintEditorToolHotspot;
 		var isBgRef = _currentTool == AppState.PaintEditorToolBgRef;
+		var isIconSizes = _currentTool == AppState.PaintEditorToolIconSizes;
 
 		_toolMoveBtn.IsChecked = isMove;
 		_toolHandBtn.IsChecked = isHand;
@@ -739,6 +766,7 @@ public partial class PaintEditorWindow : Window
 		_toolCanvasBtn.IsChecked = isCanvas;
 		_toolHotspotBtn.IsChecked = isHotspot;
 		_toolBgRefBtn.IsChecked = isBgRef;
+		_toolIconSizesBtn.IsChecked = isIconSizes;
 
 		_moveToolPanel.IsVisible = isMove;
 		_handToolPanel.IsVisible = isHand;
@@ -748,6 +776,7 @@ public partial class PaintEditorWindow : Window
 		_fillToolPanel.IsVisible = isFill;
 		_hotspotToolPanel.IsVisible = isHotspot;
 		_bgRefToolPanel.IsVisible = isBgRef;
+		_iconSizesToolPanel.IsVisible = isIconSizes;
 
 		_resizeOverlay.IsVisible = isCanvas;
 		_hotspotMarker.IsVisible = isHotspot;
@@ -761,12 +790,21 @@ public partial class PaintEditorWindow : Window
 			UpdateHotspotMarker();
 			UpdateHotspotCoords();
 		}
+		if (isIconSizes)
+			RefreshIconSizesPanel();
 
 		UpdateBgRefRender();
 	}
 
 	private void SetTool(string tool)
 	{
+		if (_currentTool == AppState.PaintEditorToolIconSizes && tool != AppState.PaintEditorToolIconSizes)
+		{
+			var keepPreview = _iconSizesEditMode && _iconSizesPreviewSize != null;
+			if (!keepPreview)
+				RestoreIconSizesPreview();
+		}
+
 		if (_currentTool == AppState.PaintEditorToolCanvas && tool != AppState.PaintEditorToolCanvas && _hasCanvasResizeSnapshot)
 		{
 			_canvasWidth = _canvasResizeSnapshotWidth;
@@ -1076,6 +1114,7 @@ public partial class PaintEditorWindow : Window
 		var hotspotX = Math.Clamp(_offsetX + _hotspotOffsetX, 0, _canvasWidth - 1);
 		var hotspotY = Math.Clamp(_offsetY + _hotspotOffsetY, 0, _canvasHeight - 1);
 		Result = new CursorCanvasImage(_canvasWidth, _canvasHeight, hotspotX, hotspotY, pixels);
+		CaptureIconSizesResult();
 
 		if (IsAnimated)
 		{

@@ -149,13 +149,14 @@ public partial class MainWindow : Window
 	private const string ImportFilterName = "Cursor Palette Package";
 	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
 	private const string LocExportAsBundle = "S.Export.AsBundle";
-	private const string LocMenuDownloadRaw = "S.Menu.DownloadRaw";
-	private const string LocMenuDownloadFullArchive = "S.Menu.DownloadFullArchive";
+	private const string LocMenuDownloadRaw = "S.Menu.QuickDownload";
+	private const string LocExportAsFullPackage = "S.Export.AsFullPackage";
 	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
 	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
 	private const string LocDownloadReadme = "S.Export.DownloadReadme";
 	private const string LocToastExportedLinuxArchive = "S.Toast.ExportedLinuxArchive";
 	private const string LocToastExportedXcursorTheme = "S.Toast.ExportedXcursorTheme";
+	private const string LocToastExportedFullPackage = "S.Toast.ExportedFullPackage";
 	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
 	private const string LocErrorImportUnrecognized = "S.Error.ImportUnrecognized";
 	private const string LocInfoTitle = "S.Info.Title";
@@ -593,12 +594,10 @@ public partial class MainWindow : Window
 			{
 				var downloadLabels = new[]
 				{
-					Loc.Get(LocExportAsBundle),
 					Loc.Get(LocMenuDownloadRaw),
-					Loc.Get(LocMenuDownloadFullArchive),
+					Loc.Get(LocExportAsFullPackage),
 					Loc.Get(LocExportAsLinuxArchive),
 					Loc.Get(LocExportAsXcursorTheme),
-					Loc.Get(LocDownloadReadme),
 				};
 
 				var di = 0;
@@ -1490,7 +1489,7 @@ public partial class MainWindow : Window
 		try
 		{
 			var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles,
-				preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
+				preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles, preset.Author);
 
 			if (path == null)
 				return;
@@ -1518,7 +1517,7 @@ public partial class MainWindow : Window
 		try
 		{
 			var (folderPath, archivePath) = PresetPackageService.DownloadPresetAsFolderAndArchive(
-				preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
+				preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles, preset.Author);
 
 			if (folderPath == null || archivePath == null)
 				return;
@@ -1527,6 +1526,34 @@ public partial class MainWindow : Window
 
 			if (AppState.GetOpenFolderAfterDownload())
 				FileExplorerProvider.Current?.RevealFile(folderPath);
+		}
+		catch (Exception ex)
+		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	public void OnMenuDownloadFullExport(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.ExportFullPackageForFiles(
+				preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles, preset.Author);
+
+			if (path == null)
+				return;
+
+			ShowToast(Loc.Format(LocToastExportedFullPackage, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
 		}
 		catch (Exception ex)
 		{

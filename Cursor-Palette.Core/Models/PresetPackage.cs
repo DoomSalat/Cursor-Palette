@@ -68,6 +68,7 @@ public sealed class ArchiveManifestPreset
 {
 	public required string Id { get; set; }
 	public required string Name { get; set; }
+	public string? Author { get; set; }
 	public required string Folder { get; set; }
 	public DateTimeOffset CreatedAt { get; set; }
 	public int SortOrder { get; set; }
@@ -83,6 +84,7 @@ public sealed class SinglePresetMarker
 	public string Format { get; set; } = "";
 	public int Version { get; set; }
 	public string Name { get; set; } = "";
+	public string? Author { get; set; }
 	public int BaseSize { get; set; }
 	public bool UseScaling { get; set; }
 	public int ScaleMode { get; set; } = 1;

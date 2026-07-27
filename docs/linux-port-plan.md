@@ -324,6 +324,107 @@ dotnet publish Cursor-Palette.Avalonia \
 
 ---
 
+## Этап 7. Синхронизация новых фич WPF (коммиты 10339e7, 5bc1d77, 128f22e, e3c7a8f)
+
+### 7.1. Full export (Windows + Linux) — коммит `10339e7`
+
+**WPF:** `PresetPackageService.ExportFullPackageForFiles` — создаёт ZIP с двумя
+папками: Windows (raw .cur/.ani) и Linux (Xcursor theme). Меню загрузки
+упрощено до «Quick download» + «Full export (Windows + Linux)».
+
+**Core (не портировано):**
+- Добавить `ExportFullPackageForFiles` в `PresetPackageService`
+- Добавить константы `FullPackageWindowsFolderName`, `FullPackageLinuxFolderName`
+- `DownloadPresetAsFolder` — добавить параметр `author`
+
+**Linux (не портировано):**
+- Обновить подменю Download в `MainWindow.xaml` — заменить 6 пунктов
+  (Bundle/Raw/FullArchive/LinuxArchive/Xcursor/README) на 2:
+  «Quick download» + «Full export (Windows + Linux)»
+- Обновить handlers в `MainWindow.cs` — убрать старые, добавить `OnMenuDownloadQuick`
+  и `OnMenuDownloadFullExport`
+- Обновить локализацию в `OnContextMenuOpening` (заменить 6 лейблов на 2)
+- Локализация — ключи `S.Menu.DownloadQuick`, `S.Menu.DownloadFullExport` (6 языков, JSON)
+- Help — обновить `Export.md` (6 языков)
+
+### 7.2. README.txt в Linux cursor exports — коммит `5bc1d77`
+
+**WPF:** `WriteXcursorThemeFolder` вызывает `WriteArchiveReadme(themeDir)` после
+записи `index.theme`.
+
+**Core (не портировано):**
+- `WriteXcursorThemeFolder` — добавить `WriteArchiveReadme(themeDir)` после записи `index.theme`
+
+### 7.3. Preset authorship — коммит `128f22e`
+
+**WPF:** Author property в `Preset`/`PresetDraft`, запись в README.txt,
+marker/manifest, чтение из README при импорте. Inline-редактирование автора
+в PresetEditor (display text + pencil button, Enter/click to commit).
+
+**Core (не портировано):**
+- `Preset.cs` — добавить `Author` property в `Preset` и `PresetDraft`
+- `PresetPackage.cs` — добавить `Author` в `ArchiveManifestPreset` и `SinglePresetMarker`
+- `PresetStore.Save` — сохранять `Author` из `draft.Author`
+- `PresetPackageService`:
+  - `BuildManifest` / `BuildArchive` — писать `Author` в manifest/marker
+  - `WriteWindowsPresetFolder` — параметр `author`, запись в marker + README
+  - `WriteArchiveReadme` — параметр `author`, подстановка `{{AuthorSection}}`
+  - `BuildReadmeContent` — параметр `author`, замена `{{AuthorSection}}`
+  - `TryReadAuthorFromReadme` — парсинг `Author:` из README.txt
+  - Импорт — чтение author из manifest/marker с fallback на README
+- `ArchiveReadme.md` — добавить `{{AuthorSection}}` плейсхолдер
+
+**Linux (не портировано):**
+- `PresetEditorWindow.cs` — inline author edit (TextBlock + pencil button,
+  Enter/click to commit, TextBox для редактирования)
+- `PresetEditorWindow.xaml` — разметка для author edit
+- Локализация — `S.Editor.Author`, `S.Editor.Author.Tooltip`,
+  `S.Editor.Author.Placeholder` (6 языков, JSON)
+- Help — обновить `Editor.md` (6 языков)
+
+### 7.4. Icon sub-sizes — коммит `e3c7a8f`
+
+**WPF:** Multi-size cursors — несколько размеров в одном .cur/.ani файле.
+`BuildMultiSizeBytes` и `TryReadAllImagesFromBytes` в `CursorCanvasService`,
+multi-size overload в `AniCursorWriter.Save`, UI icon sizes в PaintEditor
+(`PaintEditorWindow.IconSizes.cs`, 673 строк), `SizeChangeIcon32.png` ресурс.
+
+**Core (не портировано):**
+- `CursorCanvasService`:
+  - `BuildMultiSizeBytes(IReadOnlyList<CursorCanvasImage>)` — запись multi-size .cur
+  - `TryReadAllImagesFromBytes(byte[])` — чтение всех images из multi-size .cur/.ani
+  - `TryReadFromBytes` — делегировать в `TryReadAllImagesFromBytes` и возвращать первый
+- `AniCursorWriter`:
+  - Multi-size overload `Save(..., iconSizes, iconSizeCustomImages,
+    iconSizeScaleModeOverrides, iconSizesScaleMode)` — каждый кадр записывается
+    как multi-size icon через `BuildMultiSizeBytes`
+
+**Linux (не портировано):**
+- `PaintEditorWindow.IconSizes.cs` — UI для управления sub-sizes:
+  - Список размеров (add/remove, default 32)
+  - Custom image per size (опционально)
+  - ScaleMode override per size (опционально)
+  - Превью каждого размера
+  - Чтение существующих размеров из .ani при открытии
+- `PaintEditorWindow.xaml` — разметка для icon sizes panel
+- `PaintEditorWindow.Actions.cs` — передача icon sizes в `AniCursorWriter.Save`
+- `PaintEditorWindow.Canvas.cs` — синхронное масштабирование всех timeline frames
+- `PaintEditorWindow.History.cs` — undo/redo для icon size changes
+- `PaintEditorWindow.Tools.cs` — инструмент изменения размера
+- `PresetEditorWindow.SlotActions.cs` — передача icon size info при save
+- `SizeChangeIcon32.png` — ресурс
+- Локализация — ключи для icon sizes UI (6 языков, JSON)
+- Help — обновить `Paint.md` (6 языков)
+
+### Порядок портирования
+
+1. **7.2** (README в Xcursor exports) — 1 строка в Core, тривиально
+2. **7.3** (Preset authorship) — Core модели + сервисы, затем Linux UI
+3. **7.1** (Full export) — Core метод + Linux menu update
+4. **7.4** (Icon sub-sizes) — самый объёмный, Core + Linux UI (673+ строк)
+
+---
+
 ## Оценка объёма работ
 
 | Этап | Сложность | Объём |
@@ -334,6 +435,8 @@ dotnet publish Cursor-Palette.Avalonia \
 | 4. Linux-сервисы | Средняя | CursorService готов (XcursorWriter), остальное — новое |
 | 5. Упаковка | Низкая | AppImage + CI |
 | 6. Тестирование | Средняя | 5 DE × ~15 сценариев |
+| 7. Синхронизация фич | Высокая | 4 фичи, самая сложная — icon sub-sizes |
 
 Самая объёмная часть — **перенос UI на Avalonia** (Этап 3),
 особенно PaintEditor с timeline, color wheel и пиксельным canvas.
+Этап 7 добавляет icon sub-sizes в PaintEditor — второй по сложности блок.

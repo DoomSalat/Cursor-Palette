@@ -1,4 +1,5 @@
 using System.Text;
+using CursorPalette.Models;
 
 namespace CursorPalette.Services;
 
@@ -20,13 +21,47 @@ public static class AniCursorWriter
 
 	public static void Save(string destinationPath, IReadOnlyList<CursorCanvasImage> frames, IReadOnlyList<int> frameDelaysMs)
 	{
+		Save(destinationPath, frames, frameDelaysMs, null, null, null, ScaleMode.AreaWeighted);
+	}
+
+	public static void Save(
+		string destinationPath,
+		IReadOnlyList<CursorCanvasImage> frames,
+		IReadOnlyList<int> frameDelaysMs,
+		IReadOnlyList<int>? iconSizes,
+		IReadOnlyDictionary<int, CursorCanvasImage>? iconSizeCustomImages,
+		IReadOnlyDictionary<int, ScaleMode>? iconSizeScaleModeOverrides,
+		ScaleMode iconSizesScaleMode)
+	{
 		if (frames.Count == 0)
 			return;
 
 		var iconChunks = new List<byte[]>(frames.Count);
 
 		foreach (var frame in frames)
-			iconChunks.Add(CursorCanvasService.BuildBytes(frame));
+		{
+			if (iconSizes is { Count: > 1 })
+			{
+				var images = iconSizes
+					.Select(size =>
+					{
+						if (iconSizeCustomImages != null && iconSizeCustomImages.TryGetValue(size, out var custom))
+							return custom;
+
+						return size == frame.Width
+							? frame
+							: CursorScalerService.ScaleImage(frame, size, size,
+									iconSizeScaleModeOverrides != null && iconSizeScaleModeOverrides.TryGetValue(size, out var mode) ? mode : iconSizesScaleMode);
+					})
+					.ToList();
+
+				iconChunks.Add(CursorCanvasService.BuildMultiSizeBytes(images));
+			}
+			else
+			{
+				iconChunks.Add(CursorCanvasService.BuildBytes(frame));
+			}
+		}
 
 		var rateJiffies = new uint[frames.Count];
 

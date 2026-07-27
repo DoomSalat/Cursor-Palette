@@ -56,6 +56,10 @@ public partial class PaintEditorWindow
 				SetTool(AppState.PaintEditorToolBgRef);
 				e.Handled = true;
 				break;
+			case Key.I:
+				SetTool(AppState.PaintEditorToolIconSizes);
+				e.Handled = true;
+				break;
 		}
 	}
 }
