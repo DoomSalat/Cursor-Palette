@@ -112,8 +112,6 @@ public partial class PaintEditorWindow
 
 	private void OnExportPngClick(object sender, RoutedEventArgs e)
 	{
-		RestoreIconSizesPreview();
-
 		var pixels = Compose();
 		var bitmap = new WriteableBitmap(_canvasWidth, _canvasHeight, 96, 96, PixelFormats.Bgra32, null);
 		bitmap.WritePixels(new Int32Rect(0, 0, _canvasWidth, _canvasHeight), pixels, _canvasWidth * BytesPerPixel, 0);

@@ -16,18 +16,18 @@ Verschiebt das Cursorbild innerhalb seiner Leinwand, ändert die Leinwandgröße
 ↷ Wiederherstellen — rückgängig gemachte Änderung erneut anwenden (Ctrl+Y oder Ctrl+Shift+Z).
 
 🎞️ Animations-Timeline (Leiste unter der Leinwand) — „+"/„−" fügen Frames hinzu bzw. entfernen sie, die Framenummern wechseln den aktiven Frame. ▶/⏹ spielt die Vorschau ab/stoppt sie; das „ms"-Feld legt die Dauer des aktiven Frames fest. „Für alle" wendet diese Dauer auf alle Frames gleichzeitig an; beim Deaktivieren werden die vorherigen Werte pro Frame wiederhergestellt. „Manuelle Referenzsteuerung" löst die Referenz von der Timeline, um sie unabhängig durchzublättern. Limit — 60 Frames, mindestens 17 ms pro Frame (Grenze des .ani-Formats).
-{img:DownloadIcon32} „.gif" (neben „.png") — erscheint ab mehr als einem Frame und exportiert die Animation als GIF in die Downloads.
+{img:DownloadIcon32} „.gif" (neben „.png") — erscheint ab mehr als einem Frame und exportiert die Animation als GIF in die Downloads. Exportiert genau das, was auf der Leinwand steht, in der aktuellen Größe (einschließlich Untergrößen-Vorschau).
 
 {img:SizeChangeIcon32} Untergrößen (Werkzeug „Größen" im rechten Panel) — verwaltet zusätzliche Cursor-Größen innerhalb einer einzelnen Datei (.cur oder .ani). Wenn die Datei keine Untergrößen enthält, erscheint statt „Auf alle anwenden" die Schaltfläche „Standard-Untergrößen generieren" — sie erstellt Standardgrößen (32, 48, 64, 96, 128, 256) aus dem aktuellen Bild. Größen können manuell hinzugefügt und entfernt werden; pro Größe lässt sich der Skalierungsmodus (nächster Nachbar / flächengewichtet) wählen. „Auf alle anwenden" generiert alle Untergrößen aus dem Master-Bild mit dem gewählten Modus neu. Bei animierten Cursorn werden alle Frames synchron skaliert. Der Bearbeitungsmodus erlaubt das pixelgenaue Anpassen jeder Untergröße einzeln.
 
 🕹️ Pfeile (Werkzeug „Bewegen") — verschieben das Bild um 1 Pixel; werden deaktiviert, sobald das Bild diese Kante erreicht.
 ⚡ Ausrichtungsraster (Werkzeug „Bewegen") — 9 Schaltflächen, um das Bild an eine Kante/Ecke zu drücken oder zu zentrieren.
 📐 "Leinwandgröße" (oben rechts) — genaue Breite/Höhe festlegen, ein Preset wählen und einen Ankerpunkt bestimmen, von dem aus die Leinwand wächst oder schrumpft.
-{img:DownloadIcon32} "Bild laden" (oben rechts) — eine .png/.jpg/.bmp/.gif- oder .cur/.ani-Datei (erstes Bild; ein animiertes GIF wird zur kompletten Frame-Timeline) über die Dateiauswahl laden, oder auf die Schaltfläche/Leinwand ziehen; "Überlagern" legt das Bild über das aktuelle Sprite (die Leinwand wächst entsprechend), "Ersetzen" tauscht den gesamten Leinwandinhalt aus.
+{img:DownloadIcon32} "Bild laden" (oben rechts) — eine .png/.jpg/.bmp/.gif- oder .cur/.ani-Datei (erstes Bild; ein animiertes GIF wird zur kompletten Frame-Timeline) über die Dateiauswahl laden, oder auf die Schaltfläche/Leinwand ziehen; "Überlagern" legt das Bild über das aktuelle Sprite (die Leinwand wächst entsprechend), "Ersetzen" tauscht den gesamten Leinwandinhalt aus. Arbeitet mit der aktuellen Leinwandgröße — öffnen Sie die Vorschau einer Untergröße und laden Sie ein Bild, um es direkt auf diese Untergröße anzuwenden, dann „Speichern" zum Bestätigen.
 
 🔍 Zoom — Strg + Mausrad oder die −/+ Schaltflächen, zentriert auf den Mauszeiger. Ein separates −/+ Paar skaliert die Oberfläche des Editors.
 ☑️ "Sprite-Grenzen" — zeichnet einen Umriss um die undurchsichtigen Pixel des Bildes.
-{img:DownloadIcon32} ".png" — exportiert die Leinwand als PNG in die Downloads (benannt nach Preset + Rolle + Größe).
+{img:DownloadIcon32} ".png" — exportiert die Leinwand als PNG in die Downloads (benannt nach Preset + Rolle + Größe). Exportiert genau das, was auf der Leinwand steht, in der aktuellen Größe (einschließlich Untergrößen-Vorschau).
 
 Koordinaten unten links angezeigt.
 💾 "Speichern" — Änderungen übernehmen.
