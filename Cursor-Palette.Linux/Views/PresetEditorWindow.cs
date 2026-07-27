@@ -101,6 +101,11 @@ public class PresetEditorWindow : Window
 		".cur", ".ani", ".png", ".jpg", ".jpeg", ".bmp", ".gif"
 	};
 
+	private static readonly HashSet<string> CursorExtensions = new(StringComparer.OrdinalIgnoreCase)
+	{
+		".cur", ".ani"
+	};
+
 	private const double WindowDefaultWidth = 760;
 	private const double WindowDefaultHeight = 640;
 	private const int NameMaxLength = 60;
@@ -1631,26 +1636,54 @@ public class PresetEditorWindow : Window
 		if (!string.IsNullOrWhiteSpace(folderName) && string.IsNullOrWhiteSpace(_draftId))
 			_nameBox.Text = folderName;
 
-		var convertibleFiles = Directory.EnumerateFiles(folder, AllFilesPattern, SearchOption.AllDirectories)
+		var allFiles = Directory.EnumerateFiles(folder, AllFilesPattern, SearchOption.AllDirectories)
 			.Where(file => ConvertibleExtensions.Contains(Path.GetExtension(file)))
 			.ToList();
 
-		if (convertibleFiles.Count == 0)
+		if (allFiles.Count == 0)
 		{
 			ToastService.Show(_rootPanel, Loc.Get(LocEditorNoCursorInFolder));
 			return;
 		}
 
+		var cursorFiles = allFiles.Where(file => CursorExtensions.Contains(Path.GetExtension(file))).ToList();
+		var imageFiles = allFiles.Where(file => !CursorExtensions.Contains(Path.GetExtension(file))).ToList();
+
 		var matched = 0;
 		var emptySkipped = 0;
 
-		foreach (var file in convertibleFiles)
+		matched += ImportFilesPass(cursorFiles, ref emptySkipped);
+
+		var allFilled = _slots.Where(slot => !slot.IsLocked)
+			.All(slot => slot.SourcePath != null || slot.RefPresetId != null);
+
+		if (!allFilled && imageFiles.Count > 0)
+			matched += ImportFilesPass(imageFiles, ref emptySkipped, skipFilled: true);
+
+		if (matched == 0 && emptySkipped == 0)
+			ToastService.Show(_rootPanel, Loc.Format(LocEditorNoMatchInFolder, allFiles.Count));
+		else if (emptySkipped > 0)
+			ToastService.Show(_rootPanel, Loc.Format(LocEditorEmptySkipped, emptySkipped));
+	}
+
+	private int ImportFilesPass(List<string> files, ref int emptySkipped, bool skipFilled = false)
+	{
+		var matched = 0;
+
+		foreach (var file in files)
 		{
 			var role = CursorRoles.MatchByFileName(file);
 			if (role == null)
 				continue;
 
 			var slot = _slots.First(slot => slot.Role.RegistryName == role.RegistryName);
+			matched++;
+
+			if (slot.IsLocked)
+				continue;
+
+			if (skipFilled && (slot.SourcePath != null || slot.RefPresetId != null))
+				continue;
 
 			var cursorPath = ConvertToCursorTempFile(file);
 			if (cursorPath == null)
@@ -1663,13 +1696,9 @@ public class PresetEditorWindow : Window
 			}
 
 			SetSlotSource(slot, cursorPath);
-			matched++;
 		}
 
-		if (matched == 0 && emptySkipped == 0)
-			ToastService.Show(_rootPanel, Loc.Format(LocEditorNoMatchInFolder, convertibleFiles.Count));
-		else if (emptySkipped > 0)
-			ToastService.Show(_rootPanel, Loc.Format(LocEditorEmptySkipped, emptySkipped));
+		return matched;
 	}
 
 	private static bool IsFullyTransparent(string path)
