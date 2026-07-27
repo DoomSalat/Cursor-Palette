@@ -84,6 +84,11 @@ apply.
     via a "manual reference control" switch. The finished animation can
     also be exported straight to `.gif`, next to the existing `.png`
     export.
+  - **Icon sub-sizes** — pack multiple resolutions (e.g. 32×32 and 64×64)
+    into a single `.cur`/`.ani` so Windows can pick the best size for the
+    user's DPI setting. Add, remove, and edit each sub-size independently
+    from the Paint editor's sub-sizes panel; all timeline frames are scaled
+    synchronously for animated cursors.
 
     ![Animated cursor timeline](docs/screenshots/paint-editor-animation.png)
 - **Animated `.ani` preview** — animated cursors (busy, working, etc.) play
@@ -92,9 +97,15 @@ apply.
 - **Cursor size per preset** — a slider controls the system cursor size
   (32–256 px), stored separately for each preset and for the default tile.
   Scaling is enabled by default for new presets; a small icon on each cell
-  indicates whether scaling is active.
+  indicates whether scaling is active. A second icon toggles the scaling
+  mode between NearestNeighbor (crisp/pixelated) and AreaWeighted
+  (smooth/interpolated), also stored per preset.
 - **Reset to Windows defaults** — a dedicated "Default" tile restores the
-  system cursor scheme.
+  system cursor scheme. Right-click it to download the current system
+  cursor files to your Downloads folder.
+- **Role lock** — lock individual role slots in the preset editor to
+  protect them from folder import, file drag-and-drop, and manual edits.
+  The lock state is saved with the preset and survives reopening.
 - **Undo last change** ("Back") — the app keeps a snapshot of the previous
   cursor state and lets you roll back one step.
 - **Light/dark theme** — a toggle in the header switches themes instantly;
@@ -111,6 +122,9 @@ apply.
   pull a role from another saved preset instead of a file on disk: a
   two-step picker (choose preset → choose role) with a "current role only"
   filter. Mixed presets are marked with a 🧩 badge in the gallery.
+- **Preset authorship** — each preset stores an author name, editable
+  inline in the preset editor. On export the author is written to the
+  bundle's `README.txt`; on import it's parsed back automatically.
 - **Preset context menu** — right-click a tile in the gallery to edit,
   rename, move it left/right, download it, or delete it, without opening
   the editor.
@@ -120,7 +134,9 @@ apply.
   shows members side by side). Right-click a group to rename, ungroup, or
   consolidate its members next to it. Drag a preset onto a group to attach
   it. Groups are preserved in board order across restarts and can be
-  exported/imported with `.cursorpalette` bundles.
+  exported/imported with `.cursorpalette` bundles. Right-click a group
+  to pick a random cursor from its members, or click the app logo to
+  pick a random cursor from the entire gallery.
 - **Export presets** — pick any set of presets and save them either as a
   `.cursorpalette` bundle (full-fidelity: roles, locked roles, cursor size,
   and scaling flag are preserved, and roles borrowed from other presets are
