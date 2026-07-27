@@ -39,7 +39,7 @@ public partial class PresetEditorWindow
 			.Select(slot => slot.Role.RegistryName)
 			.ToHashSet();
 
-		var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, _useScaling, _scaleMode, lockedRoles);
+		var path = PresetPackageService.DownloadPresetAsFolder(presetName, roleFiles, _baseSize, _useScaling, _scaleMode, lockedRoles, AuthorDisplayText.Text);
 
 		if (path == null)
 			return;
@@ -116,7 +116,7 @@ public partial class PresetEditorWindow
 
 		Directory.CreateDirectory(AppPaths.DownloadsDir);
 
-		var path = PresetPackageService.ExportFullPackageForFiles(presetName, roleFiles, _baseSize, _useScaling, _scaleMode);
+		var path = PresetPackageService.ExportFullPackageForFiles(presetName, roleFiles, _baseSize, _useScaling, _scaleMode, lockedRoles: null, author: AuthorDisplayText.Text);
 
 		if (path == null)
 			return;
@@ -136,7 +136,7 @@ public partial class PresetEditorWindow
 			return;
 		}
 
-		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, BaseSize = _baseSize, UseScaling = _useScaling, ScaleMode = _scaleMode };
+		var draft = new PresetDraft { Id = _draftId, Name = NameBox.Text, Author = AuthorDisplayText.Text, BaseSize = _baseSize, UseScaling = _useScaling, ScaleMode = _scaleMode };
 
 		foreach (var slot in _slots.Where(slot => slot.SourcePath != null || slot.RefPresetId != null))
 		{

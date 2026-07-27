@@ -49,7 +49,7 @@
 		</Style>
 	</Window.Resources>
 
-	<Grid x:Name="EditorRootGrid">
+	<Grid x:Name="EditorRootGrid" PreviewMouseDown="OnRootPreviewMouseDown">
 	<DockPanel x:Name="RootPanel">
 		<DockPanel.LayoutTransform>
 			<ScaleTransform x:Name="UiScaleTransform" ScaleX="1" ScaleY="1" />
@@ -60,13 +60,73 @@
 				BorderBrush="{StaticResource Brush.Border}"
 				BorderThickness="0,0,0,1"
 				Padding="16,8">
-			<Button Style="{StaticResource Style.Button}"
-					Padding="8,6"
-					ToolTip="{DynamicResource S.Info.Tooltip}"
-					Click="OnInfoButtonClick"
-					HorizontalAlignment="Right">
-				<TextBlock Text="ⓘ" FontSize="15" />
-			</Button>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				<TextBlock Grid.Column="0"
+								Foreground="{StaticResource Brush.TextDim}"
+								VerticalAlignment="Center" Margin="0,0,8,0">
+								<Run Text="{DynamicResource S.Editor.Author}" /><Run Text=":" />
+								</TextBlock>
+				<StackPanel x:Name="AuthorDisplayPanel" Grid.Column="1" Orientation="Horizontal">
+					<TextBlock x:Name="AuthorDisplayText"
+							 Text=""
+							 Foreground="{StaticResource Brush.TextDim}"
+							 VerticalAlignment="Center" />
+					<Button x:Name="AuthorEditButton"
+							ToolTip="{DynamicResource S.Editor.Author.Tooltip}"
+							Click="OnAuthorEditButtonClick"
+							Margin="4,0,0,0"
+							VerticalAlignment="Center"
+							Cursor="Hand">
+						<Button.Style>
+							<Style TargetType="Button">
+								<Setter Property="Background" Value="Transparent" />
+								<Setter Property="BorderThickness" Value="0" />
+								<Setter Property="Cursor" Value="Hand" />
+								<Setter Property="Template">
+									<Setter.Value>
+										<ControlTemplate TargetType="Button">
+											<ContentPresenter Margin="2,2" />
+										</ControlTemplate>
+									</Setter.Value>
+								</Setter>
+							</Style>
+						</Button.Style>
+						<TextBlock Text="✏" FontSize="10">
+							<TextBlock.Style>
+								<Style TargetType="TextBlock">
+									<Setter Property="Foreground" Value="{StaticResource Brush.TextDim}" />
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+											<Setter Property="Foreground" Value="{StaticResource Brush.Accent}" />
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</TextBlock.Style>
+						</TextBlock>
+					</Button>
+				</StackPanel>
+				<TextBox x:Name="AuthorEditBox" Grid.Column="1"
+							 Style="{StaticResource Style.TextBox}"
+							 VerticalAlignment="Center" MinWidth="100" MaxLength="60"
+							 ToolTip="{DynamicResource S.Editor.Author.Tooltip}"
+							 Visibility="Collapsed"
+							 KeyDown="OnAuthorEditBoxKeyDown"
+							 LostFocus="OnAuthorEditBoxLostFocus" />
+				<Button Grid.Column="2"
+						Style="{StaticResource Style.Button}"
+						Padding="8,6"
+						Width="36"
+						ToolTip="{DynamicResource S.Info.Tooltip}"
+						Click="OnInfoButtonClick"
+						Margin="8,0,0,0">
+					<TextBlock Text="ⓘ" FontSize="15" />
+				</Button>
+			</Grid>
 		</Border>
 
 
@@ -80,7 +140,6 @@
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>

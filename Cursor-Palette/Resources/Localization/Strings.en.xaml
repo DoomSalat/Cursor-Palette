@@ -76,6 +76,8 @@
 	<sys:String x:Key="S.Editor.TitleNew">New preset</sys:String>
 	<sys:String x:Key="S.Editor.TitleEdit">Edit preset</sys:String>
 	<sys:String x:Key="S.Editor.PresetName">Preset name</sys:String>
+	<sys:String x:Key="S.Editor.Author">Author</sys:String>
+	<sys:String x:Key="S.Editor.Author.Tooltip">Author name saved into the README and restored on import</sys:String>
 	<sys:String x:Key="S.Editor.Save">Save</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">Cancel</sys:String>
 	<sys:String x:Key="S.Editor.ExportPng">Export as PNG to Downloads</sys:String>

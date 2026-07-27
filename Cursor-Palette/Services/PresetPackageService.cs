@@ -91,6 +91,7 @@ public static class PresetPackageService
 				{
 					Id = preset.Id,
 					Name = preset.Name,
+					Author = preset.Author,
 					Folder = preset.Id,
 					CreatedAt = preset.CreatedAt,
 					SortOrder = preset.SortOrder,
@@ -171,6 +172,7 @@ public static class PresetPackageService
 				{
 					Id = preset.Id,
 					Name = preset.Name,
+					Author = preset.Author,
 					Folder = folderName,
 					CreatedAt = preset.CreatedAt,
 					SortOrder = preset.SortOrder,
@@ -268,11 +270,11 @@ public static class PresetPackageService
 	}
 
 	public static string? DownloadPresetAsFolder(string presetName, IReadOnlyDictionary<string, string> roleFiles,
-		int baseSize, bool useScaling = false, ScaleMode scaleMode = ScaleMode.AreaWeighted, IReadOnlySet<string>? lockedRoles = null)
+		int baseSize, bool useScaling = false, ScaleMode scaleMode = ScaleMode.AreaWeighted, IReadOnlySet<string>? lockedRoles = null, string? author = null)
 	{
 		var destDir = GetUniqueDownloadFolderPath(SanitizeName(presetName));
 
-		if (!WriteWindowsPresetFolder(destDir, presetName, roleFiles, baseSize, useScaling, scaleMode, lockedRoles))
+		if (!WriteWindowsPresetFolder(destDir, presetName, roleFiles, baseSize, useScaling, scaleMode, lockedRoles, author))
 		{
 			Directory.Delete(destDir);
 			return null;
@@ -282,14 +284,14 @@ public static class PresetPackageService
 	}
 
 	public static string? ExportFullPackageForFiles(string presetName, IReadOnlyDictionary<string, string> roleFiles,
-		int baseSize, bool useScaling = false, ScaleMode scaleMode = ScaleMode.AreaWeighted, IReadOnlySet<string>? lockedRoles = null)
+		int baseSize, bool useScaling = false, ScaleMode scaleMode = ScaleMode.AreaWeighted, IReadOnlySet<string>? lockedRoles = null, string? author = null)
 	{
 		var stagingDir = CreateTempDir();
 
 		try
 		{
 			var windowsWritten = WriteWindowsPresetFolder(Path.Combine(stagingDir, FullPackageWindowsFolderName),
-				presetName, roleFiles, baseSize, useScaling, scaleMode, lockedRoles);
+				presetName, roleFiles, baseSize, useScaling, scaleMode, lockedRoles, author);
 			var linuxWritten = WriteXcursorThemeFolder(Path.Combine(stagingDir, FullPackageLinuxFolderName),
 				presetName, role => roleFiles.GetValueOrDefault(role));
 
@@ -308,7 +310,7 @@ public static class PresetPackageService
 	}
 
 	private static bool WriteWindowsPresetFolder(string destDir, string presetName, IReadOnlyDictionary<string, string> roleFiles,
-		int baseSize, bool useScaling, ScaleMode scaleMode, IReadOnlySet<string>? lockedRoles)
+		int baseSize, bool useScaling, ScaleMode scaleMode, IReadOnlySet<string>? lockedRoles, string? author = null)
 	{
 		Directory.CreateDirectory(destDir);
 
@@ -336,6 +338,7 @@ public static class PresetPackageService
 			Format = SinglePresetFormatId,
 			Version = FormatVersion,
 			Name = presetName,
+			Author = author,
 			BaseSize = baseSize,
 			UseScaling = useScaling,
 			ScaleMode = (int)scaleMode,
@@ -345,7 +348,7 @@ public static class PresetPackageService
 		File.WriteAllText(Path.Combine(destDir, SinglePresetMarkerFileName),
 			JsonSerializer.Serialize(marker, JsonOptions));
 
-		WriteArchiveReadme(destDir);
+		WriteArchiveReadme(destDir, author);
 
 		return true;
 	}
@@ -823,7 +826,7 @@ public static class PresetPackageService
 		if (roleFiles.Count == 0)
 			return null;
 
-		var draft = new PresetDraft { Name = entry.DisplayName };
+		var draft = new PresetDraft { Name = entry.DisplayName, Author = TryReadAuthorFromReadme(themeDir) };
 
 		foreach (var (roleName, filePath) in roleFiles)
 			draft.RoleSources[roleName] = new RoleSourceDraft { OwnFilePath = filePath };
@@ -904,6 +907,7 @@ public static class PresetPackageService
 		var draft = new PresetDraft
 		{
 			Name = marker.Name,
+			Author = !string.IsNullOrWhiteSpace(marker.Author) ? marker.Author : TryReadAuthorFromReadme(extractedDir),
 			BaseSize = marker.BaseSize > 0 ? marker.BaseSize : RegistryCursorService.DefaultBaseSize,
 			UseScaling = marker.UseScaling,
 			ScaleMode = (ScaleMode)marker.ScaleMode,
@@ -1014,10 +1018,10 @@ public static class PresetPackageService
 		return destPath;
 	}
 
-	private static void WriteArchiveReadme(string stagingDir) =>
-		File.WriteAllText(Path.Combine(stagingDir, ReadmeFileName), BuildReadmeContent());
+	private static void WriteArchiveReadme(string stagingDir, string? author = null) =>
+		File.WriteAllText(Path.Combine(stagingDir, ReadmeFileName), BuildReadmeContent(author));
 
-	private static string BuildReadmeContent()
+	private static string BuildReadmeContent(string? author = null)
 	{
 		var uri = new Uri($"pack://application:,,,/Resources/{ReadmeResourceName}", UriKind.Absolute);
 
@@ -1028,10 +1032,15 @@ public static class PresetPackageService
 
 		using var reader = new StreamReader(stream);
 
+		var authorSection = string.IsNullOrWhiteSpace(author)
+			? string.Empty
+			: $"Author: {author.Trim()}\n";
+
 		return reader.ReadToEnd()
 			.Replace("{{AppName}}", AppInfo.Name)
 			.Replace("{{AppUrl}}", AppInfo.GitHubUrl)
-			.Replace("{{AppCopyright}}", AppInfo.CopyrightLine);
+			.Replace("{{AppCopyright}}", AppInfo.CopyrightLine)
+			.Replace("{{AuthorSection}}", authorSection);
 	}
 
 	private static List<PackageGroupEntry> BuildExportedGroups(IReadOnlyList<Preset> exportedPresets)
@@ -1085,7 +1094,7 @@ public static class PresetPackageService
 			return null;
 
 		var filesDir = Path.Combine(extractedDir, PresetsFolderName, preset.Id, FilesFolderName);
-		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize, UseScaling = preset.UseScaling, ScaleMode = (ScaleMode)preset.ScaleMode };
+		var draft = new PresetDraft { Name = preset.Name, Author = !string.IsNullOrWhiteSpace(preset.Author) ? preset.Author : TryReadAuthorFromReadme(extractedDir), BaseSize = preset.BaseSize, UseScaling = preset.UseScaling, ScaleMode = (ScaleMode)preset.ScaleMode };
 
 		foreach (var (role, fileName) in preset.Roles)
 		{
@@ -1110,7 +1119,7 @@ public static class PresetPackageService
 			return null;
 
 		var filesDir = Path.Combine(presetDir, FilesFolderName);
-		var draft = new PresetDraft { Name = preset.Name, BaseSize = preset.BaseSize, UseScaling = preset.UseScaling, ScaleMode = preset.ScaleMode };
+		var draft = new PresetDraft { Name = preset.Name, Author = !string.IsNullOrWhiteSpace(preset.Author) ? preset.Author : TryReadAuthorFromReadme(presetDir), BaseSize = preset.BaseSize, UseScaling = preset.UseScaling, ScaleMode = preset.ScaleMode };
 
 		foreach (var (role, fileName) in preset.Roles)
 		{
@@ -1132,7 +1141,7 @@ public static class PresetPackageService
 		if (!Directory.Exists(folderPath))
 			return null;
 
-		var draft = new PresetDraft { Name = entry.DisplayName };
+		var draft = new PresetDraft { Name = entry.DisplayName, Author = TryReadAuthorFromReadme(folderPath) };
 
 		foreach (var file in Directory.EnumerateFiles(folderPath).Where(IsCursorFile))
 		{
@@ -1222,5 +1231,29 @@ public static class PresetPackageService
 		var extension = Path.GetExtension(path).ToLowerInvariant();
 
 		return extension is CurExtension or AniExtension;
+	}
+
+	private const string AuthorLinePrefix = "Author:";
+
+	private static string? TryReadAuthorFromReadme(string dir)
+	{
+		var readmePath = Path.Combine(dir, ReadmeFileName);
+
+		if (!File.Exists(readmePath))
+			return null;
+
+		try
+		{
+			foreach (var line in File.ReadLines(readmePath))
+			{
+				if (line.StartsWith(AuthorLinePrefix, StringComparison.OrdinalIgnoreCase))
+					return line[AuthorLinePrefix.Length..].Trim();
+			}
+		}
+		catch
+		{
+		}
+
+		return null;
 	}
 }

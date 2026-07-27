@@ -287,7 +287,7 @@ public partial class MainWindow
 	{
 		var roleFiles = BuildRoleFiles(preset);
 
-		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
+		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles, preset.Author);
 
 		if (path == null)
 			return;
@@ -307,7 +307,7 @@ public partial class MainWindow
 		try
 		{
 			var path = PresetPackageService.ExportFullPackageForFiles(
-				preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
+				preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles, preset.Author);
 
 			if (path == null)
 				return;
@@ -585,8 +585,7 @@ public partial class MainWindow
 
 			if (saved.Id == _activePresetId)
 				ApplyPreset(saved, force: true);
-			else
-				ReloadGallery();
+			ReloadGallery();
 
 			ToastService.Show(RootGrid, Loc.Get(LocToastSaved));
 		}

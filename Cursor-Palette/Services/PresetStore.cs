@@ -130,6 +130,7 @@ public static class PresetStore
 		{
 			Id = id,
 			Name = string.IsNullOrWhiteSpace(draft.Name) ? UntitledPresetName : draft.Name.Trim(),
+			Author = string.IsNullOrWhiteSpace(draft.Author) ? null : draft.Author.Trim(),
 			CreatedAt = existing?.CreatedAt ?? DateTime.Now,
 			SortOrder = sortOrder,
 			BaseSize = draft.BaseSize,

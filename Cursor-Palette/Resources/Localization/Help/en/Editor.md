@@ -15,6 +15,7 @@
 - Files are matched to roles by file name.
 
 📝 Enter a preset name at the bottom.
+✏️ "Author" at the top — set the preset author. The author is saved into the README of each exported preset and restored on import.
 {img:DownloadIcon32} Left of the name — download the whole preset as a folder to Downloads.
 📏 Size slider — set cursor size for this preset.
 {img:ExpandIcon32} Scaling checkbox — when enabled, cursors are scaled to the preset size using nearest-neighbor interpolation, keeping pixels sharp and crisp instead of blurry. Enabled by default for new presets.

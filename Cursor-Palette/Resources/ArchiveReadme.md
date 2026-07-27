@@ -13,5 +13,6 @@ How to install:
 
 That's it! Your cursors will be imported automatically.
 
+{{AuthorSection}}
 ---
 {{AppCopyright}}

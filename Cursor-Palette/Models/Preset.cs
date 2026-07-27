@@ -12,6 +12,7 @@ public sealed class Preset
 {
 	public required string Id { get; init; }
 	public required string Name { get; set; }
+	public string? Author { get; set; }
 	public DateTime CreatedAt { get; init; } = DateTime.Now;
 	public int SortOrder { get; set; }
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
@@ -34,6 +35,7 @@ public sealed class PresetDraft
 {
 	public string? Id { get; set; }
 	public string Name { get; set; } = "";
+	public string? Author { get; set; }
 	public int BaseSize { get; set; } = RegistryCursorService.DefaultBaseSize;
 	public bool UseScaling { get; set; }
 	public ScaleMode ScaleMode { get; set; } = ScaleMode.AreaWeighted;

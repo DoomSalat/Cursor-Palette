@@ -15,6 +15,7 @@
 - Dateien werden nach Dateiname Rollen zugeordnet.
 
 📝 Preset-Namen unten eingeben.
+✏️ "Autor" oben — Preset-Autor festlegen. Der Autor wird in die README jedes exportierten Presets gespeichert und beim Import wiederhergestellt.
 {img:DownloadIcon32} Links vom Namen — das gesamte Preset als Ordner in die Downloads herunterladen.
 📏 Größenregler — Cursorgröße für dieses Preset festlegen.
 {img:ExpandIcon32} Skalierungs-Checkbox — wenn aktiviert, werden Cursor auf die Preset-Größe skaliert (Nearest-Neighbor), sodass Pixel scharf und klar bleiben statt verschwommen. Standardmäßig für neue Presets aktiviert.

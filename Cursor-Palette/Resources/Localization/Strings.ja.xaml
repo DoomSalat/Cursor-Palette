@@ -71,6 +71,8 @@
 	<sys:String x:Key="S.Editor.TitleNew">新しいプリセット</sys:String>
 	<sys:String x:Key="S.Editor.TitleEdit">プリセットの編集</sys:String>
 	<sys:String x:Key="S.Editor.PresetName">プリセット名</sys:String>
+	<sys:String x:Key="S.Editor.Author">作者</sys:String>
+	<sys:String x:Key="S.Editor.Author.Tooltip">作者名はREADMEに保存され、インポート時に復元されます</sys:String>
 	<sys:String x:Key="S.Editor.Save">保存</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">キャンセル</sys:String>
 	<sys:String x:Key="S.Editor.ExportPng">PNGとしてダウンロードにエクスポート</sys:String>

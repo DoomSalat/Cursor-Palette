@@ -133,6 +133,7 @@ public partial class PresetEditorWindow : Window
 		NameBox.Text = existing?.Name
 			?? (string.IsNullOrWhiteSpace(suggestedName) ? null : suggestedName)
 			?? Loc.Get(LocDefaultPresetName);
+		AuthorDisplayText.Text = existing?.Author ?? "";
 
 		Result = null;
 		_draftId = existing?.Id;
@@ -214,5 +215,57 @@ public partial class PresetEditorWindow : Window
 	private void OnInfoButtonClick(object sender, RoutedEventArgs e)
 	{
 		new InfoHelpWindow(Loc.Get(LocInfoTitle), Services.HelpTextService.Get("Editor")) { Owner = this }.ShowDialog();
+	}
+
+	private void OnAuthorEditButtonClick(object sender, RoutedEventArgs e)
+	{
+		AuthorEditBox.Text = AuthorDisplayText.Text;
+		AuthorDisplayPanel.Visibility = Visibility.Collapsed;
+		AuthorEditBox.Visibility = Visibility.Visible;
+		AuthorEditBox.Focus();
+	}
+
+	private void OnAuthorEditBoxKeyDown(object sender, KeyEventArgs e)
+	{
+		if (e.Key == Key.Enter)
+		{
+			CommitAuthorEdit();
+			e.Handled = true;
+		}
+		else if (e.Key == Key.Escape)
+		{
+			AuthorEditBox.Visibility = Visibility.Collapsed;
+			AuthorDisplayPanel.Visibility = Visibility.Visible;
+			e.Handled = true;
+		}
+	}
+
+	private void OnAuthorEditBoxLostFocus(object sender, RoutedEventArgs e)
+	{
+		if (AuthorEditBox.Visibility == Visibility.Visible)
+			CommitAuthorEdit();
+	}
+
+	private void CommitAuthorEdit()
+	{
+		AuthorDisplayText.Text = AuthorEditBox.Text;
+		AuthorEditBox.Visibility = Visibility.Collapsed;
+		AuthorDisplayPanel.Visibility = Visibility.Visible;
+	}
+
+	private void OnRootPreviewMouseDown(object sender, MouseButtonEventArgs e)
+	{
+		if (AuthorEditBox.Visibility != Visibility.Visible)
+			return;
+
+		var hit = e.OriginalSource as DependencyObject;
+		while (hit != null)
+		{
+			if (ReferenceEquals(hit, AuthorEditBox))
+				return;
+			hit = VisualTreeHelper.GetParent(hit);
+		}
+
+		CommitAuthorEdit();
 	}
 }
