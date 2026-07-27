@@ -248,6 +248,8 @@
 	"S.Error.ImportVersionUnsupported": "此预设包由更新版本的 Cursor Palette 创建（格式 {0}，此应用支持到 {1}）。请更新应用后再导入。",
 	"S.Menu.DownloadSystemCursors": "下载系统光标",
 	"S.Menu.DownloadSystemPngGif": "导出为 PNG + GIF",
+	"S.Menu.DownloadRaw": "原始光标文件 (.cur/.ani)",
+	"S.Menu.DownloadFullArchive": "完整归档（文件夹 + ZIP）",
 	"S.Menu.DownloadSystemCurAni": "导出为 .cur 和 .ani",
 	"S.Toast.SystemCursorsDownloaded": "系统光标已下载到下载文件夹（{0} 个文件）"
 }

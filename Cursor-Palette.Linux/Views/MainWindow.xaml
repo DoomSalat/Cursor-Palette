@@ -195,8 +195,20 @@
 											  Click="OnMenuMoveRight" />
 									<MenuItem x:Name="MenuDownloadItem"
 											  Header="Download"
-											  IsVisible="{Binding IsPreset}"
-											  Click="OnMenuDownload" />
+											  IsVisible="{Binding IsPreset}">
+										<MenuItem Header="Bundle (.cursorpalette)"
+												  Click="OnMenuDownloadBundle" />
+										<MenuItem Header="Raw cursor files (.cur/.ani)"
+												  Click="OnMenuDownloadRaw" />
+										<MenuItem Header="Full archive (folder + ZIP)"
+												  Click="OnMenuDownloadFullArchive" />
+										<MenuItem Header="Linux archive (.zip)"
+												  Click="OnMenuDownloadLinuxArchive" />
+										<MenuItem Header="Xcursor theme (Linux)"
+												  Click="OnMenuDownloadXcursorTheme" />
+										<MenuItem Header="Download README"
+												  Click="OnMenuDownloadReadme" />
+									</MenuItem>
 									<MenuItem x:Name="MenuUseScalingItem"
 											  Header="Use scaling"
 											  IsVisible="{Binding IsPreset}"

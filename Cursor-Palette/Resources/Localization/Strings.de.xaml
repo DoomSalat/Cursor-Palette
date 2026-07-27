@@ -243,6 +243,8 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Ausgewählte Presets als ZIP-Archiv mit reinen Cursorordnern ohne Zusatzdateien speichern — kann später auch wieder in diese App gezogen werden</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursor-Theme (Linux)</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Ausgewählte Presets in installationsfertige Xcursor-Themes (index.theme + cursors-Ordner) für Linux umwandeln</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage">Vollexport (Windows + Linux)</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage.Tooltip">Ein ZIP-Archiv mit Ordnern für Windows und Linux (Xcursor-Theme) erstellen</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme">README herunterladen</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt mit App-Infos und Installationsanleitung</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">Weitere Exportoptionen</sys:String>
@@ -263,6 +265,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">{0} Preset(s) als Archiv exportiert nach {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">{0} Preset(s) für Linux exportiert nach {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">{0} Xcursor-Theme(s) exportiert nach {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedFullPackage">Vollständiges Paket exportiert nach {0}</sys:String>
 	<sys:String x:Key="S.Toast.ReadmeDownloaded">{0} in Downloads heruntergeladen</sys:String>
 	<sys:String x:Key="S.Toast.Imported">{0} Preset(s) importiert</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">Presets konnten nicht exportiert werden: {0}</sys:String>
@@ -271,6 +274,7 @@
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">Systemcursor herunterladen</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">Als PNG + GIF</sys:String>
+	<sys:String x:Key="S.Menu.QuickDownload">Schnelldownload</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemCurAni">Als .cur und .ani</sys:String>
 	<sys:String x:Key="S.Toast.SystemCursorsDownloaded">Systemcursor in Downloads heruntergeladen ({0} Dateien)</sys:String>
 

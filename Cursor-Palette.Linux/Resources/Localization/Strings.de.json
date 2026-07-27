@@ -248,6 +248,8 @@
 	"S.Error.ImportVersionUnsupported": "Dieses Preset-Paket wurde mit einer neueren Version von Cursor Palette erstellt (Format {0}, diese App unterstützt bis {1}). Aktualisieren Sie die App, um es zu importieren.",
 	"S.Menu.DownloadSystemCursors": "Systemcursor herunterladen",
 	"S.Menu.DownloadSystemPngGif": "Als PNG + GIF",
+	"S.Menu.DownloadRaw": "Rohe Cursordateien (.cur/.ani)",
+	"S.Menu.DownloadFullArchive": "Vollständiges Archiv (Ordner + ZIP)",
 	"S.Menu.DownloadSystemCurAni": "Als .cur und .ani",
 	"S.Toast.SystemCursorsDownloaded": "Systemcursor in Downloads heruntergeladen ({0} Dateien)"
 }

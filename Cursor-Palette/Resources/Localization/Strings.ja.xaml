@@ -243,6 +243,8 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">選択したプリセットを、余分なファイルを含まないカーソルフォルダーのZIPアーカイブとして保存します（後でこのアプリにドラッグ＆ドロップして戻すこともできます）</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursorテーマ（Linux）</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">選択したプリセットを、Linux用にそのままインストールできるXcursorテーマ（index.theme + cursorsフォルダー）に変換します</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage">完全エクスポート（Windows + Linux）</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage.Tooltip">Windows用フォルダーとLinux用フォルダー（Xcursorテーマ）を1つのZIPアーカイブにまとめます</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme">README をダウンロード</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt（アプリの情報とインストール手順）</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">その他のエクスポートオプション</sys:String>
@@ -263,6 +265,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">{0} 個のプリセットをアーカイブとして {1} にエクスポートしました</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">{0} 個のプリセットを Linux 用として {1} にエクスポートしました</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">{0} 個の Xcursor テーマを {1} にエクスポートしました</sys:String>
+	<sys:String x:Key="S.Toast.ExportedFullPackage">完全パッケージを {0} にエクスポートしました</sys:String>
 	<sys:String x:Key="S.Toast.ReadmeDownloaded">{0} をダウンロードフォルダにダウンロードしました</sys:String>
 	<sys:String x:Key="S.Toast.Imported">{0} 個のプリセットをインポートしました</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">プリセットのエクスポートに失敗しました: {0}</sys:String>
@@ -271,6 +274,7 @@
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">システムカーソルをダウンロード</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">PNG + GIF として</sys:String>
+	<sys:String x:Key="S.Menu.QuickDownload">クイックダウンロード</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemCurAni">.cur および .ani として</sys:String>
 	<sys:String x:Key="S.Toast.SystemCursorsDownloaded">システムカーソルをダウンロードフォルダにダウンロードしました（{0} ファイル）</sys:String>
 

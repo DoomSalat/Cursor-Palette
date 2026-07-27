@@ -311,6 +311,22 @@ public static class PresetPackageService
 		return destDir;
 	}
 
+	public static (string? FolderPath, string? ArchivePath) DownloadPresetAsFolderAndArchive(string presetName,
+		IReadOnlyDictionary<string, string> roleFiles, int baseSize, bool useScaling = false,
+		ScaleMode scaleMode = ScaleMode.AreaWeighted, IReadOnlySet<string>? lockedRoles = null)
+	{
+		var folderPath = DownloadPresetAsFolder(presetName, roleFiles, baseSize, useScaling, scaleMode, lockedRoles);
+
+		if (folderPath == null)
+			return (null, null);
+
+		var archiveName = SanitizeName(presetName) + " (full)";
+		var archivePath = GetUniqueDownloadPath(archiveName, ".zip");
+		CreateZipFromDirectory(folderPath, archivePath);
+
+		return (folderPath, archivePath);
+	}
+
 	private static string GetUniqueDownloadFolderPath(string baseName)
 	{
 		var path = Path.Combine(PathProvider.Current.DownloadsDir, baseName);

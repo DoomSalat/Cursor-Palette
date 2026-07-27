@@ -148,6 +148,15 @@ public partial class MainWindow : Window
 	private const string ImportDialogTitle = "Import";
 	private const string ImportFilterName = "Cursor Palette Package";
 	private const string LocToastPresetDownloaded = "S.Toast.PresetDownloaded";
+	private const string LocExportAsBundle = "S.Export.AsBundle";
+	private const string LocMenuDownloadRaw = "S.Menu.DownloadRaw";
+	private const string LocMenuDownloadFullArchive = "S.Menu.DownloadFullArchive";
+	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
+	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
+	private const string LocDownloadReadme = "S.Export.DownloadReadme";
+	private const string LocToastExportedLinuxArchive = "S.Toast.ExportedLinuxArchive";
+	private const string LocToastExportedXcursorTheme = "S.Toast.ExportedXcursorTheme";
+	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
 	private const string LocErrorImportUnrecognized = "S.Error.ImportUnrecognized";
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string HelpTextMainKey = "Main";
@@ -578,6 +587,29 @@ public partial class MainWindow : Window
 				scaleModeItem.Header = preset.ScaleMode == ScaleMode.NearestNeighbor
 					? Loc.Get(LocMenuScaleModeSmooth)
 					: Loc.Get(LocMenuScaleModeNearest);
+
+			var downloadItem = items.OfType<MenuItem>().FirstOrDefault(m => m.Name == "MenuDownloadItem");
+			if (downloadItem != null && downloadItem.Items is System.Collections.IList downloadChildren)
+			{
+				var downloadLabels = new[]
+				{
+					Loc.Get(LocExportAsBundle),
+					Loc.Get(LocMenuDownloadRaw),
+					Loc.Get(LocMenuDownloadFullArchive),
+					Loc.Get(LocExportAsLinuxArchive),
+					Loc.Get(LocExportAsXcursorTheme),
+					Loc.Get(LocDownloadReadme),
+				};
+
+				var di = 0;
+				foreach (var child in downloadChildren)
+				{
+					if (child is MenuItem childItem && di < downloadLabels.Length)
+						childItem.Header = downloadLabels[di];
+
+					di++;
+				}
+			}
 		}
 	}
 
@@ -1406,7 +1438,7 @@ public partial class MainWindow : Window
 		_viewModel.MovePreset(preset, 1);
 	}
 
-	public async void OnMenuDownload(object? sender, RoutedEventArgs e)
+	public async void OnMenuDownloadBundle(object? sender, RoutedEventArgs e)
 	{
 		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
 			return;
@@ -1444,6 +1476,145 @@ public partial class MainWindow : Window
 		{
 			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
 		}
+	}
+
+	public void OnMenuDownloadRaw(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles,
+				preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
+
+			if (path == null)
+				return;
+
+			ShowToast(Loc.Format(LocToastPresetDownloaded, preset.Name, roleFiles.Count));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	public void OnMenuDownloadFullArchive(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var (folderPath, archivePath) = PresetPackageService.DownloadPresetAsFolderAndArchive(
+				preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
+
+			if (folderPath == null || archivePath == null)
+				return;
+
+			ShowToast(Loc.Format(LocToastPresetDownloaded, preset.Name, roleFiles.Count));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(folderPath);
+		}
+		catch (Exception ex)
+		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	public void OnMenuDownloadLinuxArchive(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.ExportLinuxArchiveForFiles(preset.Name, roleFiles);
+			if (path == null)
+				return;
+
+			ShowToast(Loc.Format(LocToastExportedLinuxArchive, 1, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	public void OnMenuDownloadXcursorTheme(object? sender, RoutedEventArgs e)
+	{
+		if (GetContextMenuItem(sender) is not { IsPreset: true, Preset: { } preset })
+			return;
+
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.ExportXcursorThemeForFiles(preset.Name, roleFiles);
+			if (path == null)
+				return;
+
+			ShowToast(Loc.Format(LocToastExportedXcursorTheme, 1, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	public void OnMenuDownloadReadme(object? sender, RoutedEventArgs e)
+	{
+		try
+		{
+			var path = PresetPackageService.DownloadReadme();
+			ShowToast(Loc.Format(LocToastReadmeDownloaded, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				FileExplorerProvider.Current?.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			ShowToast(Loc.Format(LocErrorSaveFailed, ex.Message));
+		}
+	}
+
+	private static Dictionary<string, string> BuildRoleFiles(Preset preset)
+	{
+		var roleFiles = new Dictionary<string, string>();
+
+		foreach (var role in CursorRoles.All)
+		{
+			var resolvedPath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+
+			if (resolvedPath != null && File.Exists(resolvedPath))
+				roleFiles[role.RegistryName] = resolvedPath;
+		}
+
+		return roleFiles;
 	}
 
 	public void OnMenuUseScaling(object? sender, RoutedEventArgs e)

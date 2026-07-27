@@ -248,6 +248,8 @@
 	"S.Error.ImportVersionUnsupported": "このプリセットパッケージは新しいバージョンの Cursor Palette で作成されています（フォーマット {0}、このアプリは {1} までサポート）。インポートするにはアプリを更新してください。",
 	"S.Menu.DownloadSystemCursors": "システムカーソルをダウンロード",
 	"S.Menu.DownloadSystemPngGif": "PNG + GIF として",
+	"S.Menu.DownloadRaw": "元のカーソルファイル (.cur/.ani)",
+	"S.Menu.DownloadFullArchive": "完全アーカイブ（フォルダー + ZIP）",
 	"S.Menu.DownloadSystemCurAni": ".cur および .ani として",
 	"S.Toast.SystemCursorsDownloaded": "システムカーソルをダウンロードフォルダにダウンロードしました（{0} ファイル）"
 }

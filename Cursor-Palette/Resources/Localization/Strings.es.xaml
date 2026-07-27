@@ -252,6 +252,8 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Guardar los presets seleccionados como un archivo ZIP con carpetas de cursores sin archivos adicionales — también se puede arrastrar de nuevo a esta app más tarde</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Tema Xcursor (Linux)</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Convertir los presets seleccionados en temas Xcursor listos para instalar (index.theme + carpeta cursors) para Linux</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage">Exportación completa (Windows + Linux)</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage.Tooltip">Crear un archivo ZIP con carpetas para Windows y Linux (tema Xcursor)</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme">Descargar README</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt con información de la app e instrucciones de instalación</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">Más opciones de exportación</sys:String>
@@ -272,6 +274,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">Se exportaron {0} preset(s) como archivo a {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">Se exportaron {0} preset(s) para Linux a {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">Se exportaron {0} tema(s) Xcursor a {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedFullPackage">Paquete completo exportado a {0}</sys:String>
 	<sys:String x:Key="S.Toast.ReadmeDownloaded">Se descargó {0} a Descargas</sys:String>
 	<sys:String x:Key="S.Toast.Imported">Se importaron {0} preset(s)</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">No se pudieron exportar los presets: {0}</sys:String>
@@ -280,6 +283,7 @@
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">Descargar cursores del sistema</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">Como PNG + GIF</sys:String>
+	<sys:String x:Key="S.Menu.QuickDownload">Descarga rápida</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemCurAni">Como .cur y .ani</sys:String>
 	<sys:String x:Key="S.Toast.SystemCursorsDownloaded">Cursores del sistema descargados a Descargas ({0} archivos)</sys:String>
 

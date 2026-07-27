@@ -13,6 +13,8 @@
 
 🐧 Linux — der kleine Pfeil "▾" neben der ZIP-Archiv-Schaltfläche bietet zwei weitere Formate: ein Xcursor-Theme (index.theme + ein cursors-Ordner, bereit für ~/.icons) oder dieselben rohen .cur/.ani-Dateien ohne Zusatzdaten. Beide können später wieder in diese App gezogen werden, gezippt oder bereits entpackt — der Download-Button des Preset-Editors hat denselben Pfeil, um nur das gerade bearbeitete Preset zu exportieren.
 
+📦 Der Pfeil "▾" beim Download-Button des Preset-Editors enthält außerdem "Vollexport (Windows + Linux)" — packt ein ZIP-Archiv mit einem Windows-Ordner (rohe .cur/.ani-Dateien) und einem Linux-Ordner (Xcursor-Theme) für das gerade bearbeitete Preset.
+
 📄 Derselbe Pfeil "▾" enthält auch "README herunterladen" — speichert nur die README.txt für sich (App-Link und Installationsanleitung), ohne ein Preset zu exportieren.
 
 {img:DownloadIcon32} Alle werden im Downloads-Ordner gespeichert, und der Explorer öffnet sich mit der neuen Datei markiert.

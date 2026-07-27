@@ -256,6 +256,8 @@
 	"S.Error.ImportVersionUnsupported": "Этот пакет пресетов создан более новой версией Cursor Palette (формат {0}, эта версия приложения поддерживает до {1}). Обновите приложение, чтобы импортировать его.",
 	"S.Menu.DownloadSystemCursors": "Скачать системные курсоры",
 	"S.Menu.DownloadSystemPngGif": "Как PNG + GIF",
+	"S.Menu.DownloadRaw": "Исходные файлы курсоров (.cur/.ani)",
+	"S.Menu.DownloadFullArchive": "Полный архив (папка + ZIP)",
 	"S.Menu.DownloadSystemCurAni": "Как .cur и .ani",
 	"S.Toast.SystemCursorsDownloaded": "Системные курсоры скачаны в «Загрузки» ({0} шт.)"
 }

@@ -30,6 +30,10 @@ public static class PresetPackageService
 	private const string XcursorArchiveNameSuffix = " (Xcursor)";
 	private const string TempFolderPrefix = "cursor-palette-package-";
 
+	private const string FullPackageWindowsFolderName = "Windows";
+	private const string FullPackageLinuxFolderName = "Linux (Xcursor)";
+	private const string FullPackageNameSuffix = " (Full)";
+
 	private const string XcursorCursorsFolderName = "cursors";
 	private const string XcursorIndexThemeFileName = "index.theme";
 	private const string XcursorInheritsTheme = "default";
@@ -267,6 +271,45 @@ public static class PresetPackageService
 		int baseSize, bool useScaling = false, ScaleMode scaleMode = ScaleMode.AreaWeighted, IReadOnlySet<string>? lockedRoles = null)
 	{
 		var destDir = GetUniqueDownloadFolderPath(SanitizeName(presetName));
+
+		if (!WriteWindowsPresetFolder(destDir, presetName, roleFiles, baseSize, useScaling, scaleMode, lockedRoles))
+		{
+			Directory.Delete(destDir);
+			return null;
+		}
+
+		return destDir;
+	}
+
+	public static string? ExportFullPackageForFiles(string presetName, IReadOnlyDictionary<string, string> roleFiles,
+		int baseSize, bool useScaling = false, ScaleMode scaleMode = ScaleMode.AreaWeighted, IReadOnlySet<string>? lockedRoles = null)
+	{
+		var stagingDir = CreateTempDir();
+
+		try
+		{
+			var windowsWritten = WriteWindowsPresetFolder(Path.Combine(stagingDir, FullPackageWindowsFolderName),
+				presetName, roleFiles, baseSize, useScaling, scaleMode, lockedRoles);
+			var linuxWritten = WriteXcursorThemeFolder(Path.Combine(stagingDir, FullPackageLinuxFolderName),
+				presetName, role => roleFiles.GetValueOrDefault(role));
+
+			if (!windowsWritten && !linuxWritten)
+				return null;
+
+			var destPath = GetUniqueDownloadPath(SanitizeName(presetName) + FullPackageNameSuffix, ".zip");
+			CreateZipFromDirectory(stagingDir, destPath);
+
+			return destPath;
+		}
+		finally
+		{
+			TryDeleteDir(stagingDir);
+		}
+	}
+
+	private static bool WriteWindowsPresetFolder(string destDir, string presetName, IReadOnlyDictionary<string, string> roleFiles,
+		int baseSize, bool useScaling, ScaleMode scaleMode, IReadOnlySet<string>? lockedRoles)
+	{
 		Directory.CreateDirectory(destDir);
 
 		var count = 0;
@@ -286,10 +329,7 @@ public static class PresetPackageService
 		}
 
 		if (count == 0)
-		{
-			Directory.Delete(destDir);
-			return null;
-		}
+			return false;
 
 		var marker = new SinglePresetMarker
 		{
@@ -307,7 +347,7 @@ public static class PresetPackageService
 
 		WriteArchiveReadme(destDir);
 
-		return destDir;
+		return true;
 	}
 
 	private static string GetUniqueDownloadFolderPath(string baseName)

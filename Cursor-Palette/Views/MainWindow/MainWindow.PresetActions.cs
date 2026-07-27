@@ -285,15 +285,7 @@ public partial class MainWindow
 
 	private void DownloadPreset(Preset preset)
 	{
-		var roleFiles = new Dictionary<string, string>();
-
-		foreach (var role in CursorRoles.All)
-		{
-			var resolvedPath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
-
-			if (resolvedPath != null && File.Exists(resolvedPath))
-				roleFiles[role.RegistryName] = resolvedPath;
-		}
+		var roleFiles = BuildRoleFiles(preset);
 
 		var path = PresetPackageService.DownloadPresetAsFolder(preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
 
@@ -304,6 +296,95 @@ public partial class MainWindow
 
 		if (AppState.GetOpenFolderAfterDownload())
 			ExplorerService.RevealFile(path);
+	}
+
+	private void DownloadPresetFullPackage(Preset preset)
+	{
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.ExportFullPackageForFiles(
+				preset.Name, roleFiles, preset.BaseSize, preset.UseScaling, preset.ScaleMode, preset.LockedRoles);
+
+			if (path == null)
+				return;
+
+			ToastService.Show(RootGrid, Loc.Format(LocToastExportedFullPackage, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				ExplorerService.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show(Loc.Format(LocErrorSaveFailed, ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	private void DownloadPresetLinuxArchive(Preset preset)
+	{
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.ExportLinuxArchiveForFiles(preset.Name, roleFiles);
+			if (path == null)
+				return;
+
+			ToastService.Show(RootGrid, Loc.Format(LocToastExportedLinuxArchive, 1, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				ExplorerService.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show(Loc.Format(LocErrorSaveFailed, ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	private void DownloadPresetXcursorTheme(Preset preset)
+	{
+		var roleFiles = BuildRoleFiles(preset);
+		if (roleFiles.Count == 0)
+			return;
+
+		try
+		{
+			var path = PresetPackageService.ExportXcursorThemeForFiles(preset.Name, roleFiles);
+			if (path == null)
+				return;
+
+			ToastService.Show(RootGrid, Loc.Format(LocToastExportedXcursorTheme, 1, System.IO.Path.GetFileName(path)));
+
+			if (AppState.GetOpenFolderAfterDownload())
+				ExplorerService.RevealFile(path);
+		}
+		catch (Exception ex)
+		{
+			MessageBox.Show(Loc.Format(LocErrorSaveFailed, ex.Message),
+				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Error);
+		}
+	}
+
+	private static Dictionary<string, string> BuildRoleFiles(Preset preset)
+	{
+		var roleFiles = new Dictionary<string, string>();
+
+		foreach (var role in CursorRoles.All)
+		{
+			var resolvedPath = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+
+			if (resolvedPath != null && File.Exists(resolvedPath))
+				roleFiles[role.RegistryName] = resolvedPath;
+		}
+
+		return roleFiles;
 	}
 
 	private void StartInlineRename(Preset preset, TextBlock nameText, StackPanel panel)

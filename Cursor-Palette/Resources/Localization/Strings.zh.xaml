@@ -243,6 +243,8 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">将所选预设保存为仅含光标文件夹的 ZIP 压缩包（不含额外文件）——之后也可以拖回本应用重新导入</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Xcursor 主题（Linux）</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">将所选预设转换为可直接安装的 Xcursor 主题（index.theme + cursors 文件夹），供 Linux 使用</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage">完整导出（Windows + Linux）</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage.Tooltip">将 Windows 文件夹和 Linux 文件夹（Xcursor 主题）打包为一个 ZIP 压缩包</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme">下载 README</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt（应用信息和安装说明）</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">更多导出选项</sys:String>
@@ -263,6 +265,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">已将 {0} 个预设导出为压缩包 {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">已将 {0} 个预设导出为 Linux 压缩包 {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">已导出 {0} 个 Xcursor 主题到 {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedFullPackage">已导出完整包到 {0}</sys:String>
 	<sys:String x:Key="S.Toast.ReadmeDownloaded">已将 {0} 下载到"下载"文件夹</sys:String>
 	<sys:String x:Key="S.Toast.Imported">已导入 {0} 个预设</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">导出预设失败：{0}</sys:String>
@@ -271,6 +274,7 @@
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">下载系统光标</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">导出为 PNG + GIF</sys:String>
+	<sys:String x:Key="S.Menu.QuickDownload">快速下载</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemCurAni">导出为 .cur 和 .ani</sys:String>
 	<sys:String x:Key="S.Toast.SystemCursorsDownloaded">系统光标已下载到下载文件夹（{0} 个文件）</sys:String>
 

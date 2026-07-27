@@ -256,6 +256,8 @@
 	"S.Error.ImportVersionUnsupported": "Este paquete de preajustes fue creado con una versión más reciente de Cursor Palette (formato {0}, esta app admite hasta {1}). Actualiza la app para importarlo.",
 	"S.Menu.DownloadSystemCursors": "Descargar cursores del sistema",
 	"S.Menu.DownloadSystemPngGif": "Como PNG + GIF",
+	"S.Menu.DownloadRaw": "Archivos de cursor sin procesar (.cur/.ani)",
+	"S.Menu.DownloadFullArchive": "Archivo completo (carpeta + ZIP)",
 	"S.Menu.DownloadSystemCurAni": "Como .cur y .ani",
 	"S.Toast.SystemCursorsDownloaded": "Cursores del sistema descargados a Descargas ({0} archivos)"
 }

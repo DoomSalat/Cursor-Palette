@@ -64,6 +64,13 @@ public partial class MainWindow : Window
 	private const string LocMenuDownloadSystemPngGif = "S.Menu.DownloadSystemPngGif";
 	private const string LocMenuDownloadSystemCurAni = "S.Menu.DownloadSystemCurAni";
 	private const string LocToastSystemCursorsDownloaded = "S.Toast.SystemCursorsDownloaded";
+	private const string LocMenuQuickDownload = "S.Menu.QuickDownload";
+	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
+	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
+	private const string LocExportAsFullPackage = "S.Export.AsFullPackage";
+	private const string LocToastExportedLinuxArchive = "S.Toast.ExportedLinuxArchive";
+	private const string LocToastExportedXcursorTheme = "S.Toast.ExportedXcursorTheme";
+	private const string LocToastExportedFullPackage = "S.Toast.ExportedFullPackage";
 
 	private const string SpinnerStoryboardKey = "SpinnerStoryboard";
 	private const string UpdateSpinnerStoryboardKey = "UpdateSpinnerStoryboard";

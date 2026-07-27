@@ -7,7 +7,7 @@ namespace CursorPalette.Views;
 
 public partial class PresetEditorWindow
 {
-	private void OnDownloadPresetClick(object sender, RoutedEventArgs e)
+	private (string PresetName, Dictionary<string, string> RoleFiles) GetPresetNameAndRoleFiles()
 	{
 		var invalid = Path.GetInvalidPathChars();
 		var presetName = string.Join("", NameBox.Text.Where(character => !invalid.Contains(character))).Trim();
@@ -24,6 +24,13 @@ public partial class PresetEditorWindow
 			if (resolvedPath != null && File.Exists(resolvedPath))
 				roleFiles[slot.Role.RegistryName] = resolvedPath;
 		}
+
+		return (presetName, roleFiles);
+	}
+
+	private void OnDownloadPresetClick(object sender, RoutedEventArgs e)
+	{
+		var (presetName, roleFiles) = GetPresetNameAndRoleFiles();
 
 		if (roleFiles.Count == 0)
 			return;
@@ -46,6 +53,10 @@ public partial class PresetEditorWindow
 	private void OnDownloadPresetMoreClick(object sender, RoutedEventArgs e)
 	{
 		var menu = new ContextMenu { PlacementTarget = DownloadPresetMoreButton, IsOpen = true };
+
+		var fullPackageItem = new MenuItem { Header = Loc.Get(LocExportAsFullPackage) };
+		fullPackageItem.Click += (_, _) => ExportFullPackage();
+		menu.Items.Add(fullPackageItem);
 
 		var xcursorItem = new MenuItem { Header = Loc.Get(LocExportAsXcursorTheme) };
 		xcursorItem.Click += (_, _) => ExportPresetForLinux(asXcursorTheme: true);
@@ -75,21 +86,7 @@ public partial class PresetEditorWindow
 
 	private void ExportPresetForLinux(bool asXcursorTheme)
 	{
-		var invalid = Path.GetInvalidPathChars();
-		var presetName = string.Join("", NameBox.Text.Where(character => !invalid.Contains(character))).Trim();
-
-		if (string.IsNullOrWhiteSpace(presetName))
-			presetName = Loc.Get(LocDefaultPresetName);
-
-		var roleFiles = new Dictionary<string, string>();
-
-		foreach (var slot in _slots)
-		{
-			var resolvedPath = GetSlotResolvedPath(slot);
-
-			if (resolvedPath != null && File.Exists(resolvedPath))
-				roleFiles[slot.Role.RegistryName] = resolvedPath;
-		}
+		var (presetName, roleFiles) = GetPresetNameAndRoleFiles();
 
 		if (roleFiles.Count == 0)
 			return;
@@ -105,6 +102,26 @@ public partial class PresetEditorWindow
 
 		var toastKey = asXcursorTheme ? LocToastExportedXcursorTheme : LocToastExportedLinuxArchive;
 		ToastService.Show(EditorRootGrid, Loc.Format(toastKey, 1, Path.GetFileName(path)));
+
+		if (AppState.GetOpenFolderAfterDownload())
+			ExplorerService.RevealFile(path);
+	}
+
+	private void ExportFullPackage()
+	{
+		var (presetName, roleFiles) = GetPresetNameAndRoleFiles();
+
+		if (roleFiles.Count == 0)
+			return;
+
+		Directory.CreateDirectory(AppPaths.DownloadsDir);
+
+		var path = PresetPackageService.ExportFullPackageForFiles(presetName, roleFiles, _baseSize, _useScaling, _scaleMode);
+
+		if (path == null)
+			return;
+
+		ToastService.Show(EditorRootGrid, Loc.Format(LocToastExportedFullPackage, Path.GetFileName(path)));
 
 		if (AppState.GetOpenFolderAfterDownload())
 			ExplorerService.RevealFile(path);

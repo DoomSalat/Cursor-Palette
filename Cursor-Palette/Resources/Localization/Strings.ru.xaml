@@ -252,6 +252,8 @@
 	<sys:String x:Key="S.Export.AsLinuxArchive.Tooltip">Сохранить выбранные пресеты в ZIP-архив с папками курсоров без служебных файлов — можно позже перетащить обратно в это приложение</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme">Тема Xcursor (Linux)</sys:String>
 	<sys:String x:Key="S.Export.AsXcursorTheme.Tooltip">Сконвертировать выбранные пресеты в готовые к установке темы Xcursor (index.theme + папка cursors) для Linux</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage">Полный экспорт (Windows + Linux)</sys:String>
+	<sys:String x:Key="S.Export.AsFullPackage.Tooltip">Собрать один ZIP-архив с папками для Windows и для Linux (тема Xcursor)</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme">Скачать README</sys:String>
 	<sys:String x:Key="S.Export.DownloadReadme.Tooltip">README.txt — информация о приложении и инструкция по установке</sys:String>
 	<sys:String x:Key="S.Export.MoreOptions.Tooltip">Другие варианты экспорта</sys:String>
@@ -272,6 +274,7 @@
 	<sys:String x:Key="S.Toast.ExportedArchive">Экспортировано пресетов: {0} — архив {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedLinuxArchive">Экспортировано пресетов для Linux: {0} — архив {1}</sys:String>
 	<sys:String x:Key="S.Toast.ExportedXcursorTheme">Экспортировано тем Xcursor: {0} — архив {1}</sys:String>
+	<sys:String x:Key="S.Toast.ExportedFullPackage">Полный пакет экспортирован в {0}</sys:String>
 	<sys:String x:Key="S.Toast.ReadmeDownloaded">Скачано в «Загрузки»: {0}</sys:String>
 	<sys:String x:Key="S.Toast.Imported">Импортировано пресетов: {0}</sys:String>
 	<sys:String x:Key="S.Error.ExportFailed">Не удалось экспортировать пресеты: {0}</sys:String>
@@ -280,6 +283,7 @@
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">Скачать системные курсоры</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">Как PNG + GIF</sys:String>
+	<sys:String x:Key="S.Menu.QuickDownload">Быстрое скачивание</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemCurAni">Как .cur и .ani</sys:String>
 	<sys:String x:Key="S.Toast.SystemCursorsDownloaded">Системные курсоры скачаны в «Загрузки» ({0} шт.)</sys:String>
 
