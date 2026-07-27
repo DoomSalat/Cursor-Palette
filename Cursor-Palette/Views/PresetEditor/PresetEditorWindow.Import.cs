@@ -28,21 +28,49 @@ public partial class PresetEditorWindow
 			NameBox.Text = folderName;
 
 		var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-		var convertibleFiles = Directory.EnumerateFiles(folder, "*.*", searchOption)
+		var allFiles = Directory.EnumerateFiles(folder, "*.*", searchOption)
 			.Where(ImageToCursorService.IsConvertibleFile)
 			.ToList();
 
-		if (convertibleFiles.Count == 0)
+		if (allFiles.Count == 0)
 		{
 			MessageBox.Show(Loc.Get(LocEditorNoCursorInFolder), Title,
 				MessageBoxButton.OK, MessageBoxImage.Information);
 			return;
 		}
 
+		var cursorFiles = allFiles.Where(ImageToCursorService.IsCursorFile).ToList();
+		var imageFiles = allFiles.Where(f => !ImageToCursorService.IsCursorFile(f)).ToList();
+
 		var matched = 0;
 		var emptySkipped = 0;
 
-		foreach (var file in convertibleFiles)
+		matched += ImportFilesPass(cursorFiles, ref emptySkipped);
+
+		var allFilled = _slots.Where(slot => !slot.IsLocked)
+			.All(slot => slot.SourcePath != null || slot.RefPresetId != null);
+
+		if (!allFilled && imageFiles.Count > 0)
+			matched += ImportFilesPass(imageFiles, ref emptySkipped, skipFilled: true);
+
+		if (emptySkipped > 0)
+		{
+			MessageBox.Show(Loc.Format(LocEditorEmptySkipped, emptySkipped), Title,
+				MessageBoxButton.OK, MessageBoxImage.Information);
+		}
+
+		if (matched == 0)
+		{
+			MessageBox.Show(Loc.Format(LocEditorNoMatchInFolder, allFiles.Count), Title,
+				MessageBoxButton.OK, MessageBoxImage.Information);
+		}
+	}
+
+	private int ImportFilesPass(List<string> files, ref int emptySkipped, bool skipFilled = false)
+	{
+		var matched = 0;
+
+		foreach (var file in files)
 		{
 			var role = CursorRoles.MatchByFileName(file);
 			if (role == null)
@@ -52,6 +80,9 @@ public partial class PresetEditorWindow
 			matched++;
 
 			if (slot.IsLocked)
+				continue;
+
+			if (skipFilled && (slot.SourcePath != null || slot.RefPresetId != null))
 				continue;
 
 			var cursorPath = ImageToCursorService.ConvertToCursorTempFile(file);
@@ -67,16 +98,6 @@ public partial class PresetEditorWindow
 			SetSlotSource(slot, cursorPath);
 		}
 
-		if (emptySkipped > 0)
-		{
-			MessageBox.Show(Loc.Format(LocEditorEmptySkipped, emptySkipped), Title,
-				MessageBoxButton.OK, MessageBoxImage.Information);
-		}
-
-		if (matched == 0)
-		{
-			MessageBox.Show(Loc.Format(LocEditorNoMatchInFolder, convertibleFiles.Count), Title,
-				MessageBoxButton.OK, MessageBoxImage.Information);
-		}
+		return matched;
 	}
 }

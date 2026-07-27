@@ -40,14 +40,22 @@ public static class ImageToCursorService
 			string.Equals(ext, GifExtension, StringComparison.OrdinalIgnoreCase));
 	}
 
+	public static bool IsCursorFile(string path)
+	{
+		var ext = Path.GetExtension(path);
+
+		return !string.IsNullOrEmpty(ext) && (
+			string.Equals(ext, CurExtension, StringComparison.OrdinalIgnoreCase) ||
+			string.Equals(ext, AniExtension, StringComparison.OrdinalIgnoreCase));
+	}
+
 	public static bool IsConvertibleFile(string path)
 	{
 		var ext = Path.GetExtension(path);
 
 		return !string.IsNullOrEmpty(ext) && (
 			IsImageFile(path) ||
-			string.Equals(ext, CurExtension, StringComparison.OrdinalIgnoreCase) ||
-			string.Equals(ext, AniExtension, StringComparison.OrdinalIgnoreCase));
+			IsCursorFile(path));
 	}
 
 	public static string? ConvertToCursorTempFile(string path)
