@@ -6,6 +6,9 @@
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
 	<sys:String x:Key="S.AppLogo.RandomTooltip">ボード全体からランダム選択</sys:String>
 
+	<sys:String x:Key="S.Toast.IconSizeAppliedAll">アイコンサイズを適用しました</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedOne">サイズ {0} を適用しました</sys:String>
+
 	<sys:String x:Key="S.About.Title">このアプリについて</sys:String>
 	<sys:String x:Key="S.About.Close">閉じる</sys:String>
 	<sys:String x:Key="S.About.LicenseHint">MIT ライセンス — クリックして詳細を表示</sys:String>
@@ -125,6 +128,7 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">キャンバス (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">ホットスポット (O)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRef">参考画像 (R)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizes">アイコンサイズ (I)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">元に戻す (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">やり直し (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">近日対応</sys:String>
@@ -140,6 +144,17 @@
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">キャンバスの端や角をドラッグしてサイズを変更し、「適用」をクリックしてください。</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">適用</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRefHint">トレース用の参考画像です。カーソルには保存されません。</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesHint">エクスポートするカーソルファイルに含めるサイズを選択します。</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesUnavailableHint">アイコンサイズは正方形の単一フレームでのみ利用できます。</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleMode">スケールモード</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesSummary">{0} 個のサイズを選択中</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesAdd">任意のサイズを追加</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyAll">すべてに適用</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesGenerateDefaults">デフォルトサブサイズを生成</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyOne">{0}×{0} に適用</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesEditMode">サイズを編集</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleModeFor">スケールモード — {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleReset">全体のスケールモードに戻す</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Opacity">不透明度</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Margin">余白</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Offset">中心からのオフセット</sys:String>

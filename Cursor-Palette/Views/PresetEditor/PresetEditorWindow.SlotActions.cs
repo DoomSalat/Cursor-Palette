@@ -80,12 +80,14 @@ public partial class PresetEditorWindow
 		if (editor.ShowDialog() != true)
 			return;
 
-		var tempPath = Path.Combine(Path.GetTempPath(),
-			$"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
-		CursorHotspotService.WriteWithHotspot(resolvedPath, tempPath, editor.ResultX, editor.ResultY);
-		CursorPreviewService.Invalidate(tempPath);
+		var destPath = resolvedPath != null && File.Exists(resolvedPath) && IsWritable(resolvedPath)
+			? resolvedPath
+			: Path.Combine(Path.GetTempPath(), $"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
 
-		SetSlotSource(slot, tempPath);
+		CursorHotspotService.WriteWithHotspot(resolvedPath, destPath, editor.ResultX, editor.ResultY);
+		CursorPreviewService.Invalidate(destPath);
+
+		SetSlotSource(slot, destPath);
 	}
 
 	private const int AniOpenFrameLimit = 60;
@@ -102,49 +104,98 @@ public partial class PresetEditorWindow
 			if (seed == null)
 				return;
 
-			editor = new PaintEditorWindow(seed.Value.Frames, seed.Value.DelaysMs, NameBox.Text, slot.Role.RegistryName) { Owner = this };
+			var existingIconImages = ReadAniIconImages(resolvedPath);
+
+			editor = new PaintEditorWindow(seed.Value.Frames, seed.Value.DelaysMs, NameBox.Text, slot.Role.RegistryName, existingIconImages) { Owner = this };
 		}
 		else
 		{
 			CursorCanvasImage? image;
+			List<CursorCanvasImage>? existingIconImages = null;
 
 			if (resolvedPath != null)
 			{
 				image = CursorCanvasService.TryRead(resolvedPath);
 				if (image == null)
 					return;
+
+				existingIconImages = CursorCanvasService.TryReadAllImages(resolvedPath);
 			}
 			else
 			{
 				image = new CursorCanvasImage(32, 32, 0, 0, new byte[32 * 32 * 4]);
 			}
 
-			editor = new PaintEditorWindow(image, NameBox.Text, slot.Role.RegistryName) { Owner = this };
+			editor = new PaintEditorWindow(image, NameBox.Text, slot.Role.RegistryName, existingIconImages) { Owner = this };
 		}
 
 		if (editor.ShowDialog() != true)
 			return;
 
-		string tempPath;
+		string destPath;
 
 		if (editor.ResultFrames is { Count: > 1 } resultFrames)
 		{
-			tempPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{AniExtension}");
-			AniCursorWriter.Save(tempPath, resultFrames, editor.ResultFrameDelaysMs!);
+			destPath = resolvedPath != null && File.Exists(resolvedPath) && IsWritable(resolvedPath)
+				? resolvedPath
+				: Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{AniExtension}");
+
+			AniCursorWriter.Save(destPath, resultFrames, editor.ResultFrameDelaysMs!,
+				editor.ResultIconSizes, editor.ResultIconSizeCustomImages,
+				editor.ResultIconSizeScaleModeOverrides, editor.ResultIconSizesScaleMode);
 		}
 		else if (editor.Result != null)
 		{
-			tempPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{CurExtension}");
-			CursorCanvasService.Write(tempPath, editor.Result);
+			destPath = resolvedPath != null && File.Exists(resolvedPath) && IsWritable(resolvedPath)
+				? resolvedPath
+				: Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{CurExtension}");
+
+			if (editor.ResultIconSizes is { Count: > 1 } iconSizes)
+			{
+				var overrides = editor.ResultIconSizeScaleModeOverrides;
+				var customImages = editor.ResultIconSizeCustomImages;
+
+				var images = iconSizes
+					.Select(size =>
+					{
+						if (customImages != null && customImages.TryGetValue(size, out var custom))
+							return custom;
+
+						return size == editor.Result.Width
+							? editor.Result
+							: CursorScalerService.ScaleImage(editor.Result, size, size,
+								overrides != null && overrides.TryGetValue(size, out var mode) ? mode : editor.ResultIconSizesScaleMode);
+					})
+					.ToList();
+
+				CursorCanvasService.WriteMultiSize(destPath, images);
+			}
+			else
+			{
+				CursorCanvasService.Write(destPath, editor.Result);
+			}
 		}
 		else
 		{
 			return;
 		}
 
-		CursorPreviewService.Invalidate(tempPath);
+		CursorPreviewService.Invalidate(destPath);
 
-		SetSlotSource(slot, tempPath);
+		SetSlotSource(slot, destPath);
+	}
+
+	private static bool IsWritable(string path)
+	{
+		try
+		{
+			using var stream = new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.None);
+			return true;
+		}
+		catch
+		{
+			return false;
+		}
 	}
 
 	private static (List<CursorCanvasImage> Frames, List<int> DelaysMs)? ReadAniAsFrames(string path)
@@ -173,6 +224,28 @@ public partial class PresetEditorWindow
 		}
 
 		return frames.Count > 0 ? (frames, delays) : null;
+	}
+
+	private static List<CursorCanvasImage>? ReadAniIconImages(string path)
+	{
+		try
+		{
+			var bytes = File.ReadAllBytes(path);
+			var chunks = AniCursorReader.FindIconChunkRanges(bytes);
+
+			if (chunks.Count == 0)
+				return null;
+
+			var (offset, length) = chunks[0];
+			var frameBytes = new byte[length];
+			Array.Copy(bytes, offset, frameBytes, 0, length);
+
+			return CursorCanvasService.TryReadAllImagesFromBytes(frameBytes);
+		}
+		catch
+		{
+			return null;
+		}
 	}
 
 	private static byte[] BitmapSourceToBgra(BitmapSource source)

@@ -1,4 +1,4 @@
-# 🖌️ Mal-Editor
+﻿# 🖌️ Mal-Editor
 
 Verschiebt das Cursorbild innerhalb seiner Leinwand, ändert die Leinwandgröße, malt Pixel oder verschiebt/zoomt die Ansicht.
 
@@ -18,6 +18,8 @@ Verschiebt das Cursorbild innerhalb seiner Leinwand, ändert die Leinwandgröße
 🎞️ Animations-Timeline (Leiste unter der Leinwand) — „+"/„−" fügen Frames hinzu bzw. entfernen sie, die Framenummern wechseln den aktiven Frame. ▶/⏹ spielt die Vorschau ab/stoppt sie; das „ms"-Feld legt die Dauer des aktiven Frames fest. „Für alle" wendet diese Dauer auf alle Frames gleichzeitig an; beim Deaktivieren werden die vorherigen Werte pro Frame wiederhergestellt. „Manuelle Referenzsteuerung" löst die Referenz von der Timeline, um sie unabhängig durchzublättern. Limit — 60 Frames, mindestens 17 ms pro Frame (Grenze des .ani-Formats).
 {img:DownloadIcon32} „.gif" (neben „.png") — erscheint ab mehr als einem Frame und exportiert die Animation als GIF in die Downloads.
 
+{img:SizeChangeIcon32} Untergrößen (Werkzeug „Größen" im rechten Panel) — verwaltet zusätzliche Cursor-Größen innerhalb einer einzelnen Datei (.cur oder .ani). Wenn die Datei keine Untergrößen enthält, erscheint statt „Auf alle anwenden" die Schaltfläche „Standard-Untergrößen generieren" — sie erstellt Standardgrößen (32, 48, 64, 96, 128, 256) aus dem aktuellen Bild. Größen können manuell hinzugefügt und entfernt werden; pro Größe lässt sich der Skalierungsmodus (nächster Nachbar / flächengewichtet) wählen. „Auf alle anwenden" generiert alle Untergrößen aus dem Master-Bild mit dem gewählten Modus neu. Bei animierten Cursorn werden alle Frames synchron skaliert. Der Bearbeitungsmodus erlaubt das pixelgenaue Anpassen jeder Untergröße einzeln.
+
 🕹️ Pfeile (Werkzeug „Bewegen") — verschieben das Bild um 1 Pixel; werden deaktiviert, sobald das Bild diese Kante erreicht.
 ⚡ Ausrichtungsraster (Werkzeug „Bewegen") — 9 Schaltflächen, um das Bild an eine Kante/Ecke zu drücken oder zu zentrieren.
 📐 "Leinwandgröße" (oben rechts) — genaue Breite/Höhe festlegen, ein Preset wählen und einen Ankerpunkt bestimmen, von dem aus die Leinwand wächst oder schrumpft.
@@ -30,4 +32,3 @@ Verschiebt das Cursorbild innerhalb seiner Leinwand, ändert die Leinwandgröße
 Koordinaten unten links angezeigt.
 💾 "Speichern" — Änderungen übernehmen.
 
-🔄 Letztes Werkzeug, Zoom, Position, Farbe und Farbwähler-Modus werden zwischen Sitzungen gespeichert. Die Breite der rechten Werkzeugleiste wird ebenfalls gespeichert — am Trenner ziehen, um sie anzupassen.

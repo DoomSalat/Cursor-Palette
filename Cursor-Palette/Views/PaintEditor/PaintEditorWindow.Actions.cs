@@ -20,6 +20,8 @@ public partial class PaintEditorWindow
 		if (!_ready)
 			return;
 
+		RestoreIconSizesPreview();
+
 		var dialog = new CanvasSizeDialog(_canvasWidth, _canvasHeight) { Owner = this };
 
 		if (dialog.ShowDialog() == true)
@@ -64,6 +66,8 @@ public partial class PaintEditorWindow
 
 	private void OnSaveClick(object sender, RoutedEventArgs e)
 	{
+		RestoreIconSizesPreview();
+
 		var pixels = Compose();
 
 		if (IsFullyTransparent(pixels))
@@ -78,6 +82,7 @@ public partial class PaintEditorWindow
 		var hotspotY = Math.Clamp(_offsetY + _hotspotOffsetY, 0, _canvasHeight - 1);
 
 		Result = new CursorCanvasImage(_canvasWidth, _canvasHeight, hotspotX, hotspotY, pixels);
+		CaptureIconSizesResult();
 
 		if (IsAnimated)
 		{
@@ -107,6 +112,8 @@ public partial class PaintEditorWindow
 
 	private void OnExportPngClick(object sender, RoutedEventArgs e)
 	{
+		RestoreIconSizesPreview();
+
 		var pixels = Compose();
 		var bitmap = new WriteableBitmap(_canvasWidth, _canvasHeight, 96, 96, PixelFormats.Bgra32, null);
 		bitmap.WritePixels(new Int32Rect(0, 0, _canvasWidth, _canvasHeight), pixels, _canvasWidth * BytesPerPixel, 0);

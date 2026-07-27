@@ -6,6 +6,9 @@
 	<sys:String x:Key="S.AppTitle">Cursor Palette</sys:String>
 	<sys:String x:Key="S.AppLogo.RandomTooltip">Zufälliger Cursor vom gesamten Board</sys:String>
 
+	<sys:String x:Key="S.Toast.IconSizeAppliedAll">Icon-Größen angewendet</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedOne">Größe {0} angewendet</sys:String>
+
 	<sys:String x:Key="S.About.Title">Über</sys:String>
 	<sys:String x:Key="S.About.Close">Schließen</sys:String>
 	<sys:String x:Key="S.About.LicenseHint">MIT-Lizenz — für Details klicken</sys:String>
@@ -125,6 +128,7 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Leinwand (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Hotspot (O)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRef">Referenzbild (R)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizes">Icon-Größen (I)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">Rückgängig (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">Wiederherstellen (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Demnächst</sys:String>
@@ -140,6 +144,17 @@
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Ziehen Sie an den Rändern oder Ecken der Leinwand, um die Größe zu ändern, und klicken Sie dann auf Anwenden.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Anwenden</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRefHint">Referenzbild zum Abzeichnen. Wird nicht im Cursor gespeichert.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesHint">Wähle, welche Größen in die exportierte Cursor-Datei eingebettet werden.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesUnavailableHint">Icon-Größen sind nur für ein einzelnes quadratisches Bild verfügbar.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleMode">Skalierungsmodus</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesSummary">{0} Größen ausgewählt</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesAdd">Eigene Größe hinzufügen</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyAll">Auf alle anwenden</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesGenerateDefaults">Standard-Untergrößen generieren</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyOne">Auf {0}×{0} anwenden</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesEditMode">Größe bearbeiten</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleModeFor">Skalierungsmodus — {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleReset">Auf den globalen Skalierungsmodus zurücksetzen</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Opacity">Deckkraft</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Margin">Rand</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Offset">Versatz von der Mitte</sys:String>

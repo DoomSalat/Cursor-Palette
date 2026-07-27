@@ -1,4 +1,4 @@
-# 🖌️ Paint editor
+﻿# 🖌️ Paint editor
 
 Move the cursor image within its canvas, resize the canvas, paint pixels, or pan and zoom around it.
 
@@ -18,6 +18,8 @@ Move the cursor image within its canvas, resize the canvas, paint pixels, or pan
 🎞️ Animation timeline (bar below the canvas) — "+"/"−" add and remove frames, the frame numbers switch the active one. ▶/⏹ plays/stops the preview; the "ms" field sets the active frame's duration. "Use for all" applies that duration to every frame at once; unchecking it restores the previous per-frame values. "Manual reference control" detaches the reference from the timeline for independent browsing. Limit — 60 frames, minimum 17 ms per frame (.ani format limit).
 {img:DownloadIcon32} ".gif" (next to ".png") — appears once there's more than one frame, exports the animation as a GIF to Downloads.
 
+{img:SizeChangeIcon32} Sub-sizes ("Sizes" tool in the right panel) — manages additional cursor sizes within a single file (.cur or .ani). If the file has no sub-sizes, a "Generate default sub-sizes" button appears instead of "Apply to all" — it creates standard sizes (32, 48, 64, 96, 128, 256) from the current image. You can add and remove sizes manually, and choose a scaling mode (nearest neighbor / area-weighted) per size. "Apply to all" regenerates all sub-sizes from the master image using the selected mode. For animated cursors, all frames are scaled synchronously. Edit mode lets you adjust the pixels of each sub-size individually.
+
 🕹️ Arrows (Move tool) — nudge the image by 1 pixel; disabled once the image reaches that edge.
 ⚡ Snap grid (Move tool) — 9 buttons to press the image against an edge/corner, or center it.
 📐 "Canvas size" (top-right) — set an exact width/height, pick a preset, and choose an anchor for how the canvas grows or shrinks.
@@ -30,4 +32,3 @@ Move the cursor image within its canvas, resize the canvas, paint pixels, or pan
 Coordinates shown at bottom-left.
 💾 "Save" — apply the changes.
 
-🔄 Your last tool, zoom, pan position, color and picker mode are saved between sessions. The right tool panel's width is saved too — drag the splitter to resize it.

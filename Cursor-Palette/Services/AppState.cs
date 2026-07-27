@@ -37,6 +37,7 @@ public static class AppState
 	public const string PaintEditorToolHotspot = "Hotspot";
 	public const string PaintEditorToolCanvas = "Canvas";
 	public const string PaintEditorToolBgRef = "BgRef";
+	public const string PaintEditorToolIconSizes = "IconSizes";
 	public const string PaintEditorToolDefault = PaintEditorToolMove;
 
 	public const string PaintEditorColorModeWheel = "Wheel";

@@ -10,6 +10,8 @@
 	<sys:String x:Key="S.Toast.Downloaded">Скачано: {0}</sys:String>
 	<sys:String x:Key="S.Toast.PresetDownloaded">Пресет «{0}» скачан в «Загрузки» ({1} шт.)</sys:String>
 	<sys:String x:Key="S.Toast.SizeApplied">Размер курсора применён</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedAll">Размеры иконок применены</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedOne">Размер {0} применён</sys:String>
 
 	<sys:String x:Key="S.About.Title">О программе</sys:String>
 	<sys:String x:Key="S.About.Close">Закрыть</sys:String>
@@ -134,6 +136,7 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Холст (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Точка клика (O)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRef">Реф-картинка (R)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizes">Размеры иконки (I)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">Отменить (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">Вернуть (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Скоро</sys:String>
@@ -149,6 +152,17 @@
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Потяните за края или углы холста, чтобы изменить размер, затем нажмите «Применить».</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Применить</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRefHint">Картинка-референс для обводки. Не сохраняется в курсор.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesHint">Выберите размеры, которые нужно запечь в экспортируемый файл курсора.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesUnavailableHint">Размеры иконки доступны только для одного квадратного кадра.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleMode">Режим масштабирования</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesSummary">Выбрано размеров: {0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesAdd">Добавить свой размер</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleModeFor">Режим масштабирования — {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleReset">Сбросить к общему режиму масштабирования</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyAll">Применить ко всем</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesGenerateDefaults">Сгенерировать подразмеры</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyOne">Применить к {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesEditMode">Редактировать размер</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Opacity">Прозрачность</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Margin">Отступ от краёв</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Offset">Смещение от центра</sys:String>

@@ -10,6 +10,8 @@
 	<sys:String x:Key="S.Toast.Downloaded">Descargado: {0}</sys:String>
 	<sys:String x:Key="S.Toast.PresetDownloaded">Preajuste "{0}" descargado a Descargas ({1} elementos)</sys:String>
 	<sys:String x:Key="S.Toast.SizeApplied">Tamaño de cursor aplicado</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedAll">Tamaños de icono aplicados</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedOne">Tamaño {0} aplicado</sys:String>
 
 	<sys:String x:Key="S.About.Title">Acerca de</sys:String>
 	<sys:String x:Key="S.About.Close">Cerrar</sys:String>
@@ -134,6 +136,7 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Lienzo (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Punto de clic (O)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRef">Ref de fondo (R)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizes">Tamaños de icono (I)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">Deshacer (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">Rehacer (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Próximamente</sys:String>
@@ -149,6 +152,17 @@
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Arrastra los bordes o las esquinas del lienzo para cambiar el tamaño y luego pulsa Aplicar.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Aplicar</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRefHint">Imagen de referencia para calcar. No se guarda en el cursor.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesHint">Elige qué tamaños incluir en el archivo de cursor exportado.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesUnavailableHint">Los tamaños de icono solo están disponibles para un único fotograma cuadrado.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleMode">Modo de escalado</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesSummary">{0} tamaños seleccionados</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesAdd">Añadir un tamaño personalizado</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyAll">Aplicar a todos</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesGenerateDefaults">Generar sub-tamaños predeterminados</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyOne">Aplicar a {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesEditMode">Editar tamaño</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleModeFor">Modo de escalado — {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleReset">Restablecer al modo de escalado global</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Opacity">Opacidad</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Margin">Margen</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Offset">Desplazamiento del centro</sys:String>

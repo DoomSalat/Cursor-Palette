@@ -10,6 +10,8 @@
 	<sys:String x:Key="S.Toast.Downloaded">Downloaded: {0}</sys:String>
 	<sys:String x:Key="S.Toast.PresetDownloaded">Preset "{0}" downloaded to Downloads ({1} items)</sys:String>
 	<sys:String x:Key="S.Toast.SizeApplied">Cursor size applied</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedAll">Icon sizes applied</sys:String>
+	<sys:String x:Key="S.Toast.IconSizeAppliedOne">Size {0} applied</sys:String>
 
 	<sys:String x:Key="S.About.Title">About</sys:String>
 	<sys:String x:Key="S.About.Close">Close</sys:String>
@@ -134,6 +136,7 @@
 	<sys:String x:Key="S.Editor.Tool.Canvas">Canvas (C)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.Hotspot">Hotspot (O)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRef">Background Ref (R)</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizes">Icon Sizes (I)</sys:String>
 	<sys:String x:Key="S.Editor.Undo.Tooltip">Undo (Ctrl+Z)</sys:String>
 	<sys:String x:Key="S.Editor.Redo.Tooltip">Redo (Ctrl+Y)</sys:String>
 	<sys:String x:Key="S.Editor.Tool.ComingSoon">Coming soon</sys:String>
@@ -149,6 +152,17 @@
 	<sys:String x:Key="S.Editor.Tool.CanvasHint">Drag the canvas edges or corners to resize, then Apply.</sys:String>
 	<sys:String x:Key="S.Editor.Tool.CanvasApply">Apply</sys:String>
 	<sys:String x:Key="S.Editor.Tool.BgRefHint">Reference image for tracing. Not saved into the cursor.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesHint">Choose which sizes to bake into the exported cursor file.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesUnavailableHint">Icon sizes are only available for a single square frame.</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleMode">Scale mode</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesSummary">{0} sizes selected</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesAdd">Add a custom size</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleModeFor">Scale mode — {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesScaleReset">Reset to the global scale mode</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyAll">Apply to all</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesGenerateDefaults">Generate default sub-sizes</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesApplyOne">Apply to {0}×{0}</sys:String>
+	<sys:String x:Key="S.Editor.Tool.IconSizesEditMode">Edit size</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Opacity">Opacity</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Margin">Margin</sys:String>
 	<sys:String x:Key="S.Editor.BgRef.Offset">Offset from center</sys:String>

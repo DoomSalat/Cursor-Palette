@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Windows;
+using CursorPalette.Services;
 
 namespace CursorPalette.Views;
 
@@ -90,8 +91,10 @@ public partial class PaintEditorWindow
 
 	private void UpdateUndoRedoButtons()
 	{
-		UndoButton.IsEnabled = _undoStack.Count > 0;
-		RedoButton.IsEnabled = _redoStack.Count > 0;
+		var iconSizesPreviewActive = _currentTool == AppState.PaintEditorToolIconSizes && _hasIconSizesSnapshot;
+
+		UndoButton.IsEnabled = !iconSizesPreviewActive && _undoStack.Count > 0;
+		RedoButton.IsEnabled = !iconSizesPreviewActive && _redoStack.Count > 0;
 	}
 
 	private void ClearHistory()

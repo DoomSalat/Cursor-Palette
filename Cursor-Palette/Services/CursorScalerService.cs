@@ -127,7 +127,7 @@ public static class CursorScalerService
 		return destPath;
 	}
 
-	private static CursorCanvasImage ScaleImage(CursorCanvasImage source, int targetWidth, int targetHeight, ScaleMode scaleMode)
+	public static CursorCanvasImage ScaleImage(CursorCanvasImage source, int targetWidth, int targetHeight, ScaleMode scaleMode)
 	{
 		var scaledBgra = scaleMode == ScaleMode.NearestNeighbor
 			? ScaleBgraNearestNeighbor(source.Bgra, source.Width, source.Height, targetWidth, targetHeight)

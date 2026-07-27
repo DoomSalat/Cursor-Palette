@@ -39,6 +39,7 @@
 		<Resource Include="Resources\ImageRefIcon32.png" />
 		<Resource Include="Resources\StairIcon24.png" />
 		<Resource Include="Resources\ExpandIcon32.png" />
+		<Resource Include="Resources\SizeChangeIcon32.png" />
 		<Resource Include="Resources\DefaultCursors\Crosshair.cur" />
 		<Resource Include="Resources\DefaultCursors\IBeam.cur" />
 		<Resource Include="Resources\ArchiveReadme.md" />

@@ -1,4 +1,4 @@
-# 🖌️ Editor de pintura
+﻿# 🖌️ Editor de pintura
 
 Mueve la imagen del cursor dentro de su lienzo, cambia el tamaño del lienzo, pinta píxeles o desplázate y haz zoom por la vista.
 
@@ -18,6 +18,8 @@ Mueve la imagen del cursor dentro de su lienzo, cambia el tamaño del lienzo, pi
 🎞️ Línea de tiempo de animación (barra bajo el lienzo) — "+"/"−" añaden y eliminan fotogramas, los números de fotograma cambian el activo. ▶/⏹ reproduce/detiene la vista previa; el campo "ms" define la duración del fotograma activo. "Para todos" aplica esa duración a todos los fotogramas a la vez; al desmarcarlo se restauran los valores anteriores de cada fotograma. "Control manual de referencia" desvincula la referencia de la línea de tiempo para explorarla de forma independiente. Límite — 60 fotogramas, mínimo 17 ms por fotograma (límite del formato .ani).
 {img:DownloadIcon32} ".gif" (junto a ".png") — aparece cuando hay más de un fotograma, exporta la animación como GIF a Descargas.
 
+{img:SizeChangeIcon32} Sub-tamaños (herramienta "Tamaños" en el panel derecho) — gestiona tamaños adicionales del cursor dentro de un único archivo (.cur o .ani). Si el archivo no tiene sub-tamaños, aparece el botón "Generar sub-tamaños predeterminados" en lugar de "Aplicar a todos" — crea tamaños estándar (32, 48, 64, 96, 128, 256) a partir de la imagen actual. Puedes añadir y eliminar tamaños manualmente, y elegir el modo de escalado (vecino más cercano / ponderado por área) para cada tamaño. "Aplicar a todos" regenera todos los sub-tamaños a partir de la imagen maestra con el modo seleccionado. Para cursores animados, todos los fotogramas se escalan sincrónicamente. El modo de edición permite ajustar los píxeles de cada sub-tamaño individualmente.
+
 🕹️ Flechas (herramienta Mover) — desplazan la imagen 1 píxel; se desactivan cuando la imagen llega a ese borde.
 ⚡ Cuadrícula de ajuste (herramienta Mover) — 9 botones para pegar la imagen a un borde/esquina o centrarla.
 📐 "Tamaño del lienzo" (arriba a la derecha) — define un ancho/alto exacto, elige un preajuste y un punto de anclaje desde el que crece o se reduce el lienzo.
@@ -30,4 +32,3 @@ Mueve la imagen del cursor dentro de su lienzo, cambia el tamaño del lienzo, pi
 Coordenadas mostradas abajo a la izquierda.
 💾 "Guardar" — aplicar los cambios.
 
-🔄 La última herramienta, zoom, posición, color y modo del selector se guardan entre sesiones. El ancho del panel de herramientas derecho también se guarda — arrastra el divisor para ajustarlo.

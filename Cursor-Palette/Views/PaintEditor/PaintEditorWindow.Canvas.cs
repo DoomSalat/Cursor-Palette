@@ -80,6 +80,14 @@ public partial class PaintEditorWindow
 		return buffer;
 	}
 
+	private static byte[] ComposeFrame(TimelineFrame frame, int canvasSize)
+	{
+		var buffer = new byte[canvasSize * canvasSize * BytesPerPixel];
+		Blit(buffer, canvasSize, canvasSize, frame.SpriteBgra, frame.SpriteWidth, frame.SpriteHeight, frame.OffsetX, frame.OffsetY);
+
+		return buffer;
+	}
+
 	private (int Min, int Max) HorizontalRange() =>
 		(Math.Min(0, _canvasWidth - _spriteWidth), Math.Max(0, _canvasWidth - _spriteWidth));
 

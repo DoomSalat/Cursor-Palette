@@ -15,6 +15,7 @@ public partial class PaintEditorWindow
 		var isFill = _currentTool == AppState.PaintEditorToolFill;
 		var isHotspot = _currentTool == AppState.PaintEditorToolHotspot;
 		var isBgRef = _currentTool == AppState.PaintEditorToolBgRef;
+		var isIconSizes = _currentTool == AppState.PaintEditorToolIconSizes;
 
 		ToolMoveButton.IsChecked = isMove;
 		ToolHandButton.IsChecked = isHand;
@@ -24,6 +25,7 @@ public partial class PaintEditorWindow
 		ToolCanvasButton.IsChecked = isCanvas;
 		ToolHotspotButton.IsChecked = isHotspot;
 		ToolBgRefButton.IsChecked = isBgRef;
+		ToolIconSizesButton.IsChecked = isIconSizes;
 
 		MoveToolPanel.Visibility = isMove ? Visibility.Visible : Visibility.Collapsed;
 		HandToolPanel.Visibility = isHand ? Visibility.Visible : Visibility.Collapsed;
@@ -33,6 +35,12 @@ public partial class PaintEditorWindow
 		FillToolPanel.Visibility = isFill ? Visibility.Visible : Visibility.Collapsed;
 		HotspotToolPanel.Visibility = isHotspot ? Visibility.Visible : Visibility.Collapsed;
 		BgRefToolPanel.Visibility = isBgRef ? Visibility.Visible : Visibility.Collapsed;
+		IconSizesToolPanel.Visibility = isIconSizes ? Visibility.Visible : Visibility.Collapsed;
+
+		CanvasSizeButton.IsEnabled = !isIconSizes;
+
+		if (isIconSizes)
+			RefreshIconSizesPanel();
 
 		ResizeOverlay.Visibility = isCanvas ? Visibility.Visible : Visibility.Collapsed;
 		UpdateViewportCursor();
@@ -57,6 +65,11 @@ public partial class PaintEditorWindow
 
 	private void SetTool(string tool)
 	{
+		var keepIconSizesPreview = _iconSizesEditMode && _iconSizesPreviewSize != null;
+
+		if (_currentTool == AppState.PaintEditorToolIconSizes && tool != AppState.PaintEditorToolIconSizes && !keepIconSizesPreview)
+			RestoreIconSizesPreview();
+
 		if (_currentTool == AppState.PaintEditorToolCanvas && tool != AppState.PaintEditorToolCanvas && _hasCanvasResizeSnapshot)
 		{
 			_canvasWidth = _canvasResizeSnapshotWidth;
@@ -100,6 +113,8 @@ public partial class PaintEditorWindow
 	private void OnToolCanvasClick(object sender, RoutedEventArgs e) => SetTool(AppState.PaintEditorToolCanvas);
 
 	private void OnToolHotspotClick(object sender, RoutedEventArgs e) => SetTool(AppState.PaintEditorToolHotspot);
+
+	private void OnToolIconSizesClick(object sender, RoutedEventArgs e) => SetTool(AppState.PaintEditorToolIconSizes);
 
 	private void OnCanvasToolApplyClick(object sender, RoutedEventArgs e)
 	{

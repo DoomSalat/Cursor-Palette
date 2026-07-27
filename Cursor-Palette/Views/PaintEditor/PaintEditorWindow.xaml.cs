@@ -83,24 +83,30 @@ public partial class PaintEditorWindow : Window
 	public IReadOnlyList<CursorCanvasImage>? ResultFrames { get; private set; }
 	public IReadOnlyList<int>? ResultFrameDelaysMs { get; private set; }
 
-	public PaintEditorWindow(CursorCanvasImage source, string? presetName = null, string? roleName = null)
+	public PaintEditorWindow(CursorCanvasImage source, string? presetName = null, string? roleName = null, IReadOnlyList<CursorCanvasImage>? existingIconImages = null)
 	{
 		InitializeComponent();
 
 		_presetName = presetName;
 		_roleName = roleName;
+
+		if (existingIconImages is { Count: > 0 })
+			SeedIconSizes(existingIconImages);
 
 		InitializeWindowState();
 		SetSourceFrame(source);
 		FinishConstruction(InitTimeline);
 	}
 
-	public PaintEditorWindow(IReadOnlyList<CursorCanvasImage> frames, IReadOnlyList<int> frameDelaysMs, string? presetName = null, string? roleName = null)
+	public PaintEditorWindow(IReadOnlyList<CursorCanvasImage> frames, IReadOnlyList<int> frameDelaysMs, string? presetName = null, string? roleName = null, IReadOnlyList<CursorCanvasImage>? existingIconImages = null)
 	{
 		InitializeComponent();
 
 		_presetName = presetName;
 		_roleName = roleName;
+
+		if (existingIconImages is { Count: > 0 })
+			SeedIconSizes(existingIconImages);
 
 		InitializeWindowState();
 		SetSourceFrame(frames[0]);

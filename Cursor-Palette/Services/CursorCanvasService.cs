@@ -62,6 +62,75 @@ public static class CursorCanvasService
 		return TryReadViaWin32(filePath);
 	}
 
+	public static List<CursorCanvasImage>? TryReadAllImages(string filePath)
+	{
+		if (!IsSupportedFile(filePath) || !File.Exists(filePath))
+			return null;
+
+		byte[] bytes;
+		try
+		{
+			bytes = File.ReadAllBytes(filePath);
+		}
+		catch
+		{
+			return null;
+		}
+
+		return TryReadAllImagesFromBytes(bytes);
+	}
+
+	public static List<CursorCanvasImage>? TryReadAllImagesFromBytes(byte[] bytes)
+	{
+		if (bytes.Length < IconDirSize + IconDirEntrySize)
+			return null;
+
+		var type = BitConverter.ToUInt16(bytes, 2);
+		if (type != CursorResourceType)
+			return null;
+
+		var count = BitConverter.ToUInt16(bytes, 4);
+		if (count == 0)
+			return null;
+
+		var images = new List<CursorCanvasImage>(count);
+		var entryOffset = IconDirSize;
+
+		for (var i = 0; i < count; i++)
+		{
+			var offset = entryOffset + i * IconDirEntrySize;
+			if (offset + IconDirEntrySize > bytes.Length)
+				break;
+
+			var hotspotX = BitConverter.ToUInt16(bytes, offset + 4);
+			var hotspotY = BitConverter.ToUInt16(bytes, offset + 6);
+			var imageOffset = (int)BitConverter.ToUInt32(bytes, offset + 12);
+
+			if (imageOffset + BitmapInfoHeaderSize > bytes.Length)
+				continue;
+
+			var width = Math.Abs(BitConverter.ToInt32(bytes, imageOffset + 4));
+			var heightRaw = BitConverter.ToInt32(bytes, imageOffset + 8);
+			var bitCount = BitConverter.ToUInt16(bytes, imageOffset + 14);
+			var actualHeight = Math.Abs(heightRaw) / 2;
+
+			if (width <= 0 || actualHeight <= 0 || width > MaxClassicDimension || actualHeight > MaxClassicDimension)
+				continue;
+
+			CursorCanvasImage? image;
+
+			if (bitCount != CursorBitCount)
+				image = TryReadPalettedFromBytes(bytes, imageOffset, width, actualHeight, bitCount, hotspotX, hotspotY);
+			else
+				image = TryRead32BitFromBytes(bytes, imageOffset, width, actualHeight, hotspotX, hotspotY);
+
+			if (image != null)
+				images.Add(image);
+		}
+
+		return images.Count > 0 ? images : null;
+	}
+
 	public static CursorCanvasImage? TryReadFromBytes(byte[] bytes)
 	{
 		if (bytes.Length < IconDirSize + IconDirEntrySize)
@@ -94,6 +163,12 @@ public static class CursorCanvasService
 		if (bitCount != CursorBitCount)
 			return TryReadPalettedFromBytes(bytes, imageOffset, width, actualHeight, bitCount, hotspotX, hotspotY);
 
+		return TryRead32BitFromBytes(bytes, imageOffset, width, actualHeight, hotspotX, hotspotY);
+	}
+
+	private static CursorCanvasImage? TryRead32BitFromBytes(
+		byte[] bytes, int imageOffset, int width, int actualHeight, int hotspotX, int hotspotY)
+	{
 		var colorRowStride = width * BytesPerPixel;
 		var colorDataOffset = imageOffset + BitmapInfoHeaderSize;
 
@@ -306,36 +381,70 @@ public static class CursorCanvasService
 		return stream.ToArray();
 	}
 
-	private static void WriteToStream(Stream stream, CursorCanvasImage image)
+	public static byte[] BuildMultiSizeBytes(IReadOnlyList<CursorCanvasImage> images)
 	{
-		var width = Math.Clamp(image.Width, 1, MaxClassicDimension);
-		var height = Math.Clamp(image.Height, 1, MaxClassicDimension);
-		var hotspotX = Math.Clamp(image.HotspotX, 0, width - 1);
-		var hotspotY = Math.Clamp(image.HotspotY, 0, height - 1);
+		using var stream = new MemoryStream();
+		WriteMultiSizeToStream(stream, images);
 
-		var colorRowStride = width * BytesPerPixel;
-		var maskRowStride = ((width + RowAlignmentBits - 1) / RowAlignmentBits) * (RowAlignmentBits / 8);
-		var colorDataSize = colorRowStride * height;
-		var maskDataSize = maskRowStride * height;
-		var imageDataSize = BitmapInfoHeaderSize + colorDataSize + maskDataSize;
-		var imageOffset = IconDirSize + IconDirEntrySize;
+		return stream.ToArray();
+	}
+
+	public static void WriteMultiSize(string destinationPath, IReadOnlyList<CursorCanvasImage> images)
+	{
+		using var stream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write);
+		WriteMultiSizeToStream(stream, images);
+	}
+
+	private static void WriteToStream(Stream stream, CursorCanvasImage image) =>
+		WriteMultiSizeToStream(stream, [image]);
+
+	private static void WriteMultiSizeToStream(Stream stream, IReadOnlyList<CursorCanvasImage> images)
+	{
+		var blocks = new byte[images.Count][];
+		var offset = IconDirSize + IconDirEntrySize * images.Count;
 
 		using var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true);
 
 		// ICONDIR
 		writer.Write((ushort)0);
 		writer.Write(CursorResourceType);
-		writer.Write((ushort)1);
+		writer.Write((ushort)images.Count);
 
-		// ICONDIRENTRY
-		writer.Write((byte)(width >= MaxClassicDimension ? 0 : width));
-		writer.Write((byte)(height >= MaxClassicDimension ? 0 : height));
-		writer.Write((byte)0);
-		writer.Write((byte)0);
-		writer.Write((ushort)hotspotX);
-		writer.Write((ushort)hotspotY);
-		writer.Write((uint)imageDataSize);
-		writer.Write((uint)imageOffset);
+		for (var i = 0; i < images.Count; i++)
+		{
+			var image = images[i];
+			var width = Math.Clamp(image.Width, 1, MaxClassicDimension);
+			var height = Math.Clamp(image.Height, 1, MaxClassicDimension);
+			var hotspotX = Math.Clamp(image.HotspotX, 0, width - 1);
+			var hotspotY = Math.Clamp(image.HotspotY, 0, height - 1);
+
+			blocks[i] = BuildImageBlock(image, width, height);
+
+			writer.Write((byte)(width >= MaxClassicDimension ? 0 : width));
+			writer.Write((byte)(height >= MaxClassicDimension ? 0 : height));
+			writer.Write((byte)0);
+			writer.Write((byte)0);
+			writer.Write((ushort)hotspotX);
+			writer.Write((ushort)hotspotY);
+			writer.Write((uint)blocks[i].Length);
+			writer.Write((uint)offset);
+
+			offset += blocks[i].Length;
+		}
+
+		foreach (var block in blocks)
+			writer.Write(block);
+	}
+
+	private static byte[] BuildImageBlock(CursorCanvasImage image, int width, int height)
+	{
+		var colorRowStride = width * BytesPerPixel;
+		var maskRowStride = ((width + RowAlignmentBits - 1) / RowAlignmentBits) * (RowAlignmentBits / 8);
+		var colorDataSize = colorRowStride * height;
+		var maskDataSize = maskRowStride * height;
+
+		using var blockStream = new MemoryStream(BitmapInfoHeaderSize + colorDataSize + maskDataSize);
+		using var writer = new BinaryWriter(blockStream);
 
 		// BITMAPINFOHEADER
 		writer.Write((uint)BitmapInfoHeaderSize);
@@ -371,5 +480,7 @@ public static class CursorCanvasService
 
 			writer.Write(maskRow);
 		}
+
+		return blockStream.ToArray();
 	}
 }
