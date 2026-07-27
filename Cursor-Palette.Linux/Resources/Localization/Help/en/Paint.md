@@ -16,16 +16,16 @@ Move the cursor image within its canvas, resize the canvas, paint pixels, or pan
 ↷ Redo — re-apply a reverted change (Ctrl+Y or Ctrl+Shift+Z).
 
 🎞️ Animation timeline (bar below the canvas) — "+"/"−" add and remove frames, the frame numbers switch the active one. ▶/⏹ plays/stops the preview; the "ms" field sets the active frame's duration. "Use for all" applies that duration to every frame at once; unchecking it restores the previous per-frame values. "Manual reference control" detaches the reference from the timeline for independent browsing. Limit — 60 frames, minimum 17 ms per frame (.ani format limit).
-{img:DownloadIcon32} ".gif" (next to ".png") — appears once there's more than one frame, exports the animation as a GIF to Downloads.
+{img:DownloadIcon32} ".gif" (next to ".png") — appears once there's more than one frame, exports the animation as a GIF to Downloads. Exports exactly what's on the canvas at the current size (including sub-size preview).
 
 🕹️ Arrows (Move tool) — nudge the image by 1 pixel; disabled once the image reaches that edge.
 ⚡ Snap grid (Move tool) — 9 buttons to press the image against an edge/corner, or center it.
 📐 "Canvas size" (top-right) — set an exact width/height, pick a preset, and choose an anchor for how the canvas grows or shrinks.
-{img:DownloadIcon32} "Load image" (top-right) — load a .png/.jpg/.bmp/.gif or .cur/.ani (first frame; an animated GIF becomes the whole frame timeline) via the file picker, or by dragging it onto the button/canvas; choose "Over" to composite it onto the current sprite (canvas grows to fit) or "Replace" to replace the canvas contents entirely.
+{img:DownloadIcon32} "Load image" (top-right) — load a .png/.jpg/.bmp/.gif or .cur/.ani (first frame; an animated GIF becomes the whole frame timeline) via the file picker, or by dragging it onto the button/canvas; choose "Over" to composite it onto the current sprite (canvas grows to fit) or "Replace" to replace the canvas contents entirely. Works at the current canvas size — open a sub-size preview and load an image to apply it directly to that sub-size, then Save to keep it.
 
 🔍 Zoom — Ctrl + mouse wheel or the −/+ buttons, centered on the cursor. A separate −/+ pair scales the editor's interface.
 ☑️ "Sprite bounds" — outline the image's opaque pixels.
-{img:DownloadIcon32} ".png" — export the canvas as a PNG to Downloads (named by preset + role + size).
+{img:DownloadIcon32} ".png" — export the canvas as a PNG to Downloads (named by preset + role + size). Exports exactly what's on the canvas at the current size (including sub-size preview).
 
 Coordinates shown at bottom-left.
 💾 "Save" — apply the changes.

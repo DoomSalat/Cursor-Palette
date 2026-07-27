@@ -8,7 +8,7 @@
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<RootNamespace>CursorPalette.Linux</RootNamespace>
 		<AssemblyName>Cursor-Palette-Linux</AssemblyName>
-		<Version>2.3.2</Version>
+		<Version>2.3.3</Version>
 		<UseAppHost>false</UseAppHost>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
