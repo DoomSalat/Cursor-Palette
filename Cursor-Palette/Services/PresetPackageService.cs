@@ -424,6 +424,9 @@ public static class PresetPackageService
 			written = true;
 		}
 
+		if (written)
+			WriteArchiveReadme(folderPath);
+
 		return written;
 	}
 
@@ -461,6 +464,7 @@ public static class PresetPackageService
 		{
 			File.WriteAllText(Path.Combine(themeDir, XcursorIndexThemeFileName),
 				$"[Icon Theme]\nName={SanitizeName(presetName)}\nInherits={XcursorInheritsTheme}\n");
+			WriteArchiveReadme(themeDir);
 		}
 
 		return writtenAny;
