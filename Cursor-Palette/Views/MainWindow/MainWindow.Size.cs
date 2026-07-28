@@ -33,6 +33,9 @@ public partial class MainWindow
 		var sizeInPixels = RegistryCursorService.SizeStep + (int)SizeSlider.Value * RegistryCursorService.SizeStep;
 		var scaleEnabled = ScaleCursorsCheckBox.IsChecked == true;
 
+		if (_selectedPresetIds.Count > 0)
+			ApplyBulkSizeAndScale(sizeInPixels, scaleEnabled, _activeScaleMode);
+
 		if (_activePresetId != null)
 		{
 			PresetStore.UpdateUseScaling(_activePresetId, scaleEnabled);
@@ -54,6 +57,24 @@ public partial class MainWindow
 
 		ApplyAndPersistSize(sizeInPixels);
 		ReloadGallery();
+	}
+
+	private void ApplyBulkSizeAndScale(int sizeInPixels, bool useScaling, ScaleMode scaleMode)
+	{
+		foreach (var presetId in _selectedPresetIds)
+		{
+			PresetStore.UpdateBaseSize(presetId, sizeInPixels);
+			PresetStore.UpdateUseScaling(presetId, useScaling);
+			PresetStore.UpdateScaleMode(presetId, scaleMode);
+
+			var preset = _presets.FirstOrDefault(preset => preset.Id == presetId);
+			if (preset == null)
+				continue;
+
+			preset.BaseSize = sizeInPixels;
+			preset.UseScaling = useScaling;
+			preset.ScaleMode = scaleMode;
+		}
 	}
 
 	public async void ApplyAndPersistSize(int sizeInPixels)
@@ -175,6 +196,18 @@ public partial class MainWindow
 			? ScaleMode.AreaWeighted
 			: ScaleMode.NearestNeighbor;
 
+		if (_selectedPresetIds.Count > 0)
+		{
+			foreach (var presetId in _selectedPresetIds)
+			{
+				PresetStore.UpdateScaleMode(presetId, _activeScaleMode);
+
+				var selectedPreset = _presets.FirstOrDefault(preset => preset.Id == presetId);
+				if (selectedPreset != null)
+					selectedPreset.ScaleMode = _activeScaleMode;
+			}
+		}
+
 		if (_activePresetId != null)
 		{
 			PresetStore.UpdateScaleMode(_activePresetId, _activeScaleMode);
@@ -183,7 +216,7 @@ public partial class MainWindow
 			if (preset != null)
 				preset.ScaleMode = _activeScaleMode;
 		}
-		else
+		else if (_selectedPresetIds.Count == 0)
 		{
 			AppState.SetScaleMode(_activeScaleMode);
 		}
