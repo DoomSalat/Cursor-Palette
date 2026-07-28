@@ -806,6 +806,16 @@ public sealed class MainWindowViewModel : ViewModelBase
 	{
 		var cursorService = CursorServiceProvider.Current;
 
+		if (_selectedPresetIds is { Count: > 0 })
+		{
+			foreach (var presetId in _selectedPresetIds)
+			{
+				PresetStore.UpdateBaseSize(presetId, sizeInPixels);
+				PresetStore.UpdateUseScaling(presetId, useScaling);
+				PresetStore.UpdateScaleMode(presetId, scaleMode);
+			}
+		}
+
 		try
 		{
 			await Task.Run(() =>
@@ -824,6 +834,9 @@ public sealed class MainWindowViewModel : ViewModelBase
 			_activeUseScaling = useScaling;
 			_activeScaleMode = scaleMode;
 			RaisePropertyChanged(nameof(BaselineSizePx));
+
+			if (_selectedPresetIds is { Count: > 0 })
+				ReloadGallery();
 		}
 		catch (Exception ex)
 		{
@@ -859,6 +872,12 @@ public sealed class MainWindowViewModel : ViewModelBase
 			? ScaleMode.AreaWeighted
 			: ScaleMode.NearestNeighbor;
 
+		if (_selectedPresetIds is { Count: > 0 })
+		{
+			foreach (var presetId in _selectedPresetIds)
+				PresetStore.UpdateScaleMode(presetId, _activeScaleMode);
+		}
+
 		if (_activePresetId != null)
 		{
 			PresetStore.UpdateScaleMode(_activePresetId, _activeScaleMode);
@@ -867,10 +886,13 @@ public sealed class MainWindowViewModel : ViewModelBase
 			if (preset != null)
 				preset.ScaleMode = _activeScaleMode;
 		}
-		else
+		else if (_selectedPresetIds is null || _selectedPresetIds.Count == 0)
 		{
 			AppState.SetScaleMode(_activeScaleMode);
 		}
+
+		if (_selectedPresetIds is { Count: > 0 })
+			ReloadGallery();
 	}
 
 	private static readonly Random RandomPicker = new();
