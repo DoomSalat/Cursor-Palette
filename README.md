@@ -27,6 +27,8 @@ apply.
   folder/archive name); the same works inside the "Choose folder" area of the
   preset editor. A dashed outline highlights exactly where the item you're
   dragging can be dropped.
+
+  ![Drag and drop](docs/GIF/Drag%20and%20drop%20simpler%20equip%20%28Short%29.gif)
 - **Pivot point editor** — drag the marker on an enlarged preview to set
   exactly where clicks register for that cursor, or snap it to a corner,
   edge, or center with one click on the 3×3 quick-set pad (it lights up
