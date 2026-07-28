@@ -46,6 +46,8 @@
 	"S.Menu.DeleteGroup": "Delete group",
 	"S.Menu.ConsolidateGroup": "Group cells together",
 	"S.Menu.RandomPreset": "Random pick",
+	"S.Menu.UseScaling": "Use scaling",
+	"S.Menu.ToggleCollapse": "Collapse/Expand",
 	"S.Group.DefaultName": "Group",
 	"S.Group.SelectedCount": "{0} selected",
 	"S.Group.MembersCount": "{0} preset(s)",

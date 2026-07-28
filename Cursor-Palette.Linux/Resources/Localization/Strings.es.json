@@ -46,6 +46,8 @@
 	"S.Menu.DeleteGroup": "Eliminar grupo",
 	"S.Menu.ConsolidateGroup": "Agrupar celdas juntas",
 	"S.Menu.RandomPreset": "Selección aleatoria",
+	"S.Menu.UseScaling": "Usar escalado",
+	"S.Menu.ToggleCollapse": "Contraer/Expandir",
 	"S.Group.DefaultName": "Grupo",
 	"S.Group.SelectedCount": "{0} seleccionado(s)",
 	"S.Group.MembersCount": "{0} preajuste(s)",

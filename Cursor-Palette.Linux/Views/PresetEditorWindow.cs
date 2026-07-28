@@ -277,7 +277,10 @@ public class PresetEditorWindow : Window
 			}
 		};
 
-		_slotsControl = new ItemsControl();
+		_slotsControl = new ItemsControl
+		{
+			ItemsPanel = new FuncTemplate<Panel?>(() => new WrapPanel()),
+		};
 
 		var saveButton = new Button
 		{

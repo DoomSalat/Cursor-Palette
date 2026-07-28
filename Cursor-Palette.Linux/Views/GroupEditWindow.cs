@@ -16,10 +16,10 @@ public class GroupEditWindow : Window
 	private const double DialogPadding = 16;
 	private const double CloseButtonMinWidth = 90;
 
-	private const string LocGroupEditTitle = "S.Group.EditTitle";
-	private const string LocGroupCreateTitle = "S.Group.CreateTitle";
-	private const string LocGroupName = "S.Group.Name";
-	private const string LocGroupSave = "S.Group.Save";
+	private const string LocGroupEditTitle = "S.Group.Edit.Title";
+	private const string LocGroupCreateTitle = "S.Group.Create";
+	private const string LocGroupName = "S.Group.Edit.Name";
+	private const string LocGroupSave = "S.Group.Edit.Save";
 	private const string LocGroupCancel = "S.Group.Cancel";
 	private const string LocGroupDefaultName = "S.Group.DefaultName";
 

@@ -32,8 +32,8 @@ public class ImportPickerWindow : Window
 	private const string LocImportConfirm = "S.Import.Confirm";
 	private const string LocImportEmpty = "S.Import.Empty";
 	private const string LocImportIgnoreSizes = "S.Import.IgnoreSizes";
-	private const string LocExportSelectAll = "S.Export.SelectAll";
-	private const string LocExportSelectNone = "S.Export.SelectNone";
+	private const string LocExportSelectAll = "S.SelectAll";
+	private const string LocExportSelectNone = "S.SelectNone";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
 	private const string PixelSuffix = "px";
 
@@ -65,15 +65,16 @@ public class ImportPickerWindow : Window
 		MinHeight = DialogMinHeight;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-		var root = new StackPanel
+		var root = new Grid
 		{
 			Margin = new Thickness(DialogPadding),
-			Spacing = 8,
+			RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto,Auto"),
 		};
 
 		var headerGrid = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
+			Margin = new Thickness(0, 0, 0, 8),
 		};
 
 		_selectionCountText = new TextBlock
@@ -103,6 +104,7 @@ public class ImportPickerWindow : Window
 		Grid.SetColumn(selectNoneButton, 2);
 		headerGrid.Children.Add(selectNoneButton);
 
+		Grid.SetRow(headerGrid, 0);
 		root.Children.Add(headerGrid);
 
 		var scrollViewer = new ScrollViewer
@@ -141,6 +143,7 @@ public class ImportPickerWindow : Window
 		}
 
 		scrollViewer.Content = gallery;
+		Grid.SetRow(scrollViewer, 1);
 		root.Children.Add(scrollViewer);
 
 		_ignoreSizesCheck = new CheckBox
@@ -149,6 +152,7 @@ public class ImportPickerWindow : Window
 			Margin = new Thickness(0, 4, 0, 0),
 		};
 		_ignoreSizesCheck.IsCheckedChanged += OnIgnoreSizesChanged;
+		Grid.SetRow(_ignoreSizesCheck, 2);
 		root.Children.Add(_ignoreSizesCheck);
 
 		_uniformSizeRow = new Grid
@@ -157,6 +161,7 @@ public class ImportPickerWindow : Window
 			IsVisible = false,
 			Margin = new Thickness(24, 2, 0, 0),
 		};
+		Grid.SetRow(_uniformSizeRow, 3);
 
 		var uniformSizeLabel = new TextBlock
 		{
@@ -199,10 +204,11 @@ public class ImportPickerWindow : Window
 			Spacing = 8,
 			Margin = new Thickness(0, 4, 0, 0),
 		};
+		Grid.SetRow(bottomBar, 4);
 
 		var cancelButton = new Button
 		{
-			Content = Loc.Get("S.Export.Close"),
+			Content = Loc.Get("S.Editor.Cancel"),
 			MinWidth = CloseButtonMinWidth,
 		};
 		cancelButton.Click += (_, _) => Close();

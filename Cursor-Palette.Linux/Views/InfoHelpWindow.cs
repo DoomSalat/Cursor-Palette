@@ -50,15 +50,16 @@ public class InfoHelpWindow : Window
 
 	private void BuildContent(string title)
 	{
-		var root = new StackPanel
+		var root = new Grid
 		{
 			Margin = new Thickness(DialogPadding),
-			Spacing = 8,
+			RowDefinitions = new RowDefinitions("Auto,*,Auto"),
 		};
 
 		var headerGrid = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
+			Margin = new Thickness(0, 0, 0, 8),
 		};
 
 		var titleText = new TextBlock
@@ -99,6 +100,7 @@ public class InfoHelpWindow : Window
 		zoomInButton.Click += (_, _) => AdjustTextZoom(TextZoomStep);
 		headerGrid.Children.Add(zoomInButton);
 
+		Grid.SetRow(headerGrid, 0);
 		root.Children.Add(headerGrid);
 
 		var scrollViewer = new ScrollViewer
@@ -113,6 +115,7 @@ public class InfoHelpWindow : Window
 		};
 
 		scrollViewer.Content = _bodyPanel;
+		Grid.SetRow(scrollViewer, 1);
 		root.Children.Add(scrollViewer);
 
 		var closeButton = new Button
@@ -123,6 +126,7 @@ public class InfoHelpWindow : Window
 			Margin = new Thickness(0, 8, 0, 0),
 		};
 		closeButton.Click += (_, _) => Close();
+		Grid.SetRow(closeButton, 2);
 		root.Children.Add(closeButton);
 
 		Content = root;

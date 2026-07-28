@@ -30,17 +30,17 @@ public class ExportWindow : Window
 	private const string LocToastExportedArchive = "S.Toast.ExportedArchive";
 	private const string LocToastExportedLinuxArchive = "S.Toast.ExportedLinuxArchive";
 	private const string LocToastExportedXcursorTheme = "S.Toast.ExportedXcursorTheme";
-	private const string LocExportBundle = "S.Export.Bundle";
-	private const string LocExportArchive = "S.Export.Archive";
+	private const string LocExportBundle = "S.Export.AsBundle";
+	private const string LocExportArchive = "S.Export.AsArchive";
 	private const string LocExportAsLinuxArchive = "S.Export.AsLinuxArchive";
 	private const string LocExportAsXcursorTheme = "S.Export.AsXcursorTheme";
 	private const string LocDownloadReadme = "S.Export.DownloadReadme";
 	private const string LocToastReadmeDownloaded = "S.Toast.ReadmeDownloaded";
-	private const string LocExportSelectAll = "S.Export.SelectAll";
-	private const string LocExportSelectNone = "S.Export.SelectNone";
+	private const string LocExportSelectAll = "S.SelectAll";
+	private const string LocExportSelectNone = "S.SelectNone";
 	private const string LocExportName = "S.Export.Name";
 	private const string LocExportTitle = "S.Export.Title";
-	private const string LocExportClose = "S.Export.Close";
+	private const string LocExportClose = "S.Editor.Cancel";
 	private const string LocGroupMembersCount = "S.Group.MembersCount";
 	private const string LocErrorSaveFailed = "S.Error.SaveFailed";
 
@@ -62,15 +62,16 @@ public class ExportWindow : Window
 		MinHeight = DialogMinHeight;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-		var root = new StackPanel
+		var root = new Grid
 		{
 			Margin = new Thickness(DialogPadding),
-			Spacing = 8,
+			RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto"),
 		};
 
 		var headerGrid = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
+			Margin = new Thickness(0, 0, 0, 8),
 		};
 
 		_selectionCountText = new TextBlock
@@ -100,6 +101,7 @@ public class ExportWindow : Window
 		Grid.SetColumn(selectNoneButton, 2);
 		headerGrid.Children.Add(selectNoneButton);
 
+		Grid.SetRow(headerGrid, 0);
 		root.Children.Add(headerGrid);
 
 		var scrollViewer = new ScrollViewer
@@ -136,6 +138,7 @@ public class ExportWindow : Window
 		}
 
 		scrollViewer.Content = gallery;
+		Grid.SetRow(scrollViewer, 1);
 		root.Children.Add(scrollViewer);
 
 		var nameGrid = new Grid
@@ -143,6 +146,7 @@ public class ExportWindow : Window
 			ColumnDefinitions = new ColumnDefinitions("Auto,*"),
 			Margin = new Thickness(0, 4, 0, 0),
 		};
+		Grid.SetRow(nameGrid, 2);
 
 		var nameLabel = new TextBlock
 		{
@@ -169,6 +173,7 @@ public class ExportWindow : Window
 			Spacing = 8,
 			Margin = new Thickness(0, 8, 0, 0),
 		};
+		Grid.SetRow(buttonPanel, 3);
 
 		var bundleButton = new Button
 		{

@@ -37,6 +37,8 @@ public partial class MainWindow : Window
 	private const string LocApplySize = "S.ApplySize";
 	private const string LocUndo = "S.Undo";
 	private const string LocResetDefault = "S.ResetDefault";
+	private const string LocGallerySize = "S.GallerySize";
+	private const string LocScaleCursors = "S.ScaleCursors";
 	private const string LocConfirmDeleteTitle = "S.ConfirmDelete.Title";
 	private const string LocConfirmDeleteText = "S.ConfirmDelete.Text";
 	private const string LocEditorCancel = "S.Editor.Cancel";
@@ -514,6 +516,13 @@ public partial class MainWindow : Window
 		var defaultLabel = this.FindControl<TextBlock>("DefaultLabel");
 		if (defaultLabel != null)
 			defaultLabel.Text = Loc.Get(LocResetDefault);
+
+		var cellScaleLabel = this.FindControl<TextBlock>("CellScaleLabel");
+		if (cellScaleLabel != null)
+			cellScaleLabel.Text = Loc.Get(LocGallerySize);
+
+		if (_scaleCursorsCheckBox != null)
+			_scaleCursorsCheckBox.Content = Loc.Get(LocScaleCursors);
 
 		var emptyHint = this.FindControl<TextBlock>("EmptyGalleryHint");
 		if (emptyHint != null)

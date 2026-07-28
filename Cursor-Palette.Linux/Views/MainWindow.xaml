@@ -16,15 +16,28 @@
 				<StackPanel Grid.Column="0"
 							Orientation="Horizontal"
 							VerticalAlignment="Center"
-							Spacing="8">
-					<TextBlock x:Name="AppLogoText"
-							   Text="Cursor Palette"
-							   FontSize="16"
-							   FontWeight="SemiBold"
-							   VerticalAlignment="Center"
-							   Cursor="Hand"
-							   ToolTip.Tip="Random cursor from the entire board"
-							   PointerPressed="OnAppLogoClick" />
+							Spacing="8"
+							Cursor="Hand"
+							ToolTip.Tip="Random cursor from the entire board"
+							PointerPressed="OnAppLogoClick">
+					<Path Width="18"
+						  Height="18"
+						  Stretch="Uniform"
+						  Fill="{DynamicResource SystemAccentColor}"
+						  Data="M 0,0 L 0,16 L 4.5,12 L 7,18 L 9,17 L 6.5,11 L 12,11 Z" />
+					<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+						<TextBlock x:Name="AppLogoText"
+								   Text="Cursor"
+								   FontSize="16"
+								   FontWeight="SemiBold"
+								   VerticalAlignment="Center" />
+						<TextBlock Text="Palette"
+								   FontSize="16"
+								   FontWeight="SemiBold"
+								   Foreground="{DynamicResource SystemAccentColor}"
+								   VerticalAlignment="Center"
+								   Margin="2,0,0,0" />
+					</StackPanel>
 				</StackPanel>
 
 				<Button x:Name="ThemeToggleButton"
@@ -51,82 +64,92 @@
 		<Border Grid.Row="1"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 				Padding="12,8">
-			<Grid ColumnDefinitions="*,*,Auto">
+			<Grid ColumnDefinitions="Auto,Auto,*,Auto">
 				<!-- Cursor size group -->
-				<StackPanel Grid.Column="0"
-							Orientation="Horizontal"
-							VerticalAlignment="Center"
-							Spacing="8"
-							Margin="0,0,12,0">
-					<TextBlock x:Name="DefaultLabel"
-							   Text="Default"
-							   VerticalAlignment="Center"
-							   Margin="0,0,4,0" />
-					<Slider x:Name="SizeSlider"
-							Minimum="16"
-							Maximum="128"
-							Value="32"
-							MinWidth="80"
-							HorizontalAlignment="Stretch"
-							VerticalAlignment="Center" />
-					<TextBlock x:Name="SizeValueText"
-							   Text="32 px"
-							   VerticalAlignment="Center"
-							   Margin="4,0" />
-					<Button x:Name="ApplySizeButton"
-							Content="Apply"
-							VerticalAlignment="Center" />
-					<CheckBox x:Name="ScaleCursorsCheckBox"
-							  Content="Scale"
-							  Margin="8,0,0,0"
-							  VerticalAlignment="Center"
-							  Click="OnScaleCursorsClick" />
-					<Border x:Name="ScaleModeButton"
-							Width="28" Height="28"
-							CornerRadius="6"
-							Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
-							BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
-							BorderThickness="1"
-							Margin="4,0,0,0"
-							Cursor="Hand"
-							PointerPressed="OnScaleModeIconClick"
-							ToolTip.Tip="{DynamicResource S.ScaleCursors.Tooltip}">
-						<Image x:Name="ScaleModeIcon"
-							   Width="16"
-							   Height="16"
-							   HorizontalAlignment="Center"
-							   VerticalAlignment="Center" />
-					</Border>
-				</StackPanel>
+				<Border Grid.Column="0"
+						BorderBrush="{DynamicResource SystemAccentColor}"
+						BorderThickness="1.5"
+						CornerRadius="8"
+						Padding="10,5"
+						Margin="0,0,12,0">
+					<StackPanel Orientation="Horizontal"
+								VerticalAlignment="Center"
+								Spacing="8">
+						<TextBlock x:Name="DefaultLabel"
+								   Text="Default"
+								   VerticalAlignment="Center"
+								   Margin="0,0,4,0" />
+						<Slider x:Name="SizeSlider"
+								Minimum="16"
+								Maximum="128"
+								Value="32"
+								MinWidth="80"
+								HorizontalAlignment="Stretch"
+								VerticalAlignment="Center" />
+						<TextBlock x:Name="SizeValueText"
+								   Text="32 px"
+								   VerticalAlignment="Center"
+								   Margin="4,0" />
+						<Button x:Name="ApplySizeButton"
+								Content="Apply"
+								VerticalAlignment="Center" />
+						<CheckBox x:Name="ScaleCursorsCheckBox"
+								  Content="Scale"
+								  Margin="8,0,0,0"
+								  VerticalAlignment="Center"
+								  Click="OnScaleCursorsClick" />
+						<Border x:Name="ScaleModeButton"
+								Width="28" Height="28"
+								CornerRadius="6"
+								Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+								BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
+								BorderThickness="1"
+								Margin="4,0,0,0"
+								Cursor="Hand"
+								PointerPressed="OnScaleModeIconClick"
+								ToolTip.Tip="{DynamicResource S.ScaleCursors.Tooltip}">
+							<Image x:Name="ScaleModeIcon"
+								   Width="16"
+								   Height="16"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center" />
+						</Border>
+					</StackPanel>
+				</Border>
 
 				<!-- Cell scale group -->
-				<StackPanel Grid.Column="1"
-							Orientation="Horizontal"
-							VerticalAlignment="Center"
-							Spacing="8"
-							Margin="0,0,12,0">
-					<TextBlock x:Name="CellScaleLabel"
-							   Text="Cells"
-							   VerticalAlignment="Center"
-							   Margin="0,0,4,0" />
-					<Slider x:Name="CellScaleSlider"
-							Minimum="0.5"
-							Maximum="3.5"
-							Value="1.0"
-							MinWidth="60"
-							HorizontalAlignment="Stretch"
-							TickFrequency="0.1"
-							IsSnapToTickEnabled="True"
-							VerticalAlignment="Center" />
-					<TextBlock x:Name="CellScaleValueText"
-							   Text="100%"
-							   VerticalAlignment="Center"
-							   Margin="4,0" />
-				</StackPanel>
+				<Border Grid.Column="1"
+						BorderBrush="{DynamicResource SystemAccentColor}"
+						BorderThickness="1.5"
+						CornerRadius="8"
+						Padding="10,5"
+						Margin="0,0,16,0">
+					<StackPanel Orientation="Horizontal"
+								VerticalAlignment="Center"
+								Spacing="8">
+						<TextBlock x:Name="CellScaleLabel"
+								   Text="Cells"
+								   VerticalAlignment="Center"
+								   Margin="0,0,4,0" />
+						<Slider x:Name="CellScaleSlider"
+								Minimum="0.5"
+								Maximum="3.5"
+								Value="1.0"
+								MinWidth="60"
+								HorizontalAlignment="Stretch"
+								TickFrequency="0.1"
+								IsSnapToTickEnabled="True"
+								VerticalAlignment="Center" />
+						<TextBlock x:Name="CellScaleValueText"
+								   Text="100%"
+								   VerticalAlignment="Center"
+								   Margin="4,0" />
+					</StackPanel>
+				</Border>
 
 				<!-- Undo (right) -->
 				<Button x:Name="UndoButton"
-						Grid.Column="2"
+						Grid.Column="3"
 						Content="Undo"
 						VerticalAlignment="Center"
 						IsEnabled="{Binding CanUndo}"
@@ -136,8 +159,8 @@
 
 		<!-- Gallery -->
 		<ScrollViewer Grid.Row="2"
-					  HorizontalScrollBarVisibility="Auto"
-					  VerticalScrollBarVisibility="Disabled">
+					  HorizontalScrollBarVisibility="Disabled"
+					  VerticalScrollBarVisibility="Auto">
 			<ScrollViewer.ContextMenu>
 				<ContextMenu>
 					<MenuItem x:Name="MenuCreateGroupItem"
@@ -165,7 +188,9 @@
 								Classes.group="{Binding IsGroup}"
 								Classes.cell="True"
 								Classes.selected="{Binding IsSelected}"
-								PointerPressed="OnPresetClick">
+								PointerPressed="OnPresetClick"
+								PointerMoved="OnPresetPointerMoved"
+								PointerReleased="OnPresetPointerReleased">
 							<ToolTip.Tip>
 								<StackPanel>
 									<TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />

@@ -46,6 +46,8 @@
 	"S.Menu.DeleteGroup": "Удалить группу",
 	"S.Menu.ConsolidateGroup": "Собрать ячейки вместе",
 	"S.Menu.RandomPreset": "Случайный выбор",
+	"S.Menu.UseScaling": "Использовать масштабирование",
+	"S.Menu.ToggleCollapse": "Свернуть/Развернуть",
 	"S.Group.DefaultName": "Группа",
 	"S.Group.SelectedCount": "Выбрано: {0}",
 	"S.Group.MembersCount": "Пресетов: {0}",
