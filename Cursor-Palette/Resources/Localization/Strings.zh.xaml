@@ -240,10 +240,13 @@
 	<sys:String x:Key="S.Update.Downloading">下载中…</sys:String>
 	<sys:String x:Key="S.Update.DownloadedTo">已下载到:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">下载失败</sys:String>
+	<sys:String x:Key="S.Update.NoChecksum">发布者未提供此版本的校验和 — 出于安全考虑已禁用自动更新</sys:String>
+	<sys:String x:Key="S.Update.ChecksumMismatch">下载的文件未通过完整性验证</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">有新版本可用！</sys:String>
 	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette 已在运行</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">文件已下载到下载文件夹</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">正在下载到下载文件夹…</sys:String>
+	<sys:String x:Key="S.Toast.UnverifiedDownload">已下载，但无法验证文件完整性（未发布校验和）</sys:String>
 
 	<sys:String x:Key="S.Export.Tooltip">导出预设</sys:String>
 	<sys:String x:Key="S.Import.Tooltip">导入预设</sys:String>

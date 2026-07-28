@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace CursorPalette.Services;
 
-public record UpdateInfo(string Version, string DownloadUrl);
+public record UpdateInfo(string Version, string DownloadUrl, string? Sha256);
 
 public static class UpdateChecker
 {
@@ -14,7 +14,9 @@ public static class UpdateChecker
 	private const string NameProperty = "name";
 	private const string BrowserDownloadUrlProperty = "browser_download_url";
 	private const string ExeExtension = ".exe";
+	private const string Sha256Extension = ".sha256";
 	private const string VersionPrefix = "v";
+	private static readonly string[] ChecksumBundleNames = { "sha256sums.txt", "checksums.txt", "sha256sums" };
 	private static readonly TimeSpan HttpTimeout = TimeSpan.FromSeconds(10);
 
 	private static readonly HttpClient HttpClient = new();
@@ -60,9 +62,11 @@ public static class UpdateChecker
 			if (tag.StartsWith(VersionPrefix, StringComparison.OrdinalIgnoreCase))
 				tag = tag[1..];
 
-			var downloadUrl = FindExeAssetUrl(doc.RootElement) ?? AppInfo.GitHubReleasesUrl;
+			var exeAsset = FindExeAsset(doc.RootElement);
+			var downloadUrl = exeAsset?.Url ?? AppInfo.GitHubReleasesUrl;
+			var sha256 = exeAsset is null ? null : await FindSha256Async(doc.RootElement, exeAsset.Value.Name);
 
-			return new UpdateInfo(tag, downloadUrl);
+			return new UpdateInfo(tag, downloadUrl, sha256);
 		}
 		catch
 		{
@@ -70,7 +74,7 @@ public static class UpdateChecker
 		}
 	}
 
-	private static string? FindExeAssetUrl(JsonElement root)
+	private static (string Name, string Url)? FindExeAsset(JsonElement root)
 	{
 		if (!root.TryGetProperty(AssetsProperty, out var assets))
 			return null;
@@ -87,10 +91,81 @@ public static class UpdateChecker
 			if (name.EndsWith(ExeExtension, StringComparison.OrdinalIgnoreCase) &&
 				asset.TryGetProperty(BrowserDownloadUrlProperty, out var urlProp))
 			{
-				return urlProp.GetString();
+				var url = urlProp.GetString();
+				if (!string.IsNullOrEmpty(url))
+					return (name, url);
 			}
 		}
 
 		return null;
+	}
+
+	private static async Task<string?> FindSha256Async(JsonElement root, string exeAssetName)
+	{
+		if (!root.TryGetProperty(AssetsProperty, out var assets))
+			return null;
+
+		var perFileChecksumName = exeAssetName + Sha256Extension;
+
+		string? bundleUrl = null;
+
+		foreach (var asset in assets.EnumerateArray())
+		{
+			if (!asset.TryGetProperty(NameProperty, out var nameProp))
+				continue;
+
+			var name = nameProp.GetString();
+			if (string.IsNullOrEmpty(name))
+				continue;
+
+			if (!asset.TryGetProperty(BrowserDownloadUrlProperty, out var urlProp))
+				continue;
+
+			var url = urlProp.GetString();
+			if (string.IsNullOrEmpty(url))
+				continue;
+
+			if (string.Equals(name, perFileChecksumName, StringComparison.OrdinalIgnoreCase))
+				return await DownloadAndParseChecksumAsync(url, exeAssetName);
+
+			if (Array.Exists(ChecksumBundleNames, n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase)))
+				bundleUrl = url;
+		}
+
+		return bundleUrl is null ? null : await DownloadAndParseChecksumAsync(bundleUrl, exeAssetName);
+	}
+
+	private static async Task<string?> DownloadAndParseChecksumAsync(string checksumUrl, string exeAssetName)
+	{
+		try
+		{
+			var content = await HttpClient.GetStringAsync(checksumUrl);
+
+			foreach (var rawLine in content.Split('\n'))
+			{
+				var line = rawLine.Trim();
+				if (line.Length == 0)
+					continue;
+
+				var parts = line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+				if (parts.Length == 0)
+					continue;
+
+				var hash = parts[0].Trim();
+
+				if (parts.Length == 1)
+					return hash;
+
+				var fileName = parts[^1].TrimStart('*');
+				if (string.Equals(fileName, exeAssetName, StringComparison.OrdinalIgnoreCase))
+					return hash;
+			}
+
+			return null;
+		}
+		catch
+		{
+			return null;
+		}
 	}
 }

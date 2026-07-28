@@ -33,3 +33,28 @@ dotnet publish Cursor-Palette/Cursor-Palette.csproj -c Release -r win-x64 --self
 
 Перед сборкой релиза обнови `<Version>` в
 [Cursor-Palette.csproj](../Cursor-Palette/Cursor-Palette.csproj).
+
+## Контрольная сумма (обязательно)
+
+Автообновление ([UpdateChecker.cs](../Cursor-Palette/Services/UpdateChecker.cs),
+[UpdateWindow.xaml.cs](../Cursor-Palette/Views/UpdateWindow.xaml.cs)) скачивает
+exe из GitHub-релиза и сверяет его SHA256 с суммой, опубликованной рядом в
+том же релизе. Если сумма не опубликована — кнопка «Auto update» в приложении
+откажется ставить обновление (ручное скачивание в Downloads по-прежнему
+работает, но с предупреждением, что целостность не проверена).
+
+Поэтому после `dotnet publish` и переименования exe в
+`Cursor-Palette-vX.Y.Z.exe` нужно посчитать хеш и сохранить его в файл
+`Cursor-Palette-vX.Y.Z.exe.sha256` рядом с exe:
+
+```powershell
+$exe = "dist/Cursor-Palette-vX.Y.Z.exe"
+(Get-FileHash $exe -Algorithm SHA256).Hash.ToLower() + "  " + (Split-Path $exe -Leaf) |
+    Out-File "$exe.sha256" -Encoding ascii -NoNewline
+```
+
+При создании релиза на GitHub загрузи **оба** файла как assets: сам exe и
+`.exe.sha256`. Формат строки — `<hex-хеш>  <имя-файла>` (как у стандартного
+`sha256sum`), это позволяет также использовать один общий файл
+`SHA256SUMS.txt` со строками для всех exe вместо отдельного `.sha256` на
+каждый файл — приложение поддерживает оба варианта.

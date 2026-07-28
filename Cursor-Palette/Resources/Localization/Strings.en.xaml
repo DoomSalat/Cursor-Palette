@@ -248,10 +248,13 @@
 	<sys:String x:Key="S.Update.Downloading">Downloading…</sys:String>
 	<sys:String x:Key="S.Update.DownloadedTo">Downloaded to:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">Download failed</sys:String>
+	<sys:String x:Key="S.Update.NoChecksum">Publisher did not provide a checksum for this release — auto-update disabled for safety</sys:String>
+	<sys:String x:Key="S.Update.ChecksumMismatch">Downloaded file failed integrity verification</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">A new version is available!</sys:String>
 	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette is already running</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">File downloaded to Downloads folder</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">Downloading to Downloads folder…</sys:String>
+	<sys:String x:Key="S.Toast.UnverifiedDownload">Downloaded, but file integrity could not be verified (no checksum published)</sys:String>
 
 	<sys:String x:Key="S.Export.Tooltip">Export presets</sys:String>
 	<sys:String x:Key="S.Import.Tooltip">Import presets</sys:String>

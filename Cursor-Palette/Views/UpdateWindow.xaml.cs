@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using CursorPalette.Services;
@@ -21,8 +22,11 @@ public partial class UpdateWindow : Window
 	private const string LocDownloading = "S.Update.Downloading";
 	private const string LocDownloadedTo = "S.Update.DownloadedTo";
 	private const string LocDownloadFailed = "S.Update.DownloadFailed";
+	private const string LocNoChecksum = "S.Update.NoChecksum";
+	private const string LocChecksumMismatch = "S.Update.ChecksumMismatch";
 	private const string LocToastManualDownload = "S.Toast.ManualDownload";
 	private const string LocToastDownloadStarted = "S.Toast.DownloadStarted";
+	private const string LocToastUnverifiedDownload = "S.Toast.UnverifiedDownload";
 	private const string VersionLabelFormat = "{0}: {1}  →  {2}: {3}";
 	private const string DownloadedToFormat = "{0} {1}";
 	private const string DownloadFailedFormat = "{0}: {1}";
@@ -69,11 +73,23 @@ public partial class UpdateWindow : Window
 			using var response = await HttpClient.GetAsync(_updateInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
 			response.EnsureSuccessStatusCode();
 
-			await using var fs = File.Create(destPath);
+			await using (var fs = File.Create(destPath))
+				await response.Content.CopyToAsync(fs);
 
-			await response.Content.CopyToAsync(fs);
-
-			ToastService.Show(_toastHost, Loc.Get(LocToastManualDownload));
+			if (_updateInfo.Sha256 is null)
+			{
+				ToastService.Show(_toastHost, Loc.Get(LocToastUnverifiedDownload));
+			}
+			else if (!await VerifyChecksumAsync(destPath, _updateInfo.Sha256))
+			{
+				File.Delete(destPath);
+				ToastService.Show(_toastHost, Loc.Get(LocChecksumMismatch));
+				return;
+			}
+			else
+			{
+				ToastService.Show(_toastHost, Loc.Get(LocToastManualDownload));
+			}
 
 			if (AppState.GetOpenFolderAfterDownload())
 				ExplorerService.RevealFile(destPath);
@@ -83,22 +99,44 @@ public partial class UpdateWindow : Window
 		}
 	}
 
+	private static async Task<bool> VerifyChecksumAsync(string filePath, string expectedSha256)
+	{
+		await using var fs = File.OpenRead(filePath);
+		var hashBytes = await SHA256.HashDataAsync(fs);
+		var actual = Convert.ToHexString(hashBytes);
+
+		return string.Equals(actual, expectedSha256.Replace("-", string.Empty), StringComparison.OrdinalIgnoreCase);
+	}
+
 	private async void OnAutoUpdateClick(object sender, RoutedEventArgs e)
 	{
+		if (_updateInfo.Sha256 is null)
+		{
+			StatusText.Text = Loc.Get(LocNoChecksum);
+			StatusText.Visibility = Visibility.Visible;
+			return;
+		}
+
 		StatusText.Text = Loc.Get(LocDownloading);
 		StatusText.Visibility = Visibility.Visible;
 
+		var tempPath = Path.Combine(Path.GetTempPath(), string.Format(TempFileFormat, _updateInfo.Version));
+
 		try
 		{
-			var tempPath = Path.Combine(Path.GetTempPath(), string.Format(TempFileFormat, _updateInfo.Version));
-
 			using var response = await HttpClient.GetAsync(_updateInfo.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
 
 			response.EnsureSuccessStatusCode();
 
-			await using var fs = File.Create(tempPath);
+			await using (var fs = File.Create(tempPath))
+				await response.Content.CopyToAsync(fs);
 
-			await response.Content.CopyToAsync(fs);
+			if (!await VerifyChecksumAsync(tempPath, _updateInfo.Sha256))
+			{
+				File.Delete(tempPath);
+				StatusText.Text = Loc.Get(LocChecksumMismatch);
+				return;
+			}
 
 			var currentExe = Environment.ProcessPath!;
 			var batPath = Path.Combine(Path.GetTempPath(), string.Format(TempBatFormat, Guid.NewGuid().ToString("N")));

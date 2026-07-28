@@ -240,10 +240,13 @@
 	<sys:String x:Key="S.Update.Downloading">ダウンロード中…</sys:String>
 	<sys:String x:Key="S.Update.DownloadedTo">ダウンロード先:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">ダウンロード失敗</sys:String>
+	<sys:String x:Key="S.Update.NoChecksum">このリリースにはチェックサムが提供されていません。安全のため自動更新は無効です</sys:String>
+	<sys:String x:Key="S.Update.ChecksumMismatch">ダウンロードしたファイルは整合性検証に失敗しました</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">新しいバージョンが利用可能です！</sys:String>
 	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette はすでに起動しています</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">ダウンロードフォルダに保存されました</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">ダウンロードフォルダへのダウンロードを開始…</sys:String>
+	<sys:String x:Key="S.Toast.UnverifiedDownload">ダウンロードしましたが、ファイルの整合性を検証できませんでした（チェックサム未公開）</sys:String>
 
 	<sys:String x:Key="S.Export.Tooltip">プリセットをエクスポート</sys:String>
 	<sys:String x:Key="S.Import.Tooltip">プリセットをインポート</sys:String>

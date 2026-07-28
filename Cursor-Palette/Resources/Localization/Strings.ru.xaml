@@ -248,10 +248,13 @@
 	<sys:String x:Key="S.Update.Downloading">Скачивание…</sys:String>
 	<sys:String x:Key="S.Update.DownloadedTo">Скачано в:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">Ошибка скачивания</sys:String>
+	<sys:String x:Key="S.Update.NoChecksum">Издатель не опубликовал контрольную сумму для этого релиза — автообновление отключено в целях безопасности</sys:String>
+	<sys:String x:Key="S.Update.ChecksumMismatch">Скачанный файл не прошёл проверку целостности</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">Доступна новая версия!</sys:String>
 	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette уже запущен</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">Файл скачан в папку загрузок</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">Скачивание в папку загрузок началось…</sys:String>
+	<sys:String x:Key="S.Toast.UnverifiedDownload">Файл скачан, но его целостность не удалось проверить (контрольная сумма не опубликована)</sys:String>
 
 	<sys:String x:Key="S.Export.Tooltip">Экспорт пресетов</sys:String>
 	<sys:String x:Key="S.Import.Tooltip">Импорт пресетов</sys:String>

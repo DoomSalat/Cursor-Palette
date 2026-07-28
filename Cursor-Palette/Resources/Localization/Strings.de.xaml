@@ -240,10 +240,13 @@
 	<sys:String x:Key="S.Update.Downloading">Wird heruntergeladen…</sys:String>
 	<sys:String x:Key="S.Update.DownloadedTo">Heruntergeladen nach:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">Download fehlgeschlagen</sys:String>
+	<sys:String x:Key="S.Update.NoChecksum">Der Herausgeber hat keine Prüfsumme für dieses Release bereitgestellt — Auto-Update ist aus Sicherheitsgründen deaktiviert</sys:String>
+	<sys:String x:Key="S.Update.ChecksumMismatch">Die heruntergeladene Datei hat die Integritätsprüfung nicht bestanden</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">Eine neue Version ist verfügbar!</sys:String>
 	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette läuft bereits</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">Datei in Downloads-Ordner heruntergeladen</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">Download in Downloads-Ordner gestartet…</sys:String>
+	<sys:String x:Key="S.Toast.UnverifiedDownload">Heruntergeladen, aber die Dateiintegrität konnte nicht überprüft werden (keine Prüfsumme veröffentlicht)</sys:String>
 
 	<sys:String x:Key="S.Export.Tooltip">Presets exportieren</sys:String>
 	<sys:String x:Key="S.Import.Tooltip">Presets importieren</sys:String>

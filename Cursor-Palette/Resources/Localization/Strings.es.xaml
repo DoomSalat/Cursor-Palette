@@ -248,10 +248,13 @@
 	<sys:String x:Key="S.Update.Downloading">Descargando…</sys:String>
 	<sys:String x:Key="S.Update.DownloadedTo">Descargado en:</sys:String>
 	<sys:String x:Key="S.Update.DownloadFailed">Error de descarga</sys:String>
+	<sys:String x:Key="S.Update.NoChecksum">El editor no proporcionó una suma de comprobación para esta versión — la actualización automática está deshabilitada por seguridad</sys:String>
+	<sys:String x:Key="S.Update.ChecksumMismatch">El archivo descargado no superó la verificación de integridad</sys:String>
 	<sys:String x:Key="S.Toast.UpdateAvailable">¡Hay una nueva versión disponible!</sys:String>
 	<sys:String x:Key="S.Toast.AlreadyRunning">Cursor Palette ya se está ejecutando</sys:String>
 	<sys:String x:Key="S.Toast.ManualDownload">Archivo descargado a la carpeta de descargas</sys:String>
 	<sys:String x:Key="S.Toast.DownloadStarted">Descargando a la carpeta de descargas…</sys:String>
+	<sys:String x:Key="S.Toast.UnverifiedDownload">Descargado, pero no se pudo verificar la integridad del archivo (no se publicó suma de comprobación)</sys:String>
 
 	<sys:String x:Key="S.Export.Tooltip">Exportar presets</sys:String>
 	<sys:String x:Key="S.Import.Tooltip">Importar presets</sys:String>
