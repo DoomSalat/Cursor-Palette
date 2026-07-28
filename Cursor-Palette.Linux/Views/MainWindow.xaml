@@ -7,7 +7,9 @@
 		MinWidth="720"
 		MinHeight="440"
 		Background="{DynamicResource SystemRegionBrush}">
-	<Grid x:Name="RootGrid" RowDefinitions="Auto,Auto,*,Auto,Auto">
+	<Grid x:Name="RootGrid">
+	<LayoutTransformControl x:Name="UiScaleTransformControl">
+	<Grid x:Name="ContentGrid" RowDefinitions="Auto,Auto,*,Auto,Auto">
 		<!-- Toolbar row 1: logo (left) + theme/language (right) -->
 		<Border Grid.Row="0"
 				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
@@ -66,7 +68,7 @@
 				Padding="12,8">
 			<Grid ColumnDefinitions="Auto,Auto,*,Auto">
 				<!-- Cursor size group -->
-				<Border Grid.Column="0"
+				<Border Grid.Column="1"
 						BorderBrush="{DynamicResource SystemAccentColor}"
 						BorderThickness="1.5"
 						CornerRadius="8"
@@ -84,19 +86,18 @@
 								Maximum="128"
 								Value="32"
 								MinWidth="80"
+								TickFrequency="16"
+								IsSnapToTickEnabled="True"
 								HorizontalAlignment="Stretch"
 								VerticalAlignment="Center" />
 						<TextBlock x:Name="SizeValueText"
 								   Text="32 px"
 								   VerticalAlignment="Center"
 								   Margin="4,0" />
-						<Button x:Name="ApplySizeButton"
-								Content="Apply"
-								VerticalAlignment="Center" />
 						<CheckBox x:Name="ScaleCursorsCheckBox"
-								  Content="Scale"
 								  Margin="8,0,0,0"
 								  VerticalAlignment="Center"
+								  ToolTip.Tip="{DynamicResource S.ScaleCursors.Tooltip}"
 								  Click="OnScaleCursorsClick" />
 						<Border x:Name="ScaleModeButton"
 								Width="28" Height="28"
@@ -114,11 +115,15 @@
 								   HorizontalAlignment="Center"
 								   VerticalAlignment="Center" />
 						</Border>
+						<Button x:Name="ApplySizeButton"
+								Content="Apply"
+								Margin="8,0,0,0"
+								VerticalAlignment="Center" />
 					</StackPanel>
 				</Border>
 
 				<!-- Cell scale group -->
-				<Border Grid.Column="1"
+				<Border Grid.Column="0"
 						BorderBrush="{DynamicResource SystemAccentColor}"
 						BorderThickness="1.5"
 						CornerRadius="8"
@@ -168,6 +173,7 @@
 							  Click="OnMenuCreateGroup" />
 				</ContextMenu>
 			</ScrollViewer.ContextMenu>
+			<LayoutTransformControl x:Name="CellScaleTransformControl">
 			<ItemsControl x:Name="Gallery"
 						  ItemsSource="{Binding Board}">
 				<ItemsControl.ItemsPanel>
@@ -183,7 +189,7 @@
 								CornerRadius="10"
 								BorderThickness="2"
 								BorderBrush="{DynamicResource SystemControlDefaultChromeMediumBrush}"
-								Background="{DynamicResource SystemRegionBrush}"
+								Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 								Classes.active="{Binding IsActive}"
 								Classes.group="{Binding IsGroup}"
 								Classes.cell="True"
@@ -241,17 +247,13 @@
 									<MenuItem x:Name="MenuDownloadSystemItem"
 											  Header="Download system cursors"
 											  IsVisible="{Binding IsDefaultCell}">
-										<MenuItem Header="As .xcursor"
-												  Click="OnMenuDownloadSystemXcursor" />
 										<MenuItem Header="As PNG + GIF"
 												  Click="OnMenuDownloadSystemImages" />
 										<MenuItem Header="As .cur and .ani"
 												  Click="OnMenuDownloadSystemCurAni" />
+										<MenuItem Header="As .xcursor"
+												  Click="OnMenuDownloadSystemXcursor" />
 									</MenuItem>
-									<MenuItem x:Name="MenuToggleCollapseItem"
-											  Header="Collapse/Expand"
-											  IsVisible="{Binding IsGroup}"
-											  Click="OnMenuToggleCollapse" />
 									<MenuItem x:Name="MenuRandomPresetItem"
 											  Header="Random pick"
 											  IsVisible="{Binding IsGroup}"
@@ -268,6 +270,10 @@
 											  Header="Ungroup"
 											  IsVisible="{Binding IsGroup}"
 											  Click="OnMenuUngroup" />
+									<MenuItem x:Name="MenuToggleCollapseItem"
+											  Header="Collapse/Expand"
+											  IsVisible="{Binding IsGroup}"
+											  Click="OnMenuToggleCollapse" />
 									<MenuItem x:Name="MenuAssignToGroupItem"
 											  Header="Add to group"
 											  IsVisible="{Binding IsPreset}"
@@ -276,12 +282,18 @@
 											  Header="Remove from group"
 											  IsVisible="{Binding GroupId, Converter={x:Static ObjectConverters.IsNotNull}}"
 											  Click="OnMenuRemoveFromGroup" />
+									<Separator IsVisible="{Binding IsPreset}" />
+									<Separator IsVisible="{Binding IsGroup}" />
 									<MenuItem x:Name="MenuDeleteItem"
 											  Header="Delete"
 											  Click="OnMenuDelete" />
 								</ContextMenu>
 							</Border.ContextMenu>
 						<Grid>
+							<Border CornerRadius="8"
+									IsHitTestVisible="False"
+									IsVisible="{Binding IsGroup}"
+									Background="{Binding GroupColorHex}" />
 							<Border Width="4"
 									HorizontalAlignment="Left"
 									VerticalAlignment="Stretch"
@@ -305,16 +317,17 @@
 										   HorizontalAlignment="Center"
 										   TextTrimming="CharacterEllipsis"
 										   MaxWidth="130"
+										   Foreground="White"
 										   IsVisible="{Binding IsGroup}" />
 								<TextBlock Text="{Binding MembersCountText}"
 										   FontSize="11"
 										   HorizontalAlignment="Center"
-										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   Foreground="White"
 										   IsVisible="{Binding IsGroup}" />
 								<TextBlock Text="{Binding CollapsedText}"
 										   FontSize="11"
 										   HorizontalAlignment="Center"
-										   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+										   Foreground="White"
 										   IsVisible="{Binding IsCollapsed}" />
 								<!-- Preset cell -->
 								<Image Source="{Binding Preview}"
@@ -382,6 +395,7 @@
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
+			</LayoutTransformControl>
 		</ScrollViewer>
 
 		<TextBlock Grid.Row="2"
@@ -488,6 +502,7 @@
 						   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
 						   HorizontalAlignment="Right"
 						   VerticalAlignment="Center"
+						   TextTrimming="CharacterEllipsis"
 						   PointerPressed="OnFooterClick" />
 
 				<Ellipse x:Name="UpdateSpinner"
@@ -500,7 +515,7 @@
 						RenderTransformOrigin="0.5,0.5"
 						Margin="12,0,0,0"
 						VerticalAlignment="Center"
-						IsVisible="True">
+						IsVisible="False">
 					<Ellipse.RenderTransform>
 						<RotateTransform Angle="0" />
 					</Ellipse.RenderTransform>
@@ -512,7 +527,8 @@
 						  FontSize="11"
 						  Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
 						  VerticalAlignment="Center"
-						  Margin="6,0,0,0" />
+						  Margin="6,0,0,0"
+						  IsVisible="False" />
 
 				<TextBlock x:Name="UpToDateLabel"
 						  Grid.Column="7"
@@ -545,9 +561,11 @@
 			</Grid>
 		</Border>
 
+	</Grid>
+	</LayoutTransformControl>
+
 		<!-- Drag ghost overlay -->
 		<Border x:Name="DragGhost"
-				Grid.RowSpan="5"
 				IsHitTestVisible="False"
 				IsVisible="False"
 				Opacity="0.85"
@@ -557,7 +575,7 @@
 				CornerRadius="10"
 				BorderThickness="2"
 				BorderBrush="CornflowerBlue"
-				Background="{DynamicResource SystemRegionBrush}"
+				Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 				HorizontalAlignment="Left"
 				VerticalAlignment="Top">
 			<Border.RenderTransform>
@@ -579,7 +597,6 @@
 
 		<!-- Reorder insertion indicator -->
 		<Border x:Name="ReorderInsertionLine"
-				Grid.RowSpan="5"
 				IsHitTestVisible="False"
 				IsVisible="False"
 				ZIndex="950"
@@ -595,7 +612,6 @@
 
 		<!-- Group attach indicator (shown when dragging preset onto a group) -->
 		<Border x:Name="GroupAttachIndicator"
-				Grid.RowSpan="5"
 				IsHitTestVisible="False"
 				IsVisible="False"
 				ZIndex="955"
@@ -611,7 +627,6 @@
 
 		<!-- Window drop indicator (dashed border shown on file drag-over) -->
 		<Rectangle x:Name="WindowDropIndicator"
-				   Grid.RowSpan="5"
 				   IsHitTestVisible="False"
 				   IsVisible="False"
 				   ZIndex="900"

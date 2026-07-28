@@ -10,8 +10,8 @@
 					<SolidColorBrush x:Key="SystemControlDefaultChromeMediumBrush" Color="#FF26272E" />
 					<SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush" Color="#FF9A9CA6" />
 					<SolidColorBrush x:Key="BrushSurfaceHover" Color="#FF2A2B33" />
-					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FF555760" />
-					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#FF7A7C88" />
+					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FF3A3B44" />
+					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="{StaticResource SystemAccentColor}" />
 				</ResourceDictionary>
 				<ResourceDictionary x:Key="Light">
 					<Color x:Key="SystemAccentColor">#FF3D7DFF</Color>
@@ -19,8 +19,8 @@
 					<SolidColorBrush x:Key="SystemControlDefaultChromeMediumBrush" Color="#FFFFFFFF" />
 					<SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush" Color="#FF6B6E76" />
 					<SolidColorBrush x:Key="BrushSurfaceHover" Color="#FFEAEBEF" />
-					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FFC0C2CA" />
-					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#FF9A9CA6" />
+					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FFDCDFE4" />
+					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="{StaticResource SystemAccentColor}" />
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>

@@ -7,12 +7,14 @@ namespace CursorPalette.Linux.Services;
 
 public sealed class LinuxCursorService : ICursorService
 {
-	private const string DefaultThemeName = "default";
 	private const string DefaultCursorSize = "24";
 	private const string SnapshotFileName = "cursor-snapshot.json";
 	private const string CursorsSubdir = "cursors";
 	private const string IndexThemeFileName = "index.theme";
-	private const string InheritsTheme = "default";
+	private const string OriginalThemeFileName = "original-theme.json";
+	private const string ActiveDefaultThemeFileName = "active-default-theme.json";
+	private const string CursorPalettePresetThemePrefix = "cursor-palette-";
+	public const string AdwaitaThemeName = "Adwaita";
 
 	private static readonly string HomeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 	private static readonly string IconsDir =
@@ -53,7 +55,7 @@ public sealed class LinuxCursorService : ICursorService
 		}
 
 		File.WriteAllText(Path.Combine(themeDir, IndexThemeFileName),
-			$"[Icon Theme]\nName={themeName}\nInherits={InheritsTheme}\n");
+			$"[Icon Theme]\nName={themeName}\nInherits={GetOriginalThemeName()}\n");
 
 		TryRunGsettings("org.gnome.desktop.interface", "cursor-theme", themeName);
 	}
@@ -73,7 +75,7 @@ public sealed class LinuxCursorService : ICursorService
 
 	public Dictionary<string, string> ReadCurrentValues()
 	{
-		var themeName = TryReadGsettings("org.gnome.desktop.interface", "cursor-theme") ?? DefaultThemeName;
+		var themeName = TryReadGsettings("org.gnome.desktop.interface", "cursor-theme") ?? GetOriginalThemeName();
 		var cursorsDir = GetCursorsDir(themeName);
 
 		if (!Directory.Exists(cursorsDir))
@@ -102,10 +104,82 @@ public sealed class LinuxCursorService : ICursorService
 
 	public Dictionary<string, string> GetDefaultValues() => new();
 
-	public void ResetToDefault()
+	public void ResetToDefault() => SetDefaultTheme(GetOriginalThemeName());
+
+	public void SetDefaultTheme(string themeName)
 	{
-		TryRunGsettings("org.gnome.desktop.interface", "cursor-theme", DefaultThemeName);
+		TryRunGsettings("org.gnome.desktop.interface", "cursor-theme", themeName);
 		TryRunGsettings("org.gnome.desktop.interface", "cursor-size", DefaultCursorSize);
+	}
+
+	public void EnsureOriginalThemeCaptured()
+	{
+		var path = Path.Combine(PathProvider.Current.StateDir, OriginalThemeFileName);
+		if (File.Exists(path))
+			return;
+
+		var current = TryReadGsettings("org.gnome.desktop.interface", "cursor-theme");
+		var themeToStore = string.IsNullOrWhiteSpace(current)
+			|| string.Equals(current, "default", StringComparison.OrdinalIgnoreCase)
+			|| current.StartsWith(CursorPalettePresetThemePrefix, StringComparison.OrdinalIgnoreCase)
+			? AdwaitaThemeName
+			: current;
+
+		Directory.CreateDirectory(PathProvider.Current.StateDir);
+		File.WriteAllText(path, JsonSerializer.Serialize(new ThemeNameRecord { ThemeName = themeToStore }, JsonOptions));
+	}
+
+	public string GetOriginalThemeName()
+	{
+		var path = Path.Combine(PathProvider.Current.StateDir, OriginalThemeFileName);
+		if (!File.Exists(path))
+			return AdwaitaThemeName;
+
+		try
+		{
+			var record = JsonSerializer.Deserialize<ThemeNameRecord>(File.ReadAllText(path));
+			return string.IsNullOrWhiteSpace(record?.ThemeName) ? AdwaitaThemeName : record.ThemeName;
+		}
+		catch
+		{
+			return AdwaitaThemeName;
+		}
+	}
+
+	public string? GetActiveDefaultThemeName()
+	{
+		var path = Path.Combine(PathProvider.Current.StateDir, ActiveDefaultThemeFileName);
+		if (!File.Exists(path))
+			return null;
+
+		try
+		{
+			var record = JsonSerializer.Deserialize<ThemeNameRecord>(File.ReadAllText(path));
+			return string.IsNullOrWhiteSpace(record?.ThemeName) ? null : record.ThemeName;
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	public void SetActiveDefaultThemeName(string? themeName)
+	{
+		var path = Path.Combine(PathProvider.Current.StateDir, ActiveDefaultThemeFileName);
+
+		if (string.IsNullOrWhiteSpace(themeName))
+		{
+			File.Delete(path);
+			return;
+		}
+
+		Directory.CreateDirectory(PathProvider.Current.StateDir);
+		File.WriteAllText(path, JsonSerializer.Serialize(new ThemeNameRecord { ThemeName = themeName }, JsonOptions));
+	}
+
+	private sealed class ThemeNameRecord
+	{
+		public string ThemeName { get; set; } = "";
 	}
 
 	public CursorSnapshot TakeSnapshot()

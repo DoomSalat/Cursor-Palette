@@ -15,6 +15,7 @@ public sealed class BoardItem
 	public bool IsGroup { get; init; }
 	public bool IsAddCell { get; init; }
 	public bool IsDefaultCell { get; init; }
+	public string? DefaultThemeName { get; init; }
 	public Preset? Preset { get; init; }
 	public PresetGroup? Group { get; init; }
 	public Bitmap? Preview { get; init; }
@@ -115,7 +116,8 @@ public sealed class MainWindowViewModel : ViewModelBase
 			AppState.SetActivePresetId(null);
 		}
 
-		Board.Add(CreateDefaultCell());
+		foreach (var defaultCell in CreateDefaultCells())
+			Board.Add(defaultCell);
 
 		var presetsById = presets.ToDictionary(preset => preset.Id);
 		var groupsById = groups.ToDictionary(group => group.Id);
@@ -176,23 +178,45 @@ public sealed class MainWindowViewModel : ViewModelBase
 		return true;
 	}
 
-	private BoardItem CreateDefaultCell()
+	private IEnumerable<BoardItem> CreateDefaultCells()
 	{
-		var isActive = _activePresetId == null;
 		var cursorService = CursorServiceProvider.Current;
 		var defaults = cursorService.GetDefaultValues();
 		var previewPath = defaults.TryGetValue(CursorRoles.ArrowRoleName, out var arrow) ? arrow : null;
+		var preview = CursorPreviewService.GetPreview(previewPath);
+		var baseSize = AppState.GetDefaultBaseSize();
 
-		return new BoardItem
+		var systemThemeName = (cursorService as LinuxCursorService)?.GetOriginalThemeName()
+			?? LinuxCursorService.AdwaitaThemeName;
+		var activeDefaultThemeName = (cursorService as LinuxCursorService)?.GetActiveDefaultThemeName();
+		var isDefaultActive = _activePresetId == null;
+
+		yield return new BoardItem
 		{
 			IsDefaultCell = true,
 			Key = EmptyValue,
+			DefaultThemeName = systemThemeName,
 			DisplayName = Loc.Get(LocWindowsDefault),
-			Preview = CursorPreviewService.GetPreview(previewPath),
+			Preview = preview,
 			PreviewPath = previewPath,
-			BaseSize = AppState.GetDefaultBaseSize(),
-			IsActive = isActive,
+			BaseSize = baseSize,
+			IsActive = isDefaultActive && string.Equals(activeDefaultThemeName, systemThemeName, StringComparison.OrdinalIgnoreCase),
 		};
+
+		if (!string.Equals(systemThemeName, LinuxCursorService.AdwaitaThemeName, StringComparison.OrdinalIgnoreCase))
+		{
+			yield return new BoardItem
+			{
+				IsDefaultCell = true,
+				Key = EmptyValue,
+				DefaultThemeName = LinuxCursorService.AdwaitaThemeName,
+				DisplayName = LinuxCursorService.AdwaitaThemeName,
+				Preview = preview,
+				PreviewPath = previewPath,
+				BaseSize = baseSize,
+				IsActive = isDefaultActive && string.Equals(activeDefaultThemeName, LinuxCursorService.AdwaitaThemeName, StringComparison.OrdinalIgnoreCase),
+			};
+		}
 	}
 
 	private BoardItem CreatePresetCell(Preset preset, PresetGroup? group)
@@ -303,9 +327,12 @@ public sealed class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	public async Task ApplyDefaultAsync()
+	public async Task ApplyDefaultAsync(string themeName)
 	{
-		if (_activePresetId == null)
+		var linuxCursorService = CursorServiceProvider.Current as LinuxCursorService;
+
+		if (_activePresetId == null
+			&& string.Equals(linuxCursorService?.GetActiveDefaultThemeName(), themeName, StringComparison.OrdinalIgnoreCase))
 			return;
 
 		try
@@ -319,13 +346,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 			await Task.Run(() =>
 			{
 				cursorService.SaveSnapshotToDisk(cursorService.TakeSnapshot());
-				var scaledValues = defaultUseScaling
-					? CursorScalerService.ScaleValues(defaultValues, defaultSize, defaultScaleMode)
-					: defaultValues;
-				if (scaledValues.Count > 0)
-					cursorService.ApplyValues(scaledValues);
-				else
-					cursorService.ResetToDefault();
+				linuxCursorService?.SetDefaultTheme(themeName);
 				cursorService.SetBaseSize(defaultSize);
 			});
 
@@ -335,6 +356,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
 			_activePresetId = null;
 			AppState.SetActivePresetId(null);
+			linuxCursorService?.SetActiveDefaultThemeName(themeName);
 
 			_baselineSizePx = defaultSize;
 

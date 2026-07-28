@@ -50,9 +50,7 @@ public class PresetEditorWindow : Window
 	private const string LocEditorEmptySkipped = "S.Editor.EmptySkipped";
 	private const string LocDefaultPresetName = "S.DefaultPresetName";
 	private const string LocCursorSize = "S.CursorSize";
-	private const string LocApplySize = "S.ApplySize";
 	private const string LocScaleCursors = "S.ScaleCursors";
-	private const string LocToastSizeApplied = "S.Toast.SizeApplied";
 	private const string LocEditorPickExisting = "S.Editor.PickExisting";
 	private const string LocEditorPivotTooltip = "S.Editor.Pivot.Tooltip";
 	private const string LocEditorPivotDisabledTooltip = "S.Editor.Pivot.Disabled.Tooltip";
@@ -365,20 +363,13 @@ public class PresetEditorWindow : Window
 		Grid.SetColumn(saveButton, 6);
 		bottomBar.Children.Add(saveButton);
 
-		var applySizeButton = new Button
-		{
-			Content = Loc.Get(LocApplySize),
-			Margin = new Avalonia.Thickness(8, 0, 0, 0),
-		};
-		applySizeButton.Click += OnApplySizeClick;
-
 		var useScalingCheckBox = new CheckBox
 		{
-			Content = Loc.Get(LocScaleCursors),
 			IsChecked = _useScaling,
 			Margin = new Avalonia.Thickness(8, 0, 0, 0),
 			VerticalAlignment = VerticalAlignment.Center,
 		};
+		ToolTip.SetTip(useScalingCheckBox, Loc.Get(LocScaleCursors));
 		useScalingCheckBox.IsCheckedChanged += (_, _) =>
 			_useScaling = useScalingCheckBox.IsChecked == true;
 
@@ -393,7 +384,7 @@ public class PresetEditorWindow : Window
 			Width = ScaleModeButtonSize,
 			Height = ScaleModeButtonSize,
 			CornerRadius = new Avalonia.CornerRadius(ScaleModeButtonCornerRadius),
-			Background = new SolidColorBrush(0x00000000),
+			Background = Brushes.DarkGray,
 			BorderBrush = Brushes.Gray,
 			BorderThickness = new Avalonia.Thickness(1),
 			Margin = new Avalonia.Thickness(4, 0, 0, 0),
@@ -410,7 +401,7 @@ public class PresetEditorWindow : Window
 
 		var sizeBar = new Grid
 		{
-			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,Auto,Auto,Auto"),
+			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,Auto,Auto"),
 			Margin = new Avalonia.Thickness(DialogMargin),
 		};
 		sizeBar.Children.Add(new TextBlock
@@ -423,11 +414,9 @@ public class PresetEditorWindow : Window
 		sizeBar.Children.Add(_sizeSlider);
 		Grid.SetColumn(_sizeValueText, 2);
 		sizeBar.Children.Add(_sizeValueText);
-		Grid.SetColumn(applySizeButton, 3);
-		sizeBar.Children.Add(applySizeButton);
-		Grid.SetColumn(useScalingCheckBox, 4);
+		Grid.SetColumn(useScalingCheckBox, 3);
 		sizeBar.Children.Add(useScalingCheckBox);
-		Grid.SetColumn(scaleModeButton, 5);
+		Grid.SetColumn(scaleModeButton, 4);
 		sizeBar.Children.Add(scaleModeButton);
 
 		var scrollViewer = new ScrollViewer
@@ -1445,15 +1434,6 @@ public class PresetEditorWindow : Window
 
 		Result = draft;
 		Close();
-	}
-
-	private void OnApplySizeClick(object? sender, RoutedEventArgs e)
-	{
-		if (Owner is not MainWindow mainWindow)
-			return;
-
-		mainWindow.ApplyPresetSize(_baseSize);
-		mainWindow.SetScaleCursorsCheckbox(_useScaling);
 	}
 
 	private async Task BrowseFolder()

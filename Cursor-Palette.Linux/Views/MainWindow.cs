@@ -218,6 +218,7 @@ public partial class MainWindow : Window
 		if (_languageButton != null)
 			_languageButton.Content = SupportedLanguages[_languageIndex].ToUpperInvariant();
 
+		DragDrop.SetAllowDrop(this, true);
 		AddHandler(DragDrop.DropEvent, OnDrop);
 		AddHandler(DragDrop.DragOverEvent, OnDragOver);
 		AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
@@ -226,6 +227,12 @@ public partial class MainWindow : Window
 		AddHandler(PointerReleasedEvent, OnPresetPointerReleased, RoutingStrategies.Bubble);
 		AddHandler(DragDrop.DragOverEvent, OnPresetDragOver, RoutingStrategies.Bubble, handledEventsToo: true);
 		AddHandler(DragDrop.DropEvent, OnPresetDrop, RoutingStrategies.Bubble, handledEventsToo: true);
+
+		SizeChanged += (_, _) =>
+		{
+			this.FindControl<LayoutTransformControl>("UiScaleTransformControl")?.InvalidateMeasure();
+			this.FindControl<LayoutTransformControl>("CellScaleTransformControl")?.InvalidateMeasure();
+		};
 
 		_uiScale = AppState.GetUiScale();
 		ApplyUiScale(_uiScale);
@@ -396,12 +403,9 @@ public partial class MainWindow : Window
 
 	private void ApplyUiScale(double scale)
 	{
-		var rootGrid = this.FindControl<Grid>("RootGrid");
-		if (rootGrid != null)
-		{
-			rootGrid.RenderTransform = new ScaleTransform(scale, scale);
-			rootGrid.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
-		}
+		var uiScaleTransformControl = this.FindControl<LayoutTransformControl>("UiScaleTransformControl");
+		if (uiScaleTransformControl != null)
+			uiScaleTransformControl.LayoutTransform = new ScaleTransform(scale, scale);
 
 		if (_zoomText != null)
 			_zoomText.Text = $"{(int)Math.Round(scale * 100)}%";
@@ -420,12 +424,9 @@ public partial class MainWindow : Window
 
 	private void ApplyCellScale(double scale)
 	{
-		var gallery = this.FindControl<ItemsControl>("Gallery");
-		if (gallery != null)
-		{
-			gallery.RenderTransform = new ScaleTransform(scale, scale);
-			gallery.RenderTransformOrigin = new RelativePoint(0, 0, RelativeUnit.Relative);
-		}
+		var cellScaleTransformControl = this.FindControl<LayoutTransformControl>("CellScaleTransformControl");
+		if (cellScaleTransformControl != null)
+			cellScaleTransformControl.LayoutTransform = new ScaleTransform(scale, scale);
 
 		if (_cellScaleValueText != null)
 			_cellScaleValueText.Text = $"{(int)Math.Round(scale * 100)}%";
@@ -660,11 +661,6 @@ public partial class MainWindow : Window
 		await ApplySizeInternal(size);
 	}
 
-	public async void ApplyPresetSize(int sizePx)
-	{
-		await ApplySizeInternal(sizePx);
-	}
-
 	private async Task ApplySizeInternal(int sizePx)
 	{
 		ShowLoadingOverlay();
@@ -704,14 +700,6 @@ public partial class MainWindow : Window
 			_scaleModeIcon.Source = IconHelper.Load(scaleMode == ScaleMode.NearestNeighbor ? ScaleModeNearestIconFile : ScaleModeSmoothIconFile);
 	}
 
-	public void SetScaleCursorsCheckbox(bool value)
-	{
-		if (_scaleCursorsCheckBox != null)
-			_scaleCursorsCheckBox.IsChecked = value;
-
-		AppState.SetScaleCursorsEnabled(value);
-	}
-
 	public async void OnPresetClick(object? sender, PointerPressedEventArgs e)
 	{
 		if (sender is not Control control || control.DataContext is not BoardItem item)
@@ -725,7 +713,7 @@ public partial class MainWindow : Window
 
 		if (item.IsDefaultCell)
 		{
-			ApplyDefault();
+			ApplyDefault(item.DefaultThemeName!);
 			return;
 		}
 
@@ -1133,9 +1121,9 @@ public partial class MainWindow : Window
 		indicator.IsVisible = true;
 	}
 
-	private async void ApplyDefault()
+	private async void ApplyDefault(string themeName)
 	{
-		await _viewModel.ApplyDefaultAsync();
+		await _viewModel.ApplyDefaultAsync(themeName);
 
 		_activeScaleMode = _viewModel.GetActiveScaleMode();
 		_baselineScaleMode = _activeScaleMode;

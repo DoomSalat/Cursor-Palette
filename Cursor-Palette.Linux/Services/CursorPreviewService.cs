@@ -1,4 +1,7 @@
+using System.Runtime.InteropServices;
+using Avalonia;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CursorPalette.Services;
 using CursorPalette.Models;
 
@@ -8,6 +11,7 @@ public static class CursorPreviewService
 {
 	private const string AniExtension = ".ani";
 	private const string CurExtension = ".cur";
+	private const double Dpi = 96.0;
 
 	private static readonly Dictionary<string, Bitmap?> Cache = new(StringComparer.OrdinalIgnoreCase);
 	private static readonly Dictionary<string, List<CursorCanvasImage>?> AnimatedCache = new(StringComparer.OrdinalIgnoreCase);
@@ -106,38 +110,15 @@ public static class CursorPreviewService
 
 	private static Bitmap CreateBitmap(CursorCanvasImage image)
 	{
-		var stride = image.Width * 4;
-		using var stream = new System.IO.MemoryStream(image.Bgra.Length + 122);
-		using var writer = new System.IO.BinaryWriter(stream);
+		var bitmap = new WriteableBitmap(
+			new PixelSize(image.Width, image.Height),
+			new Vector(Dpi, Dpi),
+			PixelFormat.Bgra8888,
+			AlphaFormat.Unpremul);
 
-		// BMP header for BGRA
-		writer.Write((byte)'B');
-		writer.Write((byte)'M');
-		writer.Write(54 + image.Bgra.Length);
-		writer.Write(0);
-		writer.Write(54);
+		using var locked = bitmap.Lock();
+		Marshal.Copy(image.Bgra, 0, locked.Address, image.Bgra.Length);
 
-		// DIB header (BITMAPINFOHEADER)
-		writer.Write(40);
-		writer.Write(image.Width);
-		writer.Write(image.Height);
-		writer.Write((ushort)1);
-		writer.Write((ushort)32);
-		writer.Write(0);
-		writer.Write(image.Bgra.Length);
-		writer.Write(0);
-		writer.Write(0);
-		writer.Write(0);
-		writer.Write(0);
-
-		// Pixel data (BMP is bottom-up, our data is top-down)
-		for (var row = image.Height - 1; row >= 0; row--)
-		{
-			var offset = row * stride;
-			writer.Write(image.Bgra, offset, stride);
-		}
-
-		stream.Position = 0;
-		return new Bitmap(stream);
+		return bitmap;
 	}
 }

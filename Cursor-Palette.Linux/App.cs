@@ -16,6 +16,7 @@ public partial class App : Avalonia.Application
 	public override void OnFrameworkInitializationCompleted()
 	{
 		PlatformBootstrapper.Initialize();
+		(CursorServiceProvider.Current as LinuxCursorService)?.EnsureOriginalThemeCaptured();
 
 		if (SingleInstanceProvider.Current is { } singleInstance)
 		{
