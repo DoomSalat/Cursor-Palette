@@ -12,6 +12,7 @@
 					<SolidColorBrush x:Key="BrushSurfaceHover" Color="#FF2A2B33" />
 					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FF3A3B44" />
 					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="{StaticResource SystemAccentColor}" />
+					<SolidColorBrush x:Key="SystemControlBorderBrush" Color="#FF3A3B44" />
 				</ResourceDictionary>
 				<ResourceDictionary x:Key="Light">
 					<Color x:Key="SystemAccentColor">#FF3D7DFF</Color>
@@ -21,6 +22,7 @@
 					<SolidColorBrush x:Key="BrushSurfaceHover" Color="#FFEAEBEF" />
 					<SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#FFDCDFE4" />
 					<SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="{StaticResource SystemAccentColor}" />
+					<SolidColorBrush x:Key="SystemControlBorderBrush" Color="#FFDCDFE4" />
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>
@@ -61,6 +63,18 @@
 		</Style>
 		<Style Selector="ScrollBar /template/ Thumb:pointerover">
 			<Setter Property="Background" Value="{DynamicResource ScrollBarThumbHoverBrush}" />
+		</Style>
+		<Style Selector="Button">
+			<Setter Property="Padding" Value="12,6" />
+			<Setter Property="CornerRadius" Value="6" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="Cursor" Value="Hand" />
+		</Style>
+		<Style Selector="Button.accent">
+			<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="FontWeight" Value="SemiBold" />
 		</Style>
 	</Application.Styles>
 </Application>

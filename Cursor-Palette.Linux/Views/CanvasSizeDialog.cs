@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using CursorPalette.Linux.Services;
 using CursorPalette.Services;
 
 namespace CursorPalette.Linux.Views;
@@ -13,8 +14,8 @@ public class CanvasSizeDialog : Window
 {
 	private const int MinDimension = 1;
 	private const int MaxDimension = 256;
-	private const double DialogWidth = 400;
-	private const double DialogHeight = 420;
+	private const double DialogWidth = 420;
+	private const double DialogHeight = 560;
 	private const double DialogPadding = 16;
 	private const double PreviewMaxW = 232;
 	private const double PreviewMaxH = 140;
@@ -53,8 +54,9 @@ public class CanvasSizeDialog : Window
 		Title = Loc.Get("S.CanvasSize.Title");
 		Width = DialogWidth;
 		Height = DialogHeight;
+		MinWidth = 380;
+		MinHeight = 480;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
-		CanResize = false;
 
 		var root = new StackPanel
 		{
@@ -169,9 +171,9 @@ public class CanvasSizeDialog : Window
 		{
 			Width = PreviewMaxW,
 			Height = PreviewMaxH,
-			Background = Brushes.DarkGray,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
+		ThemeManager.BindResource(_previewCanvas, Canvas.BackgroundProperty, "BrushSurfaceHover");
 
 		_currentRect = new Border
 		{
@@ -182,10 +184,10 @@ public class CanvasSizeDialog : Window
 
 		_newRect = new Border
 		{
-			BorderBrush = Brushes.CornflowerBlue,
 			BorderThickness = new Thickness(2),
 			Background = new SolidColorBrush(Color.FromArgb(40, 79, 140, 255)),
 		};
+		ThemeManager.BindResource(_newRect, Border.BorderBrushProperty, "SystemAccentColor");
 
 		_previewCanvas.Children.Add(_currentRect);
 		_previewCanvas.Children.Add(_newRect);
@@ -211,6 +213,7 @@ public class CanvasSizeDialog : Window
 		{
 			Content = Loc.Get("S.CanvasSize.Apply"),
 			MinWidth = 80,
+			Classes = { "accent" },
 		};
 		applyButton.Click += OnApplyClick;
 		bottomBar.Children.Add(applyButton);
@@ -282,7 +285,10 @@ public class CanvasSizeDialog : Window
 			var ay = int.Parse(parts[1]);
 			var isCurrent = ax == _anchorX && ay == _anchorY;
 
-			btn.Background = isCurrent ? Brushes.CornflowerBlue : null;
+			if (isCurrent)
+				ThemeManager.BindResource(btn, Button.BackgroundProperty, "SystemAccentColor");
+			else
+				btn.Background = null;
 		}
 	}
 

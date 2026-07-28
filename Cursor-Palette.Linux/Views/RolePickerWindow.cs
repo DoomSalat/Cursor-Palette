@@ -80,11 +80,12 @@ public class RolePickerWindow : Window
 
 		var topBar = new Border
 		{
-			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 0, 0, 1),
 			Padding = new Thickness(DialogPadding, TopBarPaddingVertical),
 			Child = infoButton,
 		};
+		ThemeManager.BindResource(topBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(topBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		Grid.SetRow(topBar, 0);
 		root.Children.Add(topBar);
 
@@ -126,7 +127,6 @@ public class RolePickerWindow : Window
 		var emptyHint = new TextBlock
 		{
 			Text = Loc.Get(LocRolePickerRoleNotAssigned),
-			Foreground = Brushes.Gray,
 			TextAlignment = TextAlignment.Center,
 			TextWrapping = TextWrapping.Wrap,
 			Margin = new Thickness(DialogPadding),
@@ -134,6 +134,7 @@ public class RolePickerWindow : Window
 			VerticalAlignment = VerticalAlignment.Center,
 			IsVisible = false,
 		};
+		ThemeManager.BindResource(emptyHint, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
 		Grid.SetRow(emptyHint, 3);
 		root.Children.Add(emptyHint);
 
@@ -147,11 +148,12 @@ public class RolePickerWindow : Window
 
 		var bottomBar = new Border
 		{
-			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 1, 0, 0),
 			Padding = new Thickness(DialogPadding, BottomBarPaddingVertical),
 			Child = cancelButton,
 		};
+		ThemeManager.BindResource(bottomBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(bottomBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		Grid.SetRow(bottomBar, 4);
 		root.Children.Add(bottomBar);
 
@@ -243,10 +245,11 @@ public class RolePickerWindow : Window
 			CornerRadius = new CornerRadius(TileCornerRadius),
 			Background = Brushes.Transparent,
 			BorderThickness = new Thickness(TileBorderThickness),
-			BorderBrush = isCurrent ? Brushes.CornflowerBlue : Brushes.DarkGray,
 			Child = panel,
 			Cursor = new Cursor(StandardCursorType.Hand),
 		};
+		ThemeManager.BindResource(tile, Border.BorderBrushProperty,
+			isCurrent ? "SystemAccentColor" : "SystemControlBorderBrush");
 
 		tile.PointerEntered += (_, _) => tile.Background = new SolidColorBrush(Colors.LightGray, TileHoverOpacity);
 		tile.PointerExited += (_, _) => tile.Background = Brushes.Transparent;

@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using CursorPalette.Linux.Services;
 using CursorPalette.Models;
 using CursorPalette.Services;
 
@@ -12,7 +13,6 @@ public class GroupEditWindow : Window
 	private const double SwatchSize = 24;
 	private const double SwatchRingThickness = 2.5;
 	private const double DialogWidth = 360;
-	private const double DialogHeight = 240;
 	private const double DialogPadding = 16;
 	private const double CloseButtonMinWidth = 90;
 
@@ -34,7 +34,7 @@ public class GroupEditWindow : Window
 	{
 		Title = group != null ? Loc.Get(LocGroupEditTitle) : Loc.Get(LocGroupCreateTitle);
 		Width = DialogWidth;
-		Height = DialogHeight;
+		SizeToContent = SizeToContent.Height;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
 		CanResize = false;
 
@@ -51,7 +51,12 @@ public class GroupEditWindow : Window
 
 		_colorSwatches = new WrapPanel { Margin = new Thickness(0, 4, 0, 0) };
 
-		var root = new StackPanel
+		var root = new Grid
+		{
+			RowDefinitions = new RowDefinitions("Auto,Auto"),
+		};
+
+		var bodyPanel = new StackPanel
 		{
 			Margin = new Thickness(DialogPadding),
 			Spacing = 8,
@@ -62,16 +67,26 @@ public class GroupEditWindow : Window
 			Text = Loc.Get(LocGroupName),
 			FontSize = 13,
 		};
-		root.Children.Add(nameLabel);
-		root.Children.Add(_nameBox);
+		bodyPanel.Children.Add(nameLabel);
+		bodyPanel.Children.Add(_nameBox);
 
-		root.Children.Add(_colorSwatches);
+		bodyPanel.Children.Add(_colorSwatches);
+
+		Grid.SetRow(bodyPanel, 0);
+		root.Children.Add(bodyPanel);
+
+		var footerBorder = new Border
+		{
+			Padding = new Thickness(DialogPadding, 10),
+			BorderThickness = new Thickness(0, 1, 0, 0),
+		};
+		ThemeManager.BindResource(footerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(footerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
 
 		var buttonPanel = new StackPanel
 		{
 			Orientation = Orientation.Horizontal,
 			Spacing = 8,
-			Margin = new Thickness(0, 12, 0, 0),
 			HorizontalAlignment = HorizontalAlignment.Right,
 		};
 
@@ -87,11 +102,14 @@ public class GroupEditWindow : Window
 		{
 			Content = Loc.Get(LocGroupSave),
 			MinWidth = CloseButtonMinWidth,
+			Classes = { "accent" },
 		};
 		saveButton.Click += (_, _) => OnSave();
 		buttonPanel.Children.Add(saveButton);
 
-		root.Children.Add(buttonPanel);
+		footerBorder.Child = buttonPanel;
+		Grid.SetRow(footerBorder, 1);
+		root.Children.Add(footerBorder);
 
 		Content = root;
 

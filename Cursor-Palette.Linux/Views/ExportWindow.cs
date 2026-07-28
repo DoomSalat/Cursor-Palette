@@ -18,8 +18,8 @@ public class ExportWindow : Window
 	private const double CellBorderThickness = 2;
 	private const double CellNameFontSize = 12;
 	private const double CellCountFontSize = 10;
-	private const double DialogWidth = 640;
-	private const double DialogHeight = 560;
+	private const double DialogWidth = 580;
+	private const double DialogHeight = 600;
 	private const double DialogMinWidth = 400;
 	private const double DialogMinHeight = 360;
 	private const double DialogPadding = 16;
@@ -64,14 +64,20 @@ public class ExportWindow : Window
 
 		var root = new Grid
 		{
-			Margin = new Thickness(DialogPadding),
 			RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto"),
 		};
+
+		var headerBorder = new Border
+		{
+			Padding = new Thickness(DialogPadding, 10),
+			BorderThickness = new Thickness(0, 0, 0, 1),
+		};
+		ThemeManager.BindResource(headerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(headerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
 
 		var headerGrid = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
-			Margin = new Thickness(0, 0, 0, 8),
 		};
 
 		_selectionCountText = new TextBlock
@@ -101,11 +107,13 @@ public class ExportWindow : Window
 		Grid.SetColumn(selectNoneButton, 2);
 		headerGrid.Children.Add(selectNoneButton);
 
-		Grid.SetRow(headerGrid, 0);
-		root.Children.Add(headerGrid);
+		headerBorder.Child = headerGrid;
+		Grid.SetRow(headerBorder, 0);
+		root.Children.Add(headerBorder);
 
 		var scrollViewer = new ScrollViewer
 		{
+			Margin = new Thickness(DialogPadding, 8, DialogPadding, 4),
 			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
 			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
 		};
@@ -126,15 +134,16 @@ public class ExportWindow : Window
 
 		if (presets.Count == 0)
 		{
-			gallery.Children.Add(new TextBlock
+			var emptyHint = new TextBlock
 			{
 				Text = Loc.Get("S.Export.Empty"),
 				FontSize = 14,
-				Foreground = Brushes.Gray,
 				HorizontalAlignment = HorizontalAlignment.Center,
 				VerticalAlignment = VerticalAlignment.Center,
 				Margin = new Thickness(0, 40, 0, 0),
-			});
+			};
+			ThemeManager.BindResource(emptyHint, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
+			gallery.Children.Add(emptyHint);
 		}
 
 		scrollViewer.Content = gallery;
@@ -144,7 +153,7 @@ public class ExportWindow : Window
 		var nameGrid = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("Auto,*"),
-			Margin = new Thickness(0, 4, 0, 0),
+			Margin = new Thickness(DialogPadding, 4, DialogPadding, 0),
 		};
 		Grid.SetRow(nameGrid, 2);
 
@@ -167,21 +176,35 @@ public class ExportWindow : Window
 
 		root.Children.Add(nameGrid);
 
-		var buttonPanel = new StackPanel
+		var footerBorder = new Border
+		{
+			Padding = new Thickness(DialogPadding, 10),
+			BorderThickness = new Thickness(0, 1, 0, 0),
+		};
+		ThemeManager.BindResource(footerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(footerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
+
+		var buttonPanel = new Grid
+		{
+			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
+		};
+
+		var closeButton = new Button
+		{
+			Content = Loc.Get(LocExportClose),
+			MinWidth = CloseButtonMinWidth,
+		};
+		closeButton.Click += (_, _) => Close();
+		Grid.SetColumn(closeButton, 0);
+		buttonPanel.Children.Add(closeButton);
+
+		var rightButtons = new StackPanel
 		{
 			Orientation = Orientation.Horizontal,
 			Spacing = 8,
-			Margin = new Thickness(0, 8, 0, 0),
 		};
-		Grid.SetRow(buttonPanel, 3);
-
-		var bundleButton = new Button
-		{
-			Content = Loc.Get(LocExportBundle),
-			MinWidth = CloseButtonMinWidth,
-		};
-		bundleButton.Click += (_, _) => ExportBundle();
-		buttonPanel.Children.Add(bundleButton);
+		Grid.SetColumn(rightButtons, 2);
+		buttonPanel.Children.Add(rightButtons);
 
 		var archiveButton = new Button
 		{
@@ -189,7 +212,7 @@ public class ExportWindow : Window
 			MinWidth = CloseButtonMinWidth,
 		};
 		archiveButton.Click += (_, _) => ExportArchive();
-		buttonPanel.Children.Add(archiveButton);
+		rightButtons.Children.Add(archiveButton);
 
 		var moreButton = new Button
 		{
@@ -197,21 +220,20 @@ public class ExportWindow : Window
 			Padding = new Thickness(8, 2),
 		};
 		moreButton.Click += (_, _) => ShowMoreMenu(moreButton);
-		buttonPanel.Children.Add(moreButton);
+		rightButtons.Children.Add(moreButton);
 
-		var spacer = new Border();
-		buttonPanel.Children.Add(spacer);
-
-		var closeButton = new Button
+		var bundleButton = new Button
 		{
-			Content = Loc.Get(LocExportClose),
+			Content = Loc.Get(LocExportBundle),
 			MinWidth = CloseButtonMinWidth,
-			HorizontalAlignment = HorizontalAlignment.Right,
+			Classes = { "accent" },
 		};
-		closeButton.Click += (_, _) => Close();
-		buttonPanel.Children.Add(closeButton);
+		bundleButton.Click += (_, _) => ExportBundle();
+		rightButtons.Children.Add(bundleButton);
 
-		root.Children.Add(buttonPanel);
+		footerBorder.Child = buttonPanel;
+		Grid.SetRow(footerBorder, 3);
+		root.Children.Add(footerBorder);
 
 		Content = root;
 
@@ -261,13 +283,14 @@ public class ExportWindow : Window
 			Margin = new Thickness(4, 4, 4, 0),
 		});
 
-		panel.Children.Add(new TextBlock
+		var countText = new TextBlock
 		{
 			Text = $"{preset.Roles.Count + preset.RoleRefs.Count}/{CursorRoles.All.Length}",
 			FontSize = CellCountFontSize,
-			Foreground = Brushes.Gray,
 			TextAlignment = TextAlignment.Center,
-		});
+		};
+		ThemeManager.BindResource(countText, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
+		panel.Children.Add(countText);
 
 		if (preset.UseScaling)
 		{
@@ -289,7 +312,6 @@ public class ExportWindow : Window
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			BorderThickness = new Thickness(CellBorderThickness),
-			BorderBrush = Brushes.CornflowerBlue,
 			Child = panel,
 		};
 
@@ -310,7 +332,8 @@ public class ExportWindow : Window
 	private static void SetSelected(Border cell, bool selected)
 	{
 		cell.Tag = selected;
-		cell.BorderBrush = selected ? Brushes.CornflowerBlue : Brushes.Gray;
+		ThemeManager.BindResource(cell, Border.BorderBrushProperty,
+			selected ? "SystemAccentColor" : "SystemControlBorderBrush");
 	}
 
 	private Border CreateGroupTile(PresetGroup group, WrapPanel gallery)

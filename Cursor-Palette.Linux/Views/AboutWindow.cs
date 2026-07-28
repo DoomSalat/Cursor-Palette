@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using CursorPalette.Linux.Services;
 using CursorPalette.Services;
 
 namespace CursorPalette.Linux.Views;
@@ -57,11 +58,12 @@ public class AboutWindow : Window
 
 		var topBar = new Border
 		{
-			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 0, 0, 1),
 			Padding = new Thickness(DialogPadding, 8),
 			Child = infoButton,
 		};
+		ThemeManager.BindResource(topBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(topBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		Grid.SetRow(topBar, 0);
 		root.Children.Add(topBar);
 
@@ -82,23 +84,25 @@ public class AboutWindow : Window
 			FontWeight = FontWeight.SemiBold,
 			VerticalAlignment = VerticalAlignment.Center,
 		});
-		titlePanel.Children.Add(new TextBlock
+		var paletteTitleText = new TextBlock
 		{
 			Text = "Palette",
 			FontSize = TitleFontSize,
 			FontWeight = FontWeight.SemiBold,
-			Foreground = Brushes.CornflowerBlue,
 			VerticalAlignment = VerticalAlignment.Center,
-		});
+		};
+		ThemeManager.BindResource(paletteTitleText, TextBlock.ForegroundProperty, "SystemAccentColor");
+		titlePanel.Children.Add(paletteTitleText);
 		contentPanel.Children.Add(titlePanel);
 
 		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
-		contentPanel.Children.Add(new TextBlock
+		var versionText = new TextBlock
 		{
 			Text = $"{AppInfo.Author}  ·  v{version}  ·  {AppInfo.LicenseName}",
 			FontSize = VersionFontSize,
-			Foreground = Brushes.Gray,
-		});
+		};
+		ThemeManager.BindResource(versionText, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
+		contentPanel.Children.Add(versionText);
 
 		contentPanel.Children.Add(new TextBlock
 		{
@@ -129,11 +133,20 @@ public class AboutWindow : Window
 			Content = Loc.Get(LocAboutClose),
 			HorizontalAlignment = HorizontalAlignment.Right,
 			MinWidth = CloseButtonMinWidth,
-			Margin = new Thickness(DialogPadding, 10, DialogPadding, 10),
+			Classes = { "accent" },
 		};
 		closeButton.Click += (_, _) => Close();
-		Grid.SetRow(closeButton, 2);
-		root.Children.Add(closeButton);
+
+		var bottomBar = new Border
+		{
+			BorderThickness = new Thickness(0, 1, 0, 0),
+			Padding = new Thickness(DialogPadding, 10),
+			Child = closeButton,
+		};
+		ThemeManager.BindResource(bottomBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(bottomBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
+		Grid.SetRow(bottomBar, 2);
+		root.Children.Add(bottomBar);
 
 		Content = root;
 	}

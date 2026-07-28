@@ -34,8 +34,8 @@ public partial class PaintEditorWindow : Window
 	private const double HotspotMarkerScreenPx = 12;
 	private const double HotspotGlowScreenPx = 20;
 	private const double HotspotMarkerStrokeScreenPx = 2;
-	private const double DefaultWindowWidth = 900;
-	private const double DefaultWindowHeight = 640;
+	private const double DefaultWindowWidth = 820;
+	private const double DefaultWindowHeight = 680;
 	private const double ToolPanelWidth = 176;
 	private const double StatusBarHeight = 24;
 	private const double ToolbarSpacing = 8;
@@ -232,6 +232,8 @@ public partial class PaintEditorWindow : Window
 		Title = TitleText;
 		Width = AppState.GetPaintEditorWidth();
 		Height = AppState.GetPaintEditorHeight();
+		MinWidth = 560;
+		MinHeight = 460;
 		Background = Brushes.Transparent;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
@@ -498,12 +500,12 @@ public partial class PaintEditorWindow : Window
 					CreateToolbarButton(ZoomOutIcon, OnCanvasZoomOut),
 					_zoomText,
 					CreateToolbarButton(ZoomInIcon, OnCanvasZoomIn),
-					new Separator { Margin = new(SeparatorMargin, 0) },
-					CreateToolbarButton(SaveButtonText, OnSaveClick),
-					CreateToolbarButton(CancelButtonText, OnCancelClick),
 				},
 			},
 		};
+		ThemeManager.BindResource(toolbar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(toolbar, Border.BorderBrushProperty, "SystemControlBorderBrush");
+		toolbar.BorderThickness = new Thickness(0, 0, 0, 1);
 
 		var mainArea = new Grid
 		{
@@ -527,10 +529,31 @@ public partial class PaintEditorWindow : Window
 			},
 		};
 
+		var cancelButton = new Button { Content = CancelButtonText, MinWidth = 90 };
+		cancelButton.Click += OnCancelClick;
+
+		var saveButton = new Button { Content = SaveButtonText, MinWidth = 90, Classes = { "accent" } };
+		saveButton.Click += OnSaveClick;
+
+		var footerBar = new Border
+		{
+			Padding = new Thickness(ToolbarPaddingHorizontal, StatusBarPaddingVertical),
+			BorderThickness = new Thickness(0, 1, 0, 0),
+			Child = new StackPanel
+			{
+				Orientation = Orientation.Horizontal,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				Spacing = 8,
+				Children = { cancelButton, saveButton },
+			},
+		};
+		ThemeManager.BindResource(footerBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(footerBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
+
 		_rootGrid = new Grid
 		{
-			RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto"),
-			Children = { toolbar, mainArea, _timelinePanel, statusBar },
+			RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto,Auto"),
+			Children = { toolbar, mainArea, _timelinePanel, statusBar, footerBar },
 		};
 		Content = _rootGrid;
 
@@ -538,6 +561,7 @@ public partial class PaintEditorWindow : Window
 		Grid.SetRow(mainArea, 1);
 		Grid.SetRow(_timelinePanel, 2);
 		Grid.SetRow(statusBar, 3);
+		Grid.SetRow(footerBar, 4);
 	}
 
 	private void BuildTimelinePanel()

@@ -20,10 +20,10 @@ public class ImportPickerWindow : Window
 	private const double CellNameFontSize = 12;
 	private const double CellCountFontSize = 10;
 	private const double GroupIndicatorSize = 10;
-	private const double DialogWidth = 640;
+	private const double DialogWidth = 580;
 	private const double DialogHeight = 560;
-	private const double DialogMinWidth = 400;
-	private const double DialogMinHeight = 360;
+	private const double DialogMinWidth = 380;
+	private const double DialogMinHeight = 320;
 	private const double DialogPadding = 16;
 	private const double CloseButtonMinWidth = 90;
 
@@ -67,14 +67,20 @@ public class ImportPickerWindow : Window
 
 		var root = new Grid
 		{
-			Margin = new Thickness(DialogPadding),
 			RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto,Auto"),
 		};
+
+		var headerBorder = new Border
+		{
+			Padding = new Thickness(DialogPadding, 10),
+			BorderThickness = new Thickness(0, 0, 0, 1),
+		};
+		ThemeManager.BindResource(headerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(headerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
 
 		var headerGrid = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
-			Margin = new Thickness(0, 0, 0, 8),
 		};
 
 		_selectionCountText = new TextBlock
@@ -104,11 +110,13 @@ public class ImportPickerWindow : Window
 		Grid.SetColumn(selectNoneButton, 2);
 		headerGrid.Children.Add(selectNoneButton);
 
-		Grid.SetRow(headerGrid, 0);
-		root.Children.Add(headerGrid);
+		headerBorder.Child = headerGrid;
+		Grid.SetRow(headerBorder, 0);
+		root.Children.Add(headerBorder);
 
 		var scrollViewer = new ScrollViewer
 		{
+			Margin = new Thickness(DialogPadding, 8, DialogPadding, 4),
 			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
 			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
 		};
@@ -131,15 +139,16 @@ public class ImportPickerWindow : Window
 
 		if (entries.Count == 0)
 		{
-			gallery.Children.Add(new TextBlock
+			var emptyHint = new TextBlock
 			{
 				Text = Loc.Get(LocImportEmpty),
 				FontSize = 14,
-				Foreground = Brushes.Gray,
 				HorizontalAlignment = HorizontalAlignment.Center,
 				VerticalAlignment = VerticalAlignment.Center,
 				Margin = new Thickness(0, 40, 0, 0),
-			});
+			};
+			ThemeManager.BindResource(emptyHint, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
+			gallery.Children.Add(emptyHint);
 		}
 
 		scrollViewer.Content = gallery;
@@ -149,7 +158,7 @@ public class ImportPickerWindow : Window
 		_ignoreSizesCheck = new CheckBox
 		{
 			Content = Loc.Get(LocImportIgnoreSizes),
-			Margin = new Thickness(0, 4, 0, 0),
+			Margin = new Thickness(DialogPadding, 4, DialogPadding, 0),
 		};
 		_ignoreSizesCheck.IsCheckedChanged += OnIgnoreSizesChanged;
 		Grid.SetRow(_ignoreSizesCheck, 2);
@@ -159,7 +168,7 @@ public class ImportPickerWindow : Window
 		{
 			ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"),
 			IsVisible = false,
-			Margin = new Thickness(24, 2, 0, 0),
+			Margin = new Thickness(DialogPadding, 10, DialogPadding, 0),
 		};
 		Grid.SetRow(_uniformSizeRow, 3);
 
@@ -197,14 +206,20 @@ public class ImportPickerWindow : Window
 
 		UpdateUniformSizeText();
 
+		var footerBorder = new Border
+		{
+			Padding = new Thickness(DialogPadding, 10),
+			BorderThickness = new Thickness(0, 1, 0, 0),
+		};
+		ThemeManager.BindResource(footerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(footerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
+
 		var bottomBar = new StackPanel
 		{
 			Orientation = Orientation.Horizontal,
 			HorizontalAlignment = HorizontalAlignment.Right,
 			Spacing = 8,
-			Margin = new Thickness(0, 4, 0, 0),
 		};
-		Grid.SetRow(bottomBar, 4);
 
 		var cancelButton = new Button
 		{
@@ -218,11 +233,14 @@ public class ImportPickerWindow : Window
 		{
 			Content = Loc.Get(LocImportConfirm),
 			MinWidth = CloseButtonMinWidth,
+			Classes = { "accent" },
 		};
 		_importButton.Click += OnImportClick;
 		bottomBar.Children.Add(_importButton);
 
-		root.Children.Add(bottomBar);
+		footerBorder.Child = bottomBar;
+		Grid.SetRow(footerBorder, 4);
+		root.Children.Add(footerBorder);
 
 		Content = root;
 
@@ -331,21 +349,22 @@ public class ImportPickerWindow : Window
 			Margin = new Thickness(4, 4, 4, 0),
 		});
 
-		panel.Children.Add(new TextBlock
+		var roleCountText = new TextBlock
 		{
 			Text = $"{entry.RoleCount}/{CursorRoles.All.Length}",
 			FontSize = CellCountFontSize,
-			Foreground = Brushes.Gray,
 			TextAlignment = TextAlignment.Center,
-		});
+		};
+		ThemeManager.BindResource(roleCountText, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
+		panel.Children.Add(roleCountText);
 
 		var sizeText = new TextBlock
 		{
 			Text = $"{entry.BaseSize} {PixelSuffix}",
 			FontSize = CellCountFontSize,
-			Foreground = Brushes.Gray,
 			TextAlignment = TextAlignment.Center,
 		};
+		ThemeManager.BindResource(sizeText, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
 		panel.Children.Add(sizeText);
 
 		var content = new Grid();
@@ -385,7 +404,6 @@ public class ImportPickerWindow : Window
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			BorderThickness = new Thickness(CellBorderThickness),
-			BorderBrush = Brushes.CornflowerBlue,
 			Child = content,
 		};
 
@@ -418,7 +436,8 @@ public class ImportPickerWindow : Window
 	private static void SetSelected(Border cell, bool selected)
 	{
 		cell.Tag = selected;
-		cell.BorderBrush = selected ? Brushes.CornflowerBlue : Brushes.Gray;
+		ThemeManager.BindResource(cell, Border.BorderBrushProperty,
+			selected ? "SystemAccentColor" : "SystemControlBorderBrush");
 	}
 
 	private void UpdateSelectionCount()

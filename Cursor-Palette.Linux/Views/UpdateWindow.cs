@@ -106,11 +106,12 @@ public class UpdateWindow : Window
 
 		var topBar = new Border
 		{
-			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 0, 0, 1),
 			Padding = new Thickness(DialogPadding, BarPaddingVertical),
 			Child = headerPanel,
 		};
+		ThemeManager.BindResource(topBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(topBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		Grid.SetRow(topBar, 0);
 		root.Children.Add(topBar);
 
@@ -130,17 +131,18 @@ public class UpdateWindow : Window
 			MinWidth = DownloadButtonMinWidth,
 			Padding = new Thickness(ButtonPadding, BarPaddingVertical),
 			HorizontalAlignment = HorizontalAlignment.Center,
+			Classes = { "accent" },
 		};
 		downloadButton.Click += OnDownloadClick;
 
 		_statusText = new TextBlock
 		{
 			FontSize = StatusFontSize,
-			Foreground = Brushes.Gray,
 			HorizontalAlignment = HorizontalAlignment.Center,
 			Margin = new Thickness(0, StatusTextMarginTop, 0, 0),
 			IsVisible = false,
 		};
+		ThemeManager.BindResource(_statusText, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
 
 		var centerPanel = new StackPanel
 		{
@@ -164,11 +166,12 @@ public class UpdateWindow : Window
 
 		var bottomBar = new Border
 		{
-			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 1, 0, 0),
 			Padding = new Thickness(DialogPadding, BarPaddingVertical),
 			Child = cancelButton,
 		};
+		ThemeManager.BindResource(bottomBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(bottomBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		Grid.SetRow(bottomBar, 2);
 		root.Children.Add(bottomBar);
 

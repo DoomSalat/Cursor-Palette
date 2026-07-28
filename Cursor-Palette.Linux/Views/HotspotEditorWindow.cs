@@ -40,6 +40,8 @@ public class HotspotEditorWindow : Window
 		Title = Loc.Get("S.HotspotEditor.Title");
 		Width = AppState.GetHotspotEditorWidth();
 		Height = AppState.GetHotspotEditorHeight();
+		MinWidth = 460;
+		MinHeight = 400;
 		WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
 		_nativeWidth = hotspot.Width;
@@ -56,10 +58,17 @@ public class HotspotEditorWindow : Window
 			RowDefinitions = new RowDefinitions("Auto,*,Auto"),
 		};
 
+		var headerBorder = new Border
+		{
+			Padding = new Thickness(16, 10),
+			BorderThickness = new Thickness(0, 0, 0, 1),
+		};
+		ThemeManager.BindResource(headerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(headerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
+
 		var headerBar = new StackPanel
 		{
 			Orientation = Orientation.Horizontal,
-			Margin = new Thickness(16, 12, 16, 8),
 			Spacing = 8,
 		};
 
@@ -84,8 +93,9 @@ public class HotspotEditorWindow : Window
 		};
 		headerBar.Children.Add(infoButton);
 
-		Grid.SetRow(headerBar, 0);
-		root.Children.Add(headerBar);
+		headerBorder.Child = headerBar;
+		Grid.SetRow(headerBorder, 0);
+		root.Children.Add(headerBorder);
 
 		var contentPanel = new StackPanel
 		{
@@ -141,9 +151,9 @@ public class HotspotEditorWindow : Window
 		var previewBorder = new Border
 		{
 			Child = _previewCanvas,
-			BorderBrush = Brushes.Gray,
-			BorderThickness = new Thickness(1),
+			BorderThickness = new Thickness(3),
 		};
+		ThemeManager.BindResource(previewBorder, Border.BorderBrushProperty, "SystemAccentColor");
 		contentPanel.Children.Add(previewBorder);
 
 		var presetPanel = new StackPanel
@@ -152,13 +162,14 @@ public class HotspotEditorWindow : Window
 			Spacing = 6,
 		};
 
-		presetPanel.Children.Add(new TextBlock
+		var presetsLabel = new TextBlock
 		{
 			Text = Loc.Get("S.Hotspot.Presets"),
 			FontSize = 11,
-			Foreground = Brushes.Gray,
 			HorizontalAlignment = HorizontalAlignment.Center,
-		});
+		};
+		ThemeManager.BindResource(presetsLabel, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
+		presetPanel.Children.Add(presetsLabel);
 
 		var presetGrid = new Grid
 		{
@@ -197,10 +208,17 @@ public class HotspotEditorWindow : Window
 		Grid.SetRow(contentPanel, 1);
 		root.Children.Add(contentPanel);
 
+		var footerBorder = new Border
+		{
+			Padding = new Thickness(16, 10),
+			BorderThickness = new Thickness(0, 1, 0, 0),
+		};
+		ThemeManager.BindResource(footerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(footerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
+
 		var bottomBar = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
-			Margin = new Thickness(16, 8, 16, 16),
 		};
 
 		_coordsText = new TextBlock
@@ -224,13 +242,15 @@ public class HotspotEditorWindow : Window
 		{
 			Content = Loc.Get("S.Editor.Save"),
 			MinWidth = 90,
+			Classes = { "accent" },
 		};
 		saveButton.Click += OnSaveClick;
 		Grid.SetColumn(saveButton, 2);
 		bottomBar.Children.Add(saveButton);
 
-		Grid.SetRow(bottomBar, 2);
-		root.Children.Add(bottomBar);
+		footerBorder.Child = bottomBar;
+		Grid.SetRow(footerBorder, 2);
+		root.Children.Add(footerBorder);
 
 		Content = root;
 
@@ -325,7 +345,10 @@ public class HotspotEditorWindow : Window
 			var isCurrent = PixelForFraction(fx, _nativeWidth) == _x &&
 				PixelForFraction(fy, _nativeHeight) == _y;
 
-			btn.Background = isCurrent ? Brushes.CornflowerBlue : null;
+			if (isCurrent)
+				ThemeManager.BindResource(btn, Button.BackgroundProperty, "SystemAccentColor");
+			else
+				btn.Background = null;
 		}
 	}
 

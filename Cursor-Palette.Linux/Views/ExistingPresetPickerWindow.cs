@@ -64,11 +64,12 @@ public class ExistingPresetPickerWindow : Window
 
 		var topBar = new Border
 		{
-			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 0, 0, 1),
 			Padding = new Thickness(DialogPadding, 8),
 			Child = infoButton,
 		};
+		ThemeManager.BindResource(topBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(topBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		Grid.SetRow(topBar, 0);
 		root.Children.Add(topBar);
 
@@ -87,7 +88,6 @@ public class ExistingPresetPickerWindow : Window
 		var emptyHint = new TextBlock
 		{
 			Text = Loc.Get(LocPresetPickerEmpty),
-			Foreground = Brushes.Gray,
 			TextAlignment = TextAlignment.Center,
 			TextWrapping = TextWrapping.Wrap,
 			Margin = new Thickness(DialogPadding),
@@ -95,12 +95,12 @@ public class ExistingPresetPickerWindow : Window
 			VerticalAlignment = VerticalAlignment.Center,
 			IsVisible = presets.Count == 0,
 		};
+		ThemeManager.BindResource(emptyHint, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
 		Grid.SetRow(emptyHint, 1);
 		root.Children.Add(emptyHint);
 
 		var bottomBar = new Border
 		{
-			BorderBrush = Brushes.DarkGray,
 			BorderThickness = new Thickness(0, 1, 0, 0),
 			Padding = new Thickness(DialogPadding, 10),
 			Child = new Button
@@ -110,6 +110,8 @@ public class ExistingPresetPickerWindow : Window
 				MinWidth = CloseButtonMinWidth,
 			},
 		};
+		ThemeManager.BindResource(bottomBar, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(bottomBar, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		((Button)bottomBar.Child!).Click += (_, _) => Close();
 		Grid.SetRow(bottomBar, 2);
 		root.Children.Add(bottomBar);
@@ -161,11 +163,11 @@ public class ExistingPresetPickerWindow : Window
 		var countText = new TextBlock
 		{
 			Text = $"{preset.Roles.Count + preset.RoleRefs.Count}/{CursorRoles.All.Length}",
-			Foreground = Brushes.Gray,
 			FontSize = CellCountFontSize,
 			TextAlignment = TextAlignment.Center,
 			Margin = new Thickness(0, 2, 0, 0),
 		};
+		ThemeManager.BindResource(countText, TextBlock.ForegroundProperty, "SystemControlForegroundBaseMediumBrush");
 
 		var panel = new StackPanel
 		{
@@ -198,14 +200,14 @@ public class ExistingPresetPickerWindow : Window
 			Margin = new Thickness(CellMargin),
 			CornerRadius = new CornerRadius(CellCornerRadius),
 			BorderThickness = new Thickness(CellBorderThickness),
-			BorderBrush = Brushes.DarkGray,
 			Background = Brushes.Transparent,
 			Child = cellContent,
 			Cursor = new Cursor(StandardCursorType.Hand),
 		};
+		ThemeManager.BindResource(cell, Border.BorderBrushProperty, "SystemControlBorderBrush");
 
-		cell.PointerEntered += (_, _) => cell.BorderBrush = Brushes.CornflowerBlue;
-		cell.PointerExited += (_, _) => cell.BorderBrush = Brushes.DarkGray;
+		cell.PointerEntered += (_, _) => ThemeManager.BindResource(cell, Border.BorderBrushProperty, "SystemAccentColor");
+		cell.PointerExited += (_, _) => ThemeManager.BindResource(cell, Border.BorderBrushProperty, "SystemControlBorderBrush");
 		cell.PointerReleased += (_, e) =>
 		{
 			if (e.InitialPressMouseButton == MouseButton.Left)

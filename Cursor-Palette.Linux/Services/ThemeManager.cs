@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Styling;
 using CursorPalette.Services;
 
@@ -6,6 +7,9 @@ namespace CursorPalette.Linux.Services;
 
 public static class ThemeManager
 {
+	public static void BindResource(AvaloniaObject target, AvaloniaProperty property, string resourceKey) =>
+		target.Bind(property, new DynamicResourceExtension(resourceKey));
+
 	public const string Dark = "Dark";
 	public const string Light = "Light";
 

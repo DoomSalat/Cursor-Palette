@@ -284,6 +284,7 @@ public class PresetEditorWindow : Window
 		{
 			Content = Loc.Get(LocEditorSave),
 			MinWidth = SaveButtonMinWidth,
+			Classes = { "accent" },
 		};
 
 		var cancelButton = new Button

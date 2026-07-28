@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
+using CursorPalette.Linux.Services;
 using CursorPalette.Services;
 
 namespace CursorPalette.Linux.Views;
@@ -12,10 +13,10 @@ public class InfoHelpWindow : Window
 {
 	private const double TextZoomStep = 0.1;
 	private const int IconTokenMaxLength = 8;
-	private const double DialogWidth = 560;
-	private const double DialogHeight = 520;
-	private const double DialogMinWidth = 360;
-	private const double DialogMinHeight = 280;
+	private const double DialogWidth = 600;
+	private const double DialogHeight = 600;
+	private const double DialogMinWidth = 380;
+	private const double DialogMinHeight = 300;
 	private const double DialogPadding = 16;
 	private const double CloseButtonMinWidth = 90;
 
@@ -52,14 +53,20 @@ public class InfoHelpWindow : Window
 	{
 		var root = new Grid
 		{
-			Margin = new Thickness(DialogPadding),
 			RowDefinitions = new RowDefinitions("Auto,*,Auto"),
 		};
+
+		var headerBorder = new Border
+		{
+			Padding = new Thickness(DialogPadding, 10),
+			BorderThickness = new Thickness(0, 0, 0, 1),
+		};
+		ThemeManager.BindResource(headerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(headerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
 
 		var headerGrid = new Grid
 		{
 			ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto"),
-			Margin = new Thickness(0, 0, 0, 8),
 		};
 
 		var titleText = new TextBlock
@@ -100,11 +107,13 @@ public class InfoHelpWindow : Window
 		zoomInButton.Click += (_, _) => AdjustTextZoom(TextZoomStep);
 		headerGrid.Children.Add(zoomInButton);
 
-		Grid.SetRow(headerGrid, 0);
-		root.Children.Add(headerGrid);
+		headerBorder.Child = headerGrid;
+		Grid.SetRow(headerBorder, 0);
+		root.Children.Add(headerBorder);
 
 		var scrollViewer = new ScrollViewer
 		{
+			Margin = new Thickness(DialogPadding, 8, DialogPadding, 4),
 			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
 			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
 		};
@@ -123,11 +132,20 @@ public class InfoHelpWindow : Window
 			Content = Loc.Get(LocInfoClose),
 			MinWidth = CloseButtonMinWidth,
 			HorizontalAlignment = HorizontalAlignment.Right,
-			Margin = new Thickness(0, 8, 0, 0),
+			Classes = { "accent" },
 		};
 		closeButton.Click += (_, _) => Close();
-		Grid.SetRow(closeButton, 2);
-		root.Children.Add(closeButton);
+
+		var footerBorder = new Border
+		{
+			Padding = new Thickness(DialogPadding, 10),
+			BorderThickness = new Thickness(0, 1, 0, 0),
+			Child = closeButton,
+		};
+		ThemeManager.BindResource(footerBorder, Border.BackgroundProperty, "SystemControlDefaultChromeMediumBrush");
+		ThemeManager.BindResource(footerBorder, Border.BorderBrushProperty, "SystemControlBorderBrush");
+		Grid.SetRow(footerBorder, 2);
+		root.Children.Add(footerBorder);
 
 		Content = root;
 
@@ -224,22 +242,24 @@ public class InfoHelpWindow : Window
 		if (_bodyPanel == null)
 			return;
 
-		_bodyPanel.Children.Add(new TextBlock
+		var titleBlock = new TextBlock
 		{
 			Text = text,
 			FontSize = FontSizeScaled(16),
 			FontWeight = FontWeight.SemiBold,
 			TextWrapping = TextWrapping.Wrap,
-			Foreground = Brushes.CornflowerBlue,
 			Margin = new Thickness(0, 0, 0, 4),
-		});
+		};
+		ThemeManager.BindResource(titleBlock, TextBlock.ForegroundProperty, "SystemAccentColor");
+		_bodyPanel.Children.Add(titleBlock);
 
-		_bodyPanel.Children.Add(new Border
+		var divider = new Border
 		{
 			Height = 1,
-			Background = Brushes.Gray,
 			Margin = new Thickness(0, 0, 0, 8),
-		});
+		};
+		ThemeManager.BindResource(divider, Border.BackgroundProperty, "SystemControlBorderBrush");
+		_bodyPanel.Children.Add(divider);
 	}
 
 	private void RenderStandalone(string text)
@@ -265,12 +285,12 @@ public class InfoHelpWindow : Window
 		var card = new Border
 		{
 			Background = new SolidColorBrush(0x10FFFFFF),
-			BorderBrush = Brushes.Gray,
 			BorderThickness = new Thickness(1),
 			CornerRadius = new CornerRadius(8),
 			Padding = new Thickness(14, 10, 14, 10),
 			Margin = new Thickness(0, 0, 0, 8),
 		};
+		ThemeManager.BindResource(card, Border.BorderBrushProperty, "SystemControlBorderBrush");
 
 		var stackPanel = new StackPanel();
 
@@ -338,12 +358,12 @@ public class InfoHelpWindow : Window
 		var card = new Border
 		{
 			Background = new SolidColorBrush(0x10FFFFFF),
-			BorderBrush = Brushes.Gray,
 			BorderThickness = new Thickness(1),
 			CornerRadius = new CornerRadius(8),
 			Padding = new Thickness(14, 10, 14, 10),
 			Margin = new Thickness(0, 0, 0, 8),
 		};
+		ThemeManager.BindResource(card, Border.BorderBrushProperty, "SystemControlBorderBrush");
 
 		var stackPanel = new StackPanel();
 
