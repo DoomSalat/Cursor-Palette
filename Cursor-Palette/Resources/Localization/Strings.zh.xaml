@@ -278,6 +278,7 @@
 	<sys:String x:Key="S.Import.SelectionCount">已选择 {0}/{1}</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Cursor Palette 包 (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">统一光标大小</sys:String>
+	<sys:String x:Key="S.Import.HideExisting">隐藏已存在</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload">下载后打开文件夹</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">下载或导出文件后，在文件资源管理器中打开下载文件夹</sys:String>
 
@@ -291,6 +292,7 @@
 	<sys:String x:Key="S.Error.ExportFailed">导出预设失败：{0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">此文件不是可识别的 Cursor Palette 预设包。</sys:String>
 	<sys:String x:Key="S.Error.ImportVersionUnsupported">此预设包由更新版本的 Cursor Palette 创建（格式 {0}，此应用支持到 {1}）。请更新应用后再导入。</sys:String>
+	<sys:String x:Key="S.Error.ImportNothingFound">未能从该压缩包导入任何光标文件。</sys:String>
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">下载系统光标</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">导出为 PNG + GIF</sys:String>

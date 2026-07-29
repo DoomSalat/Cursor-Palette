@@ -278,6 +278,7 @@
 	<sys:String x:Key="S.Import.SelectionCount">{0} von {1} ausgewählt</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Cursor-Palette-Pakete (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">Einheitliche Cursorgröße</sys:String>
+	<sys:String x:Key="S.Import.HideExisting">Vorhandene ausblenden</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload">Ordner nach dem Download öffnen</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">Den Downloads-Ordner im Datei-Explorer öffnen, nachdem eine Datei heruntergeladen oder exportiert wurde</sys:String>
 
@@ -291,6 +292,7 @@
 	<sys:String x:Key="S.Error.ExportFailed">Presets konnten nicht exportiert werden: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Diese Datei ist kein erkanntes Cursor-Palette-Preset-Paket.</sys:String>
 	<sys:String x:Key="S.Error.ImportVersionUnsupported">Dieses Preset-Paket wurde mit einer neueren Version von Cursor Palette erstellt (Format {0}, diese App unterstützt bis {1}). Aktualisieren Sie die App, um es zu importieren.</sys:String>
+	<sys:String x:Key="S.Error.ImportNothingFound">Aus diesem Paket konnten keine Cursor-Dateien importiert werden.</sys:String>
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">Systemcursor herunterladen</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">Als PNG + GIF</sys:String>

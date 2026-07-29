@@ -383,23 +383,8 @@ public partial class MainWindow
 		var packagePath = paths.FirstOrDefault(path => File.Exists(path) && PresetPackageService.IsSupportedPackageFile(path));
 		if (packagePath != null)
 		{
-			DetectedPackage? detected;
-			try
-			{
-				detected = PresetPackageService.TryDetectPackage(packagePath);
-			}
-			catch (PackageVersionUnsupportedException exception)
-			{
-				MessageBox.Show(Loc.Format(LocErrorImportVersionUnsupported, exception.FoundVersion, exception.MaxSupportedVersion),
-					Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
-				return;
-			}
-
-			if (detected != null)
-			{
-				ImportPackage(detected);
-				return;
-			}
+			ImportPackageFile(packagePath);
+			return;
 		}
 
 		foreach (var folderPath in paths.Where(Directory.Exists))

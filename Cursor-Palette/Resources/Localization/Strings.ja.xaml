@@ -278,6 +278,7 @@
 	<sys:String x:Key="S.Import.SelectionCount">{1} 件中 {0} 件選択</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Cursor Palette パッケージ (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">統一カーソルサイズ</sys:String>
+	<sys:String x:Key="S.Import.HideExisting">既存を非表示</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload">ダウンロード後にフォルダを開く</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">ファイルのダウンロードまたはエクスポート後に、ダウンロード フォルダをエクスプローラーで開きます</sys:String>
 
@@ -291,6 +292,7 @@
 	<sys:String x:Key="S.Error.ExportFailed">プリセットのエクスポートに失敗しました: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">このファイルは認識可能な Cursor Palette プリセットパッケージではありません。</sys:String>
 	<sys:String x:Key="S.Error.ImportVersionUnsupported">このプリセットパッケージは新しいバージョンの Cursor Palette で作成されています（フォーマット {0}、このアプリは {1} までサポート）。インポートするにはアプリを更新してください。</sys:String>
+	<sys:String x:Key="S.Error.ImportNothingFound">このパッケージからインポートできるカーソルファイルがありませんでした。</sys:String>
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">システムカーソルをダウンロード</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">PNG + GIF として</sys:String>

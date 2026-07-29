@@ -24,22 +24,25 @@ public partial class MainWindow
 		if (dialog.ShowDialog(this) != true)
 			return;
 
+		ImportPackageFile(dialog.FileName);
+	}
+
+	private void ImportPackageFile(string path)
+	{
 		DetectedPackage? detected;
 		try
 		{
-			detected = PresetPackageService.TryDetectPackage(dialog.FileName);
+			detected = PresetPackageService.TryDetectPackage(path);
 		}
 		catch (PackageVersionUnsupportedException exception)
 		{
-			MessageBox.Show(Loc.Format(LocErrorImportVersionUnsupported, exception.FoundVersion, exception.MaxSupportedVersion),
-				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
+			ToastService.Show(RootGrid, Loc.Format(LocErrorImportVersionUnsupported, exception.FoundVersion, exception.MaxSupportedVersion));
 			return;
 		}
 
 		if (detected == null)
 		{
-			MessageBox.Show(Loc.Get(LocErrorImportUnrecognized),
-				Loc.Get(LocErrorTitle), MessageBoxButton.OK, MessageBoxImage.Warning);
+			ToastService.Show(RootGrid, Loc.Get(LocErrorImportUnrecognized));
 			return;
 		}
 
@@ -48,7 +51,7 @@ public partial class MainWindow
 
 	private void ImportPackage(DetectedPackage detected)
 	{
-		var picker = new ImportPickerWindow(detected.Entries, detected.Groups) { Owner = this };
+		var picker = new ImportPickerWindow(detected, _presets) { Owner = this };
 
 		if (picker.ShowDialog() == true)
 		{
@@ -56,8 +59,9 @@ public partial class MainWindow
 				picker.SelectedGroups, picker.IgnoreIndividualSizes, picker.UniformSize);
 			ReloadGallery();
 
-			if (imported > 0)
-				ToastService.Show(RootGrid, Loc.Format(LocToastImported, imported));
+			ToastService.Show(RootGrid, imported > 0
+				? Loc.Format(LocToastImported, imported)
+				: Loc.Get(LocErrorImportNothingFound));
 		}
 
 		PresetPackageService.CleanupPackage(detected);

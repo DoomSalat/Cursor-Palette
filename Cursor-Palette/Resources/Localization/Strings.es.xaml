@@ -286,6 +286,7 @@
 	<sys:String x:Key="S.Import.SelectionCount">{0} de {1} seleccionados</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Paquetes de Cursor Palette (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">Tamaño de cursor uniforme</sys:String>
+	<sys:String x:Key="S.Import.HideExisting">Ocultar existentes</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload">Abrir carpeta después de descargar</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">Abrir la carpeta de Descargas en el Explorador de archivos después de descargar o exportar un archivo</sys:String>
 
@@ -299,6 +300,7 @@
 	<sys:String x:Key="S.Error.ExportFailed">No se pudieron exportar los presets: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Este archivo no es un paquete de presets de Cursor Palette reconocido.</sys:String>
 	<sys:String x:Key="S.Error.ImportVersionUnsupported">Este paquete de preajustes fue creado con una versión más reciente de Cursor Palette (formato {0}, esta app admite hasta {1}). Actualiza la app para importarlo.</sys:String>
+	<sys:String x:Key="S.Error.ImportNothingFound">No se pudo importar ningún archivo de cursor de este paquete.</sys:String>
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">Descargar cursores del sistema</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">Como PNG + GIF</sys:String>

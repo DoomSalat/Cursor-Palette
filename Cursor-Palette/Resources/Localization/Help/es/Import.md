@@ -5,6 +5,8 @@ Esta ventana se abre después de elegir un paquete de Cursor Palette (.cursorpal
 ## 🖼️ Miniaturas — una por cada preajuste encontrado en el archivo; haz clic para seleccionar/deseleccionar (borde azul = seleccionado).
 - "Seleccionar todo" / "No seleccionar nada" — botones arriba.
 
+☑️ "Ocultar existentes" — activado por defecto; oculta los preajustes cuyos archivos de cursor son idénticos byte a byte a un preajuste ya instalado (el tamaño y la configuración de escalado se ignoran en la comparación). Desmárcala para mostrar todos los preajustes, incluidos los duplicados.
+
 ☑️ "Tamaño de cursor uniforme" — al marcarla aparece un control deslizante de tamaño; todos los preajustes importados recibirán ese tamaño de cursor uniforme en lugar del tamaño guardado en el archivo. Desmárcala para restaurar el tamaño propio de cada preajuste desde el archivo.
 
 📦 "Importar" — añade los preajustes seleccionados a tu galería como nuevos preajustes (con nuevos ID, para que nunca choquen con los existentes).

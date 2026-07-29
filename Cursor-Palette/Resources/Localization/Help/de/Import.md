@@ -5,6 +5,8 @@ Dieses Fenster öffnet sich, nachdem ein Cursor-Palette-Bundle (.cursorpalette) 
 ## 🖼️ Kacheln — eine pro in der Datei gefundenem Preset; klicken zum Aus-/Abwählen (blauer Rahmen = ausgewählt).
 - "Alle auswählen" / "Auswahl aufheben" — Schaltflächen oben.
 
+☑️ "Vorhandene ausblenden" — standardmäßig aktiviert; blendet Presets aus, deren Cursordateien bytegenau mit einem bereits installierten Preset übereinstimmen (Größe und Skalierungseinstellungen werden beim Vergleich ignoriert). Deaktivieren, um alle Presets einschließlich Duplikate anzuzeigen.
+
 ☑️ "Einheitliche Cursorgröße" — beim Aktivieren erscheint ein Größenregler; alle importierten Presets erhalten dann diese eine einheitliche Cursorgröße statt der in der Datei gespeicherten Größe. Zum Deaktivieren wird für jedes Preset wieder seine eigene Größe aus der Datei verwendet.
 
 📦 "Importieren" — fügt die ausgewählten Presets als neue Presets zur Galerie hinzu (mit neuen IDs, damit sie nie mit vorhandenen kollidieren).

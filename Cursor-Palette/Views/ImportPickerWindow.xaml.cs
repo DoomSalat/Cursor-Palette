@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,6 +36,8 @@ public partial class ImportPickerWindow : Window
 	private readonly List<(PackageEntry Entry, Border Cell, TextBlock SizeText)> _tiles = new();
 	private readonly List<(PackageGroupEntry Group, Border Cell)> _groupTiles = new();
 	private readonly Dictionary<string, string> _entryToColorKey = new();
+	private IReadOnlyList<Preset> _existingPresets = Array.Empty<Preset>();
+	private DetectedPackage? _package;
 
 	public IReadOnlyList<PackageEntry> SelectedEntries { get; private set; } = Array.Empty<PackageEntry>();
 
@@ -44,15 +47,20 @@ public partial class ImportPickerWindow : Window
 
 	public int UniformSize { get; private set; }
 
-	public ImportPickerWindow(IReadOnlyList<PackageEntry> entries, IReadOnlyList<PackageGroupEntry>? groups = null)
+	public ImportPickerWindow(DetectedPackage package, IReadOnlyList<Preset>? existingPresets = null)
 	{
+		_package = package;
+		_existingPresets = existingPresets ?? Array.Empty<Preset>();
 		InitializeComponent();
 
 		var uiScale = AppState.GetUiScale();
 		UiScaleTransform.ScaleX = uiScale;
 		UiScaleTransform.ScaleY = uiScale;
 
-		foreach (var group in groups ?? Array.Empty<PackageGroupEntry>())
+		var entries = package.Entries;
+		var groups = package.Groups;
+
+		foreach (var group in groups)
 		{
 			_groupTiles.Add((group, CreateGroupTile(group)));
 
@@ -72,7 +80,7 @@ public partial class ImportPickerWindow : Window
 		UniformSizeSlider.Value = (defaultSize - RegistryCursorService.SizeStep) / (double)RegistryCursorService.SizeStep;
 		UniformSizeValueText.Text = $"{defaultSize} {PixelSuffix}";
 
-		UpdateSelectionCount();
+		ApplyHideExisting();
 	}
 
 	private Border CreateGroupTile(PackageGroupEntry group)
@@ -127,7 +135,7 @@ public partial class ImportPickerWindow : Window
 			foreach (var memberKey in group.MemberKeys)
 			{
 				var memberTile = _tiles.FirstOrDefault(t => t.Entry.Key == memberKey);
-				if (memberTile.Cell != null)
+				if (memberTile.Cell != null && memberTile.Cell.Visibility == Visibility.Visible)
 					SetSelected(memberTile.Cell, selecting);
 			}
 
@@ -143,9 +151,12 @@ public partial class ImportPickerWindow : Window
 	{
 		foreach (var (group, cell) in _groupTiles)
 		{
-			var allMembersSelected = group.MemberKeys.Count > 0 && group.MemberKeys.All(memberKey =>
-				_tiles.FirstOrDefault(t => t.Entry.Key == memberKey) is { Cell: not null } match &&
-				IsSelected(match.Cell));
+			var visibleMembers = group.MemberKeys
+				.Select(key => _tiles.FirstOrDefault(t => t.Entry.Key == key))
+				.Where(t => t.Cell != null && t.Cell.Visibility == Visibility.Visible)
+				.ToList();
+
+			var allMembersSelected = visibleMembers.Count > 0 && visibleMembers.All(match => IsSelected(match.Cell));
 
 			SetSelected(cell, allMembersSelected);
 		}
@@ -269,14 +280,15 @@ public partial class ImportPickerWindow : Window
 	{
 		SyncGroupTileSelections();
 
-		var selected = _tiles.Count(tile => IsSelected(tile.Cell));
-		SelectionCountText.Text = Loc.Format(LocImportSelectionCount, selected, _tiles.Count);
+		var visibleTiles = _tiles.Where(tile => tile.Cell.Visibility == Visibility.Visible).ToList();
+		var selected = visibleTiles.Count(tile => IsSelected(tile.Cell));
+		SelectionCountText.Text = Loc.Format(LocImportSelectionCount, selected, visibleTiles.Count);
 		ImportButton.IsEnabled = selected > 0;
 	}
 
 	private void OnSelectAllClick(object sender, RoutedEventArgs e)
 	{
-		foreach (var (_, cell, _) in _tiles)
+		foreach (var (_, cell, _) in _tiles.Where(t => t.Cell.Visibility == Visibility.Visible))
 			SetSelected(cell, true);
 
 		UpdateSelectionCount();
@@ -292,8 +304,10 @@ public partial class ImportPickerWindow : Window
 
 	private void OnImportButtonClick(object sender, RoutedEventArgs e)
 	{
-		SelectedEntries = _tiles.Where(tile => IsSelected(tile.Cell)).Select(tile => tile.Entry).ToList();
-		SelectedGroups = _groupTiles.Where(tile => IsSelected(tile.Cell)).Select(tile => tile.Group).ToList();
+		SelectedEntries = _tiles.Where(tile => tile.Cell.Visibility == Visibility.Visible && IsSelected(tile.Cell))
+			.Select(tile => tile.Entry).ToList();
+		SelectedGroups = _groupTiles.Where(tile => tile.Cell.Visibility == Visibility.Visible && IsSelected(tile.Cell))
+			.Select(tile => tile.Group).ToList();
 
 		if (SelectedEntries.Count == 0)
 			return;
@@ -309,6 +323,85 @@ public partial class ImportPickerWindow : Window
 		var ignore = IgnoreSizesCheck.IsChecked == true;
 		UniformSizeRow.Visibility = ignore ? Visibility.Visible : Visibility.Collapsed;
 		UpdateTileSizes();
+	}
+
+	private void OnHideExistingChanged(object sender, RoutedEventArgs e)
+	{
+		ApplyHideExisting();
+	}
+
+	private void ApplyHideExisting()
+	{
+		var hide = HideExistingCheck.IsChecked == true;
+
+		foreach (var (entry, cell, _) in _tiles)
+		{
+			var isExisting = IsEntryExisting(entry);
+			cell.Visibility = hide && isExisting ? Visibility.Collapsed : Visibility.Visible;
+
+			if (hide && isExisting)
+				SetSelected(cell, false);
+		}
+
+		foreach (var (group, cell) in _groupTiles)
+		{
+			var allMembersHidden = group.MemberKeys.Count > 0 && group.MemberKeys.All(memberKey =>
+				_tiles.FirstOrDefault(t => t.Entry.Key == memberKey) is { Cell: not null } match &&
+				match.Cell.Visibility == Visibility.Collapsed);
+
+			cell.Visibility = hide && allMembersHidden ? Visibility.Collapsed : Visibility.Visible;
+
+			if (hide && allMembersHidden)
+				SetSelected(cell, false);
+		}
+
+		UpdateSelectionCount();
+	}
+
+	private bool IsEntryExisting(PackageEntry entry)
+	{
+		if (_package == null)
+			return false;
+
+		var draft = PresetPackageService.BuildDraft(_package, entry);
+		if (draft == null || draft.RoleSources.Count == 0)
+			return false;
+
+		var entryRoles = draft.RoleSources
+			.Where(kv => kv.Value.OwnFilePath != null)
+			.ToDictionary(kv => kv.Key, kv => kv.Value.OwnFilePath!);
+
+		if (entryRoles.Count == 0)
+			return false;
+
+		foreach (var preset in _existingPresets)
+		{
+			var presetRoleCount = preset.Roles.Count + preset.RoleRefs.Count;
+			if (presetRoleCount != entryRoles.Count)
+				continue;
+
+			var allMatch = true;
+			foreach (var (role, entryPath) in entryRoles)
+			{
+				var presetPath = PresetStore.GetRoleFilePath(preset, role);
+				if (presetPath == null || !File.Exists(presetPath) || !File.Exists(entryPath))
+				{
+					allMatch = false;
+					break;
+				}
+
+				if (!File.ReadAllBytes(entryPath).SequenceEqual(File.ReadAllBytes(presetPath)))
+				{
+					allMatch = false;
+					break;
+				}
+			}
+
+			if (allMatch)
+				return true;
+		}
+
+		return false;
 	}
 
 	private void OnUniformSizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

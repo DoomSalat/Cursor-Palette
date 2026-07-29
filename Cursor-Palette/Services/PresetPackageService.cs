@@ -56,16 +56,11 @@ public static class PresetPackageService
 		var stagingDir = CreateTempDir();
 		try
 		{
-			var presetsRoot = Path.Combine(stagingDir, PresetsFolderName);
-			Directory.CreateDirectory(presetsRoot);
-
 			var manifestPresets = new List<ArchiveManifestPreset>();
 
 			foreach (var preset in presets)
 			{
-				var presetDir = Path.Combine(presetsRoot, preset.Id);
-				var filesDir = Path.Combine(presetDir, FilesFolderName);
-				Directory.CreateDirectory(filesDir);
+				var presetDir = Path.Combine(stagingDir, preset.Id);
 
 				var roles = new Dictionary<string, string>();
 
@@ -76,16 +71,14 @@ public static class PresetPackageService
 					if (sourcePath == null || !File.Exists(sourcePath))
 						continue;
 
+					Directory.CreateDirectory(presetDir);
 					var fileName = $"{role.RegistryName}{Path.GetExtension(sourcePath)}";
-					File.Copy(sourcePath, Path.Combine(filesDir, fileName), overwrite: true);
+					File.Copy(sourcePath, Path.Combine(presetDir, fileName), overwrite: true);
 					roles[role.RegistryName] = fileName;
 				}
 
 				if (roles.Count == 0)
-				{
-					Directory.Delete(presetDir, recursive: true);
 					continue;
-				}
 
 				manifestPresets.Add(new ArchiveManifestPreset
 				{
@@ -133,8 +126,6 @@ public static class PresetPackageService
 		{
 			var manifestPresets = new List<ArchiveManifestPreset>();
 			var usedFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			var presetsRoot = Path.Combine(stagingDir, PresetsFolderName);
-			Directory.CreateDirectory(presetsRoot);
 
 			foreach (var preset in presets)
 			{
@@ -142,7 +133,6 @@ public static class PresetPackageService
 				var folderPath = Path.Combine(stagingDir, folderName);
 
 				var roles = new Dictionary<string, string>();
-				var count = 0;
 
 				foreach (var role in CursorRoles.All)
 				{
@@ -155,18 +145,10 @@ public static class PresetPackageService
 					var fileName = $"{role.RegistryName}{Path.GetExtension(sourcePath)}";
 					File.Copy(sourcePath, Path.Combine(folderPath, fileName), overwrite: true);
 					roles[role.RegistryName] = fileName;
-					count++;
 				}
 
-				if (count == 0)
+				if (roles.Count == 0)
 					continue;
-
-				var presetDir = Path.Combine(presetsRoot, preset.Id);
-				var filesDir = Path.Combine(presetDir, FilesFolderName);
-				Directory.CreateDirectory(filesDir);
-
-				foreach (var (role, fileName) in roles)
-					File.Copy(Path.Combine(folderPath, fileName), Path.Combine(filesDir, fileName), overwrite: true);
 
 				manifestPresets.Add(new ArchiveManifestPreset
 				{
@@ -548,12 +530,10 @@ public static class PresetPackageService
 			}
 
 			var entries = new List<PackageEntry>();
-			var presetsRoot = Path.Combine(extractedDir, PresetsFolderName);
 
 			foreach (var preset in manifest.Presets)
 			{
-				var presetDir = Path.Combine(presetsRoot, preset.Id);
-				var filesDir = Path.Combine(presetDir, FilesFolderName);
+				var filesDir = ResolvePresetFilesDir(extractedDir, preset);
 
 				if (!Directory.Exists(filesDir))
 					continue;
@@ -955,6 +935,18 @@ public static class PresetPackageService
 		return entries;
 	}
 
+	public static PresetDraft? BuildDraft(DetectedPackage package, PackageEntry entry)
+	{
+		return package.Kind switch
+		{
+			PackageKind.Manifest => BuildManifestDraft(package.ExtractedDir, entry),
+			PackageKind.Bundle => BuildBundleDraft(package.ExtractedDir, entry),
+			PackageKind.XcursorTheme => BuildXcursorThemeDraft(package.ExtractedDir, entry),
+			PackageKind.SinglePreset => BuildSinglePresetDraft(package.ExtractedDir, entry),
+			_ => BuildArchiveDraft(package.ExtractedDir, entry),
+		};
+	}
+
 	public static int ImportSelected(DetectedPackage package, IReadOnlyList<PackageEntry> selectedEntries,
 		IReadOnlyList<PackageGroupEntry>? selectedGroups = null,
 		bool ignoreIndividualSizes = false, int uniformSize = RegistryCursorService.DefaultBaseSize)
@@ -1081,6 +1073,13 @@ public static class PresetPackageService
 		return TryReadJson<List<PackageGroupEntry>>(groupsPath) ?? new();
 	}
 
+	private static string ResolvePresetFilesDir(string extractedDir, ArchiveManifestPreset preset)
+	{
+		var legacyDir = Path.Combine(extractedDir, PresetsFolderName, preset.Id, FilesFolderName);
+
+		return Directory.Exists(legacyDir) ? legacyDir : Path.Combine(extractedDir, preset.Folder);
+	}
+
 	private static PresetDraft? BuildManifestDraft(string extractedDir, PackageEntry entry)
 	{
 		var manifestPath = Path.Combine(extractedDir, PackageManifestFileName);
@@ -1093,7 +1092,7 @@ public static class PresetPackageService
 		if (preset == null)
 			return null;
 
-		var filesDir = Path.Combine(extractedDir, PresetsFolderName, preset.Id, FilesFolderName);
+		var filesDir = ResolvePresetFilesDir(extractedDir, preset);
 		var draft = new PresetDraft { Name = preset.Name, Author = !string.IsNullOrWhiteSpace(preset.Author) ? preset.Author : TryReadAuthorFromReadme(extractedDir), BaseSize = preset.BaseSize, UseScaling = preset.UseScaling, ScaleMode = (ScaleMode)preset.ScaleMode };
 
 		foreach (var (role, fileName) in preset.Roles)

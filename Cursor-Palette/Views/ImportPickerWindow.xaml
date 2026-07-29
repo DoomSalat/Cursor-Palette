@@ -90,9 +90,17 @@
 				BorderThickness="0,0,0,1"
 				Padding="16,10">
 			<StackPanel>
+				<CheckBox x:Name="HideExistingCheck"
+						  Style="{StaticResource Style.ToggleCheckBox}"
+						  Content="{DynamicResource S.Import.HideExisting}"
+						  IsChecked="True"
+						  Checked="OnHideExistingChanged"
+						  Unchecked="OnHideExistingChanged" />
+
 				<CheckBox x:Name="IgnoreSizesCheck"
 						  Style="{StaticResource Style.ToggleCheckBox}"
 						  Content="{DynamicResource S.Import.IgnoreSizes}"
+						  Margin="0,8,0,0"
 						  Checked="OnIgnoreSizesChanged"
 						  Unchecked="OnIgnoreSizesChanged" />
 

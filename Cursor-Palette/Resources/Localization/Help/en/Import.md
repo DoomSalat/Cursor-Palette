@@ -5,6 +5,8 @@ This window opens after picking a Cursor Palette bundle (.cursorpalette) or ZIP 
 ## 🖼️ Tiles — one per preset found in the file; click to select/deselect (blue border = selected).
 - "Select all" / "Select none" — buttons at the top.
 
+☑️ "Hide existing" — enabled by default; hides presets whose cursor files are byte-for-byte identical to an already installed preset (size and scaling settings are ignored in the comparison). Uncheck to show all presets, including duplicates.
+
 ☑️ "Uniform cursor size" — check to reveal a size slider; every imported preset then gets that one uniform cursor size instead of whatever size is stored in the file. Uncheck to restore each preset's own size from the file.
 
 📦 "Import" — adds the selected presets to your gallery as new presets (with new IDs, so they never collide with existing ones).

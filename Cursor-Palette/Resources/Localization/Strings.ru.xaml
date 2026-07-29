@@ -286,6 +286,7 @@
 	<sys:String x:Key="S.Import.SelectionCount">Выбрано {0} из {1}</sys:String>
 	<sys:String x:Key="S.Import.FileFilter">Пакеты Cursor Palette (*.cursorpalette;*.zip;*.rar;*.7z)|*.cursorpalette;*.zip;*.rar;*.7z</sys:String>
 	<sys:String x:Key="S.Import.IgnoreSizes">Общий размер курсора</sys:String>
+	<sys:String x:Key="S.Import.HideExisting">Скрыть существующие</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload">Открывать папку после скачивания</sys:String>
 	<sys:String x:Key="S.OpenFolderAfterDownload.Tooltip">Открывать папку «Загрузки» в проводнике после скачивания или экспорта файла</sys:String>
 
@@ -299,6 +300,7 @@
 	<sys:String x:Key="S.Error.ExportFailed">Не удалось экспортировать пресеты: {0}</sys:String>
 	<sys:String x:Key="S.Error.ImportUnrecognized">Этот файл не распознан как пакет пресетов Cursor Palette.</sys:String>
 	<sys:String x:Key="S.Error.ImportVersionUnsupported">Этот пакет пресетов создан более новой версией Cursor Palette (формат {0}, эта версия приложения поддерживает до {1}). Обновите приложение, чтобы импортировать его.</sys:String>
+	<sys:String x:Key="S.Error.ImportNothingFound">Не удалось импортировать ни одного файла курсора из этого пакета.</sys:String>
 
 	<sys:String x:Key="S.Menu.DownloadSystemCursors">Скачать системные курсоры</sys:String>
 	<sys:String x:Key="S.Menu.DownloadSystemPngGif">Как PNG + GIF</sys:String>
