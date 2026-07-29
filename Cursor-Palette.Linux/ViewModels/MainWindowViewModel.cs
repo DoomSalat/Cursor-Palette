@@ -279,7 +279,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 		_cellScale = AppState.GetGalleryCellScale();
 
 		var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
-		_footerText = string.Format(FooterFormat, AppInfo.Author, version, AppInfo.LicenseName);
+		FooterText = string.Format(FooterFormat, AppInfo.Author, version, AppInfo.LicenseName);
 
 		ReloadGallery();
 	}

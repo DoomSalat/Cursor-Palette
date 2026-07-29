@@ -55,13 +55,13 @@
 			<Setter Property="Height" Value="10" />
 			<Setter Property="Width" Value="NaN" />
 		</Style>
-		<Style Selector="ScrollBar /template/ Thumb">
+		<Style Selector="ScrollBar Thumb">
 			<Setter Property="Background" Value="{DynamicResource ScrollBarThumbBrush}" />
 			<Setter Property="CornerRadius" Value="4" />
 			<Setter Property="MinHeight" Value="24" />
 			<Setter Property="MinWidth" Value="24" />
 		</Style>
-		<Style Selector="ScrollBar /template/ Thumb:pointerover">
+		<Style Selector="ScrollBar Thumb:pointerover">
 			<Setter Property="Background" Value="{DynamicResource ScrollBarThumbHoverBrush}" />
 		</Style>
 		<Style Selector="Button">

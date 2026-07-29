@@ -523,7 +523,7 @@ public partial class MainWindow : Window
 			cellScaleLabel.Text = Loc.Get(LocGallerySize);
 
 		if (_scaleCursorsCheckBox != null)
-			_scaleCursorsCheckBox.Content = Loc.Get(LocScaleCursors);
+			ToolTip.SetTip(_scaleCursorsCheckBox, Loc.Get(LocScaleCursors));
 
 		var emptyHint = this.FindControl<TextBlock>("EmptyGalleryHint");
 		if (emptyHint != null)
@@ -848,7 +848,6 @@ public partial class MainWindow : Window
 			UpdateScaleIcon(_activeScaleMode);
 			UpdateUndoButton();
 			UpdateApplySizeButtonHighlight(_viewModel.BaselineSizePx);
-			ShowToast(Loc.Get(LocToastSaved));
 		}
 		finally
 		{
@@ -870,7 +869,7 @@ public partial class MainWindow : Window
 
 	public void OnPresetDrop(object? sender, DragEventArgs e)
 	{
-		if (sender is not Control control || control.DataContext is not BoardItem item)
+		if (e.Source is not Control control || control.DataContext is not BoardItem item)
 			return;
 
 		if (e.Data.Contains(GroupDragFormat))

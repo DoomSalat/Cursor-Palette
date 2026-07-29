@@ -102,8 +102,8 @@
 						<Border x:Name="ScaleModeButton"
 								Width="28" Height="28"
 								CornerRadius="6"
-								Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
-								BorderBrush="{DynamicResource SystemControlDefaultChromeMediumLowBrush}"
+								Background="{DynamicResource BrushSurfaceHover}"
+								BorderBrush="{DynamicResource SystemControlBorderBrush}"
 								BorderThickness="1"
 								Margin="4,0,0,0"
 								Cursor="Hand"
@@ -188,7 +188,7 @@
 								Margin="6"
 								CornerRadius="10"
 								BorderThickness="2"
-								BorderBrush="{DynamicResource SystemControlDefaultChromeMediumBrush}"
+								BorderBrush="{DynamicResource SystemControlBorderBrush}"
 								Background="{DynamicResource SystemControlDefaultChromeMediumBrush}"
 								Classes.active="{Binding IsActive}"
 								Classes.group="{Binding IsGroup}"
@@ -552,12 +552,18 @@
 
 				<Button x:Name="GitHubLink"
 						Grid.Column="9"
-						Content="⌥"
-						FontSize="14"
 						Padding="8,4"
 						Margin="8,0,0,0"
 						VerticalAlignment="Center"
-						Click="OnGitHubLinkClick" />
+						Click="OnGitHubLinkClick">
+					<Rectangle Width="16"
+							   Height="16"
+							   Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}">
+						<Rectangle.OpacityMask>
+							<ImageBrush Source="avares://Cursor-Palette-Linux/Resources/GitHub48.png" Stretch="Uniform" />
+						</Rectangle.OpacityMask>
+					</Rectangle>
+				</Button>
 			</Grid>
 		</Border>
 
