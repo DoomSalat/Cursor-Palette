@@ -192,6 +192,12 @@ cursor files and a `manifest.json`.
 1. Download `Cursor-Palette.exe` from the [Releases](../../releases) page.
 2. Run the file — the app is self-contained, no .NET installation required.
 
+> **SHA-256 checksum:** each release includes a `Cursor-Palette.exe.sha256`
+> file. The app uses this checksum to verify the integrity of downloaded
+> updates before installing them — if the file is missing or the hash
+> doesn't match, the update is aborted. This prevents corrupted or
+> tampered downloads from being applied automatically.
+
 ## Requirements
 
 - Windows 10/11 (x64)
