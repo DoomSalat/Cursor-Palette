@@ -383,8 +383,30 @@ public partial class MainWindow
 		var packagePath = paths.FirstOrDefault(path => File.Exists(path) && PresetPackageService.IsSupportedPackageFile(path));
 		if (packagePath != null)
 		{
-			ImportPackageFile(packagePath);
-			return;
+			DetectedPackage? detected;
+			try
+			{
+				detected = PresetPackageService.TryDetectPackage(packagePath);
+			}
+			catch (PackageVersionUnsupportedException exception)
+			{
+				ToastService.Show(RootGrid, Loc.Format(LocErrorImportVersionUnsupported, exception.FoundVersion, exception.MaxSupportedVersion));
+				return;
+			}
+
+			if (detected != null)
+			{
+				ImportPackage(detected);
+				return;
+			}
+
+			// Not a recognized package (bundle/manifest/etc.). If it's a plain archive, fall through
+			// and treat it like a dropped folder: look for cur/ani files inside it directly.
+			if (!ArchiveImportService.IsArchiveFile(packagePath))
+			{
+				ToastService.Show(RootGrid, Loc.Get(LocErrorImportUnrecognized));
+				return;
+			}
 		}
 
 		foreach (var folderPath in paths.Where(Directory.Exists))
