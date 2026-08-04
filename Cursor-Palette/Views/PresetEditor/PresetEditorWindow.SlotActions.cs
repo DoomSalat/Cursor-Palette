@@ -80,9 +80,7 @@ public partial class PresetEditorWindow
 		if (editor.ShowDialog() != true)
 			return;
 
-		var destPath = resolvedPath != null && File.Exists(resolvedPath) && IsWritable(resolvedPath)
-			? resolvedPath
-			: Path.Combine(Path.GetTempPath(), $"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
+		var destPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
 
 		CursorHotspotService.WriteWithHotspot(resolvedPath, destPath, editor.ResultX, editor.ResultY);
 		CursorPreviewService.Invalidate(destPath);
@@ -136,9 +134,7 @@ public partial class PresetEditorWindow
 
 		if (editor.ResultFrames is { Count: > 1 } resultFrames)
 		{
-			destPath = resolvedPath != null && File.Exists(resolvedPath) && IsWritable(resolvedPath)
-				? resolvedPath
-				: Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{AniExtension}");
+			destPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{AniExtension}");
 
 			AniCursorWriter.Save(destPath, resultFrames, editor.ResultFrameDelaysMs!,
 				editor.ResultIconSizes, editor.ResultIconSizeCustomImages,
@@ -146,9 +142,7 @@ public partial class PresetEditorWindow
 		}
 		else if (editor.Result != null)
 		{
-			destPath = resolvedPath != null && File.Exists(resolvedPath) && IsWritable(resolvedPath)
-				? resolvedPath
-				: Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{CurExtension}");
+			destPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{CurExtension}");
 
 			if (editor.ResultIconSizes is { Count: > 1 } iconSizes)
 			{
@@ -183,19 +177,6 @@ public partial class PresetEditorWindow
 		CursorPreviewService.Invalidate(destPath);
 
 		SetSlotSource(slot, destPath);
-	}
-
-	private static bool IsWritable(string path)
-	{
-		try
-		{
-			using var stream = new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.None);
-			return true;
-		}
-		catch
-		{
-			return false;
-		}
 	}
 
 	private static (List<CursorCanvasImage> Frames, List<int> DelaysMs)? ReadAniAsFrames(string path)
