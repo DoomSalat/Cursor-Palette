@@ -138,6 +138,8 @@ public static class AnimatedGifWriter
 
 		gceBytes ??= new byte[] { ExtensionIntroducer, GraphicControlLabel, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+		gceBytes[3] = (byte)((gceBytes[3] & 0b1110_0011) | (2 << 2));
+
 		var descriptorStart = position;
 		var originalPacked = bytes[descriptorStart + 9];
 		position += ImageDescriptorSize;
