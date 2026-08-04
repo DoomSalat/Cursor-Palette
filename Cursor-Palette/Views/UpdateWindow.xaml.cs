@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using CursorPalette.Services;
@@ -30,6 +31,8 @@ public partial class UpdateWindow : Window
 	private const string VersionLabelFormat = "{0}: {1}  →  {2}: {3}";
 	private const string DownloadedToFormat = "{0} {1}";
 	private const string DownloadFailedFormat = "{0}: {1}";
+
+	private static readonly Regex VersionInNameRegex = new(@"\d+(?:\.\d+){1,3}", RegexOptions.Compiled);
 
 	private readonly UpdateInfo _updateInfo;
 	private readonly Panel _toastHost;
@@ -99,6 +102,19 @@ public partial class UpdateWindow : Window
 		}
 	}
 
+	private static string? TryBuildVersionedExePath(string currentExePath, string newVersion)
+	{
+		var fileName = Path.GetFileNameWithoutExtension(currentExePath);
+		var match = VersionInNameRegex.Match(fileName);
+
+		if (!match.Success)
+			return null;
+
+		var newFileName = string.Concat(fileName.AsSpan(0, match.Index), newVersion, fileName.AsSpan(match.Index + match.Length));
+
+		return Path.Combine(Path.GetDirectoryName(currentExePath)!, newFileName + Path.GetExtension(currentExePath));
+	}
+
 	private static async Task<bool> VerifyChecksumAsync(string filePath, string expectedSha256)
 	{
 		await using var fs = File.OpenRead(filePath);
@@ -139,7 +155,13 @@ public partial class UpdateWindow : Window
 			}
 
 			var currentExe = Environment.ProcessPath!;
+			var targetExe = TryBuildVersionedExePath(currentExe, _updateInfo.Version) ?? currentExe;
+
 			var batPath = Path.Combine(Path.GetTempPath(), string.Format(TempBatFormat, Guid.NewGuid().ToString("N")));
+
+			var deleteOldExeLine = string.Equals(targetExe, currentExe, StringComparison.OrdinalIgnoreCase)
+				? string.Empty
+				: $"""del "{currentExe}" """;
 
 			var batContent = $"""
 				@echo off
@@ -149,9 +171,10 @@ public partial class UpdateWindow : Window
 					timeout /t 1 /nobreak >nul
 					goto wait
 				)
-				copy /y "{tempPath}" "{currentExe}"
+				copy /y "{tempPath}" "{targetExe}"
+				{deleteOldExeLine}
 				del "{tempPath}"
-				start "" "{currentExe}"
+				start "" "{targetExe}"
 				del "%~f0"
 				""";
 
