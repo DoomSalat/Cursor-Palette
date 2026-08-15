@@ -80,12 +80,15 @@ public partial class PresetEditorWindow
 		if (editor.ShowDialog() != true)
 			return;
 
-		var destPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
+		var destPath = slot.SourcePath ?? Path.Combine(Path.GetTempPath(), $"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
 
 		CursorHotspotService.WriteWithHotspot(resolvedPath, destPath, editor.ResultX, editor.ResultY);
 		CursorPreviewService.Invalidate(destPath);
 
-		SetSlotSource(slot, destPath);
+		if (slot.SourcePath != null)
+			UpdateHotspotDot(slot);
+		else
+			SetSlotSource(slot, destPath);
 	}
 
 	private const int AniOpenFrameLimit = 60;
@@ -130,20 +133,23 @@ public partial class PresetEditorWindow
 		if (editor.ShowDialog() != true)
 			return;
 
-		string destPath;
+		var isAniResult = editor.ResultFrames is { Count: > 1 };
+		var desiredExtension = isAniResult ? AniExtension : CurExtension;
+		var canReusePath = slot.SourcePath != null &&
+			string.Equals(Path.GetExtension(slot.SourcePath), desiredExtension, StringComparison.OrdinalIgnoreCase);
 
-		if (editor.ResultFrames is { Count: > 1 } resultFrames)
+		string destPath = canReusePath
+			? slot.SourcePath!
+			: Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{desiredExtension}");
+
+		if (isAniResult)
 		{
-			destPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{AniExtension}");
-
-			AniCursorWriter.Save(destPath, resultFrames, editor.ResultFrameDelaysMs!,
+			AniCursorWriter.Save(destPath, editor.ResultFrames!, editor.ResultFrameDelaysMs!,
 				editor.ResultIconSizes, editor.ResultIconSizeCustomImages,
 				editor.ResultIconSizeScaleModeOverrides, editor.ResultIconSizesScaleMode);
 		}
 		else if (editor.Result != null)
 		{
-			destPath = Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{CurExtension}");
-
 			if (editor.ResultIconSizes is { Count: > 1 } iconSizes)
 			{
 				var overrides = editor.ResultIconSizeScaleModeOverrides;
@@ -176,7 +182,10 @@ public partial class PresetEditorWindow
 
 		CursorPreviewService.Invalidate(destPath);
 
-		SetSlotSource(slot, destPath);
+		if (canReusePath)
+			UpdateHotspotDot(slot);
+		else
+			SetSlotSource(slot, destPath);
 	}
 
 	private static (List<CursorCanvasImage> Frames, List<int> DelaysMs)? ReadAniAsFrames(string path)

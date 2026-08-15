@@ -80,6 +80,7 @@
 	<sys:String x:Key="S.Editor.PresetName">Nombre del preajuste</sys:String>
 	<sys:String x:Key="S.Editor.Author">Autor</sys:String>
 	<sys:String x:Key="S.Editor.Author.Tooltip">El nombre del autor se guarda en el README y se restaura al importar</sys:String>
+	<sys:String x:Key="S.Editor.FileNameEdit.Tooltip">Renombrar el archivo de cursor (se mantiene la extensión)</sys:String>
 	<sys:String x:Key="S.Editor.Save">Guardar</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">Cancelar</sys:String>
 	<sys:String x:Key="S.Editor.ExportPng">Exportar como PNG a Descargas</sys:String>

@@ -241,4 +241,28 @@
 		<Setter Property="Background" Value="Transparent" />
 	</Style>
 
+	<Style x:Key="Style.PencilButton" TargetType="Button">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="BorderThickness" Value="0" />
+		<Setter Property="Cursor" Value="Hand" />
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="Button">
+					<ContentPresenter Margin="2,2" />
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="Style.PencilIcon" TargetType="TextBlock">
+		<Setter Property="Text" Value="✏" />
+		<Setter Property="FontSize" Value="10" />
+		<Setter Property="Foreground" Value="{StaticResource Brush.TextDim}" />
+		<Style.Triggers>
+			<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+				<Setter Property="Foreground" Value="{StaticResource Brush.Accent}" />
+			</DataTrigger>
+		</Style.Triggers>
+	</Style>
+
 </ResourceDictionary>

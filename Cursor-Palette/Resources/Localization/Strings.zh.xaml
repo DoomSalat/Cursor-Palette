@@ -76,6 +76,7 @@
 	<sys:String x:Key="S.Editor.PresetName">预设名称</sys:String>
 	<sys:String x:Key="S.Editor.Author">作者</sys:String>
 	<sys:String x:Key="S.Editor.Author.Tooltip">作者名称保存到README中，导入时恢复</sys:String>
+	<sys:String x:Key="S.Editor.FileNameEdit.Tooltip">重命名光标文件（保留扩展名）</sys:String>
 	<sys:String x:Key="S.Editor.Save">保存</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">取消</sys:String>
 	<sys:String x:Key="S.Editor.ExportPng">导出为 PNG 到下载文件夹</sys:String>

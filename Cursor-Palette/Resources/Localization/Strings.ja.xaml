@@ -76,6 +76,7 @@
 	<sys:String x:Key="S.Editor.PresetName">プリセット名</sys:String>
 	<sys:String x:Key="S.Editor.Author">作者</sys:String>
 	<sys:String x:Key="S.Editor.Author.Tooltip">作者名はREADMEに保存され、インポート時に復元されます</sys:String>
+	<sys:String x:Key="S.Editor.FileNameEdit.Tooltip">カーソルファイルの名前を変更（拡張子は保持）</sys:String>
 	<sys:String x:Key="S.Editor.Save">保存</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">キャンセル</sys:String>
 	<sys:String x:Key="S.Editor.ExportPng">PNGとしてダウンロードにエクスポート</sys:String>

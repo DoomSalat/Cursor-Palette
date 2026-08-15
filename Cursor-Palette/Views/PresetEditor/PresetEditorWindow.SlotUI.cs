@@ -76,8 +76,60 @@ public partial class PresetEditorWindow
 			FontSize = FileTextFontSize,
 			TextAlignment = TextAlignment.Center,
 			TextTrimming = TextTrimming.CharacterEllipsis,
+			MaxWidth = FileNameMaxWidth,
 			Margin = new Thickness(4, 2, 4, 0),
 		};
+
+		var fileNameEditButton = new Button
+		{
+			Style = (Style)Application.Current.Resources[StylePencilButton],
+			Content = new TextBlock { Style = (Style)Application.Current.Resources[StylePencilIcon] },
+			Margin = new Thickness(2, 0, 0, 0),
+			VerticalAlignment = VerticalAlignment.Center,
+			ToolTip = Loc.Get(LocEditorFileNameEditTooltip),
+			Visibility = Visibility.Collapsed,
+		};
+
+		var fileNameRow = new StackPanel
+		{
+			Orientation = Orientation.Horizontal,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Thickness(0, 2, 0, 0),
+		};
+		fileNameRow.Children.Add(fileText);
+		fileNameRow.Children.Add(fileNameEditButton);
+
+		var fileNameEditBox = new TextBox
+		{
+			Style = (Style)Application.Current.Resources[StyleTextBox],
+			FontSize = FileTextFontSize,
+			MaxLength = FileNameEditMaxLength,
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Thickness(4, 2, 4, 0),
+			ToolTip = Loc.Get(LocEditorFileNameEditTooltip),
+		};
+
+		var fileNamePlaceholder = new TextBlock
+		{
+			Text = role.RegistryName,
+			Foreground = Brush(BrushTextDim),
+			Opacity = PlaceholderOpacity,
+			FontSize = FileTextFontSize,
+			HorizontalAlignment = HorizontalAlignment.Left,
+			VerticalAlignment = VerticalAlignment.Center,
+			Margin = new Thickness(12, 2, 4, 0),
+			IsHitTestVisible = false,
+			Visibility = Visibility.Collapsed,
+		};
+
+		var fileNameEditContainer = new Grid
+		{
+			HorizontalAlignment = HorizontalAlignment.Center,
+			Margin = new Thickness(4, 2, 4, 0),
+			Visibility = Visibility.Collapsed,
+		};
+		fileNameEditContainer.Children.Add(fileNameEditBox);
+		fileNameEditContainer.Children.Add(fileNamePlaceholder);
 
 		var browseButton = new Button
 		{
@@ -220,7 +272,8 @@ public partial class PresetEditorWindow
 		panel.Children.Add(linkBadge);
 		panel.Children.Add(previewHost);
 		panel.Children.Add(roleName);
-		panel.Children.Add(fileText);
+		panel.Children.Add(fileNameRow);
+		panel.Children.Add(fileNameEditContainer);
 		panel.Children.Add(primaryButtons);
 
 		var dropIndicator = new Rectangle
@@ -261,6 +314,11 @@ public partial class PresetEditorWindow
 			DefaultPath = defaultPath,
 			PreviewImage = preview,
 			FileText = fileText,
+			FileNameRow = fileNameRow,
+			FileNameEditButton = fileNameEditButton,
+			FileNameEditContainer = fileNameEditContainer,
+			FileNameEditBox = fileNameEditBox,
+			FileNamePlaceholder = fileNamePlaceholder,
 			ClearButton = clearButton,
 			PivotButton = pivotButton,
 			PositionButton = positionButton,
@@ -280,6 +338,10 @@ public partial class PresetEditorWindow
 		positionButton.Click += (_, _) => OpenPaintEditor(slot);
 		clearButton.Click += (_, _) => ClearSlot(slot);
 		lockButton.Click += (_, _) => SetSlotLocked(slot, !slot.IsLocked);
+		fileNameEditButton.Click += (_, _) => OnFileNameEditButtonClick(slot);
+		fileNameEditBox.KeyDown += (_, eventArgs) => OnFileNameEditBoxKeyDown(slot, eventArgs);
+		fileNameEditBox.LostFocus += (_, eventArgs) => OnFileNameEditBoxLostFocus(slot, eventArgs);
+		fileNameEditBox.TextChanged += (_, _) => UpdateFileNamePlaceholder(slot);
 		downloadButton.MouseLeftButtonUp += (_, e) =>
 		{
 			DownloadSlot(slot);

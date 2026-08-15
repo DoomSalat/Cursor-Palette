@@ -8,6 +8,7 @@
 - {img:LockIcon26} en un espacio — bloquear rol (proteger de importación de carpeta y arrastrar y soltar).
 - {img:DownloadIcon32} en un espacio — descargar cursor a la carpeta de descargas (nombre por preajuste + rol).
 - 🧩 en un espacio — tomar rol de otro preajuste.
+- ✏️ junto al nombre del archivo — renombrar el archivo de cursor (se mantiene la extensión). Si el campo está vacío, se usa el nombre de rol por defecto.
 - {img:LinkIcon32} — el rol proviene de otro preajuste (vínculo).
 - Insignia "auto" — cursor auto-rellenado.
 

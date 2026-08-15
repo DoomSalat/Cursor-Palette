@@ -8,6 +8,7 @@
 - {img:LockIcon26} auf Platz — Rolle sperren (Schutz vor Ordnerimport und Drag-and-Drop).
 - {img:DownloadIcon32} auf Platz — Cursor in den Downloads-Ordner herunterladen (benannt nach Preset + Rolle).
 - 🧩 auf Platz — Rolle aus anderem Preset übernehmen.
+- ✏️ neben dem Dateinamen — Cursor-Datei umbenennen (Erweiterung bleibt erhalten). Bei leerem Feld wird der Standard-Rollenname verwendet.
 - {img:LinkIcon32} — Rolle stammt aus einem anderen Preset (Verknüpfung).
 - "auto" Symbol — Cursor wird automatisch eingesetzt.
 

@@ -19,6 +19,9 @@ public partial class PresetEditorWindow
 		slot.LinkBadge.Visibility = Visibility.Collapsed;
 		slot.FileText.Text = Path.GetFileName(path);
 		slot.FileText.Foreground = Brush(BrushText);
+		slot.FileNameEditContainer.Visibility = Visibility.Collapsed;
+		slot.FileNameRow.Visibility = Visibility.Visible;
+		slot.FileNameEditButton.Visibility = Visibility.Visible;
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
 		slot.PivotButton.IsEnabled = true;
@@ -49,6 +52,9 @@ public partial class PresetEditorWindow
 		slot.LinkBadge.ToolTip = Loc.Format(LocEditorLinkedRoleTooltip, label);
 		slot.FileText.Text = label;
 		slot.FileText.Foreground = Brush(BrushText);
+		slot.FileNameEditContainer.Visibility = Visibility.Collapsed;
+		slot.FileNameRow.Visibility = Visibility.Visible;
+		slot.FileNameEditButton.Visibility = Visibility.Collapsed;
 		slot.ClearButton.Visibility = Visibility.Visible;
 		slot.PivotButton.Visibility = Visibility.Visible;
 		slot.PivotButton.IsEnabled = false;
@@ -83,6 +89,9 @@ public partial class PresetEditorWindow
 			: Visibility.Visible;
 		slot.FileText.Text = Loc.Get(LocEditorEmptySlot);
 		slot.FileText.Foreground = Brush(BrushTextDim);
+		slot.FileNameEditContainer.Visibility = Visibility.Collapsed;
+		slot.FileNameRow.Visibility = Visibility.Visible;
+		slot.FileNameEditButton.Visibility = Visibility.Collapsed;
 		slot.ClearButton.Visibility = Visibility.Collapsed;
 		slot.PivotButton.Visibility = Visibility.Collapsed;
 		slot.PositionButton.Visibility = Visibility.Visible;

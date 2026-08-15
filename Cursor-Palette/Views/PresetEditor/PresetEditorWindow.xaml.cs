@@ -22,6 +22,11 @@ public partial class PresetEditorWindow : Window
 		public string? RefFileName { get; set; }
 		public Image PreviewImage { get; init; } = null!;
 		public TextBlock FileText { get; init; } = null!;
+		public StackPanel FileNameRow { get; init; } = null!;
+		public Button FileNameEditButton { get; init; } = null!;
+		public Grid FileNameEditContainer { get; init; } = null!;
+		public TextBox FileNameEditBox { get; init; } = null!;
+		public TextBlock FileNamePlaceholder { get; init; } = null!;
 		public Button ClearButton { get; init; } = null!;
 		public Button PivotButton { get; init; } = null!;
 		public Button PositionButton { get; init; } = null!;
@@ -66,6 +71,9 @@ public partial class PresetEditorWindow : Window
 	private const string ExpandIconUri = "pack://application:,,,/Resources/ExpandIcon32.png";
 	private const string StairIconUri = "pack://application:,,,/Resources/StairIcon24.png";
 	private const double DownloadIconSize = 16;
+	private const double FileNameMaxWidth = 120;
+	private const int FileNameEditMaxLength = 80;
+	private const string TempRenameDirPrefix = "cursor-palette-rename-";
 
 	private const string BrushAccent = "Brush.Accent";
 	private const string BrushBorder = "Brush.Border";
@@ -76,6 +84,9 @@ public partial class PresetEditorWindow : Window
 	private const string StyleAccentButton = "Style.AccentButton";
 	private const string StyleButton = "Style.Button";
 	private const string StyleDangerButton = "Style.DangerButton";
+	private const string StylePencilButton = "Style.PencilButton";
+	private const string StylePencilIcon = "Style.PencilIcon";
+	private const string StyleTextBox = "Style.TextBox";
 
 	private const string LocInfoTitle = "S.Info.Title";
 	private const string LocEditorTitleNew = "S.Editor.TitleNew";
@@ -94,6 +105,7 @@ public partial class PresetEditorWindow : Window
 	private const string LocEditorLockTooltip = "S.Editor.Lock.Tooltip";
 	private const string LocEditorUnlockTooltip = "S.Editor.Unlock.Tooltip";
 	private const string LocEditorDownloadTooltip = "S.Editor.Download.Tooltip";
+	private const string LocEditorFileNameEditTooltip = "S.Editor.FileNameEdit.Tooltip";
 	private const string LocEditorFileFilter = "S.Editor.FileFilter";
 	private const string LocEditorLinkedRoleTooltip = "S.Editor.LinkedRole.Tooltip";
 	private const string LocEditorNoCursorInFolder = "S.Editor.NoCursorInFolder";
@@ -255,17 +267,38 @@ public partial class PresetEditorWindow : Window
 
 	private void OnRootPreviewMouseDown(object sender, MouseButtonEventArgs e)
 	{
-		if (AuthorEditBox.Visibility != Visibility.Visible)
-			return;
-
-		var hit = e.OriginalSource as DependencyObject;
-		while (hit != null)
+		if (AuthorEditBox.Visibility == Visibility.Visible)
 		{
-			if (ReferenceEquals(hit, AuthorEditBox))
-				return;
-			hit = VisualTreeHelper.GetParent(hit);
+			var hit = e.OriginalSource as DependencyObject;
+			while (hit != null)
+			{
+				if (ReferenceEquals(hit, AuthorEditBox))
+					break;
+				hit = VisualTreeHelper.GetParent(hit);
+			}
+
+			if (hit == null)
+				CommitAuthorEdit();
 		}
 
-		CommitAuthorEdit();
+		var editingSlot = _slots.FirstOrDefault(slot => slot.FileNameEditContainer.Visibility == Visibility.Visible);
+
+		if (editingSlot != null)
+		{
+			var hit = e.OriginalSource as DependencyObject;
+			var inside = false;
+			while (hit != null)
+			{
+				if (ReferenceEquals(hit, editingSlot.FileNameEditBox))
+				{
+					inside = true;
+					break;
+				}
+				hit = VisualTreeHelper.GetParent(hit);
+			}
+
+			if (!inside)
+				CommitFileNameEdit(editingSlot);
+		}
 	}
 }

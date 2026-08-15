@@ -77,37 +77,12 @@
 							 Foreground="{StaticResource Brush.TextDim}"
 							 VerticalAlignment="Center" />
 					<Button x:Name="AuthorEditButton"
+							Style="{StaticResource Style.PencilButton}"
 							ToolTip="{DynamicResource S.Editor.Author.Tooltip}"
 							Click="OnAuthorEditButtonClick"
 							Margin="4,0,0,0"
-							VerticalAlignment="Center"
-							Cursor="Hand">
-						<Button.Style>
-							<Style TargetType="Button">
-								<Setter Property="Background" Value="Transparent" />
-								<Setter Property="BorderThickness" Value="0" />
-								<Setter Property="Cursor" Value="Hand" />
-								<Setter Property="Template">
-									<Setter.Value>
-										<ControlTemplate TargetType="Button">
-											<ContentPresenter Margin="2,2" />
-										</ControlTemplate>
-									</Setter.Value>
-								</Setter>
-							</Style>
-						</Button.Style>
-						<TextBlock Text="✏" FontSize="10">
-							<TextBlock.Style>
-								<Style TargetType="TextBlock">
-									<Setter Property="Foreground" Value="{StaticResource Brush.TextDim}" />
-									<Style.Triggers>
-										<DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-											<Setter Property="Foreground" Value="{StaticResource Brush.Accent}" />
-										</DataTrigger>
-									</Style.Triggers>
-								</Style>
-							</TextBlock.Style>
-						</TextBlock>
+							VerticalAlignment="Center">
+						<TextBlock Style="{StaticResource Style.PencilIcon}" />
 					</Button>
 				</StackPanel>
 				<TextBox x:Name="AuthorEditBox" Grid.Column="1"

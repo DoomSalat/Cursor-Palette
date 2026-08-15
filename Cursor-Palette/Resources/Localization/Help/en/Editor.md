@@ -8,6 +8,7 @@
 - {img:LockIcon26} on a slot — lock role (protect from folder import and drag-and-drop).
 - {img:DownloadIcon32} on a slot — download cursor to Downloads folder (named by preset + role).
 - 🧩 on a slot — borrow a role from another preset.
+- ✏️ next to the file name — rename the cursor file (extension is kept). When the field is empty, the default role name is used.
 - {img:LinkIcon32} — role is borrowed from another preset (link).
 - "auto" badge — cursor is auto-filled.
 

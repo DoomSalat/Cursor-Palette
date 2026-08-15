@@ -76,6 +76,7 @@
 	<sys:String x:Key="S.Editor.PresetName">Preset-Name</sys:String>
 	<sys:String x:Key="S.Editor.Author">Autor</sys:String>
 	<sys:String x:Key="S.Editor.Author.Tooltip">Autorname wird im README gespeichert und beim Import wiederhergestellt</sys:String>
+	<sys:String x:Key="S.Editor.FileNameEdit.Tooltip">Cursor-Datei umbenennen (Erweiterung bleibt erhalten)</sys:String>
 	<sys:String x:Key="S.Editor.Save">Speichern</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">Abbrechen</sys:String>
 	<sys:String x:Key="S.Editor.ExportPng">Als PNG in Downloads exportieren</sys:String>

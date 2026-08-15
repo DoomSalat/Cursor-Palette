@@ -80,6 +80,7 @@
 	<sys:String x:Key="S.Editor.PresetName">Название пресета</sys:String>
 	<sys:String x:Key="S.Editor.Author">Автор</sys:String>
 	<sys:String x:Key="S.Editor.Author.Tooltip">Имя автора сохраняется в README и восстанавливается при импорте</sys:String>
+	<sys:String x:Key="S.Editor.FileNameEdit.Tooltip">Переименовать файл курсора (расширение сохраняется)</sys:String>
 	<sys:String x:Key="S.Editor.Save">Сохранить</sys:String>
 	<sys:String x:Key="S.Editor.Cancel">Отмена</sys:String>
 	<sys:String x:Key="S.Editor.ExportPng">Экспорт в PNG в загрузки</sys:String>
