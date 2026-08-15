@@ -108,6 +108,11 @@ apply.
 - **Role lock** — lock individual role slots in the preset editor to
   protect them from folder import, file drag-and-drop, and manual edits.
   The lock state is saved with the preset and survives reopening.
+- **Rename cursor file** — a pencil icon next to the file name on each
+  slot lets you rename the cursor file inline (the `.cur`/`.ani`
+  extension is always preserved). Leave the field empty and press Enter
+  to reset it to the role's default name; the original source file is
+  never modified.
 - **Undo last change** ("Back") — the app keeps a snapshot of the previous
   cursor state and lets you roll back one step.
 - **Light/dark theme** — a toggle in the header switches themes instantly;
