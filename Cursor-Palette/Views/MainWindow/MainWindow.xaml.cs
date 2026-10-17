@@ -164,6 +164,7 @@ public partial class MainWindow : Window
 	private bool _justDraggedGroup;
 	private Dictionary<string, string>? _activeSourceValues;
 	private bool _activeUseScaling;
+	private IReadOnlyList<double> _appliedMonitorScales = [];
 	private ScaleMode _activeScaleMode = ScaleMode.AreaWeighted;
 
 	public MainWindow()
@@ -200,6 +201,12 @@ public partial class MainWindow : Window
 
 		InitScaleCursorsCheckBox();
 
+		_appliedMonitorScales = DisplayDpiService.GetDistinctMonitorScales();
+		SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+		SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+
+		_ = Task.Run(CursorCacheService.RemoveUnreferencedFiles);
+
 		var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? AppInfo.DefaultVersion;
 		FooterRun.Text = string.Format(FooterFormat, AppInfo.Author, version, AppInfo.LicenseName);
 
@@ -219,6 +226,8 @@ public partial class MainWindow : Window
 	protected override void OnClosed(EventArgs e)
 	{
 		AppState.SetMainWindowSize(Width, Height);
+		SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
+		SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
 		base.OnClosed(e);
 	}
 }

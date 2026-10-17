@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using CursorPalette.Models;
 
 namespace CursorPalette.Services;
@@ -82,7 +83,8 @@ public static class AppState
 		public string? BgRefCustomPath { get; set; }
 		public bool BgRefBilinear { get; set; }
 		public double PaintEditorToolPanelWidth { get; set; } = PaintEditorToolPanelWidthDefault;
-		public bool ScaleCursorsEnabled { get; set; }
+		[JsonPropertyName("ScaleCursorsEnabled")]
+		public bool DefaultCellUseScaling { get; set; }
 		public int ScaleMode { get; set; } = 1;
 	}
 
@@ -388,12 +390,12 @@ public static class AppState
 		SaveSettings(settings);
 	}
 
-	public static bool GetScaleCursorsEnabled() => LoadSettings().ScaleCursorsEnabled;
+	public static bool GetDefaultCellUseScaling() => LoadSettings().DefaultCellUseScaling;
 
-	public static void SetScaleCursorsEnabled(bool enabled)
+	public static void SetDefaultCellUseScaling(bool enabled)
 	{
 		var settings = LoadSettings();
-		settings.ScaleCursorsEnabled = enabled;
+		settings.DefaultCellUseScaling = enabled;
 
 		SaveSettings(settings);
 	}

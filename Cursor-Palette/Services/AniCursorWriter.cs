@@ -63,9 +63,30 @@ public static class AniCursorWriter
 			}
 		}
 
-		var rateJiffies = new uint[frames.Count];
+		WriteAniFile(destinationPath, iconChunks, frameDelaysMs);
+	}
 
-		for (var i = 0; i < frames.Count; i++)
+	public static void SaveMultiSizeFrames(
+		string destinationPath,
+		IReadOnlyList<IReadOnlyList<CursorCanvasImage>> frameSizeImages,
+		IReadOnlyList<int> frameDelaysMs)
+	{
+		if (frameSizeImages.Count == 0)
+			return;
+
+		var iconChunks = frameSizeImages
+			.Select(CursorCanvasService.BuildMultiSizeBytes)
+			.ToList();
+
+		WriteAniFile(destinationPath, iconChunks, frameDelaysMs);
+	}
+
+	private static void WriteAniFile(string destinationPath, IReadOnlyList<byte[]> iconChunks, IReadOnlyList<int> frameDelaysMs)
+	{
+		var frameCount = iconChunks.Count;
+		var rateJiffies = new uint[frameCount];
+
+		for (var i = 0; i < frameCount; i++)
 		{
 			var delayMs = i < frameDelaysMs.Count ? frameDelaysMs[i] : (int)(MsPerJiffy * 6);
 			rateJiffies[i] = (uint)Math.Max(1, (int)Math.Round(delayMs / MsPerJiffy));
@@ -79,7 +100,7 @@ public static class AniCursorWriter
 		writer.Write((uint)0);
 		writer.Write(Encoding.ASCII.GetBytes(AconFourCc));
 
-		WriteAnihChunk(writer, frames.Count, rateJiffies[0]);
+		WriteAnihChunk(writer, frameCount, rateJiffies[0]);
 		WriteRateChunk(writer, rateJiffies);
 		WriteFramList(writer, iconChunks);
 
@@ -127,7 +148,7 @@ public static class AniCursorWriter
 		WritePadding(writer, dataSize);
 	}
 
-	private static void WriteFramList(BinaryWriter writer, List<byte[]> iconChunks)
+	private static void WriteFramList(BinaryWriter writer, IReadOnlyList<byte[]> iconChunks)
 	{
 		var innerSize = FourCcSize;
 

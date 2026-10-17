@@ -651,8 +651,7 @@ public partial class MainWindow
 				return;
 			}
 
-			GroupStore.SetCollapsed(group.Id, !group.Collapsed);
-			ReloadGallery();
+			ToggleGroupCollapsed(group);
 		};
 
 		var menu = new ContextMenu();
@@ -776,7 +775,6 @@ public partial class MainWindow
 		cell.MouseEnter += (_, _) => cell.BorderBrush = Brush(BrushAccent);
 		cell.MouseLeave += (_, _) => cell.BorderBrush = Brush(BrushBorder);
 		cell.MouseLeftButtonUp += (_, _) => OpenEditor(null, Array.Empty<string>());
-		cell.Drop += OnWindowDrop;
 
 		return cell;
 	}

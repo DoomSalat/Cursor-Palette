@@ -52,6 +52,7 @@ public static class AppPaths
 	public static string SettingsFile => Path.Combine(StateDir, SettingsFileName);
 	public static string PreviousSnapshotFile => Path.Combine(StateDir, PreviousSnapshotFileName);
 	public static string ScaledCursorsDir => Path.Combine(Root, "scaled");
+	public static string ApplyCacheDir => Path.Combine(Root, "apply-cache");
 
 	public static void EnsureCreated()
 	{

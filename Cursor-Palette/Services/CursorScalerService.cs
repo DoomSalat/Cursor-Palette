@@ -8,11 +8,13 @@ public static class CursorScalerService
 	private const string CurExtension = ".cur";
 	private const string AniExtension = ".ani";
 	private const int BytesPerPixel = 4;
+	private const int MaxCursorDimension = 256;
 
 	public static Dictionary<string, string> ScaleValues(
 		IReadOnlyDictionary<string, string> values, int targetSize, ScaleMode scaleMode = ScaleMode.AreaWeighted)
 	{
 		var result = new Dictionary<string, string>(values.Count);
+		var targetSizes = GetDpiTargetSizes(targetSize);
 
 		foreach (var (role, path) in values)
 		{
@@ -22,14 +24,22 @@ public static class CursorScalerService
 				continue;
 			}
 
-			var scaledPath = ScaleToSize(path, targetSize, scaleMode);
+			var scaledPath = ScaleToSizes(path, targetSizes, scaleMode);
 			result[role] = scaledPath ?? path;
 		}
 
 		return result;
 	}
 
-	public static string? ScaleToSize(string sourcePath, int targetSize, ScaleMode scaleMode = ScaleMode.AreaWeighted)
+	private static List<int> GetDpiTargetSizes(int targetSize) =>
+		DisplayDpiService.GetDistinctMonitorScales()
+			.Select(scale => Math.Clamp((int)Math.Round(targetSize * scale), 1, MaxCursorDimension))
+			.Prepend(targetSize)
+			.Distinct()
+			.Order()
+			.ToList();
+
+	private static string? ScaleToSizes(string sourcePath, IReadOnlyList<int> targetSizes, ScaleMode scaleMode)
 	{
 		if (!File.Exists(sourcePath))
 			return null;
@@ -38,93 +48,138 @@ public static class CursorScalerService
 
 		return ext switch
 		{
-			CurExtension => ScaleCurFile(sourcePath, targetSize, scaleMode),
-			AniExtension => ScaleAniFile(sourcePath, targetSize, scaleMode),
+			CurExtension => ScaleCurFile(sourcePath, targetSizes, scaleMode),
+			AniExtension => ScaleAniFile(sourcePath, targetSizes, scaleMode),
 			_ => sourcePath,
 		};
 	}
 
-	private static string? ScaleCurFile(string sourcePath, int targetSize, ScaleMode scaleMode)
+	private static string? ScaleCurFile(string sourcePath, IReadOnlyList<int> targetSizes, ScaleMode scaleMode)
 	{
-		var image = CursorCanvasService.TryRead(sourcePath);
-		if (image == null)
+		var sourceImages = CursorCanvasService.TryReadAllImages(sourcePath);
+		if (sourceImages == null && CursorCanvasService.TryRead(sourcePath) is { } singleImage)
+			sourceImages = [singleImage];
+
+		if (sourceImages == null)
 			return null;
 
-		if (image.Width == targetSize && image.Height == targetSize)
+		if (ContainsAllSizes(sourceImages, targetSizes))
 			return sourcePath;
 
-		var destPath = GetScaledPath(sourcePath, targetSize, CurExtension, scaleMode);
+		var destPath = GetScaledPath(sourcePath, targetSizes, CurExtension, scaleMode);
 
 		if (File.Exists(destPath))
 			return destPath;
 
-		var scaled = ScaleImage(image, targetSize, targetSize, scaleMode);
-		CursorCanvasService.Write(destPath, scaled);
+		CursorCanvasService.WriteMultiSize(destPath, ScaleToAllSizes(sourceImages, targetSizes, scaleMode));
 
 		return destPath;
 	}
 
-	private static string? ScaleAniFile(string sourcePath, int targetSize, ScaleMode scaleMode)
+	private static string? ScaleAniFile(string sourcePath, IReadOnlyList<int> targetSizes, ScaleMode scaleMode)
 	{
 		var frames = AniCursorReader.Read(sourcePath);
 		if (frames == null || frames.Frames.Count == 0)
 			return null;
 
-		if (frames.Frames[0].PixelWidth == targetSize && frames.Frames[0].PixelHeight == targetSize)
-			return sourcePath;
-
-		var bytes = File.ReadAllBytes(sourcePath);
-		var iconRanges = AniCursorReader.FindIconChunkRanges(bytes);
-
-		var destPath = GetScaledPath(sourcePath, targetSize, AniExtension, scaleMode);
+		var destPath = GetScaledPath(sourcePath, targetSizes, AniExtension, scaleMode);
 
 		if (File.Exists(destPath))
 			return destPath;
 
-		var scaledFrames = new List<CursorCanvasImage>(frames.StepFrameIndices.Count);
+		var bytes = File.ReadAllBytes(sourcePath);
+		var iconRanges = AniCursorReader.FindIconChunkRanges(bytes);
+
+		var sourceFrames = new List<List<CursorCanvasImage>>(frames.StepFrameIndices.Count);
 		var delays = new List<int>(frames.StepFrameIndices.Count);
 
 		for (var step = 0; step < frames.StepFrameIndices.Count; step++)
 		{
-			var frameIdx = frames.StepFrameIndices[step];
-			if (frameIdx >= iconRanges.Count)
+			var frameIndex = frames.StepFrameIndices[step];
+			if (frameIndex >= iconRanges.Count)
 				continue;
 
-			var (offset, length) = iconRanges[frameIdx];
+			var (offset, length) = iconRanges[frameIndex];
 			var frameBytes = new byte[length];
 			Array.Copy(bytes, offset, frameBytes, 0, length);
 
-			var image = CursorCanvasService.TryReadFromBytes(frameBytes);
-			if (image == null)
-			{
-				var tempPath = Path.Combine(Path.GetTempPath(), $"cp-scale-{Guid.NewGuid():N}.cur");
-				try
-				{
-					File.WriteAllBytes(tempPath, frameBytes);
-					image = CursorCanvasService.TryRead(tempPath);
-				}
-				catch
-				{
-				}
-				finally
-				{
-					try { File.Delete(tempPath); } catch { }
-				}
-				if (image == null)
-					continue;
-			}
+			var frameImages = CursorCanvasService.TryReadAllImagesFromBytes(frameBytes);
+			if (frameImages == null && ReadFrameViaTempFile(frameBytes) is { } fallbackImage)
+				frameImages = [fallbackImage];
 
-			var scaled = ScaleImage(image, targetSize, targetSize, scaleMode);
-			scaledFrames.Add(scaled);
+			if (frameImages == null)
+				continue;
+
+			sourceFrames.Add(frameImages);
 			delays.Add((int)frames.StepDurations[step].TotalMilliseconds);
 		}
 
-		if (scaledFrames.Count == 0)
+		if (sourceFrames.Count == 0)
 			return null;
 
-		AniCursorWriter.Save(destPath, scaledFrames, delays);
+		if (sourceFrames.All(frameImages => ContainsAllSizes(frameImages, targetSizes)))
+			return sourcePath;
+
+		var scaledFrames = sourceFrames
+			.Select(frameImages => ScaleToAllSizes(frameImages, targetSizes, scaleMode))
+			.ToList();
+		AniCursorWriter.SaveMultiSizeFrames(destPath, scaledFrames, delays);
 
 		return destPath;
+	}
+
+	private static CursorCanvasImage? ReadFrameViaTempFile(byte[] frameBytes)
+	{
+		var tempPath = Path.Combine(Path.GetTempPath(), $"cp-scale-{Guid.NewGuid():N}.cur");
+
+		try
+		{
+			File.WriteAllBytes(tempPath, frameBytes);
+			return CursorCanvasService.TryRead(tempPath);
+		}
+		catch
+		{
+			return null;
+		}
+		finally
+		{
+			try { File.Delete(tempPath); } catch { }
+		}
+	}
+
+	private static bool ContainsAllSizes(IReadOnlyList<CursorCanvasImage> images, IReadOnlyList<int> sizes) =>
+		sizes.All(size => images.Any(image => image.Width == size && image.Height == size));
+
+	private static List<CursorCanvasImage> ScaleToAllSizes(
+		IReadOnlyList<CursorCanvasImage> sourceImages, IReadOnlyList<int> targetSizes, ScaleMode scaleMode) =>
+		targetSizes
+			.Select(size =>
+			{
+				var source = PickBestSource(sourceImages, size, scaleMode);
+				return source.Width == size && source.Height == size ? source : ScaleImage(source, size, size, scaleMode);
+			})
+			.ToList();
+
+	private static CursorCanvasImage PickBestSource(IReadOnlyList<CursorCanvasImage> sourceImages, int size, ScaleMode scaleMode)
+	{
+		var larger = sourceImages
+			.Where(image => image.Width >= size && image.Height >= size)
+			.MinBy(image => image.Width);
+
+		if (larger != null)
+			return larger;
+
+		if (scaleMode == ScaleMode.NearestNeighbor)
+		{
+			var evenDivisor = sourceImages
+				.Where(image => size % image.Width == 0 && size % image.Height == 0)
+				.MaxBy(image => image.Width);
+
+			if (evenDivisor != null)
+				return evenDivisor;
+		}
+
+		return sourceImages.MaxBy(image => image.Width)!;
 	}
 
 	public static CursorCanvasImage ScaleImage(CursorCanvasImage source, int targetWidth, int targetHeight, ScaleMode scaleMode)
@@ -244,29 +299,18 @@ public static class CursorScalerService
 
 	private const string ScaleAlgorithmVersion = "v4";
 
-	private static string GetScaledPath(string sourcePath, int targetSize, string extension, ScaleMode scaleMode)
+	private static string GetScaledPath(string sourcePath, IReadOnlyList<int> targetSizes, string extension, ScaleMode scaleMode)
 	{
 		Directory.CreateDirectory(AppPaths.ScaledCursorsDir);
 
 		var modeSuffix = scaleMode == ScaleMode.NearestNeighbor ? "-nn" : "-aw";
+		var stamp = File.GetLastWriteTimeUtc(sourcePath).Ticks;
 		var hash = System.Security.Cryptography.SHA256.HashData(
-			Encoding.UTF8.GetBytes(ScaleAlgorithmVersion + modeSuffix + sourcePath.ToLowerInvariant()));
+			Encoding.UTF8.GetBytes($"{ScaleAlgorithmVersion}{modeSuffix}{sourcePath.ToLowerInvariant()}|{stamp}|{string.Join('-', targetSizes)}"));
 
 		var hashStr = Convert.ToHexString(hash)[..8];
-		var fileName = $"{Path.GetFileNameWithoutExtension(sourcePath)}-{targetSize}-{hashStr}{extension}";
+		var fileName = $"{Path.GetFileNameWithoutExtension(sourcePath)}-{targetSizes[0]}-{hashStr}{extension}";
 
 		return Path.Combine(AppPaths.ScaledCursorsDir, fileName);
-	}
-
-	public static void Cleanup()
-	{
-		try
-		{
-			if (Directory.Exists(AppPaths.ScaledCursorsDir))
-				Directory.Delete(AppPaths.ScaledCursorsDir, recursive: true);
-		}
-		catch
-		{
-		}
 	}
 }

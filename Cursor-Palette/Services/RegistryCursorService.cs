@@ -9,6 +9,7 @@ public sealed class CursorSnapshot
 {
 	public Dictionary<string, string> Values { get; init; } = new();
 	public int BaseSize { get; init; } = RegistryCursorService.DefaultBaseSize;
+	public string? PresetId { get; init; }
 }
 
 public static class RegistryCursorService
@@ -88,8 +89,9 @@ public static class RegistryCursorService
 		SystemParametersInfo(SpiSetCursors, 0, IntPtr.Zero, SpifUpdateIniFile | SpifSendChange);
 	}
 
-	public static CursorSnapshot TakeSnapshot() => new()
+	public static CursorSnapshot TakeSnapshot(string? activePresetId) => new()
 	{
+		PresetId = activePresetId,
 		Values = ReadCurrentValues(),
 		BaseSize = GetBaseSize(),
 	};

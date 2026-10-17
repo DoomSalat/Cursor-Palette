@@ -39,23 +39,19 @@ public partial class MainWindow
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
 			var baseSize = preset.BaseSize;
-			var useScaling = AppState.GetScaleCursorsEnabled() && preset.UseScaling;
+			var useScaling = preset.UseScaling;
 			var scaleMode = preset.ScaleMode;
+			var previousPresetId = _activePresetId;
 
 			Dictionary<string, string>? sourceValues = null;
 			await Task.Run(() =>
 			{
-				sourceValues = new Dictionary<string, string>();
-				foreach (var role in CursorRoles.All)
-				{
-					var path = PresetStore.GetRoleFilePath(preset, role.RegistryName);
-					sourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
-				}
+				sourceValues = BuildPresetSourceValues(preset);
 
-				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot(previousPresetId));
 				var scaledValues = useScaling
 					? CursorScalerService.ScaleValues(sourceValues, baseSize, scaleMode)
-					: sourceValues;
+					: CursorApplyStagingService.Stage(sourceValues);
 				RegistryCursorService.ApplyValuesAndBaseSize(scaledValues, baseSize);
 			});
 
@@ -97,15 +93,16 @@ public partial class MainWindow
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
 			var defaultSize = AppState.GetDefaultBaseSize();
-			var defaultUseScaling = AppState.GetScaleCursorsEnabled();
+			var defaultUseScaling = AppState.GetDefaultCellUseScaling();
 			var defaultScaleMode = AppState.GetScaleMode();
+			var previousPresetId = _activePresetId;
 
 			Dictionary<string, string>? defaultValues = null;
 			await Task.Run(() =>
 			{
 				defaultValues = RegistryCursorService.GetWindowsDefaultValues();
 
-				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
+				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot(previousPresetId));
 				var scaledValues = defaultUseScaling
 					? CursorScalerService.ScaleValues(defaultValues, defaultSize, defaultScaleMode)
 					: defaultValues;
@@ -181,34 +178,44 @@ public partial class MainWindow
 			ShowLoadingOverlay();
 			await Dispatcher.Yield(DispatcherPriority.Render);
 
-			var undoUseScaling = AppState.GetScaleCursorsEnabled();
-			var undoScaleMode = AppState.GetScaleMode();
+			var undoPreset = snapshot.PresetId != null
+				? _presets.FirstOrDefault(candidate => candidate.Id == snapshot.PresetId)
+				: null;
+			var undoUseScaling = undoPreset?.UseScaling ?? AppState.GetDefaultCellUseScaling();
+			var undoScaleMode = undoPreset?.ScaleMode ?? AppState.GetScaleMode();
+			var previousPresetId = _activePresetId;
 
+			Dictionary<string, string>? sourceValues = null;
 			await Task.Run(() =>
 			{
-				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot());
-				var scaledValues = undoUseScaling
-					? CursorScalerService.ScaleValues(snapshot.Values, snapshot.BaseSize, undoScaleMode)
-					: snapshot.Values;
-				RegistryCursorService.ApplyValuesAndBaseSize(scaledValues, snapshot.BaseSize);
+				RegistryCursorService.SaveSnapshotToDisk(RegistryCursorService.TakeSnapshot(previousPresetId));
+
+				if (undoPreset == null)
+				{
+					sourceValues = new Dictionary<string, string>(snapshot.Values);
+					RegistryCursorService.ApplyValuesAndBaseSize(snapshot.Values, snapshot.BaseSize);
+					return;
+				}
+
+				sourceValues = BuildPresetSourceValues(undoPreset);
+				var valuesToApply = undoUseScaling
+					? CursorScalerService.ScaleValues(sourceValues, snapshot.BaseSize, undoScaleMode)
+					: CursorApplyStagingService.Stage(sourceValues);
+				RegistryCursorService.ApplyValuesAndBaseSize(valuesToApply, snapshot.BaseSize);
 			});
 
-			_activeSourceValues = new Dictionary<string, string>(snapshot.Values);
+			_activeSourceValues = sourceValues;
 
-			_activePresetId = FindPresetIdByValues(snapshot.Values);
+			_activePresetId = undoPreset?.Id;
 			AppState.SetActivePresetId(_activePresetId);
 
 			_baselineSizePx = snapshot.BaseSize;
 
 			UpdateActiveCellHighlight();
 
-			var undoPreset = _activePresetId != null
-				? _presets.FirstOrDefault(candidate => candidate.Id == _activePresetId)
-				: null;
-			var undoEffectiveUseScaling = undoPreset != null ? undoUseScaling && undoPreset.UseScaling : undoUseScaling;
-			_activeUseScaling = undoEffectiveUseScaling;
-			_activeScaleMode = undoPreset?.ScaleMode ?? undoScaleMode;
-			SetScaleCheckboxSilently(undoPreset?.UseScaling ?? undoUseScaling);
+			_activeUseScaling = undoUseScaling;
+			_activeScaleMode = undoScaleMode;
+			SetScaleCheckboxSilently(undoUseScaling);
 			SetSliderSilently(snapshot.BaseSize);
 
 			UpdateScaleIcon(_activeScaleMode);
@@ -227,14 +234,17 @@ public partial class MainWindow
 		}
 	}
 
-	private string? FindPresetIdByValues(IReadOnlyDictionary<string, string> values)
+	private static Dictionary<string, string> BuildPresetSourceValues(Preset preset)
 	{
-		if (!values.TryGetValue(CursorRoles.ArrowRoleName, out var arrow) || string.IsNullOrEmpty(arrow))
-			return null;
+		var sourceValues = new Dictionary<string, string>();
 
-		return _presets.FirstOrDefault(preset =>
-			string.Equals(PresetStore.GetRoleFilePath(preset, CursorRoles.ArrowRoleName), arrow,
-				StringComparison.OrdinalIgnoreCase))?.Id;
+		foreach (var role in CursorRoles.All)
+		{
+			var path = PresetStore.GetRoleFilePath(preset, role.RegistryName);
+			sourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
+		}
+
+		return sourceValues;
 	}
 
 	private void UpdateUndoButton() =>
@@ -274,13 +284,12 @@ public partial class MainWindow
 		if (targetVisibleIndex < 0 || targetVisibleIndex >= _visibleBoardIds.Count)
 			return;
 
-		var ownIndex = _boardOrderIds.IndexOf(preset.Id);
 		var targetIndex = _boardOrderIds.IndexOf(_visibleBoardIds[targetVisibleIndex]);
-		if (ownIndex < 0 || targetIndex < 0)
+		if (targetIndex < 0)
 			return;
 
-		(_boardOrderIds[ownIndex], _boardOrderIds[targetIndex]) = (_boardOrderIds[targetIndex], _boardOrderIds[ownIndex]);
-		PersistBoardOrder();
+		var insertBeforeIndex = direction > 0 ? GetNextVisibleBoardIndex(targetIndex) : targetIndex;
+		ReorderPresetOnBoard(preset.Id, insertBeforeIndex);
 	}
 
 	private void DownloadPreset(Preset preset)

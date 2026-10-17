@@ -80,15 +80,24 @@ public partial class PresetEditorWindow
 		if (editor.ShowDialog() != true)
 			return;
 
-		var destPath = slot.SourcePath ?? Path.Combine(Path.GetTempPath(), $"cursor-palette-hotspot-{Guid.NewGuid():N}{Path.GetExtension(resolvedPath)}");
+		var destPath = BuildFreshEditPath(slot, "cursor-palette-hotspot", Path.GetExtension(resolvedPath));
 
 		CursorHotspotService.WriteWithHotspot(resolvedPath, destPath, editor.ResultX, editor.ResultY);
 		CursorPreviewService.Invalidate(destPath);
 
-		if (slot.SourcePath != null)
-			UpdateHotspotDot(slot);
-		else
-			SetSlotSource(slot, destPath);
+		SetSlotSource(slot, destPath);
+	}
+
+	private static string BuildFreshEditPath(Slot slot, string tempDirPrefix, string extension)
+	{
+		var fileName = slot.SourcePath != null
+			? Path.GetFileNameWithoutExtension(slot.SourcePath) + extension
+			: $"{tempDirPrefix}-{Guid.NewGuid():N}{extension}";
+
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"{tempDirPrefix}-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		return Path.Combine(tempDirectory, fileName);
 	}
 
 	private const int AniOpenFrameLimit = 60;
@@ -135,12 +144,7 @@ public partial class PresetEditorWindow
 
 		var isAniResult = editor.ResultFrames is { Count: > 1 };
 		var desiredExtension = isAniResult ? AniExtension : CurExtension;
-		var canReusePath = slot.SourcePath != null &&
-			string.Equals(Path.GetExtension(slot.SourcePath), desiredExtension, StringComparison.OrdinalIgnoreCase);
-
-		string destPath = canReusePath
-			? slot.SourcePath!
-			: Path.Combine(Path.GetTempPath(), $"cursor-palette-position-{Guid.NewGuid():N}{desiredExtension}");
+		var destPath = BuildFreshEditPath(slot, "cursor-palette-position", desiredExtension);
 
 		if (isAniResult)
 		{
@@ -182,10 +186,7 @@ public partial class PresetEditorWindow
 
 		CursorPreviewService.Invalidate(destPath);
 
-		if (canReusePath)
-			UpdateHotspotDot(slot);
-		else
-			SetSlotSource(slot, destPath);
+		SetSlotSource(slot, destPath);
 	}
 
 	private static (List<CursorCanvasImage> Frames, List<int> DelaysMs)? ReadAniAsFrames(string path)

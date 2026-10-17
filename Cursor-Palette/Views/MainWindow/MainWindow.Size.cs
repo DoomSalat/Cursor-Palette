@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using CursorPalette.Models;
 using CursorPalette.Services;
+using Microsoft.Win32;
 
 namespace CursorPalette.Views;
 
@@ -44,11 +45,11 @@ public partial class MainWindow
 			if (preset != null)
 				preset.UseScaling = scaleEnabled;
 
-			_activeUseScaling = AppState.GetScaleCursorsEnabled() && scaleEnabled;
+			_activeUseScaling = scaleEnabled;
 		}
 		else
 		{
-			AppState.SetScaleCursorsEnabled(scaleEnabled);
+			AppState.SetDefaultCellUseScaling(scaleEnabled);
 			_activeUseScaling = scaleEnabled;
 		}
 
@@ -86,14 +87,15 @@ public partial class MainWindow
 
 			var sourceValues = _activeSourceValues;
 			var useScaling = _activeUseScaling;
+			var scaleMode = _activeScaleMode;
 
 			await Task.Run(() =>
 			{
 				if (sourceValues != null)
 				{
 					var valuesToApply = useScaling
-						? CursorScalerService.ScaleValues(sourceValues, sizeInPixels, _activeScaleMode)
-						: sourceValues;
+						? CursorScalerService.ScaleValues(sourceValues, sizeInPixels, scaleMode)
+						: CursorApplyStagingService.Stage(sourceValues);
 					RegistryCursorService.ApplyValuesAndBaseSize(valuesToApply, sizeInPixels);
 				}
 				else
@@ -136,6 +138,38 @@ public partial class MainWindow
 
 	public void SyncSizeSlider(int sizeInPixels) => SetSliderSilently(sizeInPixels);
 
+	private void OnDisplaySettingsChanged(object? sender, EventArgs e) =>
+		Dispatcher.BeginInvoke(new Action(ReapplyScalingForMonitorScales));
+
+	private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e) =>
+		Dispatcher.BeginInvoke(new Action(ReapplyScalingForMonitorScales));
+
+	private async void ReapplyScalingForMonitorScales()
+	{
+		var monitorScales = DisplayDpiService.GetDistinctMonitorScales();
+		if (monitorScales.SequenceEqual(_appliedMonitorScales))
+			return;
+
+		_appliedMonitorScales = monitorScales;
+
+		if (!_activeUseScaling || _activeSourceValues == null)
+			return;
+
+		var sourceValues = _activeSourceValues;
+		var sizeInPixels = _baselineSizePx;
+		var scaleMode = _activeScaleMode;
+
+		try
+		{
+			await Task.Run(() => RegistryCursorService.ApplyValuesAndBaseSize(
+				CursorScalerService.ScaleValues(sourceValues, sizeInPixels, scaleMode), sizeInPixels));
+		}
+		catch (Exception exception)
+		{
+			DebugLogger.Log($"{nameof(ReapplyScalingForMonitorScales)} failed: {exception.Message}");
+		}
+	}
+
 	private bool _scaleCursorsReady;
 	private bool _baselineScaleEnabled;
 	private ScaleMode _baselineScaleMode;
@@ -145,22 +179,17 @@ public partial class MainWindow
 		var activePreset = _activePresetId != null
 			? _presets.FirstOrDefault(preset => preset.Id == _activePresetId)
 			: null;
-		var initialValue = activePreset?.UseScaling ?? AppState.GetScaleCursorsEnabled();
+		var initialValue = activePreset?.UseScaling ?? AppState.GetDefaultCellUseScaling();
 
 		if (activePreset != null)
 		{
-			_activeSourceValues = new Dictionary<string, string>();
-			foreach (var role in CursorRoles.All)
-			{
-				var path = PresetStore.GetRoleFilePath(activePreset, role.RegistryName);
-				_activeSourceValues[role.RegistryName] = path != null && File.Exists(path) ? path : EmptyValue;
-			}
-			_activeUseScaling = AppState.GetScaleCursorsEnabled() && activePreset.UseScaling;
+			_activeSourceValues = BuildPresetSourceValues(activePreset);
+			_activeUseScaling = activePreset.UseScaling;
 			_activeScaleMode = activePreset.ScaleMode;
 		}
 		else
 		{
-			_activeUseScaling = AppState.GetScaleCursorsEnabled();
+			_activeUseScaling = AppState.GetDefaultCellUseScaling();
 			_activeScaleMode = AppState.GetScaleMode();
 		}
 

@@ -14,42 +14,111 @@ public partial class MainWindow
 {
 	private void ReorderBoardItem(string draggedId, int insertBeforeIndex)
 	{
-		var draggedIndex = _boardOrderIds.IndexOf(draggedId);
-		if (draggedIndex < 0)
-			return;
+		MoveBoardId(draggedId, insertBeforeIndex);
+		PersistBoardOrder();
+	}
 
-		_boardOrderIds.RemoveAt(draggedIndex);
+	private void ReorderPresetOnBoard(string presetId, int insertBeforeIndex)
+	{
+		MoveBoardId(presetId, insertBeforeIndex);
 
-		if (draggedIndex < insertBeforeIndex)
-			insertBeforeIndex--;
-
-		insertBeforeIndex = Math.Clamp(insertBeforeIndex, 0, _boardOrderIds.Count);
-		_boardOrderIds.Insert(insertBeforeIndex, draggedId);
+		if (_presetToGroup.TryGetValue(presetId, out var group) && !IsInsideGroupBlock(presetId, group))
+			GroupStore.RemoveMember(group.Id, presetId);
 
 		PersistBoardOrder();
 	}
 
-	private void ConsolidateGroup(string groupId)
+	private void MoveBoardId(string movedId, int insertBeforeIndex)
+	{
+		var movedIndex = _boardOrderIds.IndexOf(movedId);
+		if (movedIndex < 0)
+			return;
+
+		_boardOrderIds.RemoveAt(movedIndex);
+
+		if (movedIndex < insertBeforeIndex)
+			insertBeforeIndex--;
+
+		insertBeforeIndex = Math.Clamp(insertBeforeIndex, 0, _boardOrderIds.Count);
+		_boardOrderIds.Insert(insertBeforeIndex, movedId);
+	}
+
+	private bool IsInsideGroupBlock(string presetId, PresetGroup group)
+	{
+		for (var i = _boardOrderIds.IndexOf(presetId) - 1; i >= 0; i--)
+		{
+			var precedingId = _boardOrderIds[i];
+
+			if (precedingId == group.Id)
+				return true;
+
+			if (!group.MemberPresetIds.Contains(precedingId))
+				return false;
+		}
+
+		return false;
+	}
+
+	private void ReorderGroupWithMembers(string groupId, int insertBeforeIndex)
 	{
 		var group = _groups.FirstOrDefault(candidate => candidate.Id == groupId);
 		if (group == null)
 			return;
 
-		var groupIndex = _boardOrderIds.IndexOf(groupId);
-		if (groupIndex < 0)
+		var blockIds = new List<string> { groupId };
+		blockIds.AddRange(_boardOrderIds.Where(id => group.MemberPresetIds.Contains(id)));
+
+		var anchorId = _boardOrderIds
+			.Skip(insertBeforeIndex)
+			.FirstOrDefault(id => !blockIds.Contains(id));
+
+		_boardOrderIds.RemoveAll(blockIds.Contains);
+
+		var insertAt = anchorId != null ? _boardOrderIds.IndexOf(anchorId) : _boardOrderIds.Count;
+		_boardOrderIds.InsertRange(insertAt, blockIds);
+
+		PersistBoardOrder();
+	}
+
+	private int GetNextVisibleBoardIndex(int boardIndex) =>
+		_boardOrder.FirstOrDefault(entry => entry.BoardIndex > boardIndex)?.BoardIndex ?? _boardOrderIds.Count;
+
+	private void ConsolidateGroup(string groupId)
+	{
+		var group = _groups.FirstOrDefault(candidate => candidate.Id == groupId);
+		if (group == null || !MoveMembersAfterGroup(group))
 			return;
-
-		var memberIds = _boardOrderIds.Where(id => group.MemberPresetIds.Contains(id)).ToList();
-		if (memberIds.Count == 0)
-			return;
-
-		_boardOrderIds.RemoveAll(id => group.MemberPresetIds.Contains(id));
-
-		groupIndex = _boardOrderIds.IndexOf(groupId);
-		_boardOrderIds.InsertRange(groupIndex + 1, memberIds);
 
 		PersistBoardOrder();
 		ToastService.Show(RootGrid, Loc.Format(LocGroupToastConsolidated, group.Name));
+	}
+
+	private void ToggleGroupCollapsed(PresetGroup group)
+	{
+		var expanding = group.Collapsed;
+		GroupStore.SetCollapsed(group.Id, !expanding);
+
+		if (expanding)
+			MoveMembersAfterGroup(group);
+
+		PersistBoardOrder();
+	}
+
+	private bool MoveMembersAfterGroup(PresetGroup group)
+	{
+		if (!_boardOrderIds.Contains(group.Id))
+			return false;
+
+		var memberIds = _boardOrderIds.Where(id => group.MemberPresetIds.Contains(id)).ToList();
+		if (memberIds.Count == 0)
+			return false;
+
+		_boardOrderIds.RemoveAll(id => group.MemberPresetIds.Contains(id));
+
+		var groupIndex = _boardOrderIds.IndexOf(group.Id);
+		_boardOrderIds.InsertRange(groupIndex + 1, memberIds);
+
+		return true;
 	}
 
 	private void PersistBoardOrder()
@@ -159,17 +228,7 @@ public partial class MainWindow
 			return;
 		}
 
-		var rows = cells
-			.GroupBy(cell => Math.Round(cell.bounds.Top / ReorderRowGroupingTolerance) * ReorderRowGroupingTolerance)
-			.Select(group =>
-			{
-				var ordered = group.OrderBy(cell => cell.bounds.Left).ToList();
-				var top = ordered.Min(c => c.bounds.Top);
-				var bottom = ordered.Max(c => c.bounds.Bottom);
-				return (top, bottom, cells: ordered);
-			})
-			.OrderBy(r => r.top)
-			.ToList();
+		var rows = GroupCellsIntoRows(cells);
 
 		if (rows.Count == 0)
 		{
@@ -201,14 +260,14 @@ public partial class MainWindow
 		}
 
 		var lastCell = rowCells[^1];
-		SetInsertionIndicator(lastCell.entry.BoardIndex + 1, lastCell.bounds.Right + CellMargin, rowTop, rowHeight);
+		SetInsertionIndicator(GetNextVisibleBoardIndex(lastCell.entry.BoardIndex), lastCell.bounds.Right + CellMargin, rowTop, rowHeight);
 		return;
 
 		void SetInsertionIndicator(int insertBeforeIndex, double centerXInGallery, double topInGallery, double height)
 		{
 			var draggedIndex = draggedId != null ? _boardOrderIds.IndexOf(draggedId) : -1;
 
-			if (draggedIndex >= 0 && (insertBeforeIndex == draggedIndex || insertBeforeIndex == draggedIndex + 1))
+			if (draggedIndex >= 0 && (insertBeforeIndex == draggedIndex || insertBeforeIndex == GetNextVisibleBoardIndex(draggedIndex)))
 			{
 				_pendingInsertIndex = null;
 				ReorderInsertionLine.Visibility = Visibility.Collapsed;
@@ -221,6 +280,30 @@ public partial class MainWindow
 			ReorderInsertionLine.Height = height;
 			ReorderInsertionLine.Visibility = Visibility.Visible;
 		}
+	}
+
+	private static List<(double top, double bottom, List<(BoardEntry entry, Rect bounds)> cells)> GroupCellsIntoRows(
+		List<(BoardEntry entry, Rect bounds)> cells)
+	{
+		var rows = new List<(double top, double bottom, List<(BoardEntry entry, Rect bounds)> cells)>();
+
+		foreach (var cell in cells.OrderBy(cell => cell.bounds.Top))
+		{
+			if (rows.Count > 0 && cell.bounds.Top < rows[^1].bottom - ReorderRowGroupingTolerance)
+			{
+				var row = rows[^1];
+				row.cells.Add(cell);
+				rows[^1] = (row.top, Math.Max(row.bottom, cell.bounds.Bottom), row.cells);
+				continue;
+			}
+
+			rows.Add((cell.bounds.Top, cell.bounds.Bottom, new List<(BoardEntry entry, Rect bounds)> { cell }));
+		}
+
+		foreach (var row in rows)
+			row.cells.Sort((first, second) => first.bounds.Left.CompareTo(second.bounds.Left));
+
+		return rows;
 	}
 
 	private static bool IsInCenterZone(Rect bounds, Point point)
@@ -355,7 +438,7 @@ public partial class MainWindow
 			if (_pendingGroupAttachId is { } groupId)
 				AttachPresetToGroup(draggedPresetId, groupId);
 			else if (_pendingInsertIndex is { } insertIndex)
-				ReorderBoardItem(draggedPresetId, insertIndex);
+				ReorderPresetOnBoard(draggedPresetId, insertIndex);
 
 			return;
 		}
@@ -365,7 +448,7 @@ public partial class MainWindow
 			e.Handled = true;
 
 			if (_pendingInsertIndex is { } groupInsertIndex)
-				ReorderBoardItem(draggedGroupId, groupInsertIndex);
+				ReorderGroupWithMembers(draggedGroupId, groupInsertIndex);
 
 			return;
 		}
